@@ -1,0 +1,26 @@
+# IDE settings
+.idea
+.fleet
+.vscode
+
+# Environment settings
+.env
+.env.backup
+.env.production
+
+# Project related settings
+/*.Test/
+
+# Language specific settings: C#
+packages/*/bin/
+packages/*/obj/
+
+/bin/
+*/bin/
+/obj/
+*/obj/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates

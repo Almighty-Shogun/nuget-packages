@@ -1,0 +1,45 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Logging", "packages\AlmightyShogun.Logging\AlmightyShogun.Logging.csproj", "{0C368E81-82A1-4816-955F-CDC1092DD18A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.ConsoleCommands", "packages\AlmightyShogun.ConsoleCommands\AlmightyShogun.ConsoleCommands.csproj", "{5FA5B680-428A-409C-B6B1-DF4786E45014}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.RemoteCommands", "packages\AlmightyShogun.RemoteCommands\AlmightyShogun.RemoteCommands.csproj", "{D174D8BF-793B-4BBC-B77D-A3D0B0114D56}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Utils", "packages\AlmightyShogun.Utils\AlmightyShogun.Utils.csproj", "{0B7D72CD-5FB3-4FB9-BBDB-C57F83EB40E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Hosting.Utils", "packages\AlmightyShogun.Hosting.Utils\AlmightyShogun.Hosting.Utils.csproj", "{DA5B39A2-ED24-4BE7-8549-13644820F71A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.EntityFrameworkCore.Utils", "packages\AlmightyShogun.EntityFrameworkCore.Utils\AlmightyShogun.EntityFrameworkCore.Utils.csproj", "{CBEF0305-01AA-40E1-AEC9-60B45491A8CD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0C368E81-82A1-4816-955F-CDC1092DD18A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C368E81-82A1-4816-955F-CDC1092DD18A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C368E81-82A1-4816-955F-CDC1092DD18A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C368E81-82A1-4816-955F-CDC1092DD18A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FA5B680-428A-409C-B6B1-DF4786E45014}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FA5B680-428A-409C-B6B1-DF4786E45014}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FA5B680-428A-409C-B6B1-DF4786E45014}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FA5B680-428A-409C-B6B1-DF4786E45014}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D174D8BF-793B-4BBC-B77D-A3D0B0114D56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D174D8BF-793B-4BBC-B77D-A3D0B0114D56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D174D8BF-793B-4BBC-B77D-A3D0B0114D56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D174D8BF-793B-4BBC-B77D-A3D0B0114D56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B7D72CD-5FB3-4FB9-BBDB-C57F83EB40E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B7D72CD-5FB3-4FB9-BBDB-C57F83EB40E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B7D72CD-5FB3-4FB9-BBDB-C57F83EB40E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B7D72CD-5FB3-4FB9-BBDB-C57F83EB40E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA5B39A2-ED24-4BE7-8549-13644820F71A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA5B39A2-ED24-4BE7-8549-13644820F71A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA5B39A2-ED24-4BE7-8549-13644820F71A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA5B39A2-ED24-4BE7-8549-13644820F71A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBEF0305-01AA-40E1-AEC9-60B45491A8CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBEF0305-01AA-40E1-AEC9-60B45491A8CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBEF0305-01AA-40E1-AEC9-60B45491A8CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBEF0305-01AA-40E1-AEC9-60B45491A8CD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

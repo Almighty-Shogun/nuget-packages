@@ -1,0 +1,50 @@
+name: Release packages
+
+on:
+    release:
+        types: [ released ]
+
+env:
+    RELEASE_VERSION: ${{ github.event.release.tag_name }}
+
+permissions:
+    contents: read
+
+jobs:
+    publish:
+        runs-on: windows-latest
+        name: Publish packages
+        
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+
+            -   name: Setup .NET SDK
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: 10.0.x
+                    
+            -   name: Build packages
+                run: |
+                    cd packages
+                    
+                    dotnet build AlmightyShogun.ConsoleCommands/AlmightyShogun.ConsoleCommands.csproj --configuration Release
+                    dotnet build AlmightyShogun.EntityFrameworkCore.Utils/AlmightyShogun.EntityFrameworkCore.Utils.csproj --configuration Release
+                    dotnet build AlmightyShogun.Hosting.Utils/AlmightyShogun.Hosting.Utils.csproj --configuration Release
+                    dotnet build AlmightyShogun.Logging/AlmightyShogun.Logging.csproj --configuration Release
+                    dotnet build AlmightyShogun.RemoteCommands/AlmightyShogun.RemoteCommands.csproj --configuration Release
+                    dotnet build AlmightyShogun.Utils/AlmightyShogun.Utils.csproj --configuration Release
+                  
+            -   name: Pack packages
+                run:  |
+                    cd packages
+                    
+                    dotnet pack AlmightyShogun.ConsoleCommands/AlmightyShogun.ConsoleCommands.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.EntityFrameworkCore.Utils/AlmightyShogun.EntityFrameworkCore.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.Hosting.Utils/AlmightyShogun.Hosting.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.Logging/AlmightyShogun.Logging.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.RemoteCommands/AlmightyShogun.RemoteCommands.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.Utils/AlmightyShogun.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                
+            -   name: Publish packages
+                run: dotnet nuget push "*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
