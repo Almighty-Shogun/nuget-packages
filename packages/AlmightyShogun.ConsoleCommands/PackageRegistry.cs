@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AlmightyShogun.ConsoleCommands;
 
-public static class ServiceCollectionExtensions
+public static class PackageRegistry
 {
     /// <param name="serviceCollection">The service collection used to register dependencies related to console command functionality.</param>
     extension(IServiceCollection serviceCollection)

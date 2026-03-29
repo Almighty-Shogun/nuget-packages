@@ -5,8 +5,9 @@ using AlmightyShogun.RemoteCommands.Configuration;
 
 namespace AlmightyShogun.RemoteCommands;
 
-public static class ServiceCollectionExtensions
+public static class PackageRegistry
 {
+    /// <param name="serviceCollection">The service collection used to register dependencies related to remote command functionality.</param>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>

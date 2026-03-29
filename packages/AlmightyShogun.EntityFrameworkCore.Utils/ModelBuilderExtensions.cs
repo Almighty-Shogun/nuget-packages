@@ -6,6 +6,7 @@ namespace AlmightyShogun.EntityFrameworkCore.Utils;
 
 public static class ModelBuilderExtensions
 {
+    /// <param name="modelBuilder">The model builder used to register relationships.</param>
     extension(ModelBuilder modelBuilder)
     {
         /// <summary>

@@ -4,8 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AlmightyShogun.Hosting.Utils;
 
-public static class ServiceCollectionExtensions
+public static class PackageRegistry
 {
+    /// <param name="serviceCollection">The service collection used to register the functionality.</param>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
