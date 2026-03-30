@@ -1,5 +1,7 @@
+using System.Net;
 using System.Reflection;
 using AlmightyShogun.Utils;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using AlmightyShogun.RemoteCommands.Configuration;
 
@@ -14,28 +16,25 @@ public static class PackageRegistry
         /// Registers remote command services with the specified <see cref="IServiceCollection"/>.
         /// </summary>
         /// 
-        /// <param name="config">An optional action used to configure the remote commands connection handler.</param>
+        /// <param name="configuration">The<see cref="IConfiguration"/> to be provided if using Configuration</param>
         /// 
         /// <returns>The <see cref="IServiceCollection"/> instance with the remote commands handlers registered.</returns>
         /// 
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
-        public IServiceCollection AddRemoteCommands(Action<IRemoteConfig>? config = null)
+        public IServiceCollection AddRemoteCommands(IConfiguration? configuration = null)
         {
-            if (config is not null)
+            var remoteConfig = new RemoteConfig
             {
-                RemoteConfig remoteConfig = new();
+                Address = configuration?.GetValue<string>("RemoteServer:Address") ?? IPAddress.Loopback.ToString(),
+                Port = configuration?.GetValue<int>("RemoteServer:Port") ?? 30001,
+                Whitelisted = configuration?.GetValue<string[]>("RemoteServer:Whitelisted") ?? [IPAddress.Loopback.ToString()],
+                EnableReceiveLog = configuration?.GetValue<bool>("RemoteServer:EnableReceiveLog") ?? false
+            };
             
-                config(remoteConfig);
-
-                serviceCollection.AddSingleton<IRemoteConfig>(remoteConfig);
-            }
-            else
-            {
-                serviceCollection.AddSingleton<IRemoteConfig, RemoteConfig>();
-            }
-        
-            return serviceCollection.AddSingleton<IRemoteCommandHandler, RemoteCommandHandler>();
+            return serviceCollection
+                .AddSingleton<IRemoteConfig>(remoteConfig)
+                .AddSingleton<IRemoteCommandHandler, RemoteCommandHandler>();
         }
 
         /// <summary>
