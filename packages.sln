@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Hosting.Util
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.EntityFrameworkCore.Utils", "packages\AlmightyShogun.EntityFrameworkCore.Utils\AlmightyShogun.EntityFrameworkCore.Utils.csproj", "{CBEF0305-01AA-40E1-AEC9-60B45491A8CD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Hangfire.Utils", "packages\AlmightyShogun.Hangfire.Utils\AlmightyShogun.Hangfire.Utils.csproj", "{AC325276-78F1-47FA-9101-F952865FA323}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Utils", "packages\AlmightyShogun.AspNet.Utils\AlmightyShogun.AspNet.Utils.csproj", "{538FD222-34DF-46E5-ADD8-5606E7F2C86D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,5 +45,13 @@ Global
 		{CBEF0305-01AA-40E1-AEC9-60B45491A8CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBEF0305-01AA-40E1-AEC9-60B45491A8CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBEF0305-01AA-40E1-AEC9-60B45491A8CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC325276-78F1-47FA-9101-F952865FA323}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC325276-78F1-47FA-9101-F952865FA323}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC325276-78F1-47FA-9101-F952865FA323}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC325276-78F1-47FA-9101-F952865FA323}.Release|Any CPU.Build.0 = Release|Any CPU
+		{538FD222-34DF-46E5-ADD8-5606E7F2C86D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{538FD222-34DF-46E5-ADD8-5606E7F2C86D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{538FD222-34DF-46E5-ADD8-5606E7F2C86D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{538FD222-34DF-46E5-ADD8-5606E7F2C86D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

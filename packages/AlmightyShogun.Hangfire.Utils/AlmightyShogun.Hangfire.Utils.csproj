@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <TargetFramework>net10.0</TargetFramework>
+
+        <Authors>Almighty-Shogun</Authors>
+        <PackageId>AlmightyShogun.Hangfire.Utils</PackageId>
+
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Description>A simple C# library that add extensions/utilities to Hangfire</Description>
+
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.Hangfire.Utils</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.Hangfire.Utils</PackageProjectUrl>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md">
+            <Pack>true</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Hangfire" Version="1.8.23" />
+      <PackageReference Include="Hangfire.InMemory" Version="1.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AlmightyShogun.Utils\AlmightyShogun.Utils.csproj" />
+    </ItemGroup>
+
+</Project>
