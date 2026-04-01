@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Hangfire.Uti
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Utils", "packages\AlmightyShogun.AspNet.Utils\AlmightyShogun.AspNet.Utils.csproj", "{538FD222-34DF-46E5-ADD8-5606E7F2C86D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.JwtAuth", "packages\AlmightyShogun.AspNet.JwtAuth\AlmightyShogun.AspNet.JwtAuth.csproj", "{064FE957-8883-4422-849A-A75BDD8505EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,5 +55,9 @@ Global
 		{538FD222-34DF-46E5-ADD8-5606E7F2C86D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{538FD222-34DF-46E5-ADD8-5606E7F2C86D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{538FD222-34DF-46E5-ADD8-5606E7F2C86D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{064FE957-8883-4422-849A-A75BDD8505EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{064FE957-8883-4422-849A-A75BDD8505EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{064FE957-8883-4422-849A-A75BDD8505EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{064FE957-8883-4422-849A-A75BDD8505EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
