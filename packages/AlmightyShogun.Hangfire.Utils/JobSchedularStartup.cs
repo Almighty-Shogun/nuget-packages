@@ -10,7 +10,7 @@ public class JobSchedulerStartup(IRecurringJobManager recurring) : IHostedServic
     {
         foreach (RecurringJob job in HangfireUtils.GetRecurringJobs())
         {
-            recurring.AddOrUpdate(job.Name, job.Method, job.CronExpression);
+            recurring.AddOrUpdate(job.Name, job.ExecutionMethod, job.CronExpression);
         }
 
         return Task.CompletedTask;

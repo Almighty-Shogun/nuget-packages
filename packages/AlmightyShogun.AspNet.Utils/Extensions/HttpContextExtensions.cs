@@ -4,7 +4,7 @@ namespace AlmightyShogun.AspNet.Utils.Extensions;
 
 public static class HttpContextExtensions
 {
-    /// <param name="httpContext">The HttpContext used to register the functionalities.</param>
+    /// <param name="httpContext">The <see cref="HttpContext"/> used to register the functionalities.</param>
     extension(HttpContext httpContext)
     {
         /// <summary>
