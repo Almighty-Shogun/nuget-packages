@@ -18,7 +18,7 @@ public class SessionContextFilter : IActionFilter
             UserAgent: httpContext.Request.Headers.UserAgent.ToString()
         );
 
-        httpContext.Items["SessionContext"] = sessionCtx;
+        httpContext.Items[SessionContext.ItemKey] = sessionCtx;
     }
 
     /// <inheritdoc/>
