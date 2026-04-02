@@ -20,33 +20,31 @@ public abstract class ConsoleCommandBase : IConsoleCommand
     {
         _logger = logger;
 
-        _handlerMethod = GetType()
+        MethodInfo[] handlerMethods = GetType()
             .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-            .First(m => m.GetCustomAttribute<ConsoleCommandAttribute>() is not null);
+            .Where(m => m.GetCustomAttribute<ConsoleCommandAttribute>() is not null)
+            .ToArray();
 
-        if (_handlerMethod is not null)
+        if (handlerMethods.Length != 1)
         {
-            _attribute = _handlerMethod.GetCustomAttribute<ConsoleCommandAttribute>();
+            throw new InvalidOperationException(
+                $"{GetType().Name} must define exactly one public instance method with {nameof(ConsoleCommandAttribute)}.");
+        }
 
-            if (_attribute is not null)
-            {
-                Name = _attribute.Name;
-                Description = _attribute.Description;
-            }
-            
-            var aliasAttribute = _handlerMethod.GetCustomAttribute<AliasAttribute>();
+        _handlerMethod = handlerMethods[0];
+        _attribute = _handlerMethod.GetCustomAttribute<ConsoleCommandAttribute>();
+
+        if (_attribute is not null)
+        {
+            Name = _attribute.Name;
+            Description = _attribute.Description;
+        }
+
+        var aliasAttribute = _handlerMethod.GetCustomAttribute<AliasAttribute>();
         
-            _aliases.AddRange(aliasAttribute?.Aliases ?? []);
+        _aliases.AddRange(aliasAttribute?.Aliases ?? []);
 
-            _parameters = _handlerMethod.GetParameters();
-            
-            return;
-        }
-
-        if (_logger.IsEnabled(LogLevel.Warning))
-        {
-            _logger.LogWarning("No method with ConsoleCommandAttribute found in {Name:y}", GetType().Name);
-        }
+        _parameters = _handlerMethod.GetParameters();
     }
 
     /// <summary>
