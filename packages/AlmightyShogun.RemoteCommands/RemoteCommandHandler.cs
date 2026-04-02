@@ -82,15 +82,34 @@ public class RemoteCommandHandler : IRemoteCommandHandler
             
             return;
         }
-
-        var buffer = new byte[4 * 1024];
+        
         await using NetworkStream stream = client.GetStream();
 
-        int bytesRead = await stream.ReadAsync(buffer);
-        string json = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-
-        var payload = JsonSerializer.Deserialize<RemoteCommandPayload>(json);
+        RemoteCommandPayload? payload;
         
+        try
+        {
+            payload = await ReadPayloadAsync(stream);
+        }
+        catch (EndOfStreamException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning("Received incomplete payload from {Address:c}", remoteEndPoint);
+            }
+
+            return;
+        }
+        catch (JsonException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning("Received malformed JSON payload from {Address:c}", remoteEndPoint);
+            }
+
+            return;
+        }
+
         if (payload == null)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
@@ -119,5 +138,65 @@ public class RemoteCommandHandler : IRemoteCommandHandler
         }
 
         client.Close();
+    }
+
+    /// <summary>
+    /// Reads a length-prefixed remote command payload from the network stream and deserializes it.
+    /// </summary>
+    /// 
+    /// <param name="stream">The network stream to read the payload from.</param>
+    /// 
+    /// <returns>The deserialized <see cref="RemoteCommandPayload"/>, or null if the payload length is invalid.</returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.4.0</since>
+    private static async Task<RemoteCommandPayload?> ReadPayloadAsync(NetworkStream stream)
+    {
+        var lengthBuffer = new byte[sizeof(int)];
+        await ReadExactlyAsync(stream, lengthBuffer);
+
+        int length = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(lengthBuffer));
+
+        if (length <= 0)
+        {
+            return null;
+        }
+
+        var payloadBuffer = new byte[length];
+        await ReadExactlyAsync(stream, payloadBuffer);
+
+        string json = Encoding.UTF8.GetString(payloadBuffer);
+
+        return JsonSerializer.Deserialize<RemoteCommandPayload>(json);
+    }
+
+    /// <summary>
+    /// Reads exactly the specified number of bytes from the network stream into the provided buffer.
+    /// </summary>
+    /// 
+    /// <param name="stream">The network stream to read from.</param>
+    /// <param name="buffer">The buffer to fill completely with the incoming data.</param>
+    /// 
+    /// <returns>A task representing the asynchronous read operation.</returns>
+    ///
+    /// <exception cref="EndOfStreamException">Thrown when the stream closes before the full buffer has been read.</exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.4.0</since>
+    private static async Task ReadExactlyAsync(NetworkStream stream, byte[] buffer)
+    {
+        var offset = 0;
+
+        while (offset < buffer.Length)
+        {
+            int bytesRead = await stream.ReadAsync(buffer.AsMemory(offset));
+
+            if (bytesRead == 0)
+            {
+                throw new EndOfStreamException("Remote command payload ended before the full message was received.");
+            }
+
+            offset += bytesRead;
+        }
     }
 }

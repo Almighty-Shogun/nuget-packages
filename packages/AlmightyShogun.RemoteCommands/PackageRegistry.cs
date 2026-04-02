@@ -26,10 +26,10 @@ public static class PackageRegistry
         {
             var remoteConfig = new RemoteConfig
             {
-                Address = configuration?.GetValue<string>("RemoteServer:Address") ?? IPAddress.Loopback.ToString(),
-                Port = configuration?.GetValue<int>("RemoteServer:Port") ?? 30001,
-                Whitelisted = configuration?.GetValue<string[]>("RemoteServer:Whitelisted") ?? [IPAddress.Loopback.ToString()],
-                EnableReceiveLog = configuration?.GetValue<bool>("RemoteServer:EnableReceiveLog") ?? false
+                Address = configuration?.GetSection("RemoteServer:Address").Get<string>() ?? IPAddress.Loopback.ToString(),
+                Port = configuration?.GetSection("RemoteServer:Port").Get<int>() ?? 30001,
+                Whitelisted = configuration?.GetSection("RemoteServer:Whitelisted").Get<string[]>() ?? [IPAddress.Loopback.ToString()],
+                EnableReceiveLog = configuration?.GetSection("RemoteServer:EnableReceiveLog").Get<bool>() ?? false
             };
             
             return serviceCollection
