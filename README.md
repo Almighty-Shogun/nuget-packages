@@ -1,6 +1,9 @@
 # NuGet Packages
 A collection of NuGet packages I use in (personal) projects.
 
+> [!NOTE]
+> Documentation is currently in the works and will be published once it's ready.
+
 ## 📦 Packages
 - **[ASP.NET JWT Auth](packages/AlmightyShogun.AspNet.JwtAuth)**: `AlmightyShogun.AspNet.JwtAuth`
 - **[ASP.NET Utils](packages/AlmightyShogun.AspNet.JwtAuth)**: `AlmightyShogun.AspNet.Utils`
