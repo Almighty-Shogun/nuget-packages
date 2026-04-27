@@ -19,6 +19,7 @@ A collection of NuGet packages I use in (personal) projects.
 - **[Hosting Utils](packages/AlmightyShogun.Hosting.Utils)**: `AlmightyShogun.Hosting.Utils`
 - **[Logging](packages/AlmightyShogun.Logging)**: `AlmightyShogun.Logging`
 - **[RemoteCommands](packages/AlmightyShogun.RemoteCommands)**: `AlmightyShogun.RemoteCommands`
+- **[Resend Utils](packages/AlmightyShogun.Resend.Utils)**: `AlmightyShogun.Resend.Utils`
 - **[Utils](packages/AlmightyShogun.Utils)**: `AlmightyShogun.Utils`
 
 ## 📃 Prerequisites
