@@ -36,6 +36,7 @@ jobs:
                     dotnet build AlmightyShogun.Hosting.Utils/AlmightyShogun.Hosting.Utils.csproj --configuration Release
                     dotnet build AlmightyShogun.Logging/AlmightyShogun.Logging.csproj --configuration Release
                     dotnet build AlmightyShogun.RemoteCommands/AlmightyShogun.RemoteCommands.csproj --configuration Release
+                    dotnet build AlmightyShogun.Resend.Utils/AlmightyShogun.Resend.Utils.csproj --configuration Release
                     dotnet build AlmightyShogun.Utils/AlmightyShogun.Utils.csproj --configuration Release
 
             -   name: Pack packages
@@ -50,6 +51,7 @@ jobs:
                     dotnet pack AlmightyShogun.Hosting.Utils/AlmightyShogun.Hosting.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.Logging/AlmightyShogun.Logging.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.RemoteCommands/AlmightyShogun.RemoteCommands.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.Resend.Utils/AlmightyShogun.Resend.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.Utils/AlmightyShogun.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
 
             -   name: Publish packages
