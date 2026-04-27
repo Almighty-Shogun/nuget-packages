@@ -8,9 +8,10 @@
         <Authors>Almighty-Shogun</Authors>
         <PackageId>AlmightyShogun.AspNet.JwtAuth</PackageId>
 
+        <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Description>A simple C# library that adds JWT Auth with some extensions/utilities to ASP.NET.</Description>
+        <Description>A simple C# library for sending templated emails using Resend.</Description>
 
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.AspNet.JwtAuth</RepositoryUrl>
@@ -18,15 +19,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Update="README.md">
-        <Pack>true</Pack>
-        <PackagePath>/</PackagePath>
-      </None>
+        <None Include="icon.png" Pack="true" PackagePath=""/>
+        <None Update="README.md" Pack="true" PackagePath=""/>
     </ItemGroup>
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.5" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.5"/>
     </ItemGroup>
 
 </Project>

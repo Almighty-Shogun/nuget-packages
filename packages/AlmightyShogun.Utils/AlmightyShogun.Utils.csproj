@@ -8,6 +8,7 @@
         <Authors>Almighty-Shogun</Authors>
         <PackageId>AlmightyShogun.Utils</PackageId>
 
+        <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Description>A simple C# library including some common utils I use in various projects</Description>
@@ -18,19 +19,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="README.md">
-            <Pack>true</Pack>
-            <PackagePath>\</PackagePath>
-        </None>
+        <None Include="icon.png" Pack="true" PackagePath=""/>
+        <None Update="README.md" Pack="true" PackagePath=""/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.5" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.5" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.5" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.5" />
-        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.5" />
-        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.5" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.5"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.5"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.5"/>
+        <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.5"/>
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.5"/>
+        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.5"/>
     </ItemGroup>
 
 </Project>

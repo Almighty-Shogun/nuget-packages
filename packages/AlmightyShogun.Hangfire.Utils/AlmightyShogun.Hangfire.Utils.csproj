@@ -8,6 +8,7 @@
         <Authors>Almighty-Shogun</Authors>
         <PackageId>AlmightyShogun.Hangfire.Utils</PackageId>
 
+        <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Description>A simple C# library that add extensions/utilities to Hangfire</Description>
@@ -18,20 +19,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="README.md">
-            <Pack>true</Pack>
-            <PackagePath>\</PackagePath>
-        </None>
+        <None Include="icon.png" Pack="true" PackagePath=""/>
+        <None Update="README.md" Pack="true" PackagePath=""/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Hangfire" Version="1.8.23" />
-      <PackageReference Include="Hangfire.InMemory" Version="1.0.0" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+        <PackageReference Include="Hangfire" Version="1.8.23"/>
+        <PackageReference Include="Hangfire.InMemory" Version="1.0.0"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AlmightyShogun.Utils\AlmightyShogun.Utils.csproj" />
+        <ProjectReference Include="..\AlmightyShogun.Utils\AlmightyShogun.Utils.csproj"/>
     </ItemGroup>
 
 </Project>
