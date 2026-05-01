@@ -1,4 +1,5 @@
 namespace AlmightyShogun.Resend.Utils.Configuration;
+
 public sealed record EmailSettings
 {
     public required string ApiToken { get; init; }
