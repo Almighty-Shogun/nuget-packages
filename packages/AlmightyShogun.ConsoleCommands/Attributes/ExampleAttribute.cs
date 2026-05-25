@@ -1,6 +1,6 @@
 namespace AlmightyShogun.ConsoleCommands;
 
-[AttributeUsage(AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Class)]
 public class ExampleAttribute : Attribute
 {
     public string Example { get; }

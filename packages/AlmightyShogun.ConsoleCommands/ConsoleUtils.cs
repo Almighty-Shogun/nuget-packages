@@ -51,6 +51,38 @@ public static class ConsoleUtils
     }
 
     /// <summary>
+    /// Retrieves all command types marked with the <see cref="ConsoleCommandAttribute"/> defined within the application.
+    /// </summary>
+    /// 
+    /// <param name="assemblies">The assemblies to scan for console command types. If not specified, all loaded assemblies are used.</param>
+    /// 
+    /// <returns>A list of <see cref="Type"/> instances representing the registered console command types.</returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>3.0.0</since>
+    internal static IEnumerable<Type> GetConsoleCommandTypes(params Assembly[] assemblies)
+    {
+        if (assemblies.Length == 0)
+        {
+            assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        }
+        
+        return assemblies
+            .SelectMany(a => a.GetTypes())
+            .Where(t => t is { IsInterface: false, IsAbstract: false } && typeof(IConsoleCommand).IsAssignableFrom(t))
+            .Where(t => t.GetCustomAttribute<ConsoleCommandAttribute>() is not null)
+            .Where(type =>
+            {
+                MethodInfo[] executeMethods = type
+                    .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(method => string.Equals(method.Name, "ExecuteAsync", StringComparison.Ordinal))
+                    .ToArray();
+
+                return executeMethods.Length == 1 && executeMethods[0].ReturnType == typeof(Task);
+            });
+    }
+
+    /// <summary>
     /// Retrieves all commands marked with the <see cref="ConsoleCommandAttribute"/> defined within the application.
     /// </summary>
     /// 
@@ -58,16 +90,20 @@ public static class ConsoleUtils
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    public static List<ConsoleCommand> GetAllCommands() => AppDomain.CurrentDomain.GetAssemblies()
-        .SelectMany(a => a.GetTypes())
-        .Where(t => typeof(IConsoleCommand).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false })
-        .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Instance))
-        .Where(m => m.GetCustomAttribute<ConsoleCommandAttribute>() is not null)
-        .Select(m => new ConsoleCommand(
-            m.GetCustomAttribute<ConsoleCommandAttribute>()!.Name,
-            m.GetCustomAttribute<ConsoleCommandAttribute>()!.Description,
-            m.GetCustomAttribute<AliasAttribute>()?.Aliases ?? [],
-            string.Join(" ", m.GetParameters().Select(p => $"<{p.Name}:{p.ParameterType.Name}>")),
-            m.GetCustomAttribute<ExampleAttribute>()?.Example ?? null
+    public static List<ConsoleCommand> GetAllCommands() => GetConsoleCommandTypes()
+        .Select(type => new
+        {
+            Type = type,
+            Attribute = type.GetCustomAttribute<ConsoleCommandAttribute>()!,
+            Alias = type.GetCustomAttribute<AliasAttribute>(),
+            Example = type.GetCustomAttribute<ExampleAttribute>(),
+            ExecuteMethod = type.GetMethod("ExecuteAsync", BindingFlags.Public | BindingFlags.Instance)!
+        })
+        .Select(command => new ConsoleCommand(
+            command.Attribute.Name,
+            command.Attribute.Description,
+            command.Alias?.Aliases ?? [],
+            string.Join(" ", command.ExecuteMethod.GetParameters().Select(p => $"<{p.Name}:{p.ParameterType.Name}>")),
+            command.Example?.Example ?? null
         )).ToList();
 }
