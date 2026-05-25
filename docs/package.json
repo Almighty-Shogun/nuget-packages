@@ -1,5 +1,5 @@
 {
-    "name": "almightyshogun-nuget-packages-docs",
+    "name": "shogun-packages-docs",
     "private": true,
     "type": "module",
     "scripts": {

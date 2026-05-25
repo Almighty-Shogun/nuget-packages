@@ -1,6 +1,9 @@
 {
     "name": "nuget-packages",
     "private": true,
+    "workspaces": [
+        "docs"
+    ],
     "scripts": {
         "docs:dev": "bun --cwd docs dev",
         "docs:build": "bun --cwd docs build",
