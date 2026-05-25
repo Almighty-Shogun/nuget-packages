@@ -1,0 +1,71 @@
+---
+layout: home
+
+hero:
+    name: NuGet Packages
+    text: Small NuGet packages for easier development.
+    tagline: ASP.NET JWT Auth and Utils, Console commands, Remote commands, Logging, Hangfire, EF Core Utils and much more...
+    #tagline: API-focused documentation for utilities, Vue composables, prototype helpers, and a WebKit native bridge.
+    image:
+        src: /logo.svg
+        alt: Shogun App Icon
+    actions:
+        -   theme: brand
+            text: Get Started
+            link: /guide/getting-started
+
+        -   theme: alt
+            text: Browse Packages
+            link: /guide/
+
+features:
+    -   title: ASP.NET JWT Auth
+        details: JWT auth, refresh-token cookies, and permission policies.
+        link: /asp-net-jwt-auth/
+        linkText: View package
+
+    -   title: ASP.NET Utils
+        details: Request helpers, CORS setup, filters, and User-Agent parsing.
+        link: /asp-net-utils/
+        linkText: View package
+
+    -   title: Console Commands
+        details: Attribute-based commands for DI console applications.
+        link: /console-commands/
+        linkText: View package
+
+    -   title: Entity Framework Core Utils
+        details: ModelBuilder helpers for relationship configuration.
+        link: /ef-core-utils/
+        linkText: View package
+
+    -   title: Hangfire Utils
+        details: Hangfire setup and attributed recurring-job discovery.
+        link: /hangfire-utils/
+        linkText: View package
+
+    -   title: Hosting Utils
+        details: Hosting extensions for custom console lifetime behavior and host option configuration.
+        link: /hosting-utils/
+        linkText: View package
+
+    -   title: Logging
+        details: Serilog setup with a compact console formatter.
+        link: /logging/
+        linkText: View package
+
+    -   title: Remote Commands
+        details: TCP command handling with JSON payload dispatch.
+        link: /remote-commands/
+        linkText: View package
+
+    -   title: Resend Utils
+        details: Resend email sending with reusable templates.
+        link: /resend-utils/
+        linkText: View package
+
+    -   title: Utils
+        details: Shared helpers for setup, JSON, and DI patterns.
+        link: /utils/
+        linkText: View package
+---

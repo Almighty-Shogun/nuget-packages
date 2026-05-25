@@ -1,0 +1,12 @@
+"$schema" = "./node_modules/wrangler/config-schema.json"
+
+name = "nuget-packages"
+compatibility_date = "2026-04-29"
+
+[assets]
+directory = "./docs/.vitepress/dist"
+not_found_handling = "404-page"
+
+[[routes]]
+pattern = "nuget-packages.shogun.ms"
+custom_domain = true

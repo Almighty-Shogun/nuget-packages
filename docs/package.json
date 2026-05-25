@@ -1,0 +1,20 @@
+{
+    "name": "almightyshogun-nuget-packages-docs",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vitepress dev .",
+        "build": "vitepress build .",
+        "preview": "vitepress preview ."
+    },
+    "dependencies": {
+        "@almighty-shogun/utils": "^1.20.0"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^5.2.4",
+        "typescript": "^5.9.3",
+        "vitepress": "^1.6.4",
+        "vitepress-plugin-group-icons": "^1.7.5",
+        "vue": "^3.5.34"
+    }
+}

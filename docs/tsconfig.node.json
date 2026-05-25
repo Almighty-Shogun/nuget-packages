@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "composite": true,
+        "module": "esnext",
+        "moduleResolution": "bundler",
+
+        "strict": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true
+    },
+    "include": [
+        "vite.config.*",
+        ".vitepress/config/**/*.ts"
+    ]
+}
