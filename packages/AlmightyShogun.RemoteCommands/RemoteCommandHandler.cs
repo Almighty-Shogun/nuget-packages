@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Net.Sockets;
 using Microsoft.Extensions.Logging;
-using AlmightyShogun.RemoteCommands.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace AlmightyShogun.RemoteCommands;
 
@@ -11,15 +11,25 @@ public class RemoteCommandHandler : IRemoteCommandHandler
 {
     private TcpListener? _listener;
     
-    private readonly IRemoteConfig _config;
+    private readonly RemoteServerSettings _config;
     private readonly ILogger<RemoteCommandHandler> _logger;
-    private readonly Dictionary<string, IRemoteCommand> _commands;
+    private readonly Dictionary<string, IInternalRemoteCommand> _commands;
 
-    public RemoteCommandHandler(IRemoteConfig remoteConfig, ILogger<RemoteCommandHandler> logger, IEnumerable<IRemoteCommand> commands)
+    public RemoteCommandHandler(IOptions<RemoteServerSettings> remoteServerSettings, ILogger<RemoteCommandHandler> logger, IEnumerable<IRemoteCommand> commands)
     {
         _logger = logger;
-        _config = remoteConfig;
-        _commands = commands.ToDictionary(command => command.Name);
+        _config = remoteServerSettings.Value;
+        _commands = new Dictionary<string, IInternalRemoteCommand>();
+
+        foreach (IRemoteCommand command in commands)
+        {
+            if (command is not IInternalRemoteCommand internalCommand)
+            {
+                throw new InvalidOperationException($"{command.GetType().Name} must inherit {nameof(RemoteCommand<>)}.");
+            }
+
+            _commands.Add(command.Name, internalCommand);
+        }
     }
 
     /// <inheritdoc />
@@ -120,7 +130,7 @@ public class RemoteCommandHandler : IRemoteCommandHandler
             return;
         }
         
-        if (_commands.TryGetValue(payload.Command, out IRemoteCommand? handler))
+        if (_commands.TryGetValue(payload.Command, out IInternalRemoteCommand? handler))
         {
             if (_logger.IsEnabled(LogLevel.Information) && _config.EnableReceiveLog)
             {

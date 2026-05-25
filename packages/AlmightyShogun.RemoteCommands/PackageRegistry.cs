@@ -1,9 +1,7 @@
-using System.Net;
 using System.Reflection;
 using AlmightyShogun.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using AlmightyShogun.RemoteCommands.Configuration;
 
 namespace AlmightyShogun.RemoteCommands;
 
@@ -22,18 +20,15 @@ public static class PackageRegistry
         /// 
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
-        public IServiceCollection AddRemoteCommands(IConfiguration? configuration = null)
+        public IServiceCollection AddRemoteCommands(IConfiguration configuration)
         {
-            var remoteConfig = new RemoteConfig
-            {
-                Address = configuration?.GetSection("RemoteServer:Address").Get<string>() ?? IPAddress.Loopback.ToString(),
-                Port = configuration?.GetSection("RemoteServer:Port").Get<int>() ?? 30001,
-                Whitelisted = configuration?.GetSection("RemoteServer:Whitelisted").Get<string[]>() ?? [IPAddress.Loopback.ToString()],
-                EnableReceiveLog = configuration?.GetSection("RemoteServer:EnableReceiveLog").Get<bool>() ?? false
-            };
+            var settings = configuration.GetSection("RemoteServer").Get<RemoteServerSettings>();
+            
+            if (settings is null)
+                throw new InvalidOperationException("Missing RemoteServer configuration");
             
             return serviceCollection
-                .AddSingleton<IRemoteConfig>(remoteConfig)
+                .AddConfiguration<RemoteServerSettings>(configuration.GetSection("RemoteServer"))
                 .AddSingleton<IRemoteCommandHandler, RemoteCommandHandler>();
         }
 

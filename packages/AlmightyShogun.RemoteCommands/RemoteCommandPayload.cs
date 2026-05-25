@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace AlmightyShogun.RemoteCommands;
 
-public class RemoteCommandPayload
+internal class RemoteCommandPayload
 {
     public required string Command { get; init; }
     public JsonElement Data { get; init; }

@@ -5,7 +5,7 @@ using System.Net.Sockets;
 
 namespace AlmightyShogun.RemoteCommands;
 
-public abstract class RemoteCommand<T> : IRemoteCommand<T> where T : class
+public abstract class RemoteCommand<T> : IRemoteCommand<T>, IInternalRemoteCommand where T : class
 {
     public virtual string Name
     {
@@ -20,8 +20,8 @@ public abstract class RemoteCommand<T> : IRemoteCommand<T> where T : class
     /// <inheritdoc />
     public abstract Task HandleCommandAsync(T message, NetworkStream stream);
 
-    /// <inheritdoc />
-    public async Task HandleRawAsync(JsonElement data, NetworkStream stream)
+    /// <inheritdoc/>
+    async Task IInternalRemoteCommand.HandleRawAsync(JsonElement data, NetworkStream stream)
     {
         var message = data.Deserialize<T>();
 
