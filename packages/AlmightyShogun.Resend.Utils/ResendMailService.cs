@@ -1,11 +1,10 @@
 using Resend;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
-using AlmightyShogun.Resend.Utils.Templates;
-using AlmightyShogun.Resend.Utils.Configuration;
 
 namespace AlmightyShogun.Resend.Utils;
-public sealed class ResendMailService(IResend resend, IEmailTemplateLoader emailTemplateLoader, IOptions<EmailSettings> emailSettings, ILogger<ResendMailService> logger) : IMailService
+
+internal sealed class ResendMailService(IResend resend, IEmailTemplateLoader emailTemplateLoader, IOptions<EmailSettings> emailSettings, ILogger<ResendMailService> logger) : IMailService
 {
     private readonly EmailSettings _settings = emailSettings.Value;
 

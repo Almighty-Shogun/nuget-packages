@@ -1,9 +1,7 @@
 ﻿using Resend;
 using AlmightyShogun.Utils;
 using Microsoft.Extensions.Configuration;
-using AlmightyShogun.Resend.Utils.Templates;
 using Microsoft.Extensions.DependencyInjection;
-using AlmightyShogun.Resend.Utils.Configuration;
 
 namespace AlmightyShogun.Resend.Utils;
 
@@ -24,10 +22,10 @@ public static class PackageRegistry
         /// <since>2.5.0</since>
         public IServiceCollection AddResendEmail(IConfiguration configuration)
         {
-            var settings = configuration.Get<EmailSettings>();
+            var settings = configuration.GetSection("Email").Get<EmailSettings>();
             
             if (settings is null)
-                throw new InvalidOperationException("Missing Resend email configuration");
+                throw new InvalidOperationException("Missing Email configuration");
             
             serviceCollection.AddOptions()
                 .AddConfiguration<EmailSettings>(configuration.GetSection("Email"))

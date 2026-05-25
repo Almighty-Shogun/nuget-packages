@@ -1,6 +1,6 @@
-namespace AlmightyShogun.Resend.Utils.Templates;
+namespace AlmightyShogun.Resend.Utils;
 
-public interface IEmailTemplateLoader
+internal interface IEmailTemplateLoader
 {
     /// <summary>
     /// Loads an email template by file name.
