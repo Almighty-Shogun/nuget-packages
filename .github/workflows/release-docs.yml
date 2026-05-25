@@ -30,7 +30,7 @@ jobs:
             - name: 🚀 Deploy VitePress docs
               uses: cloudflare/wrangler-action@v3
               with:
-                  accountId: ${{ secrets.CLOUDFLARE_ACOCUNT_ID }}
+                  accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
                   apiToken: ${{ secrets.CLOUDFLARE_ACCOUNT_TOKEN }}
                   gitHubToken: ${{ secrets.GITHUB_TOKEN }}
                   wranglerVersion: "4.69.0"
