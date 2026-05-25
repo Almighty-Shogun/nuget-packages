@@ -1,0 +1,36 @@
+name: 🚀 Release VitePress documentation
+
+on:
+    release:
+        types: [ released ]
+
+permissions:
+    contents: read
+    id-token: write
+    deployments: write
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        name: 🚀 Build and deploy documentation
+
+        steps:
+            - name: 👀 Checkout
+              uses: actions/checkout@v6
+
+            - name: ⚙️ Setup Bun
+              uses: oven-sh/setup-bun@v2
+
+            - name: 📦️ Install dependencies
+              run: bun install --frozen-lockfile
+
+            - name: 🔨 Build VitePress docs
+              run: bun run docs:build
+
+            - name: 🚀 Deploy VitePress docs
+              uses: cloudflare/wrangler-action@v3
+              with:
+                  accountId: ${{ secrets.CLOUDFLARE_ACOCUNT_ID }}
+                  apiToken: ${{ secrets.CLOUDFLARE_ACCOUNT_TOKEN }}
+                  gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+                  wranglerVersion: "4.69.0"

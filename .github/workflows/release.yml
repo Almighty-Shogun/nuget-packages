@@ -1,4 +1,4 @@
-name: Release packages
+name: 🚀 Release packages
 
 on:
     release:
@@ -13,18 +13,18 @@ permissions:
 jobs:
     publish:
         runs-on: windows-latest
-        name: Publish packages
+        name: 🚀 Publish to Registry
         
         steps:
-            -   name: Checkout
-                uses: actions/checkout@v4
+            -   name: 👀 Checkout
+                uses: actions/checkout@v6
 
-            -   name: Setup .NET SDK
+            -   name: ⚙️ Setup .NET SDK
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: 10.0.x
 
-            -   name: Build packages
+            -   name: 🔨 Build packages
                 run: |
                     cd packages
                     
@@ -39,7 +39,7 @@ jobs:
                     dotnet build AlmightyShogun.Resend.Utils/AlmightyShogun.Resend.Utils.csproj --configuration Release
                     dotnet build AlmightyShogun.Utils/AlmightyShogun.Utils.csproj --configuration Release
 
-            -   name: Pack packages
+            -   name: 📦️ Pack packages
                 run: |
                     cd packages
                     
@@ -54,5 +54,5 @@ jobs:
                     dotnet pack AlmightyShogun.Resend.Utils/AlmightyShogun.Resend.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.Utils/AlmightyShogun.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
 
-            -   name: Publish packages
+            -   name: 🚀 Publish packages
                 run: dotnet nuget push "*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
