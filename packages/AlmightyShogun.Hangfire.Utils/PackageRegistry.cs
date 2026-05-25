@@ -45,11 +45,13 @@ public static class PackageRegistry
                 assemblies = [Assembly.GetCallingAssembly()];
             }
 
-            foreach (Type _ in HangfireUtils.GetRecurringJobTypes())
+            serviceCollection.RegisterOnInherit<IRecurringJob>(false, ServiceLifetime.Scoped, assemblies);
+
+            foreach (RecurringJob job in HangfireUtils.GetRecurringJobs(assemblies))
             {
-                serviceCollection.RegisterOnInherit<Type>(false, ServiceLifetime.Scoped, assemblies);
+                serviceCollection.AddSingleton(job);
             }
-            
+
             return serviceCollection;
         }
     }

@@ -1,4 +1,4 @@
-namespace AlmightyShogun.Hangfire.Utils.Attributes;
+namespace AlmightyShogun.Hangfire.Utils;
 
 [AttributeUsage(AttributeTargets.Class)]
 public class RecurringJobAttribute(string jobId, string cronExpression) : Attribute
