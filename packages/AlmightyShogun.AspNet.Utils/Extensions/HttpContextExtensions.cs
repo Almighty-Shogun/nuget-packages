@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace AlmightyShogun.AspNet.Utils.Extensions;
+namespace AlmightyShogun.AspNet.Utils;
 
 public static class HttpContextExtensions
 {

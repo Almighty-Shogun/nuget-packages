@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace AlmightyShogun.AspNet.Utils.Filters;
+namespace AlmightyShogun.AspNet.Utils;
 
-public class SessionContextFilter : IActionFilter
+internal class SessionContextFilter : IActionFilter
 {
     /// <inheritdoc/>
     public void OnActionExecuting(ActionExecutingContext context)
