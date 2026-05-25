@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
-using AlmightyShogun.AspNet.JwtAuth.Permission;
 
-namespace AlmightyShogun.AspNet.JwtAuth.Attributes;
+namespace AlmightyShogun.AspNet.JwtAuth;
 
 public class AuthPermissionAttribute : AuthorizeAttribute
 {

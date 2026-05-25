@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace AlmightyShogun.AspNet.JwtAuth.Extensions;
+namespace AlmightyShogun.AspNet.JwtAuth;
 
 public static class HttpResponseExtensions
 {

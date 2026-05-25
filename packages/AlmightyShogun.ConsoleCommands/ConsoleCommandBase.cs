@@ -3,11 +3,11 @@ using Microsoft.Extensions.Logging;
 
 namespace AlmightyShogun.ConsoleCommands;
 
-public abstract class ConsoleCommandBase : IConsoleCommand
+public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleCommand
 {
     public required string Name { get; init; }
     public string? Usage { get; }
-    public required string Description { get; init; }
+    public string? Description { get; init; }
     public IReadOnlyList<string> Aliases => _aliases;
 
     private readonly List<string> _aliases = [];
@@ -20,44 +20,39 @@ public abstract class ConsoleCommandBase : IConsoleCommand
     {
         _logger = logger;
 
+        _attribute = GetType().GetCustomAttribute<ConsoleCommandAttribute>()
+            ?? throw new InvalidOperationException($"{GetType().Name} must define {nameof(ConsoleCommandAttribute)} on the class.");
+
         MethodInfo[] handlerMethods = GetType()
             .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-            .Where(m => m.GetCustomAttribute<ConsoleCommandAttribute>() is not null)
+            .Where(m => string.Equals(m.Name, "ExecuteAsync", StringComparison.Ordinal))
             .ToArray();
 
         if (handlerMethods.Length != 1)
         {
             throw new InvalidOperationException(
-                $"{GetType().Name} must define exactly one public instance method with {nameof(ConsoleCommandAttribute)}.");
+                $"{GetType().Name} must define exactly one public instance method named ExecuteAsync.");
         }
 
         _handlerMethod = handlerMethods[0];
-        _attribute = _handlerMethod.GetCustomAttribute<ConsoleCommandAttribute>();
-
-        if (_attribute is not null)
+        
+        if (_handlerMethod.ReturnType != typeof(Task))
         {
-            Name = _attribute.Name;
-            Description = _attribute.Description;
+            throw new InvalidOperationException($"{GetType().Name}.ExecuteAsync must return {nameof(Task)}.");
         }
+        
+        Name = _attribute.Name;
+        Description = _attribute.Description;
 
-        var aliasAttribute = _handlerMethod.GetCustomAttribute<AliasAttribute>();
+        var aliasAttribute = GetType().GetCustomAttribute<AliasAttribute>();
         
         _aliases.AddRange(aliasAttribute?.Aliases ?? []);
 
         _parameters = _handlerMethod.GetParameters();
     }
-
-    /// <summary>
-    /// Handles the execution of a console command with the provided arguments.
-    /// </summary>
-    /// 
-    /// <param name="args">An array of strings representing the arguments passed to the command. Arguments must match the command's parameter configuration.</param>
-    ///
-    /// <returns>A task that represents the asynchronous operation of handling the command.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>1.0.0</since>
-    public async Task InternallyExecuteCommandAsync(string[] args)
+    
+    /// <inheritdoc/>
+    async Task IInternalConsoleCommand.InternallyExecuteCommandAsync(string[] args)
     {
         ParameterInfo[] realParameters = _parameters.Where(p => !p.HasDefaultValue).ToArray();
         

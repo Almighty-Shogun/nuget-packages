@@ -1,8 +1,7 @@
 using System.Net;
 using System.Text;
-using AlmightyShogun.Resend.Utils.Configuration;
 
-namespace AlmightyShogun.Resend.Utils.Templates;
+namespace AlmightyShogun.Resend.Utils;
 
 public abstract class BaseMailTemplate
 {
@@ -29,7 +28,7 @@ public abstract class BaseMailTemplate
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.5.0</since>
-    public virtual string Render(string templateHtml, string paragraphTemplateHtml, string buttonTemplateHtml, EmailSettings settings)
+    internal string Render(string templateHtml, string paragraphTemplateHtml, string buttonTemplateHtml, EmailSettings settings)
     {
         string bodyHtml = string.Join(string.Empty, Paragraphs.Select(paragraph =>
             paragraphTemplateHtml.Replace("{{Paragraph}}", Encode(paragraph), StringComparison.Ordinal)));
@@ -61,7 +60,7 @@ public abstract class BaseMailTemplate
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.5.0</since>
-    public string RenderText(EmailSettings settings)
+    internal string RenderText(EmailSettings settings)
     {
         StringBuilder text = new();
         

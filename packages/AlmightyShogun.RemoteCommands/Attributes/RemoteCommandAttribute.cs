@@ -1,8 +1,8 @@
 namespace AlmightyShogun.RemoteCommands;
 
 [AttributeUsage(AttributeTargets.Class)]
-public class RemoteCommandAttribute(string name, string? description) : Attribute
+public class RemoteCommandAttribute(string name, string? description = null) : Attribute
 {
     public string Name { get; init; } = name;
-    public string Description { get; set; } = description ?? string.Empty;
+    public string? Description { get; set; } = description;
 }

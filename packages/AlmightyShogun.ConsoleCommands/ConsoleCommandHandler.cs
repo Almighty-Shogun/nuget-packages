@@ -5,22 +5,27 @@ namespace AlmightyShogun.ConsoleCommands;
 public class ConsoleCommandHandler : IConsoleCommandHandler
 {
     private readonly ILogger<ConsoleCommandHandler> _logger;
-    private readonly Dictionary<string, IConsoleCommand> _commands;
+    private readonly Dictionary<string, IInternalConsoleCommand> _commands;
 
     public ConsoleCommandHandler(ILogger<ConsoleCommandHandler> logger, IEnumerable<IConsoleCommand> commands)
     {
         _logger = logger;
-        _commands = new Dictionary<string, IConsoleCommand>();
+        _commands = new Dictionary<string, IInternalConsoleCommand>();
         
         foreach (IConsoleCommand consoleCommand in commands)
         {
-            _commands.Add(consoleCommand.Name.ToLowerInvariant(), consoleCommand);
+            if (consoleCommand is not IInternalConsoleCommand internalCommand)
+            {
+                throw new InvalidOperationException($"{consoleCommand.GetType().Name} must inherit {nameof(ConsoleCommandBase)}.");
+            }
+            
+            _commands.Add(consoleCommand.Name.ToLowerInvariant(), internalCommand);
 
             foreach (string alias in consoleCommand.Aliases)
             {
                 if (string.IsNullOrWhiteSpace(alias)) continue;
                 
-                _commands.TryAdd(alias.ToLowerInvariant(), consoleCommand);
+                _commands.TryAdd(alias.ToLowerInvariant(), internalCommand);
             }
         }
     }
@@ -67,7 +72,7 @@ public class ConsoleCommandHandler : IConsoleCommandHandler
         string[] parts = input.Split(' ');
         string commandName = parts[0];
 
-        if (_commands.TryGetValue(commandName, out IConsoleCommand? command))
+        if (_commands.TryGetValue(commandName, out IInternalConsoleCommand? command))
         {
             await command.InternallyExecuteCommandAsync(parts.Skip(1).ToArray());
         }

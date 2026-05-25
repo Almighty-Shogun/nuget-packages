@@ -1,5 +1,3 @@
-using AlmightyShogun.Resend.Utils.Templates;
-
 namespace AlmightyShogun.Resend.Utils;
 
 public interface IMailService

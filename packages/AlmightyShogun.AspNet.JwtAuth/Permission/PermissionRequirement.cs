@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace AlmightyShogun.AspNet.JwtAuth.Permission;
+namespace AlmightyShogun.AspNet.JwtAuth;
 
-public class PermissionRequirement(string permission) : IAuthorizationRequirement
+internal class PermissionRequirement(string permission) : IAuthorizationRequirement
 {
     public string Permission { get; } = permission;
 }

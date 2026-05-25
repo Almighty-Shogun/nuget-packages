@@ -1,6 +1,6 @@
-namespace AlmightyShogun.Resend.Utils.Templates;
+namespace AlmightyShogun.Resend.Utils;
 
-public sealed class FileEmailTemplateLoader : IEmailTemplateLoader
+internal sealed class FileEmailTemplateLoader : IEmailTemplateLoader
 {
     private static readonly string TemplatesDirectory = Path.Combine(AppContext.BaseDirectory, "mail");
 

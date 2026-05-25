@@ -1,13 +1,12 @@
 using System.Text;
+using AlmightyShogun.Utils;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.JsonWebTokens;
-using AlmightyShogun.AspNet.JwtAuth.Permission;
 using Microsoft.Extensions.DependencyInjection;
-using AlmightyShogun.AspNet.JwtAuth.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace AlmightyShogun.AspNet.JwtAuth;
@@ -29,9 +28,8 @@ public static class PackageRegistry
         /// <since>2.3.0</since>
         public IServiceCollection AddApiAuth(IConfiguration configuration)
         {
-            serviceCollection.Configure<AuthSettings>(configuration.GetSection("Auth"));
-
             serviceCollection
+                .AddConfiguration<AuthSettings>(configuration.GetSection("Auth"))
                 .AddHttpContextAccessor()
                 .AddAuthorization()
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

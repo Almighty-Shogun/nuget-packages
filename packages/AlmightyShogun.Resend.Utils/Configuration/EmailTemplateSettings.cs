@@ -1,4 +1,4 @@
-namespace AlmightyShogun.Resend.Utils.Configuration;
+namespace AlmightyShogun.Resend.Utils;
 
 public sealed record EmailTemplateSettings
 {

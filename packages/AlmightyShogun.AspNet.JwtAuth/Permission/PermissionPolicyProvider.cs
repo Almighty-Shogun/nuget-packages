@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authorization;
 
-namespace AlmightyShogun.AspNet.JwtAuth.Permission;
+namespace AlmightyShogun.AspNet.JwtAuth;
 
-public class PermissionPolicyProvider(IOptions<AuthorizationOptions> options) : IAuthorizationPolicyProvider
+internal class PermissionPolicyProvider(IOptions<AuthorizationOptions> options) : IAuthorizationPolicyProvider
 {
     public const string PolicyPrefix = "permission:";
     private readonly DefaultAuthorizationPolicyProvider _fallback = new(options);
