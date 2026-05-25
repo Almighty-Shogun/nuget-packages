@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace AlmightyShogun.AspNet.JwtAuth.Permission;
+namespace AlmightyShogun.AspNet.JwtAuth;
 
 /// <summary>
 /// Authorizes a request when the current principal contains the required permission claim.
 /// </summary>
-public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
+internal class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
 {
     /// <inheritdoc/>
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)

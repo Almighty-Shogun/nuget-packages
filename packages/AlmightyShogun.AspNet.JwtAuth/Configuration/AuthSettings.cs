@@ -1,4 +1,4 @@
-namespace AlmightyShogun.AspNet.JwtAuth.Configuration;
+namespace AlmightyShogun.AspNet.JwtAuth;
 
 public sealed record AuthSettings
 {

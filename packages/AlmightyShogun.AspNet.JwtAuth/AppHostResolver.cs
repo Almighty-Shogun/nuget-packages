@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Options;
-using AlmightyShogun.AspNet.JwtAuth.Configuration;
 
 namespace AlmightyShogun.AspNet.JwtAuth;
 

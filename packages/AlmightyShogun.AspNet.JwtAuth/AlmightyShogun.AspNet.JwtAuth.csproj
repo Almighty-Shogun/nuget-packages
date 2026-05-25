@@ -11,7 +11,7 @@
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Description>A simple C# library for sending templated emails using Resend.</Description>
+        <Description>A C# library for adding JWT bearer authentication and permission-based authorization to ASP.NET Core APIs.</Description>
 
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.AspNet.JwtAuth</RepositoryUrl>
@@ -25,7 +25,11 @@
 
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.7" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\AlmightyShogun.Utils\AlmightyShogun.Utils.csproj"/>
+    </ItemGroup>
+    
 </Project>

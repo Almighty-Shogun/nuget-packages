@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace AlmightyShogun.AspNet.JwtAuth.Extensions;
+namespace AlmightyShogun.AspNet.JwtAuth;
 
 public static class ClaimsPrincipalExtensions
 {
