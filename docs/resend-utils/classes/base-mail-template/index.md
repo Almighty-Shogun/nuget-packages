@@ -1,6 +1,6 @@
 # BaseMailTemplate
 
-Base class for emails that should be sent through `IMailService`. Application code inherits from this class to describe the message subject, title, greeting, paragraphs, and buttons without dealing with the Resend API message object directly.
+Base class for emails that should be sent through `IResendMailService`. Application code inherits from this class to describe the message subject, title, greeting, paragraphs, and buttons without dealing with the Resend API message object directly.
 
 The mail service renders every template twice: once as HTML by filling the base HTML template files and once as plain text for clients that do not display HTML. Text values are HTML encoded during rendering, while button URLs are encoded for attribute output.
 

@@ -1,6 +1,6 @@
 namespace AlmightyShogun.Resend.Utils;
 
-public interface IMailService
+public interface IResendMailService
 {
     /// <summary>
     /// Sends an email using the specified mail template instance.

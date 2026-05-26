@@ -39,11 +39,11 @@ export const resendUtils: DefaultTheme.SidebarItem[] = [
         collapsed: false,
         items: [
             {
-                text: 'IMailService',
-                link: '/resend-utils/interfaces/imail-service/',
+                text: 'IResendMailService',
+                link: '/resend-utils/interfaces/iresend-mail-service/',
                 collapsed: true,
                 items: [
-                    { text: 'SendAsync', link: '/resend-utils/interfaces/imail-service/send-async' }
+                    { text: 'SendAsync', link: '/resend-utils/interfaces/iresend-mail-service/send-async' }
                 ]
             }
         ]

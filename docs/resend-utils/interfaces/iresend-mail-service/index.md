@@ -1,4 +1,4 @@
-# IMailService
+# IResendMailService
 
 Mail sending contract registered by `AddResendEmail`. Application services should depend on this interface when they need to send a `BaseMailTemplate` through the configured Resend integration.
 
@@ -9,7 +9,7 @@ The package provides the implementation internally. This keeps application code 
 ```csharp
 using AlmightyShogun.Resend.Utils;
 
-public sealed class AccountMailer(IMailService mailService)
+public sealed class AccountMailer(IResendMailService mailService)
 {
     public Task<bool> SendWelcomeEmailAsync(string recipientEmail)
     {

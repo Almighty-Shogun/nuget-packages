@@ -11,9 +11,9 @@ returns: The `IServiceCollection` instance with Resend email services configured
 
 # AddResendEmail
 
-Registers Resend email sending services and configuration. The method binds `EmailSettings`, configures the Resend API token, registers the Resend client, and exposes the package mail sender through `IMailService`.
+Registers Resend email sending services and configuration. The method binds `EmailSettings`, configures the Resend API token, registers the Resend client, and exposes the package mail sender through `IResendMailService`.
 
-Call this method once during application startup before resolving services that send email. After registration, application services should depend on `IMailService` and send classes that inherit from `BaseMailTemplate`.
+Call this method once during application startup before resolving services that send email. After registration, application services should depend on `IResendMailService` and send classes that inherit from `BaseMailTemplate`.
 
 ## Usage
 
@@ -41,4 +41,4 @@ public IServiceCollection AddResendEmail(
 
 - [EmailSettings](../configuration/email-settings/)
 - [EmailTemplateSettings](../configuration/email-template-settings/)
-- [IMailService](../interfaces/imail-service/)
+- [IResendMailService](../interfaces/iresend-mail-service/)

@@ -34,7 +34,7 @@ public static class PackageRegistry
             return serviceCollection.Configure<ResendClientOptions>(options => options.ApiToken = settings.ApiToken)
                 .AddTransient<IResend, ResendClient>()
                 .AddSingleton<IEmailTemplateLoader, FileEmailTemplateLoader>()
-                .AddTransient<IMailService, ResendMailService>();
+                .AddTransient<IResendMailService, ResendMailService>();
         }
     }
 }

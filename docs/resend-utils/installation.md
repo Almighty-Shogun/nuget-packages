@@ -15,7 +15,7 @@ dotnet add package AlmightyShogun.Resend.Utils
 
 ## Startup Registration
 
-Register the package once during application startup. The registration binds email settings, configures the Resend API token, and exposes the mail sender through `IMailService`.
+Register the package once during application startup. The registration binds email settings, configures the Resend API token, and exposes the mail sender through `IResendMailService`.
 
 ::: warning
 Requires an `Email` section in application configuration, usually from `appsettings.json`.

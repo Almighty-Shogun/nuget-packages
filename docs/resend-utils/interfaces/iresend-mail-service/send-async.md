@@ -26,7 +26,7 @@ The method returns `false` when the API token or sender email is blank, or when 
 ```csharp [InvoiceMailer.cs]
 using AlmightyShogun.Resend.Utils;
 
-public sealed class InvoiceMailer(IMailService mailService)
+public sealed class InvoiceMailer(IResendMailService mailService)
 {
     public async Task<bool> SendInvoiceReadyAsync(string recipientEmail, string invoiceUrl)
     {
