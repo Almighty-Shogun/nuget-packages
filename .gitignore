@@ -1,10 +1,9 @@
 # IDE settings
 .idea
-.idea/.idea.packages/.idea/*
+.idea/*
 .fleet
 .vscode
 
-!.idea/.idea.packages/.idea/.name
 !.idea/.idea.packages/.idea/icon.svg
 
 # Environment settings
