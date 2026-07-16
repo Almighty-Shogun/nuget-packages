@@ -11,6 +11,6 @@
         "docs:deploy": "wrangler deploy"
     },
     "dependencies": {
-        "wrangler": "^4.94.0"
+        "wrangler": "^4.110.0"
     }
 }
