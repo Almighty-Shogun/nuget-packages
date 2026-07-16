@@ -1,6 +1,6 @@
 ---
 name: release
-description: Create a stable GitHub release for the Almighty-Shogun/nuget-packages monorepo and let CI publish NuGet packages and docs. Use when the user asks to cut, create, publish, or prepare a release. Resolves major, minor, patch, or explicit semver versions, runs safeguards and build checks, generates release notes, requires explicit confirmation, then creates the GitHub release. Never manually packs, publishes, pushes tags, creates version commits, or changes package versions locally.
+description: Create a stable GitHub release for the Almighty-Shogun/nuget-packages monorepo and let CI publish NuGet packages and docs. Use when the user asks to cut, create, publish, or prepare a release. Resolves major, minor, patch, or explicit semver versions, prepares XML documentation and changelog release metadata, runs safeguards and build checks, generates release notes, requires explicit confirmation, then creates the GitHub release. Never manually packs, publishes, pushes tags, or changes package versions locally.
 ---
 
 # Release
@@ -12,7 +12,7 @@ Publishing is CI-driven:
 - `.github/workflows/release.yml` builds, packs, and publishes all NuGet packages to NuGet.org.
 - `.github/workflows/release-docs.yml` builds and deploys the VitePress documentation.
 
-Do not run `dotnet nuget push`, manually create tags, push tags, create version commits, or change package versions locally for a release. The release tag is passed to `dotnet pack` as `PackageVersion` by CI.
+Do not run `dotnet nuget push`, manually create tags, push tags, or change package versions locally for a release. The release tag is passed to `dotnet pack` as `PackageVersion` by CI.
 
 The current workflows support stable releases only. Do not create beta or pre-release releases unless the workflows are updated first.
 
@@ -68,6 +68,56 @@ Rules:
 - If the tag or GitHub release already exists, stop.
 - If the working tree is dirty, warn that local changes are not included in a release cut from `origin/main`. Continue only if the user accepts that.
 - Capture the `origin/main` SHA. The release must target that SHA.
+
+## Prepare Release Metadata
+
+Before running the release build checks, replace pending release markers when they exist.
+
+Inspect:
+
+```bash
+rg -n "<since>Unreleased</since>" packages || true
+```
+
+Rules:
+
+- New unreleased XML documentation uses `<since>Unreleased</since>` during normal development.
+- For a release, replace exact `<since>Unreleased</since>` occurrences under `packages/` with `<since><version></since>`.
+- Do not modify existing released `<since>` tags.
+- Do not edit `.csproj` version metadata or create local package version commits.
+
+After applying the replacements, show:
+
+```bash
+git diff --stat
+git diff -- packages
+```
+
+Ask:
+
+```text
+Do you approve committing and pushing these release metadata changes?
+```
+
+If there are metadata changes and the user does not approve, stop before build checks and before release creation.
+
+After approval, verify and commit only the metadata files that changed:
+
+```bash
+git diff --check
+dotnet build packages.sln --configuration Release
+git diff --name-only -- packages
+git add -- <changed-metadata-files>
+git diff --cached --name-status
+git commit -m "chore: prepare release metadata for <version>"
+git push
+git fetch origin --tags --prune
+git rev-parse origin/main
+```
+
+Capture the new `origin/main` SHA after the push. The release must target this updated SHA.
+
+If there are no `<since>Unreleased</since>` markers, continue without creating a metadata commit.
 
 ## Build Check
 
