@@ -15,6 +15,7 @@ Packages currently target `.NET 10` and are versioned together. A release tag is
 - Preserve unrelated user changes. The worktree may be dirty.
 - Do not document or expose private, internal, or implementation-only APIs.
 - Keep package namespaces aligned with the package name unless the user explicitly asks otherwise.
+- When adding a new method, add XML code documentation and mark it with `<since>Unreleased</since>` until the release process replaces it with the release version.
 - When moving experimental code out of a package, preserve it in a temporary directory instead of deleting it.
 
 ## Build And Validation
