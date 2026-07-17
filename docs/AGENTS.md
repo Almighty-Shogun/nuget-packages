@@ -186,7 +186,7 @@ public AuthenticationBuilder AddJwtBearerAuthentication(
 - Keep generic constraints on the closing parameter line:
 
 ```csharp
-public void ApplyAutoInclude<TEntity>(
+public ModelBuilder ApplyAutoInclude<TEntity>(
     Expression<Func<TEntity, object?>> navigation
 ) where TEntity : class;
 ```
