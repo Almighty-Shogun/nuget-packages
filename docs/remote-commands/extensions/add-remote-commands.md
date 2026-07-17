@@ -39,5 +39,5 @@ public IServiceCollection AddRemoteCommands(
 
 ## Uses
 
-- [RemoteServerSettings](../configuration/remote-server-settings/)
+- [RemoteServerSettings](../configuration/remote-server-settings)
 - [RemoteCommandHandler](../classes/remote-command-handler/)

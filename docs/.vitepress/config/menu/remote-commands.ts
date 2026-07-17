@@ -44,7 +44,7 @@ export const remoteCommands: DefaultTheme.SidebarItem[] = [
         text: 'Configuration',
         collapsed: false,
         items: [
-            { text: 'RemoteServerSettings', link: '/remote-commands/configuration/remote-server-settings/' }
+            { text: 'RemoteServerSettings', link: '/remote-commands/configuration/remote-server-settings' }
         ]
     },
     {

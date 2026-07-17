@@ -8,7 +8,7 @@ Use this package when an application needs a small internal command channel for 
 
 - [Attributes](./attributes/remote-command-attribute) &mdash; metadata used to name and describe remote commands.
 - [Classes](./classes/remote-command/) &mdash; command base classes and listener runtime.
-- [Configuration](./configuration/remote-server-settings/) &mdash; public configuration values bound from application configuration.
+- [Configuration](./configuration/remote-server-settings) &mdash; public configuration values bound from application configuration.
 - [Extensions](./extensions/add-remote-commands) &mdash; startup extension methods for registering the listener and command handlers.
 
 ## Quick Example

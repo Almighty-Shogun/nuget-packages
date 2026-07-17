@@ -26,8 +26,8 @@ Use this record through `EmailSettings.Template` when application code needs to 
 The JSON shape is documented on the [configuration page](/resend-utils/configuration). The example below shows how to read the already-bound template settings from options.
 
 ```csharp
-using Microsoft.Extensions.Options;
 using AlmightyShogun.Resend.Utils;
+using Microsoft.Extensions.Options;
 
 public sealed class EmailFooterPreview(IOptions<EmailSettings> options)
 {

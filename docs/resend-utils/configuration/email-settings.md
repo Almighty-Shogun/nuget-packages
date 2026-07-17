@@ -46,8 +46,8 @@ Application code normally does not create this record manually. Inject `IOptions
 The JSON shape is documented on the [configuration page](/resend-utils/configuration). The example below shows how application services can consume the already-bound options.
 
 ```csharp
-using Microsoft.Extensions.Options;
 using AlmightyShogun.Resend.Utils;
+using Microsoft.Extensions.Options;
 
 public sealed class EmailLinkResolver(IOptions<EmailSettings> options)
 {
@@ -61,4 +61,4 @@ public sealed class EmailLinkResolver(IOptions<EmailSettings> options)
 
 ## Uses
 
-- [EmailTemplateSettings](../email-template-settings/)
+- [EmailTemplateSettings](./email-template-settings)

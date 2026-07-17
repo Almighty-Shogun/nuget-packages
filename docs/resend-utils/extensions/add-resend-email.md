@@ -39,6 +39,6 @@ public IServiceCollection AddResendEmail(
 
 ## Uses
 
-- [EmailSettings](../configuration/email-settings/)
-- [EmailTemplateSettings](../configuration/email-template-settings/)
+- [EmailSettings](../configuration/email-settings)
+- [EmailTemplateSettings](../configuration/email-template-settings)
 - [IResendMailService](../interfaces/iresend-mail-service/)

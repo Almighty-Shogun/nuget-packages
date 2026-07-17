@@ -76,4 +76,4 @@ public Task<bool> SendAsync(
 ## Uses
 
 - [BaseMailTemplate](../../classes/base-mail-template/)
-- [EmailSettings](../../configuration/email-settings/)
+- [EmailSettings](../../configuration/email-settings)

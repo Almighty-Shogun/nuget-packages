@@ -23,8 +23,8 @@ export const resendUtils: DefaultTheme.SidebarItem[] = [
         text: 'Configuration',
         collapsed: false,
         items: [
-            { text: 'EmailSettings', link: '/resend-utils/configuration/email-settings/' },
-            { text: 'EmailTemplateSettings', link: '/resend-utils/configuration/email-template-settings/' }
+            { text: 'EmailSettings', link: '/resend-utils/configuration/email-settings' },
+            { text: 'EmailTemplateSettings', link: '/resend-utils/configuration/email-template-settings' }
         ]
     },
     {

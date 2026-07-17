@@ -37,4 +37,4 @@ public Task StartAsync(CancellationToken cancellationToken = default);
 
 ## Uses
 
-- [RemoteServerSettings](../../configuration/remote-server-settings/)
+- [RemoteServerSettings](../../configuration/remote-server-settings)
