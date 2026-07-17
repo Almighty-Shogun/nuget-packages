@@ -12,7 +12,7 @@ dotnet add package AlmightyShogun.EntityFrameworkCore.Utils
 
 ## Startup Registration
 
-This package does not register services. Call the extension methods from `DbContext.OnModelCreating` or from model configuration code that receives a `ModelBuilder`.
+This package does not register services. Call the extension methods from `DbContext.OnModelCreating` or from model configuration code that receives a `ModelBuilder`. The methods return the same model builder instance, so related configuration can be chained when it belongs together.
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +20,12 @@ using AlmightyShogun.EntityFrameworkCore.Utils;
 
 protected override void OnModelCreating(ModelBuilder modelBuilder)
 {
-    modelBuilder.ApplyAutoInclude<User>(user => user.Profile);
+    modelBuilder
+        .ApplyOneToMany<User, UserSession>(
+            user => user.Sessions,
+            session => session.UserId,
+            inverseNavigation: session => session.User
+        )
+        .ApplyIndex<UserSession>(session => session.UserId);
 }
 ```

@@ -96,7 +96,7 @@ public sealed class PingCommand(ILogger<ConsoleCommandBase> logger) : ConsoleCom
 
 ## Entity Framework Core
 
-Use `AlmightyShogun.EntityFrameworkCore.Utils` when repeated relationship configuration starts to make `OnModelCreating` noisy. The package adds extension methods to `ModelBuilder` for common one-to-one, one-to-many, many-to-one, and auto-include configuration.
+Use `AlmightyShogun.EntityFrameworkCore.Utils` when repeated relationship, navigation, or index configuration starts to make `OnModelCreating` noisy. The package adds chainable extension methods to `ModelBuilder` for common one-to-one, one-to-many, many-to-one, auto-include, and index configuration.
 
 ```sh
 dotnet add package AlmightyShogun.EntityFrameworkCore.Utils
@@ -108,10 +108,13 @@ using AlmightyShogun.EntityFrameworkCore.Utils;
 
 protected override void OnModelCreating(ModelBuilder modelBuilder)
 {
-    modelBuilder.ApplyOneToMany<User, UserSession>(
-        user => user.Sessions,
-        session => session.UserId
-    );
+    modelBuilder
+        .ApplyOneToMany<User, UserSession>(
+            user => user.Sessions,
+            session => session.UserId,
+            inverseNavigation: session => session.User
+        )
+        .ApplyIndex<UserSession>(session => session.UserId);
 }
 ```
 

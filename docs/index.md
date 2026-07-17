@@ -35,7 +35,7 @@ features:
         linkText: View package
 
     -   title: Entity Framework Core Utils
-        details: ModelBuilder helpers for relationship configuration.
+        details: ModelBuilder helpers for relationships and indexes.
         link: /ef-core-utils/
         linkText: View package
 
