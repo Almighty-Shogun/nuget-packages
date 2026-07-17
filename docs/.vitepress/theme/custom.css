@@ -1,6 +1,6 @@
 :root {
-    --vp-font-family-base: 'Inter Variable', system-ui, -apple-system, sans-serif;
-    --vp-font-family-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --vp-font-family-base: inter-variable, system-ui, -apple-system, sans-serif;
+    --vp-font-family-mono: jetbrains-mono, ui-monospace, SFMono-Regular, Menlo, monospace;
 
     --vp-c-brand-1: #5a2a8a;
     --vp-c-brand-2: #4b2375;
