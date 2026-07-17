@@ -24,13 +24,20 @@ params:
       description: Delete behavior applied to the relationship.
       type: DeleteBehavior
       default: DeleteBehavior.ClientSetNull
+
+    - name: inverseNavigation
+      description: Optional reference navigation on the dependent entity back to the principal entity. When omitted, EF Core configures the relationship without an inverse navigation.
+      type: 'Expression<Func<TDependent, TEntity?>>?'
+      default: 'null'
+
+returns: The model builder instance.
 ---
 
 # ApplyOneToMany
 
-Configures a one-to-many relationship where `TEntity` is the principal entity and `TDependent` is the dependent entity. The method starts from the principal collection navigation, configures the dependent foreign key, applies delete behavior, and optionally sets a principal key.
+Configures a one-to-many relationship where `TEntity` is the principal entity and `TDependent` is the dependent entity. The method starts from the principal collection navigation, configures the dependent foreign key, applies delete behavior, and optionally sets the dependent inverse navigation and principal key.
 
-Use this method when a principal entity owns a collection of dependents and the dependent entity stores the foreign key. The default relationship is optional unless `isRequired` is set to `true`.
+Use this method when a principal entity owns a collection of dependents and the dependent entity stores the foreign key. Pass `inverseNavigation` when each dependent also has a reference back to the principal entity. If it is omitted, EF Core configures the collection side only.
 
 ## Usage
 
@@ -40,11 +47,14 @@ using AlmightyShogun.EntityFrameworkCore.Utils;
 
 protected override void OnModelCreating(ModelBuilder modelBuilder)
 {
-    modelBuilder.ApplyOneToMany<User, UserSession>(
-        user => user.Sessions,
-        session => session.UserId,
-        deleteBehavior: DeleteBehavior.Cascade
-    );
+    modelBuilder
+        .ApplyOneToMany<User, UserSession>(
+            user => user.Sessions,
+            session => session.UserId,
+            deleteBehavior: DeleteBehavior.Cascade,
+            inverseNavigation: session => session.User
+        )
+        .ApplyIndex<UserSession>(session => session.UserId);
 }
 ```
 
@@ -53,11 +63,12 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 ## Type signature
 
 ```csharp
-public void ApplyOneToMany<TEntity, TDependent>(
+public ModelBuilder ApplyOneToMany<TEntity, TDependent>(
     Expression<Func<TEntity, IEnumerable<TDependent>?>> navigation,
     Expression<Func<TDependent, object?>> foreignKey,
     Expression<Func<TEntity, object?>>? principalKey = null,
     bool isRequired = false,
-    DeleteBehavior deleteBehavior = DeleteBehavior.ClientSetNull
+    DeleteBehavior deleteBehavior = DeleteBehavior.ClientSetNull,
+    Expression<Func<TDependent, TEntity?>>? inverseNavigation = null
 ) where TEntity : class where TDependent : class;
 ```

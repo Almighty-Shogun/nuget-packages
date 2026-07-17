@@ -9,7 +9,7 @@ The repository is intentionally practical. Packages are small, .NET-first, depen
 - [ASP.NET JWT Auth](/asp-net-jwt-auth/) &mdash; JWT bearer authentication, refresh-token cookies, host-to-application audience checks, and permission-based authorization helpers.
 - [ASP.NET Utils](/asp-net-utils/) &mdash; ASP.NET Core request helpers for CORS, MVC filters, session context, cookies, and User-Agent parsing.
 - [Console Commands](/console-commands/) &mdash; Attribute-based console command discovery and execution for dependency-injected console applications.
-- [Entity Framework Core Utils](/ef-core-utils/) &mdash; `ModelBuilder` helpers for relationship and navigation configuration.
+- [Entity Framework Core Utils](/ef-core-utils/) &mdash; `ModelBuilder` helpers for relationships, navigation, and indexes.
 - [Hangfire Utils](/hangfire-utils/) &mdash; Hangfire registration helpers and recurring-job discovery through attributes.
 - [Hosting Utils](/hosting-utils/) &mdash; host option and console lifetime helpers for .NET hosted applications.
 - [Logging](/logging/) &mdash; Serilog registration helpers with a compact console formatter.

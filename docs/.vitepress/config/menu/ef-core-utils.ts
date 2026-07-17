@@ -18,6 +18,7 @@ export const efCoreUtils: DefaultTheme.SidebarItem[] = [
                 collapsed: true,
                 items: [
                     { text: 'ApplyAutoInclude', link: '/ef-core-utils/classes/model-builder-extensions/apply-auto-include' },
+                    { text: 'ApplyIndex', link: '/ef-core-utils/classes/model-builder-extensions/apply-index' },
                     { text: 'ApplyManyToOne', link: '/ef-core-utils/classes/model-builder-extensions/apply-many-to-one' },
                     { text: 'ApplyOneToMany', link: '/ef-core-utils/classes/model-builder-extensions/apply-one-to-many' },
                     { text: 'ApplyOneToOne', link: '/ef-core-utils/classes/model-builder-extensions/apply-one-to-one' }
