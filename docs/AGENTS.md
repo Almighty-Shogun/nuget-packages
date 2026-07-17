@@ -29,7 +29,7 @@ docs/{package}/
   index.md
   installation.md
   configuration.md
-  configuration/{configuration-name}/index.md
+  configuration/{configuration-name}.md
   {category}/{api-name}.md
   classes/{class-name}/index.md
   classes/{class-name}/{method}.md
@@ -47,7 +47,7 @@ Avoid duplicate pages for the same API. Overloads of the same method belong on o
 - Every package must be available from the top navigation package dropdown.
 - Every API page must be reachable from its package sidebar.
 - Introduction, installation, and package-level configuration links stay in the first non-collapsible group.
-- Category and API groups use `collapsed: true` so they are collapsed by default.
+- Category and API groups use `collapsed: false` so they are collapsible and initially open.
 - Use human-readable labels and slugified links.
 
 ## Writing Requirements
@@ -98,7 +98,7 @@ When a package binds configuration from `appsettings.json`:
 
 - Add `docs/{package}/configuration.md`.
 - Show the complete JSON shape.
-- Add each configuration record under `docs/{package}/configuration/{configuration-name}/index.md`.
+- Add each configuration record under `docs/{package}/configuration/{configuration-name}.md`.
 - Link the package introduction directly to the configuration type category, for example `./configuration/auth-settings`; do not add separate “Configuration” and “Configuration types” categories.
 - Use `fields` frontmatter on the package configuration page and configuration type pages.
 - Include every configuration field with `name`, `description`, `type`, and `default` when a real default exists.
@@ -231,7 +231,7 @@ public void ApplyAutoInclude<TEntity>(
 
 After documentation changes:
 
-1. Run `npm run build` from `docs/`.
+1. Run `bun run docs:build` from the repository root.
 2. Run `dotnet build packages.sln` when source or project files changed.
 3. Search authored docs, excluding `docs/node_modules`, for:
    - old type names and namespaces;
