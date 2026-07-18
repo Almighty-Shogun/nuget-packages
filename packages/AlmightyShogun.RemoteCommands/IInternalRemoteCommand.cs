@@ -3,18 +3,24 @@ using System.Net.Sockets;
 
 namespace AlmightyShogun.RemoteCommands;
 
+/// <summary>
+/// Exposes raw payload execution for the internal remote command dispatcher.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>3.0.0</since>
 internal interface IInternalRemoteCommand
 {
     /// <summary>
-    /// Handles the command with the raw JSON data and invokes the corresponding command handler.
+    /// Deserializes raw command data and invokes the typed command handler.
     /// </summary>
-    /// 
-    /// <param name="data">The JSON element containing the raw data for the command.</param>
-    /// <param name="stream">The network stream used for transmitting the command.</param>
-    /// 
-    /// <returns>A task that represents the asynchronous handling of the raw data.</returns>
+    ///
+    /// <param name="data">The JSON element containing the command data.</param>
+    /// <param name="stream">The network stream connected to the remote client.</param>
+    ///
+    /// <returns>A task that completes when the command has handled the payload.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>1.0.0</since>
+    /// <since>3.0.0</since>
     Task HandleRawAsync(JsonElement data, NetworkStream stream);
 }

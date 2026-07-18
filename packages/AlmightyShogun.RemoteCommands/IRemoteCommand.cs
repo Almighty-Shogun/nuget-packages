@@ -3,21 +3,41 @@ using System.Net.Sockets;
 
 namespace AlmightyShogun.RemoteCommands;
 
-public interface IRemoteCommand
-{
-    public string Name { get; }
-}
-
-public interface IRemoteCommand<in T> : IRemoteCommand where T : class
+/// <summary>
+/// Exposes command metadata required by the internal remote command dispatcher.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>1.0.0</since>
+internal interface IRemoteCommand
 {
     /// <summary>
-    /// Handles the command with the structured message type.
+    /// Gets the command name expected in incoming payloads.
     /// </summary>
-    /// 
-    /// <param name="message">The structured message containing the command data.</param>
-    /// <param name="stream">The network stream used for writing the command.</param>
-    /// 
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>1.0.0</since>
+    string Name { get; }
+}
+
+/// <summary>
+/// Exposes the typed command handler contract implemented by remote command base classes.
+/// </summary>
+///
+/// <typeparam name="T">The message type deserialized from the incoming command payload.</typeparam>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>1.0.0</since>
+internal interface IRemoteCommand<in T> : IRemoteCommand where T : class
+{
+    /// <summary>
+    /// Handles the command with the deserialized message type.
+    /// </summary>
+    ///
+    /// <param name="message">The deserialized command message.</param>
+    /// <param name="stream">The network stream connected to the remote client.</param>
+    ///
+    /// <returns>A task that completes when the command has finished handling the message.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
