@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: Label
       description: Text shown inside the rendered email button.

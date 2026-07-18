@@ -37,7 +37,3 @@ public sealed class PasswordResetMailTemplate(string resetUrl) : BaseMailTemplat
 - `Greeting` &mdash; protected opening line rendered before the message paragraphs.
 - `Paragraphs` &mdash; protected optional body paragraphs rendered in order.
 - `Buttons` &mdash; protected optional call-to-action buttons rendered in order.
-
-## Uses
-
-- [MailButton](../../records/mail-button)

@@ -1,40 +1,3 @@
----
-outline: deep
-
-fields:
-    - name: ApiToken
-      description: Resend API token used by the underlying `ResendClient`.
-      type: string
-
-    - name: BrandName
-      description: Application or product name inserted into shared email template placeholders.
-      type: string
-
-    - name: FromEmail
-      description: Sender email address used in the Resend message.
-      type: string
-
-    - name: FromName
-      description: Display name combined with `FromEmail` for the message sender.
-      type: string
-
-    - name: LogoUrl
-      description: Public URL for the logo rendered by the base HTML template.
-      type: string
-
-    - name: AppUrl
-      description: Application URL used by footer template placeholders.
-      type: string
-
-    - name: Links
-      description: Named links available to application code when it needs shared destinations.
-      type: 'Dictionary<string, string>'
-
-    - name: Template
-      description: Shared footer and fallback text used while rendering HTML and plain-text emails.
-      type: EmailTemplateSettings
----
-
 # Configuration
 
 Resend Utils reads the `Email` section from `appsettings.json` when `AddResendEmail` receives an `IConfiguration` instance. The section is bound to `EmailSettings` and is used to configure the Resend API token, sender identity, brand values, footer text, and reusable template placeholders.
@@ -63,6 +26,6 @@ The `Email` section is required during startup registration. If the section is m
 }
 ```
 
-<FrontmatterDocs/>
+`CopyrightTextTemplate` and `FooterLinkText` support `{app_name}` and `{app_url}` placeholders in HTML and plain-text output. `IgnoreText` is resolved in HTML output and rendered as configured in plain-text output.
 
-The template text supports `{app_name}` and `{app_url}` placeholders. These placeholders are replaced with `BrandName` and `AppUrl` when a `BaseMailTemplate` is rendered.
+See [EmailSettings](./configuration/email-settings) and [EmailTemplateSettings](./configuration/email-template-settings) for field descriptions.

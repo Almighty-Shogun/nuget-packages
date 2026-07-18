@@ -1,25 +1,52 @@
----
-outline: deep
+# ResendMailService
 
-params:
-    - name: recipientEmail
-      description: Email address that should receive the rendered message.
-      type: string
+Dependency-injection service for sending rendered mail templates through Resend. `AddResendEmail` registers the package sender for `IResendMailService`, and application services should depend on the interface when they need to send a `BaseMailTemplate`.
 
-    - name: mail
-      description: Mail template instance that supplies the subject, body text, and buttons.
-      type: BaseMailTemplate
+The package provides the implementation internally. This keeps application code focused on the stable public contract while the package owns the Resend client, template loading, rendering, error logging, and sender configuration details.
 
-returns: '`true` when the email was sent successfully; otherwise `false`.'
----
+## Usage
 
-# SendAsync
+::: code-group
+
+```csharp [AccountMailer.cs]
+using AlmightyShogun.Resend.Utils;
+
+public sealed class AccountMailer(IResendMailService mailService)
+{
+    public Task<bool> SendWelcomeEmailAsync(string recipientEmail)
+    {
+        WelcomeMailTemplate template = new("Shogun");
+
+        return mailService.SendAsync(recipientEmail, template);
+    }
+}
+```
+
+```csharp [WelcomeMailTemplate.cs]
+using AlmightyShogun.Resend.Utils;
+
+public sealed class WelcomeMailTemplate(string displayName) : BaseMailTemplate
+{
+    public override string Subject => "Welcome";
+
+    protected override string Title => "Welcome";
+
+    protected override string Greeting => $"Hello {displayName},";
+
+    protected override IReadOnlyList<string> Paragraphs =>
+    [
+        "Your account is ready to use."
+    ];
+}
+```
+
+:::
+
+## SendAsync
 
 Sends a `BaseMailTemplate` to a single recipient through the configured Resend integration. The package renders the template as HTML and plain text, applies the configured sender and brand settings, sends the message through Resend, and returns whether the send completed successfully.
 
 The method returns `false` when the API token or sender email is blank, or when the Resend send operation fails. Callers can use that boolean to decide whether to retry, show an error state, or record application-specific delivery status.
-
-## Usage
 
 ::: code-group
 
@@ -62,9 +89,7 @@ public sealed class InvoiceReadyMailTemplate(string invoiceUrl) : BaseMailTempla
 
 :::
 
-<FrontmatterDocs/>
-
-## Type signature
+### Type signature
 
 ```csharp
 public Task<bool> SendAsync(
@@ -72,8 +97,3 @@ public Task<bool> SendAsync(
     BaseMailTemplate mail
 );
 ```
-
-## Uses
-
-- [BaseMailTemplate](../../classes/base-mail-template/)
-- [EmailSettings](../../configuration/email-settings)

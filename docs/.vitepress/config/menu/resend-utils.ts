@@ -10,16 +10,6 @@ export const resendUtils: DefaultTheme.SidebarItem[] = [
         ]
     },
     {
-        text: 'Classes',
-        collapsed: false,
-        items: [
-            {
-                text: 'BaseMailTemplate',
-                link: '/resend-utils/classes/base-mail-template/'
-            }
-        ]
-    },
-    {
         text: 'Configuration',
         collapsed: false,
         items: [
@@ -35,17 +25,17 @@ export const resendUtils: DefaultTheme.SidebarItem[] = [
         ]
     },
     {
-        text: 'Interfaces',
+        text: 'Services',
         collapsed: false,
         items: [
-            {
-                text: 'IResendMailService',
-                link: '/resend-utils/interfaces/iresend-mail-service/',
-                collapsed: true,
-                items: [
-                    { text: 'SendAsync', link: '/resend-utils/interfaces/iresend-mail-service/send-async' }
-                ]
-            }
+            { text: 'ResendMailService', link: '/resend-utils/services/resend-mail-service' }
+        ]
+    },
+    {
+        text: 'Types',
+        collapsed: false,
+        items: [
+            { text: 'BaseMailTemplate', link: '/resend-utils/types/base-mail-template' }
         ]
     },
     {

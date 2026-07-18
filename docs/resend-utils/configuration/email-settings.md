@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 fields:
     - name: ApiToken
       description: Resend API token used to authenticate email send requests.
@@ -58,7 +56,3 @@ public sealed class EmailLinkResolver(IOptions<EmailSettings> options)
 ```
 
 <FrontmatterDocs/>
-
-## Uses
-
-- [EmailTemplateSettings](./email-template-settings)

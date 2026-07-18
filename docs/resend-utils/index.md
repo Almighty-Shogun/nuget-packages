@@ -6,10 +6,10 @@ Use this package when an application sends transactional or notification emails 
 
 ## Categories
 
-- [Classes](./classes/base-mail-template/) &mdash; mail template base types used by application code.
 - [Configuration](./configuration/email-settings) &mdash; public configuration records bound from application configuration.
 - [Extensions](./extensions/add-resend-email) &mdash; startup extension methods for registering Resend email services.
-- [Interfaces](./interfaces/iresend-mail-service/) &mdash; mail sending contracts consumed through dependency injection.
+- [Services](./services/resend-mail-service) &mdash; dependency-injection mail sending services.
+- [Types](./types/base-mail-template) &mdash; mail template base types used by application code.
 - [Records](./records/mail-button) &mdash; small data records used by mail templates.
 
 ## Quick Example

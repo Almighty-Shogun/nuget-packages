@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 fields:
     - name: CopyrightTextTemplate
       description: Footer copyright text template. Supports `{app_name}` and `{app_url}` placeholders.
@@ -17,9 +15,9 @@ fields:
 
 # EmailTemplateSettings
 
-Represents the nested `Email:Template` configuration values used while rendering shared email footer text. These values are resolved by `BaseMailTemplate` when it renders both HTML and plain-text bodies.
+Represents the nested `Email:Template` configuration values used while rendering shared email footer text. `CopyrightTextTemplate` and `FooterLinkText` are resolved by `BaseMailTemplate` in both HTML and plain-text output. `IgnoreText` is resolved in HTML output and rendered as configured in plain-text output.
 
-Use this record through `EmailSettings.Template` when application code needs to inspect the configured template text. The renderer replaces `{app_name}` with `EmailSettings.BrandName` and `{app_url}` with `EmailSettings.AppUrl`.
+Use this record through `EmailSettings.Template` when application code needs to inspect the configured template text. The renderer replaces `{app_name}` with `EmailSettings.BrandName` and `{app_url}` with `EmailSettings.AppUrl` where placeholder resolution is supported.
 
 ## Usage
 
