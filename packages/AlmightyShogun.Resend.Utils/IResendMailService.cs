@@ -1,5 +1,11 @@
 namespace AlmightyShogun.Resend.Utils;
 
+/// <summary>
+/// Sends rendered mail templates through Resend.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>2.5.0</since>
 public interface IResendMailService
 {
     /// <summary>
