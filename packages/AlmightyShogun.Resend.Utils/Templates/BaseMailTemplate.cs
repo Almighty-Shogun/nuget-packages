@@ -3,16 +3,52 @@ using System.Text;
 
 namespace AlmightyShogun.Resend.Utils;
 
+/// <summary>
+/// Base class for application email templates rendered by the Resend mail service.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>2.5.0</since>
 public abstract class BaseMailTemplate
 {
+    /// <summary>
+    /// Gets the email subject sent to the recipient.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.5.0</since>
     public abstract string Subject { get; }
 
+    /// <summary>
+    /// Gets the main title rendered in the email document.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.5.0</since>
     protected abstract string Title { get; }
 
+    /// <summary>
+    /// Gets the greeting rendered before the email body paragraphs.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.5.0</since>
     protected abstract string Greeting { get; }
 
+    /// <summary>
+    /// Gets the body paragraphs rendered inside the email content.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.5.0</since>
     protected virtual IReadOnlyList<string> Paragraphs => [];
 
+    /// <summary>
+    /// Gets the call-to-action buttons rendered after the body paragraphs.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.5.0</since>
     protected virtual IReadOnlyList<MailButton> Buttons => [];
 
     /// <summary>
@@ -56,6 +92,8 @@ public abstract class BaseMailTemplate
     /// Renders the email template as plain text.
     /// </summary>
     ///
+    /// <param name="settings">The configured email settings used to fill shared template values.</param>
+    ///
     /// <returns>The rendered plain text email body.</returns>
     ///
     /// <author>Almighty-Shogun</author>
@@ -63,7 +101,7 @@ public abstract class BaseMailTemplate
     internal string RenderText(EmailSettings settings)
     {
         StringBuilder text = new();
-        
+
         text.AppendLine(Greeting)
             .AppendLine();
 

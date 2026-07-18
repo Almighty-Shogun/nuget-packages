@@ -1,5 +1,11 @@
 namespace AlmightyShogun.Resend.Utils;
 
+/// <summary>
+/// Loads shared email template fragments used by the mail renderer.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>2.5.0</since>
 internal interface IEmailTemplateLoader
 {
     /// <summary>
