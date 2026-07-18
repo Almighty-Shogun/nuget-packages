@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 fields:
     - name: AllowedOrigins
       description: Array of allowed browser origins. Each value should include the scheme and host, and include the port when the application uses a non-default port.

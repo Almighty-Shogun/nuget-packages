@@ -1,7 +1,3 @@
----
-outline: deep
----
-
 # DeleteAuthCookies
 
 Deletes the authentication cookies managed by ASP.NET JWT Auth from an `HttpResponse`.
@@ -19,14 +15,8 @@ var httpContext = new DefaultHttpContext();
 httpContext.Response.DeleteAuthCookies();
 ```
 
-<FrontmatterDocs/>
-
 ## Type signature
 
 ```csharp
 public void DeleteAuthCookies();
 ```
-
-## Uses
-
-- [CookieNames](../constants/cookie-names)

@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 returns: The `IServiceCollection` instance with MVC controllers and package action filters configured.
 ---
 
@@ -25,7 +23,3 @@ builder.Services.AddActionFilters();
 ```csharp
 public IServiceCollection AddActionFilters();
 ```
-
-## Uses
-
-- [SessionContext](../records/session-context)

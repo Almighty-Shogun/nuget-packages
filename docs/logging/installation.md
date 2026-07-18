@@ -8,12 +8,12 @@ dotnet add package AlmightyShogun.Logging
 
 ## Dependencies
 
-- `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.8` &mdash; provides service collection logging registration APIs.
-- `Microsoft.Extensions.Hosting` `10.0.8` &mdash; provides host-builder integration.
-- `Serilog` `4.3.1` &mdash; provides the core logger configuration and logger types.
+- `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.10` &mdash; provides service collection logging registration APIs.
+- `Microsoft.Extensions.Hosting` `10.0.10` &mdash; provides host-builder integration.
+- `Serilog` `4.4.0` &mdash; provides the core logger configuration and logger types.
 - `Serilog.AspNetCore` `10.0.0` &mdash; provides Serilog integration for hosted and ASP.NET Core applications.
 - `Serilog.Extensions.Logging` `10.0.0` &mdash; connects Serilog to `Microsoft.Extensions.Logging`.
-- `Serilog.Settings.Configuration` `10.0.0` &mdash; reads Serilog configuration from `IConfiguration`.
+- `Serilog.Settings.Configuration` `10.0.1` &mdash; reads Serilog configuration from `IConfiguration`.
 - `Serilog.Sinks.Async` `2.1.0` &mdash; writes log events through an asynchronous sink wrapper.
 - `Serilog.Sinks.Console` `6.1.1` &mdash; writes formatted log output to the console.
 

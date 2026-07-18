@@ -10,37 +10,6 @@ export const remoteCommands: DefaultTheme.SidebarItem[] = [
         ]
     },
     {
-        text: 'Attributes',
-        collapsed: false,
-        items: [
-            { text: 'RemoteCommandAttribute', link: '/remote-commands/attributes/remote-command-attribute' }
-        ]
-    },
-    {
-        text: 'Classes',
-        collapsed: false,
-        items: [
-            {
-                text: 'RemoteCommand<T>',
-                link: '/remote-commands/classes/remote-command/',
-                collapsed: true,
-                items: [
-                    { text: 'HandleCommandAsync', link: '/remote-commands/classes/remote-command/handle-command-async' },
-                    { text: 'WriteResponseAsync', link: '/remote-commands/classes/remote-command/write-response-async' }
-                ]
-            },
-            {
-                text: 'RemoteCommandHandler',
-                link: '/remote-commands/classes/remote-command-handler/',
-                collapsed: true,
-                items: [
-                    { text: 'StartAsync', link: '/remote-commands/classes/remote-command-handler/start-async' },
-                    { text: 'Stop', link: '/remote-commands/classes/remote-command-handler/stop' }
-                ]
-            }
-        ]
-    },
-    {
         text: 'Configuration',
         collapsed: false,
         items: [
@@ -53,6 +22,27 @@ export const remoteCommands: DefaultTheme.SidebarItem[] = [
         items: [
             { text: 'AddRemoteCommands', link: '/remote-commands/extensions/add-remote-commands' },
             { text: 'RegisterRemoteCommands', link: '/remote-commands/extensions/register-remote-commands' }
+        ]
+    },
+    {
+        text: 'Attributes',
+        collapsed: false,
+        items: [
+            { text: 'RemoteCommand', link: '/remote-commands/attributes/remote-command-attribute' }
+        ]
+    },
+    {
+        text: 'Services',
+        collapsed: false,
+        items: [
+            { text: 'RemoteCommandHandler', link: '/remote-commands/services/remote-command-handler' }
+        ]
+    },
+    {
+        text: 'Types',
+        collapsed: false,
+        items: [
+            { text: 'RemoteCommand<T>', link: '/remote-commands/types/remote-command' }
         ]
     },
 ];

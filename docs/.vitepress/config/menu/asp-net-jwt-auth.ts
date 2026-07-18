@@ -10,39 +10,10 @@ export const aspNetJwtAuth: DefaultTheme.SidebarItem[] = [
         ]
     },
     {
-        text: 'Attributes',
-        collapsed: false,
-        items: [
-            { text: 'AuthPermissionAttribute', link: '/asp-net-jwt-auth/attributes/auth-permission-attribute' }
-        ]
-    },
-    {
         text: 'Configuration',
         collapsed: false,
         items: [
             { text: 'AuthSettings', link: '/asp-net-jwt-auth/configuration/auth-settings' }
-        ]
-    },
-    {
-        text: 'Constants',
-        collapsed: false,
-        items: [
-            { text: 'CookieNames', link: '/asp-net-jwt-auth/constants/cookie-names' }
-        ]
-    },
-    {
-        text: 'Classes',
-        collapsed: false,
-        items: [
-            {
-                text: 'AppHostResolver',
-                link: '/asp-net-jwt-auth/classes/app-host-resolver/',
-                collapsed: true,
-                items: [
-                    { text: 'ResolveAppFromHost', link: '/asp-net-jwt-auth/classes/app-host-resolver/resolve-app-from-host' },
-                    { text: 'TryResolveAppFromHost', link: '/asp-net-jwt-auth/classes/app-host-resolver/try-resolve-app-from-host' }
-                ]
-            }
         ]
     },
     {
@@ -55,6 +26,27 @@ export const aspNetJwtAuth: DefaultTheme.SidebarItem[] = [
             { text: 'GetCurrentUserId', link: '/asp-net-jwt-auth/extensions/get-current-user-id' },
             { text: 'GetRefreshTokenCookie', link: '/asp-net-jwt-auth/extensions/get-refresh-token-cookie' },
             { text: 'SetRefreshTokenCookie', link: '/asp-net-jwt-auth/extensions/set-refresh-token-cookie' }
+        ]
+    },
+    {
+        text: 'Attributes',
+        collapsed: false,
+        items: [
+            { text: 'AuthPermission', link: '/asp-net-jwt-auth/attributes/auth-permission-attribute' }
+        ]
+    },
+    {
+        text: 'Services',
+        collapsed: false,
+        items: [
+            { text: 'AppHostResolver', link: '/asp-net-jwt-auth/services/app-host-resolver' }
+        ]
+    },
+    {
+        text: 'Constants',
+        collapsed: false,
+        items: [
+            { text: 'CookieNames', link: '/asp-net-jwt-auth/constants/cookie-names' }
         ]
     },
 ];

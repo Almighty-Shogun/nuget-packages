@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: configuration
       description: Application configuration containing the `RemoteServer` section.
@@ -36,8 +34,3 @@ public IServiceCollection AddRemoteCommands(
     IConfiguration configuration
 );
 ```
-
-## Uses
-
-- [RemoteServerSettings](../configuration/remote-server-settings)
-- [RemoteCommandHandler](../classes/remote-command-handler/)

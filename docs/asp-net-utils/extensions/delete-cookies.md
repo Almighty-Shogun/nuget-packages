@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: cookieNames
       description: One or more cookie names to delete. Empty or whitespace names are ignored.

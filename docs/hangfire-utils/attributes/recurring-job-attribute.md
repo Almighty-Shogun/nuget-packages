@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: jobId
       description: Stable Hangfire recurring job id.
@@ -13,9 +11,9 @@ params:
 
 # RecurringJobAttribute
 
-Marks a class as a recurring Hangfire job. `HangfireUtils.GetRecurringJobs` reads this attribute from discovered `IRecurringJob` types and converts it into `RecurringJob` metadata that can be scheduled by `JobSchedulerStartup`.
+Marks a class as a recurring Hangfire job. `RegisterRecurringJobs` discovers `RecurringJobBase` types with this attribute and registers them for scheduling during application startup.
 
-Use this attribute on classes that implement `IRecurringJob`. The scheduler creates the Hangfire job from the marked type and its public parameterless `RunAsync` method.
+Use this attribute on classes that inherit from `RecurringJobBase`. The scheduler creates the Hangfire job from the marked type and its public parameterless `RunAsync` method.
 
 ## Usage
 
@@ -23,9 +21,9 @@ Use this attribute on classes that implement `IRecurringJob`. The scheduler crea
 using AlmightyShogun.Hangfire.Utils;
 
 [RecurringJob("cleanup-expired-sessions", "0 */6 * * *")]
-public sealed class CleanupExpiredSessionsJob : IRecurringJob
+public sealed class CleanupExpiredSessionsJob : RecurringJobBase
 {
-    public Task RunAsync()
+    public override Task RunAsync()
     {
         return Task.CompletedTask;
     }
@@ -34,6 +32,11 @@ public sealed class CleanupExpiredSessionsJob : IRecurringJob
 
 <FrontmatterDocs/>
 
-## Uses
+## Type signature
 
-- [IRecurringJob](../interfaces/irecurring-job/)
+```csharp
+public RecurringJobAttribute(
+    string jobId,
+    string cronExpression
+);
+```

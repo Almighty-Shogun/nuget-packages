@@ -5,7 +5,7 @@ import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-i
 export default defineConfig({
     title: 'NuGet Packages',
     titleTemplate: ':title — NuGet Packages',
-    description: 'Documentation for all the C#/NuGet packages in the AlmightyShogun. monorepo.',
+    description: 'Documentation for all C#/NuGet packages in the AlmightyShogun.* monorepo.',
     cleanUrls: true,
     lastUpdated: true,
     srcExclude: ['guide-node/**', 'AGENTS.md'],

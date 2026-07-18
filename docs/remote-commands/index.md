@@ -6,10 +6,11 @@ Use this package when an application needs a small internal command channel for 
 
 ## Categories
 
-- [Attributes](./attributes/remote-command-attribute) &mdash; metadata used to name and describe remote commands.
-- [Classes](./classes/remote-command/) &mdash; command base classes and listener runtime.
 - [Configuration](./configuration/remote-server-settings) &mdash; public configuration values bound from application configuration.
 - [Extensions](./extensions/add-remote-commands) &mdash; startup extension methods for registering the listener and command handlers.
+- [Attributes](./attributes/remote-command-attribute) &mdash; metadata used to name and describe remote commands.
+- [Services](./services/remote-command-handler) &mdash; dependency-injection services used to start and stop the listener.
+- [Types](./types/remote-command) &mdash; base types used by application-defined remote commands.
 
 ## Quick Example
 

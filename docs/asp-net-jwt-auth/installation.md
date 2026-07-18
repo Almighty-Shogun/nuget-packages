@@ -9,7 +9,7 @@ dotnet add package AlmightyShogun.AspNet.JwtAuth
 ## Dependencies
 
 - `Microsoft.AspNetCore.App` framework reference &mdash; provides the ASP.NET Core authentication, authorization, HTTP, controller, and middleware infrastructure used by the package.
-- `Microsoft.AspNetCore.Authentication.JwtBearer` `10.0.8` &mdash; provides JWT bearer authentication middleware and token validation options.
+- `Microsoft.AspNetCore.Authentication.JwtBearer` `10.0.10` &mdash; provides JWT bearer authentication middleware and token validation options.
 - `AlmightyShogun.Utils` project reference &mdash; provides the configuration binding helper used when registering `AuthSettings`.
 
 ## Startup Registration

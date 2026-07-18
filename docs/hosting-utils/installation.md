@@ -8,8 +8,8 @@ dotnet add package AlmightyShogun.Hosting.Utils
 
 ## Dependencies
 
-- `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.8` &mdash; provides the service collection APIs used by the extension methods.
-- `Microsoft.Extensions.Hosting` `10.0.8` &mdash; provides host options, host lifetime contracts, and background-service exception behavior.
+- `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.10` &mdash; provides the service collection APIs used by the extension methods.
+- `Microsoft.Extensions.Hosting` `10.0.10` &mdash; provides host options, host lifetime contracts, and background-service exception behavior.
 
 ## Startup Registration
 

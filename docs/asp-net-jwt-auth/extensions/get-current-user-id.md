@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 returns: The authenticated user's numeric user id.
 ---
 

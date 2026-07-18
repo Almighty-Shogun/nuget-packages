@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 returns: The default cookie name used for refresh tokens.
 ---
 
@@ -17,3 +15,9 @@ string refreshTokenCookie = CookieNames.RefreshToken;
 ```
 
 <FrontmatterDocs/>
+
+## Type signature
+
+```csharp
+public const string RefreshToken = "refreshToken";
+```

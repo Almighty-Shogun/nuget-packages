@@ -14,15 +14,7 @@ export const logging: DefaultTheme.SidebarItem[] = [
         text: 'Extensions',
         collapsed: false,
         items: [
-            {
-                text: 'AddCustomLogging',
-                link: '/logging/extensions/add-custom-logging/',
-                collapsed: true,
-                items: [
-                    { text: 'IHostBuilder', link: '/logging/extensions/add-custom-logging/host-builder' },
-                    { text: 'IServiceCollection', link: '/logging/extensions/add-custom-logging/service-collection' }
-                ]
-            }
+            { text: 'AddCustomLogging', link: '/logging/extensions/add-custom-logging' }
         ]
     },
 ];

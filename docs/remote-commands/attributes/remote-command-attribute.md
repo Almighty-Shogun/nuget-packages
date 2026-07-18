@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: name
       description: Command name expected in incoming remote command payloads.
@@ -44,7 +42,6 @@ public sealed class PingCommand : RemoteCommand<PingCommandData>
 ```csharp [PingCommandData.cs]
 public sealed record PingCommandData(
     string RequestId,
-    string Source,
     DateTimeOffset SentAt
 );
 ```
@@ -52,3 +49,12 @@ public sealed record PingCommandData(
 :::
 
 <FrontmatterDocs/>
+
+## Type signature
+
+```csharp
+public RemoteCommandAttribute(
+    string name,
+    string? description = null
+);
+```

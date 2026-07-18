@@ -1,5 +1,12 @@
 ---
-outline: deep
+params:
+    - name: IpAddress
+      description: Client IP address captured for the request, or `null` when it could not be determined.
+      type: string?
+
+    - name: UserAgent
+      description: Raw User-Agent header value captured for the request, or `null` when it is unavailable.
+      type: string?
 
 returns: A request metadata record containing the client IP address, raw User-Agent value, and `HttpContext.Items` key.
 ---
@@ -27,3 +34,14 @@ public sealed class SessionController : ControllerBase
 ```
 
 <FrontmatterDocs/>
+
+## Type signature
+
+```csharp
+public record SessionContext(
+    string? IpAddress,
+    string? UserAgent
+);
+
+public const string ItemKey = nameof(SessionContext);
+```

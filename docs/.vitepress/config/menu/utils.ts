@@ -9,58 +9,28 @@ export const utils: DefaultTheme.SidebarItem[] = [
         ]
     },
     {
-        text: 'Classes',
-        collapsed: false,
-        items: [
-            {
-                text: 'ApplicationUtils',
-                link: '/utils/classes/application-utils/',
-                collapsed: true,
-                items: [
-                    { text: 'Title', link: '/utils/classes/application-utils/title' },
-                    { text: 'GetOnInherit', link: '/utils/classes/application-utils/get-on-inherit' },
-                    { text: 'PreventCancellation', link: '/utils/classes/application-utils/prevent-cancellation' }
-                ]
-            }
-        ]
-    },
-    {
         text: 'Extensions',
         collapsed: false,
         items: [
-            {
-                text: 'DeserializeExtensions',
-                link: '/utils/extensions/deserialize-extensions/',
-                collapsed: true,
-                items: [
-                    { text: 'Deserialize', link: '/utils/extensions/deserialize-extensions/deserialize' },
-                    { text: 'DeserializeAsync', link: '/utils/extensions/deserialize-extensions/deserialize-async' }
-                ]
-            },
-            {
-                text: 'ServiceCollectionExtensions',
-                link: '/utils/extensions/service-collection-extensions/',
-                collapsed: true,
-                items: [
-                    { text: 'AddService', link: '/utils/extensions/service-collection-extensions/add-service' },
-                    { text: 'AddConfiguration', link: '/utils/extensions/service-collection-extensions/add-configuration' },
-                    { text: 'RegisterOnInherit', link: '/utils/extensions/service-collection-extensions/register-on-inherit' }
-                ]
-            }
+            { text: 'AddConfiguration', link: '/utils/extensions/add-configuration' },
+            { text: 'AddService', link: '/utils/extensions/add-service' },
+            { text: 'Deserialize', link: '/utils/extensions/deserialize' },
+            { text: 'DeserializeAsync', link: '/utils/extensions/deserialize-async' },
+            { text: 'RegisterOnInherit', link: '/utils/extensions/register-on-inherit' }
         ]
     },
     {
-        text: 'Interfaces',
+        text: 'Services',
         collapsed: false,
         items: [
-            {
-                text: 'IService',
-                link: '/utils/interfaces/iservice/',
-                collapsed: true,
-                items: [
-                    { text: 'ConfigureService', link: '/utils/interfaces/iservice/configure-service' }
-                ]
-            }
+            { text: 'ServiceRegistry', link: '/utils/services/service-registry' }
+        ]
+    },
+    {
+        text: 'Types',
+        collapsed: false,
+        items: [
+            { text: 'ApplicationUtils', link: '/utils/types/application-utils' }
         ]
     },
 ];

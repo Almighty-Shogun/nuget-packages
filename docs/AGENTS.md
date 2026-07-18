@@ -9,7 +9,9 @@ These instructions apply to all VitePress documentation work under `docs/`. Read
 - Do not rewrite an already approved package unless the user asks for a global change or its source API changed.
 - Compare the current public package surface with its documentation before editing.
 - Document only APIs intended for package consumers. Do not document private, internal, or implementation-only types and members.
-- Public interfaces that only support internal implementation do not need separate pages. When a public interface is the dependency-injection contract, document the consumer-facing interface and explain that users should inject it instead of the implementation.
+- Public interfaces that only support internal implementation do not need separate pages.
+- When a public interface is the dependency-injection contract, document it as the consumer-facing service. Use a clean service name without the leading `I` in the page title, sidebar label, and file name, but keep examples and type signatures using the real C# interface type.
+- Do not create duplicate class and interface pages for the same DI surface. If a concrete class only exists as the implementation behind a DI contract, document the service contract instead. When source changes are in scope, prefer making implementation-only concrete/base classes internal.
 - Preserve unrelated user changes.
 
 ## Documentation Structure
@@ -30,16 +32,27 @@ docs/{package}/
   installation.md
   configuration.md
   configuration/{configuration-name}.md
-  {category}/{api-name}.md
-  classes/{class-name}/index.md
-  classes/{class-name}/{method}.md
+  attributes/{attribute-name}.md
+  constants/{constant-name}.md
+  extensions/{api-name}.md
+  records/{record-name}.md
+  services/{service-name}.md
+  types/{type-name}.md
 ```
 
-Use meaningful categories such as `attributes`, `classes`, `configuration`, `constants`, `extensions`, `interfaces`, and `records`.
+Use meaningful categories such as `attributes`, `configuration`, `constants`, `extensions`, `records`, `services`, and `types`. Do not introduce separate `classes` and `interfaces` groups for new or migrated documentation unless the user explicitly asks for that structure.
 
-Class pages explain the class, intended use, construction/inheritance requirements, and list its documented methods. Every consumer-facing method gets its own page under the class directory. Do not add a type-signature section to class overview pages.
+Service pages document consumer-facing DI contracts and the behavior of the registered implementation in one place. The route and page title use the service name without the interface prefix, for example `IAppHostResolver` is documented at `services/app-host-resolver.md` with `# AppHostResolver`. Examples and type signatures still use `IAppHostResolver`.
 
-Avoid duplicate pages for the same API. Overloads of the same method belong on one method page.
+Service methods usually stay on the same service page as `## MethodName` sections. Do not create separate method pages for small or moderate services. Only split service methods into separate pages when the page becomes too large and separate pages clearly improve navigation.
+
+Extension methods use one page per public extension method at `docs/{package}/extensions/{extension-method-name}.md`. Keep overloads of the same extension method on that method page. Do not document extension classes as their own pages unless a real method-name collision requires it and the user agrees.
+
+When overloads have different receiver types, registration targets, or usage paths, keep them on one page and split the page into clear `## OverloadFamily` sections. Use the `AddCustomLogging` page style for this: one `# MethodName` page, one `##` section per overload family, usage under each section, and `### Type signature` under each section. Do not create separate pages for overloads of the same extension method.
+
+Public non-DI classes, structs, records, and values can use focused categories such as `records`, `constants`, or `types`. Use `types` when a package exposes public types that do not fit a more specific category.
+
+Avoid duplicate pages for the same API. Overloads of the same method belong on one method page or one method section.
 
 ## Navigation
 
@@ -47,8 +60,13 @@ Avoid duplicate pages for the same API. Overloads of the same method belong on o
 - Every package must be available from the top navigation package dropdown.
 - Every API page must be reachable from its package sidebar.
 - Introduction, installation, and package-level configuration links stay in the first non-collapsible group.
+- Sidebar groups use this order when present: package pages, `Configuration`, `Extensions`, `Attributes`, `Services`, `Types`, `Records`, `Constants`.
+- Package-specific guide pages, such as Logging's `Formatter`, stay in the first group after `Configuration`.
 - Category and API groups use `collapsed: false` so they are collapsible and initially open.
 - Use human-readable labels and slugified links.
+- Attribute sidebar labels omit the `Attribute` suffix. For example, `AuthPermissionAttribute` appears as `AuthPermission` in the sidebar.
+- DI service sidebar labels and routes omit the leading interface `I`. For example, `IAppHostResolver` appears as `AppHostResolver` and uses `services/app-host-resolver`.
+- Service pages are usually a single sidebar item. Do not list every method as nested sidebar children unless the service page has been intentionally split.
 
 ## Writing Requirements
 
@@ -71,6 +89,8 @@ Package introductions use the package name as the H1 and contain:
 - A clear description of the package.
 - A `## Categories` list.
 - Category links followed by `&mdash;` and a concise description.
+- Categories use the same order as the package sidebar: `Configuration`, `Extensions`, `Attributes`, `Services`, `Types`, `Records`, `Constants`.
+- Package-specific guide pages, such as Logging's `Formatter`, appear after `Configuration` in the package introduction category list when present.
 - A short practical example.
 - Dependency/runtime notes where useful.
 
@@ -81,6 +101,7 @@ Installation pages:
 - Show only the `dotnet` CLI installation command in one shell code block.
 - Explain the target framework and runtime expectations.
 - Add `## Dependencies` and list actual package, framework, and project dependencies with their current versions.
+- Read dependency information from the current `.csproj` files and central package management files when present. Do not reuse stale dependency versions from existing docs.
 - Show startup registration once when required.
 - When configuration is required, use this warning style with the actual section name:
 
@@ -100,7 +121,9 @@ When a package binds configuration from `appsettings.json`:
 - Show the complete JSON shape.
 - Add each configuration record under `docs/{package}/configuration/{configuration-name}.md`.
 - Link the package introduction directly to the configuration type category, for example `./configuration/auth-settings`; do not add separate “Configuration” and “Configuration types” categories.
-- Use `fields` frontmatter on the package configuration page and configuration type pages.
+- Use `fields` frontmatter on dedicated configuration type pages.
+- Do not repeat the same field table on the package-level `configuration.md` page when a dedicated configuration type page exists. The package-level page should show the JSON shape and link to the dedicated configuration type page for field descriptions and defaults.
+- If a package has a package-level configuration page but no dedicated configuration type page, `fields` may live on `configuration.md`.
 - Include every configuration field with `name`, `description`, `type`, and `default` when a real default exists.
 - Do not repeat the full JSON block on individual configuration type pages; link to the package configuration page instead.
 
@@ -116,14 +139,12 @@ fields:
 
 If a startup method accepts `builder.Configuration`, explain which section it requires and include the warning shown above.
 
-## API Page Schema
+## Standalone API Page Schema
 
-Use this order for method, extension, attribute, constructor-like record, and other API pages:
+Use this order for standalone method, extension, attribute, constructor-like record, and other API pages:
 
 ````md
 ---
-outline: deep
-
 params:
     - name: value
       description: Value to process.
@@ -152,10 +173,6 @@ var result = ApiName.Run();
 ```csharp
 public string ApiName(string value);
 ```
-
-## Uses
-
-- [OtherApi](../category/other-api)
 ````
 
 Rules:
@@ -170,6 +187,107 @@ Rules:
 - Nullable does not automatically mean optional. Document the actual method default to show optional parameters.
 - Keep generic type commas, for example `Dictionary<TKey, TValue>`.
 - Inline backticks in descriptions are expected and rendered through the shared `renderInlineCode` utility.
+
+## Service Page Schema
+
+Use service pages for DI contracts and their registered implementation behavior. Service pages do not use frontmatter-driven parameter/return tables for each method. Explain parameters, return behavior, defaults, failure cases, and constraints in the method prose.
+
+Use this order:
+
+````md
+# AppHostResolver
+
+Clear description of the service, what it resolves or controls, and where the package uses it.
+
+Application code should depend on `IAppHostResolver`. Explain how it is registered and what configuration or package behavior it relies on.
+
+## Usage
+
+```csharp
+using Company.Package;
+
+public sealed class CurrentAppService(IAppHostResolver appHostResolver)
+{
+    public string GetCurrentApp(string host)
+        => appHostResolver.ResolveAppFromHost(host);
+}
+```
+
+## ResolveAppFromHost
+
+Explain what the method does, when to use it, what it returns, and what it throws or rejects.
+
+```csharp
+using Company.Package;
+
+public sealed class AppScopedService(IAppHostResolver appHostResolver)
+{
+    public string GetAppForRequestHost(string host)
+        => appHostResolver.ResolveAppFromHost(host);
+}
+```
+
+### Type signature
+
+```csharp
+public string ResolveAppFromHost(string? host);
+```
+````
+
+Rules:
+
+- Use `# ServiceName` without the leading `I`, even when the exported API is an interface.
+- Use the real interface type in examples and type signatures.
+- Put each method directly under `## MethodName`; do not add an extra `## Methods` wrapper.
+- Put each method signature under `### Type signature`.
+- Keep service pages concise but complete. Split only when a service is too large to scan comfortably.
+
+## Type Page Schema
+
+Use type pages for public non-DI classes, structs, records, and utility types that are best understood as one small surface. These pages do not need frontmatter-driven parameter or return tables for each method when method sections are clearer.
+
+Use this order:
+
+````md
+# ConsoleUtils
+
+Clear description of the type, what it groups together, and when application code should use it.
+
+## Usage
+
+```csharp
+using Company.Package;
+
+ConsoleUtils.RemoveLastLine();
+```
+
+## MethodName
+
+Explain what the method does, when to use it, return behavior, defaults, failure cases, and constraints.
+
+```csharp
+using Company.Package;
+
+string answer = await ConsoleUtils.AskQuestionAsync("Name?", "Worker");
+```
+
+### Type signature
+
+```csharp
+public static Task<string> AskQuestionAsync(
+    string question,
+    string? defaultValue = null
+);
+```
+````
+
+Rules:
+
+- Keep small type method sections on the type page when that is easier to scan than separate method pages.
+- Put each method directly under `## MethodName`; do not add an extra `## Methods` wrapper.
+- Put each method signature under `### Type signature`.
+- Use frontmatter-driven standalone API pages for constructor-like records or simple values when parameters/returns/fields should be rendered once for the whole API.
+- Extension methods are still documented as one page per public extension method under `extensions/`.
 
 ## Type Signatures
 
@@ -191,16 +309,7 @@ public ModelBuilder ApplyAutoInclude<TEntity>(
 ) where TEntity : class;
 ```
 
-- Do not add type declarations to class overview pages.
-
-## Uses Sections
-
-`## Uses` means APIs used internally by the documented API, not APIs that call it.
-
-- Add it only when the implementation directly uses another documented public API.
-- Link to the relevant public API page.
-- Do not list private/internal implementation details.
-- Verify implementations rather than inferring uses from examples.
+- Do not add type declarations to overview pages. On service pages, put method signatures inside the relevant method section under `### Type signature`.
 
 ## Special Package Conventions
 
@@ -236,7 +345,11 @@ After documentation changes:
 3. Search authored docs, excluding `docs/node_modules`, for:
    - old type names and namespaces;
    - broken or stale slugs;
+   - duplicate class/interface pages for the same DI surface;
+   - `classes` or `interfaces` groups introduced where `services` should be used;
+   - attribute sidebar labels that still include the `Attribute` suffix;
    - manual Parameters/Returns sections;
+   - `outline: deep` frontmatter;
    - API pages with frontmatter but no `<FrontmatterDocs/>`;
    - missing blank lines after frontmatter;
    - TypeScript-style nullable/union types;

@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: aliases
       description: Alternative command names that should resolve to the same command handler.
@@ -34,3 +32,9 @@ public sealed class ShutdownCommand(ILogger<ConsoleCommandBase> logger) : Consol
 ```
 
 <FrontmatterDocs/>
+
+## Type signature
+
+```csharp
+public AliasAttribute(params string[] aliases);
+```

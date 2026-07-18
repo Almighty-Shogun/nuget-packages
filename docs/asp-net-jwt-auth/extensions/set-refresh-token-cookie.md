@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: token
       description: Refresh token value to store in the cookie.
@@ -35,7 +33,3 @@ httpContext.Response.SetRefreshTokenCookie("refresh-token-value", days: 30);
 ```csharp
 public void SetRefreshTokenCookie(string token, int days);
 ```
-
-## Uses
-
-- [CookieNames](../constants/cookie-names)

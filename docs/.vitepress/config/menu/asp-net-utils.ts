@@ -10,27 +10,14 @@ export const aspNetUtils: DefaultTheme.SidebarItem[] = [
         ]
     },
     {
-        text: 'Classes',
-        collapsed: false,
-        items: [
-            {
-                text: 'UserAgentParser',
-                link: '/asp-net-utils/classes/user-agent-parser/',
-                collapsed: true,
-                items: [
-                    { text: 'Parse', link: '/asp-net-utils/classes/user-agent-parser/parse' }
-                ]
-            }
-        ]
-    },
-    {
         text: 'Extensions',
         collapsed: false,
         items: [
             { text: 'AddActionFilters', link: '/asp-net-utils/extensions/add-action-filters' },
             { text: 'AddAllowedOrigins', link: '/asp-net-utils/extensions/add-allowed-origins' },
             { text: 'DeleteCookies', link: '/asp-net-utils/extensions/delete-cookies' },
-            { text: 'GetSessionContext', link: '/asp-net-utils/extensions/get-session-context' }
+            { text: 'GetSessionContext', link: '/asp-net-utils/extensions/get-session-context' },
+            { text: 'GetUserAgent', link: '/asp-net-utils/extensions/get-user-agent' }
         ]
     },
     {

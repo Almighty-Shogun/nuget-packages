@@ -1,16 +1,14 @@
 ---
-outline: deep
-
 fields:
     - name: Serilog
       description: Root section read by Serilog's configuration package.
       type: object
 
-    - name: Serilog:MinimumLevel
+    - name: MinimumLevel
       description: Controls the minimum log levels used by Serilog.
       type: object
 
-    - name: Serilog:MinimumLevel:Override
+    - name: MinimumLevel:Override
       description: Sets namespace-specific minimum levels.
       type: 'Dictionary<string, string>'
 ---

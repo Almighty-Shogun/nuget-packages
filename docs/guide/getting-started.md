@@ -78,18 +78,20 @@ builder.Services
     .RegisterConsoleCommands(typeof(Program).Assembly);
 ```
 
-Commands are public classes that derive from the package command base and expose one public method marked with `ConsoleCommandAttribute`.
+Commands are public classes that derive from the package command base, add `ConsoleCommandAttribute` to the class, and expose exactly one public `ExecuteAsync` method returning `Task`.
 
 ```csharp
 using Microsoft.Extensions.Logging;
 using AlmightyShogun.ConsoleCommands;
 
+[ConsoleCommand("ping", "Writes a pong response.")]
 public sealed class PingCommand(ILogger<ConsoleCommandBase> logger) : ConsoleCommandBase(logger)
 {
-    [ConsoleCommand("ping", "Writes a pong response.")]
-    public void Handle()
+    public Task ExecuteAsync()
     {
         Console.WriteLine("pong");
+
+        return Task.CompletedTask;
     }
 }
 ```
@@ -102,21 +104,50 @@ Use `AlmightyShogun.EntityFrameworkCore.Utils` when repeated relationship, navig
 dotnet add package AlmightyShogun.EntityFrameworkCore.Utils
 ```
 
-```csharp
+::: code-group
+
+```csharp [AppDbContext.cs]
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.EntityFrameworkCore.Utils;
 
-protected override void OnModelCreating(ModelBuilder modelBuilder)
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    modelBuilder
-        .ApplyOneToMany<User, UserSession>(
-            user => user.Sessions,
-            session => session.UserId,
-            inverseNavigation: session => session.User
-        )
-        .ApplyIndex<UserSession>(session => session.UserId);
+    public DbSet<User> Users => Set<User>();
+
+    public DbSet<UserSession> Sessions => Set<UserSession>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .ApplyOneToMany<User, UserSession>(
+                user => user.Sessions,
+                session => session.UserId,
+                inverseNavigation: session => session.User
+            )
+            .ApplyIndex<UserSession>(session => session.UserId);
+    }
 }
 ```
+
+```csharp [Entities.cs]
+public sealed class User
+{
+    public int Id { get; set; }
+
+    public List<UserSession> Sessions { get; set; } = [];
+}
+
+public sealed class UserSession
+{
+    public int Id { get; set; }
+
+    public int UserId { get; set; }
+
+    public User? User { get; set; }
+}
+```
+
+:::
 
 ## Hangfire jobs
 
@@ -128,6 +159,7 @@ dotnet add package AlmightyShogun.Hangfire.Utils
 
 ```csharp
 using AlmightyShogun.Hangfire.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 builder.Services
     .AddHangfire()
@@ -136,7 +168,7 @@ builder.Services
 
 ## Remote commands
 
-Use `AlmightyShogun.RemoteCommands` when an application should listen for JSON command payloads over TCP and dispatch them to typed command handlers discovered from assemblies.
+Use `AlmightyShogun.RemoteCommands` when an application should listen for length-prefixed JSON command payloads over TCP and dispatch them to typed command handlers discovered from assemblies.
 
 ```sh
 dotnet add package AlmightyShogun.RemoteCommands

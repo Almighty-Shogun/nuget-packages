@@ -6,9 +6,10 @@ Use this package when a hosted console application needs command-style interacti
 
 ## Categories
 
-- [Attributes](./attributes/console-command-attribute) &mdash; class metadata used for command names, aliases, descriptions, and examples.
-- [Classes](./classes/console-command-base/) &mdash; command base types, the runtime handler, metadata values, and console helper utilities.
 - [Extensions](./extensions/add-console-commands) &mdash; startup extension methods for registering the handler and command classes.
+- [Attributes](./attributes/console-command-attribute) &mdash; class metadata used for command names, aliases, descriptions, and examples.
+- [Services](./services/console-command-handler) &mdash; dependency-injection services used to start the command loop.
+- [Types](./types/console-command-base) &mdash; command base types, metadata values, and console helper utilities.
 
 ## Quick Example
 

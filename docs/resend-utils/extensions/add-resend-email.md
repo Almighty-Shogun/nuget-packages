@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: configuration
       description: Application configuration containing the `Email` section.
@@ -36,9 +34,3 @@ public IServiceCollection AddResendEmail(
     IConfiguration configuration
 );
 ```
-
-## Uses
-
-- [EmailSettings](../configuration/email-settings)
-- [EmailTemplateSettings](../configuration/email-template-settings)
-- [IResendMailService](../interfaces/iresend-mail-service/)

@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 returns: The `IServiceCollection` instance with the custom console lifetime registered.
 ---
 
