@@ -3,13 +3,21 @@ using System.Reflection;
 
 namespace AlmightyShogun.Hangfire.Utils;
 
-public static class HangfireUtils
+/// <summary>
+/// Provides discovery helpers for recurring Hangfire job types and their scheduling metadata.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>2.2.0</since>
+internal static class HangfireUtils
 {
     /// <summary>
-    /// Retrieves all recurring jobs marked with the <see cref="RecurringJobAttribute"/> defined within the application.
+    /// Retrieves recurring job types marked with <see cref="RecurringJobAttribute"/> from the provided assemblies.
     /// </summary>
-    /// 
-    /// <returns>A list of <see cref="Type"/> instances representing the recurring job type.</returns>
+    ///
+    /// <param name="assemblies">The assemblies to scan. If none are provided, all currently loaded application domain assemblies are used.</param>
+    ///
+    /// <returns>The concrete recurring job types that inherit <see cref="RecurringJobBase"/> and expose a valid <see cref="RecurringJobBase.RunAsync"/> method.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.2.0</since>
@@ -19,36 +27,36 @@ public static class HangfireUtils
         {
             assemblies = AppDomain.CurrentDomain.GetAssemblies();
         }
-        
+
         return assemblies
             .SelectMany(a => a.GetTypes())
-            .Where(t => t is { IsInterface: false, IsAbstract: false } && typeof(IRecurringJob).IsAssignableFrom(t))
+            .Where(t => t is { IsInterface: false, IsAbstract: false } && typeof(RecurringJobBase).IsAssignableFrom(t))
             .Where(t => t.GetCustomAttribute<RecurringJobAttribute>() != null)
             .Where(t =>
             {
-                MethodInfo? runMethod = t.GetMethod(nameof(IRecurringJob.RunAsync), BindingFlags.Public | BindingFlags.Instance);
+                MethodInfo? runMethod = t.GetMethod(nameof(RecurringJobBase.RunAsync), BindingFlags.Public | BindingFlags.Instance);
 
                 return runMethod is not null && runMethod.ReturnType == typeof(Task) && runMethod.GetParameters().Length == 0;
             });
     }
-    
+
     /// <summary>
-    /// Retrieves all recurring jobs marked with the <see cref="RecurringJobAttribute"/> defined within the application.
+    /// Retrieves recurring job metadata from all currently loaded assemblies.
     /// </summary>
-    /// 
-    /// <returns>A list of <see cref="RecurringJob"/> instances representing the recurring job.</returns>
+    ///
+    /// <returns>The recurring job metadata used by the startup service to schedule jobs.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.2.0</since>
-    public static IEnumerable<RecurringJob> GetRecurringJobs() => GetRecurringJobs(AppDomain.CurrentDomain.GetAssemblies());
+    internal static IEnumerable<RecurringJob> GetRecurringJobs() => GetRecurringJobs(AppDomain.CurrentDomain.GetAssemblies());
 
     /// <summary>
-    /// Retrieves all recurring jobs marked with the <see cref="RecurringJobAttribute"/> defined within the provided assemblies.
+    /// Retrieves recurring job metadata from the provided assemblies.
     /// </summary>
-    /// 
+    ///
     /// <param name="assemblies">The assemblies to scan for recurring job types.</param>
-    /// 
-    /// <returns>A list of <see cref="RecurringJob"/> instances representing the recurring jobs.</returns>
+    ///
+    /// <returns>The recurring job metadata built from each discovered job type and its attribute.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>3.0.0</since>
@@ -57,9 +65,9 @@ public static class HangfireUtils
         {
             RecurringJobAttribute attribute = type.GetCustomAttribute<RecurringJobAttribute>()
                 ?? throw new InvalidOperationException($"{type.Name} must define {nameof(RecurringJobAttribute)}.");
-            
-            MethodInfo runMethod = type.GetMethod(nameof(IRecurringJob.RunAsync), BindingFlags.Public | BindingFlags.Instance)
-                ?? throw new InvalidOperationException($"{type.Name} must define a public instance method named {nameof(IRecurringJob.RunAsync)}.");
+
+            MethodInfo runMethod = type.GetMethod(nameof(RecurringJobBase.RunAsync), BindingFlags.Public | BindingFlags.Instance)
+                ?? throw new InvalidOperationException($"{type.Name} must define a public instance method named {nameof(RecurringJobBase.RunAsync)}.");
 
             return new RecurringJob(attribute.JobId, attribute.CronExpression, new Job(type, runMethod));
         }).ToList();
