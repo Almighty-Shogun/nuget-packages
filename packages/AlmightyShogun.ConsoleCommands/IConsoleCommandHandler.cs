@@ -1,18 +1,30 @@
 namespace AlmightyShogun.ConsoleCommands;
 
+/// <summary>
+/// Controls the console command input loop.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>1.0.0</since>
 public interface IConsoleCommandHandler
 {
     /// <summary>
-    /// Starts the asynchronous operation for handling console commands.
+    /// Starts reading console input and dispatching registered commands until cancellation or <see cref="Stop"/> is requested.
     /// </summary>
-    /// 
-    /// <param name="cancellationToken"> A token to monitor for cancellation requests.</param>
-    /// <returns>
-    /// 
-    /// A task that represents the asynchronous operation of starting the console command handler.
-    /// </returns>
+    ///
+    /// <param name="cancellationToken">A token that cancels the command input loop.</param>
+    ///
+    /// <returns>A task that completes when the command input loop stops.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.1.0</since>
     Task StartAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Requests the active console command input loop to stop.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    void Stop();
 }
