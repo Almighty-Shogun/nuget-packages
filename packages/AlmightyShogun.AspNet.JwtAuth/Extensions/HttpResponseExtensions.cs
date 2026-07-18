@@ -2,6 +2,12 @@ using Microsoft.AspNetCore.Http;
 
 namespace AlmightyShogun.AspNet.JwtAuth;
 
+/// <summary>
+/// Provides helpers for writing and clearing authentication cookies on HTTP responses.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>2.3.0</since>
 public static class HttpResponseExtensions
 {
     /// <param name="httpResponse">The <see cref="HttpResponse"/> used to register the functionalities.</param>
@@ -11,8 +17,8 @@ public static class HttpResponseExtensions
         /// Writes an <c>HttpOnly</c> refresh token cookie.
         /// </summary>
         ///
-        /// <param name="token">The access token.</param>
-        /// <param name="days">The amount of days the cookie is valid.</param>
+        /// <param name="token">The refresh token value to store in the cookie.</param>
+        /// <param name="days">The number of days before the cookie expires.</param>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.3.0</since>
@@ -26,7 +32,7 @@ public static class HttpResponseExtensions
         });
 
         /// <summary>
-        /// Deletes the default auth cookies used by the package.
+        /// Deletes the default authentication cookies used by the package.
         /// </summary>
         ///
         /// <author>Almighty-Shogun</author>
