@@ -6,19 +6,25 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AlmightyShogun.Logging;
 
+/// <summary>
+/// Registers the package Serilog configuration for service collections and host builders.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>2.1.0</since>
 public static class PackageRegistry
 {
     /// <param name="serviceCollection">The service collection used to register the custom logging functionality.</param>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Adds logging functionality to the specified service collection using Serilog.
+        /// Adds Serilog logging with the package color formatter to the service collection.
         /// </summary>
-        /// 
-        /// <param name="configuration">The<see cref="IConfiguration"/> to be provided if using Configuration</param>
+        ///
+        /// <param name="configuration">Optional application configuration to load additional Serilog settings from.</param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with logging configured.</returns>
-        /// 
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
         public IServiceCollection AddCustomLogging(IConfiguration? configuration = null)
@@ -40,13 +46,13 @@ public static class PackageRegistry
     extension(IHostBuilder hostBuilder)
     {
         /// <summary>
-        /// Adds logging functionality to the specified hosting builder using Serilog.
+        /// Adds Serilog logging with the package color formatter to the host builder.
         /// </summary>
-        /// 
-        /// <param name="configuration">The<see cref="IConfiguration"/> to be provided if using Configuration</param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with logging configured.</returns>
-        /// 
+        /// <param name="configuration">Optional application configuration to load additional Serilog settings from.</param>
+        ///
+        /// <returns>The <see cref="IHostBuilder"/> instance with logging configured.</returns>
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.1.0</since>
         public IHostBuilder AddCustomLogging(IConfiguration? configuration = null)

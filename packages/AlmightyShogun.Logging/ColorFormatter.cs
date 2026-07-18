@@ -5,14 +5,20 @@ using System.Globalization;
 
 namespace AlmightyShogun.Logging;
 
+/// <summary>
+/// Formats Serilog events with level colors, property colors, and optional property value formatting.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>1.0.0</since>
 internal sealed class ColorFormatter : ITextFormatter
 {
     /// <summary>
-    /// Formats the log event into a textual representation, applying optional coloring and numeric formatting based on property tokens.
+    /// Writes a log event as colored console text.
     /// </summary>
-    /// 
-    /// <param name="logEvent">The log to format, containing the message template and properties.</param>
-    /// <param name="output">The output writer to which the formatted log event will be written.</param>
+    ///
+    /// <param name="logEvent">The Serilog event containing the level, timestamp, template, properties, and optional exception.</param>
+    /// <param name="output">The writer that receives the formatted log line.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
@@ -74,7 +80,7 @@ internal sealed class ColorFormatter : ITextFormatter
                         continue;
                     }
 
-                    string renderedValue = RenderPropertyValue(propertyValue, numericFormat!);
+                    string renderedValue = RenderPropertyValue(propertyValue, numericFormat);
 
                     string ansiColor = colorSpec != null ? AnsiColor.FromShort(colorSpec) : GetDefaultColor(propertyValue);
 
@@ -94,28 +100,28 @@ internal sealed class ColorFormatter : ITextFormatter
             output.Write(logEvent.Exception);
             output.Write(AnsiColor.Reset);
         }
-        
+
         output.WriteLine();
     }
 
     /// <summary>
-    /// Renders the value of a log event property to a string with optional numeric formatting.
+    /// Renders a log event property value with optional numeric formatting.
     /// </summary>
-    /// 
+    ///
     /// <param name="value">The log event property value to render.</param>
-    /// <param name="numericFormat">The numeric format string to apply if the value supports formatting.</param>
-    /// 
-    /// <returns>The rendered string representation of the property value.</returns>
+    /// <param name="numericFormat">The optional numeric format string to apply when the scalar value supports formatting.</param>
+    ///
+    /// <returns>The rendered property value.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    private static string RenderPropertyValue(LogEventPropertyValue value, string numericFormat)
+    private static string RenderPropertyValue(LogEventPropertyValue value, string? numericFormat)
     {
         if (value is ScalarValue scalar)
         {
             object? obj = scalar.Value;
 
-            if (obj == null) 
+            if (obj == null)
                 return "null";
 
             if (string.IsNullOrEmpty(numericFormat) || obj is not IFormattable formattable)
@@ -138,12 +144,12 @@ internal sealed class ColorFormatter : ITextFormatter
     }
 
     /// <summary>
-    /// Determines if a given string represents known color shorthand or specification.
+    /// Determines whether a string is a supported color shorthand code.
     /// </summary>
-    /// 
-    /// <param name="colorCode">The string to evaluate as a potential color representation.</param>
-    /// 
-    /// <returns>Returns true if the string corresponds to a known color; otherwise, false.</returns>
+    ///
+    /// <param name="colorCode">The color shorthand code to evaluate.</param>
+    ///
+    /// <returns><c>true</c> when the value is a supported color shorthand code; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
@@ -155,12 +161,12 @@ internal sealed class ColorFormatter : ITextFormatter
     }
 
     /// <summary>
-    /// Determines the default ANSI color for a given log event property value.
+    /// Determines the default ANSI color for a log event property value.
     /// </summary>
-    /// 
+    ///
     /// <param name="value">The log event property value to evaluate.</param>
-    /// 
-    /// <returns>Returns the ANSI color code as a string based on the type of the provided value.</returns>
+    ///
+    /// <returns>The ANSI color code selected for the property value type.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
@@ -184,12 +190,12 @@ internal sealed class ColorFormatter : ITextFormatter
     }
 
     /// <summary>
-    /// Determines the ANSI color for a given <see cref="LogEventLevel"/> value.
+    /// Determines the ANSI color for a log event level.
     /// </summary>
     ///
     /// <param name="logLevel">The <see cref="LogEventLevel"/> value to evaluate.</param>
     ///
-    /// <returns>Returns the ANSI color code as a string based on the type of the provided value.</returns>
+    /// <returns>The ANSI color code selected for the log level.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
