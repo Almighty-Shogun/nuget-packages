@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: name
       description: Name of the CORS policy to register.
