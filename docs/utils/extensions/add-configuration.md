@@ -1,19 +1,17 @@
 ---
-outline: deep
-
 params:
     - name: section
-      description: Configuration section to bind to options type `T`.
+      description: Configuration section that is bound to the options type `T`.
       type: IConfigurationSection
 
-returns: The `IServiceCollection` instance with the configured options registration.
+returns: The same `IServiceCollection` instance with options binding, validation, and startup validation configured.
 ---
 
 # AddConfiguration
 
 Registers a strongly typed options class and binds it to an `IConfigurationSection`. The method enables options binding, data-annotation validation, and startup validation through `ValidateOnStart`.
 
-Use this helper when a package or application has a configuration record or class that should be injected through `IOptions<T>`. The method expects the caller to pass the specific section that should be bound, such as `builder.Configuration.GetSection("Email")`.
+Use this helper when a package or application has a configuration record or class that should be injected through `IOptions<T>`. Pass the exact section that should be bound, such as `builder.Configuration.GetSection("Email")`; the method does not choose the section name for you.
 
 ## Usage
 

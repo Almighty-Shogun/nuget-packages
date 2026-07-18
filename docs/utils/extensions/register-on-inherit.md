@@ -1,29 +1,25 @@
 ---
-outline: deep
-
 params:
     - name: serviceLifetime
-      description: Lifetime used for every discovered registration.
+      description: Lifetime used for each discovered service registration.
       type: ServiceLifetime
       default: ServiceLifetime.Singleton
-
     - name: assemblies
-      description: Assemblies to scan. When omitted, the calling assembly is scanned.
+      description: Assemblies scanned for concrete implementations. When omitted, the calling assembly is used.
       type: Assembly[]
       default: '[]'
-
     - name: addType
-      description: Whether discovered implementations should be registered as service type `T` instead of their concrete type.
+      description: Registers each discovered implementation under service type `T` when `true`; registers it as its concrete type when `false`.
       type: bool
 
-returns: The `IServiceCollection` instance with discovered concrete types registered.
+returns: The same `IServiceCollection` instance with matching discovered types registered.
 ---
 
 # RegisterOnInherit
 
-Scans assemblies for non-abstract, non-interface types assignable to `T` and registers each discovered type in the service collection. This is useful for command handlers, job classes, plugin-style modules, and other patterns where implementations should be discovered from assemblies.
+Scans assemblies for non-abstract, non-interface types assignable to `T` and registers each discovered type in the service collection. This is useful for command handlers, recurring jobs, plugin-style modules, and other patterns where implementations should be discovered from assemblies.
 
-There are two overloads. The simpler overload registers each discovered implementation as `T`, which is useful when consumers resolve `IEnumerable<T>` or a known base contract. The overload with `addType` lets callers choose whether registrations use service type `T` or the concrete type itself.
+The simpler overload registers each discovered implementation as service type `T`, which is useful when consumers resolve `IEnumerable<T>` or a known base contract. The overload with `addType` lets callers choose whether registrations use service type `T` or the concrete implementation type itself.
 
 ## Usage
 
@@ -87,7 +83,3 @@ public IServiceCollection RegisterOnInherit<T>(
     params Assembly[] assemblies
 ) where T : class;
 ```
-
-## Uses
-
-- [GetOnInherit](../../classes/application-utils/get-on-inherit)
