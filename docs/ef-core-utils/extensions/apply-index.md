@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: index
       description: Property expression, or anonymous-object expression, that identifies the indexed property or composite index properties.
@@ -22,17 +20,46 @@ Use this method when model configuration needs a compact, chainable index declar
 
 ## Usage
 
-```csharp
+::: code-group
+
+```csharp [AppDbContext.cs]
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.EntityFrameworkCore.Utils;
 
-protected override void OnModelCreating(ModelBuilder modelBuilder)
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    modelBuilder
-        .ApplyIndex<User>(user => user.Email, isUnique: true)
-        .ApplyIndex<UserSession>(session => new { session.UserId, session.CreatedAt });
+    public DbSet<User> Users => Set<User>();
+
+    public DbSet<UserSession> Sessions => Set<UserSession>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .ApplyIndex<User>(user => user.Email, isUnique: true)
+            .ApplyIndex<UserSession>(session => new { session.UserId, session.CreatedAt });
+    }
 }
 ```
+
+```csharp [Entities.cs]
+public sealed class User
+{
+    public int Id { get; set; }
+
+    public string Email { get; set; } = "";
+}
+
+public sealed class UserSession
+{
+    public int Id { get; set; }
+
+    public int UserId { get; set; }
+
+    public DateTimeOffset CreatedAt { get; set; }
+}
+```
+
+:::
 
 <FrontmatterDocs/>
 

@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: navigation
       description: Navigation property that EF Core should automatically include whenever the entity is queried.
@@ -17,17 +15,46 @@ Use this method for navigations that should almost always be loaded with the ent
 
 ## Usage
 
-```csharp
+::: code-group
+
+```csharp [AppDbContext.cs]
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.EntityFrameworkCore.Utils;
 
-protected override void OnModelCreating(ModelBuilder modelBuilder)
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    modelBuilder
-        .ApplyAutoInclude<User>(user => user.Profile)
-        .ApplyIndex<User>(user => user.Email, isUnique: true);
+    public DbSet<User> Users => Set<User>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .ApplyAutoInclude<User>(user => user.Profile)
+            .ApplyIndex<User>(user => user.Email, isUnique: true);
+    }
 }
 ```
+
+```csharp [Entities.cs]
+public sealed class User
+{
+    public int Id { get; set; }
+
+    public string Email { get; set; } = "";
+
+    public UserProfile? Profile { get; set; }
+}
+
+public sealed class UserProfile
+{
+    public int Id { get; set; }
+
+    public int UserId { get; set; }
+
+    public User? User { get; set; }
+}
+```
+
+:::
 
 <FrontmatterDocs/>
 

@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: navigation
       description: Reference navigation on the dependent entity pointing to the principal entity.
@@ -41,22 +39,51 @@ Use this method when the model code is written from the dependent side of the re
 
 ## Usage
 
-```csharp
+::: code-group
+
+```csharp [AppDbContext.cs]
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.EntityFrameworkCore.Utils;
 
-protected override void OnModelCreating(ModelBuilder modelBuilder)
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    modelBuilder
-        .ApplyManyToOne<User, UserSession>(
-            session => session.User,
-            session => session.UserId,
-            isRequired: true,
-            inverseNavigation: user => user.Sessions
-        )
-        .ApplyIndex<UserSession>(session => session.UserId);
+    public DbSet<User> Users => Set<User>();
+
+    public DbSet<UserSession> Sessions => Set<UserSession>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .ApplyManyToOne<User, UserSession>(
+                session => session.User,
+                session => session.UserId,
+                isRequired: true,
+                inverseNavigation: user => user.Sessions
+            )
+            .ApplyIndex<UserSession>(session => session.UserId);
+    }
 }
 ```
+
+```csharp [Entities.cs]
+public sealed class User
+{
+    public int Id { get; set; }
+
+    public List<UserSession> Sessions { get; set; } = [];
+}
+
+public sealed class UserSession
+{
+    public int Id { get; set; }
+
+    public int UserId { get; set; }
+
+    public User? User { get; set; }
+}
+```
+
+:::
 
 <FrontmatterDocs/>
 

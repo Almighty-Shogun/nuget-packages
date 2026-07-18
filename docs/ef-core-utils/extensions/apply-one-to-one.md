@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: navigation
       description: Reference navigation on the principal entity pointing to the dependent entity.
@@ -41,23 +39,52 @@ Use this method when the principal entity has a single dependent reference and t
 
 ## Usage
 
-```csharp
+::: code-group
+
+```csharp [AppDbContext.cs]
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.EntityFrameworkCore.Utils;
 
-protected override void OnModelCreating(ModelBuilder modelBuilder)
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    modelBuilder
-        .ApplyOneToOne<User, UserProfile>(
-            user => user.Profile,
-            profile => profile.UserId,
-            isRequired: true,
-            deleteBehavior: DeleteBehavior.Cascade,
-            inverseNavigation: profile => profile.User
-        )
-        .ApplyAutoInclude<User>(user => user.Profile);
+    public DbSet<User> Users => Set<User>();
+
+    public DbSet<UserProfile> Profiles => Set<UserProfile>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .ApplyOneToOne<User, UserProfile>(
+                user => user.Profile,
+                profile => profile.UserId,
+                isRequired: true,
+                deleteBehavior: DeleteBehavior.Cascade,
+                inverseNavigation: profile => profile.User
+            )
+            .ApplyAutoInclude<User>(user => user.Profile);
+    }
 }
 ```
+
+```csharp [Entities.cs]
+public sealed class User
+{
+    public int Id { get; set; }
+
+    public UserProfile? Profile { get; set; }
+}
+
+public sealed class UserProfile
+{
+    public int Id { get; set; }
+
+    public int UserId { get; set; }
+
+    public User? User { get; set; }
+}
+```
+
+:::
 
 <FrontmatterDocs/>
 

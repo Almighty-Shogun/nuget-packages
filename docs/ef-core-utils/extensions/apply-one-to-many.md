@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: navigation
       description: Collection navigation on the principal entity containing dependent entities.
@@ -41,22 +39,51 @@ Use this method when a principal entity owns a collection of dependents and the 
 
 ## Usage
 
-```csharp
+::: code-group
+
+```csharp [AppDbContext.cs]
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.EntityFrameworkCore.Utils;
 
-protected override void OnModelCreating(ModelBuilder modelBuilder)
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    modelBuilder
-        .ApplyOneToMany<User, UserSession>(
-            user => user.Sessions,
-            session => session.UserId,
-            deleteBehavior: DeleteBehavior.Cascade,
-            inverseNavigation: session => session.User
-        )
-        .ApplyIndex<UserSession>(session => session.UserId);
+    public DbSet<User> Users => Set<User>();
+
+    public DbSet<UserSession> Sessions => Set<UserSession>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .ApplyOneToMany<User, UserSession>(
+                user => user.Sessions,
+                session => session.UserId,
+                deleteBehavior: DeleteBehavior.Cascade,
+                inverseNavigation: session => session.User
+            )
+            .ApplyIndex<UserSession>(session => session.UserId);
+    }
 }
 ```
+
+```csharp [Entities.cs]
+public sealed class User
+{
+    public int Id { get; set; }
+
+    public List<UserSession> Sessions { get; set; } = [];
+}
+
+public sealed class UserSession
+{
+    public int Id { get; set; }
+
+    public int UserId { get; set; }
+
+    public User? User { get; set; }
+}
+```
+
+:::
 
 <FrontmatterDocs/>
 

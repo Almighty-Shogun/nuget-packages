@@ -6,22 +6,51 @@ Use this package when a project repeatedly configures one-to-one, one-to-many, m
 
 ## Categories
 
-- [Classes](./classes/model-builder-extensions/) &mdash; public `ModelBuilder` extension methods for relationship, navigation, and index configuration.
+- [Extensions](./extensions/apply-auto-include) &mdash; public `ModelBuilder` extension methods for relationship, navigation, and index configuration.
 
 ## Quick Example
 
-```csharp
+::: code-group
+
+```csharp [AppDbContext.cs]
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.EntityFrameworkCore.Utils;
 
-protected override void OnModelCreating(ModelBuilder modelBuilder)
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    modelBuilder
-        .ApplyOneToMany<User, UserSession>(
-            user => user.Sessions,
-            session => session.UserId,
-            inverseNavigation: session => session.User
-        )
-        .ApplyIndex<UserSession>(session => session.UserId);
+    public DbSet<User> Users => Set<User>();
+
+    public DbSet<UserSession> Sessions => Set<UserSession>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .ApplyOneToMany<User, UserSession>(
+                user => user.Sessions,
+                session => session.UserId,
+                inverseNavigation: session => session.User
+            )
+            .ApplyIndex<UserSession>(session => session.UserId);
+    }
 }
 ```
+
+```csharp [Entities.cs]
+public sealed class User
+{
+    public int Id { get; set; }
+
+    public List<UserSession> Sessions { get; set; } = [];
+}
+
+public sealed class UserSession
+{
+    public int Id { get; set; }
+
+    public int UserId { get; set; }
+
+    public User? User { get; set; }
+}
+```
+
+:::
