@@ -6,25 +6,42 @@ The formatter writes a timestamp, a three-letter log level, message-template tex
 
 ## Usage
 
-```csharp
-using Serilog;
+::: code-group
 
-Log.Information(
-    "Processed {Count:c} items for {Application:bg} in {Elapsed:0.00|y} ms",
-    42,
-    "admin",
-    18.742
-);
+```csharp [Program.cs]
+using AlmightyShogun.Logging;
+
+builder.Services
+    .AddCustomLogging(builder.Configuration)
+    .AddHostedService<ImportWorker>();
 ```
+
+```csharp [ImportWorker.cs]
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+public sealed class ImportWorker(ILogger<ImportWorker> logger) : BackgroundService
+{
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        logger.LogInformation(
+            "Processed {Count:c} items for {Application:bg} in {Elapsed:0.00|y} ms",
+            42,
+            "admin",
+            18.742
+        );
+
+        logger.LogInformation("User {UserId:y} logged in", 42);
+        logger.LogInformation("Completed in {Elapsed:0.00|g} ms", 18.742);
+
+        return Task.CompletedTask;
+    }
+}
+```
+
+:::
 
 Message-template property formats can include color shorthand. Use the shorthand as the property format, or combine a numeric format and color with `|`.
-
-```csharp
-using Serilog;
-
-Log.Information("User {UserId:y} logged in", 42);
-Log.Information("Completed in {Elapsed:0.00|g} ms", 18.742);
-```
 
 ## Colors
 

@@ -6,7 +6,9 @@ Use this package when an application should use the same console logging format 
 
 ## Categories
 
-- [Extensions](./extensions/add-custom-logging/) &mdash; logging registration methods for `IServiceCollection` and `IHostBuilder`.
+- [Configuration](./configuration) &mdash; optional Serilog configuration read from application settings.
+- [Formatter](./formatter) &mdash; console formatter behavior, message-template color syntax, and available colors.
+- [Extensions](./extensions/add-custom-logging) &mdash; logging registration methods for `IServiceCollection` and `IHostBuilder`.
 
 ## Quick Example
 
