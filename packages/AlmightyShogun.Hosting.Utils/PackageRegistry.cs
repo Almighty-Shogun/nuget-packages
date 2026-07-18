@@ -4,6 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AlmightyShogun.Hosting.Utils;
 
+/// <summary>
+/// Registers hosting utilities for console lifetime and host option configuration.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>2.0.0</since>
 public static class PackageRegistry
 {
     /// <param name="serviceCollection">The service collection used to register the functionality.</param>
@@ -16,9 +22,9 @@ public static class PackageRegistry
         /// <c>DOTNET_RUNNING_IN_IDE=true</c> in your run/debug configuration. This enables IDE stop commands
         /// or allows you to stop the application manually using <c>Ctrl+C</c>.
         /// </summary>
-        /// 
-        /// <returns>The updated <see cref="IServiceCollection"/> with the registered custom <see cref="ConsoleLifetime"/>.</returns>
-        /// 
+        ///
+        /// <returns>The <see cref="IServiceCollection"/> instance with the custom <see cref="IHostLifetime"/> registered.</returns>
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.0.0</since>
         public IServiceCollection UseCustomConsoleLifetime()
@@ -30,7 +36,7 @@ public static class PackageRegistry
             {
                 serviceCollection.Remove(baseConsoleLifetime);
             }
-    
+
             return serviceCollection.AddSingleton<IHostLifetime, CustomConsoleLifetime>();
         }
 
@@ -39,11 +45,11 @@ public static class PackageRegistry
         /// This method allows customization of host options, including handling of shutdown delays
         /// and configurable behavior when background services throw exceptions.
         /// </summary>
-        /// 
+        ///
         /// <param name="shutdownTimeout">The maximum amount of time to allow for a graceful host shutdown.</param>
         /// <param name="backgroundServiceExceptionBehavior">Specifies how the host should respond when a background service throws an exception.</param>
-        /// 
-        /// <returns>The updated <see cref="IServiceCollection"/> with the configured host options.</returns>
+        ///
+        /// <returns>The <see cref="IServiceCollection"/> instance with configured host options.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.0.0</since>
