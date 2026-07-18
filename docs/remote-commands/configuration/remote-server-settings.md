@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 fields:
     - name: Address
       description: IP address used by the TCP listener.

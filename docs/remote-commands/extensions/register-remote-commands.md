@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: assemblies
       description: Assemblies scanned for concrete remote command classes. When omitted, the calling assembly is used.

@@ -8,7 +8,7 @@ dotnet add package AlmightyShogun.RemoteCommands
 
 ## Dependencies
 
-- `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.8` &mdash; provides service registration APIs.
+- `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.10` &mdash; provides service registration APIs.
 - `AlmightyShogun.Logging` project reference &mdash; provides logging behavior used by the listener.
 - `AlmightyShogun.Utils` project reference &mdash; provides assembly scanning and inherited-type registration helpers.
 
