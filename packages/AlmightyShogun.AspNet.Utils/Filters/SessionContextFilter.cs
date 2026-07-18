@@ -3,24 +3,34 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace AlmightyShogun.AspNet.Utils;
 
-internal class SessionContextFilter : IActionFilter
+/// <summary>
+/// Captures request metadata and stores it in <see cref="HttpContext.Items"/> before controller actions execute.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>2.2.1</since>
+internal sealed class SessionContextFilter : IActionFilter
 {
-    /// <inheritdoc/>
+    /// <inheritdoc />
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.2.1</since>
     public void OnActionExecuting(ActionExecutingContext context)
     {
         HttpContext httpContext = context.HttpContext;
 
-        string? ip = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()
-                     ?? httpContext.Connection.RemoteIpAddress?.ToString();
+        string? ip = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
 
-        var sessionCtx = new SessionContext(
-            IpAddress: ip,
-            UserAgent: httpContext.Request.Headers.UserAgent.ToString()
-        );
+        ip ??= httpContext.Connection.RemoteIpAddress?.ToString();
+
+        var sessionCtx = new SessionContext(ip, httpContext.Request.Headers.UserAgent.ToString());
 
         httpContext.Items[SessionContext.ItemKey] = sessionCtx;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.2.1</since>
     public void OnActionExecuted(ActionExecutedContext context) { }
 }
