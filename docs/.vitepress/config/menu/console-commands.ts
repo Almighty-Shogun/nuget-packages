@@ -9,46 +9,36 @@ export const consoleCommands: DefaultTheme.SidebarItem[] = [
         ]
     },
     {
-        text: 'Attributes',
-        collapsed: false,
-        items: [
-            { text: 'AliasAttribute', link: '/console-commands/attributes/alias-attribute' },
-            { text: 'ConsoleCommandAttribute', link: '/console-commands/attributes/console-command-attribute' },
-            { text: 'ExampleAttribute', link: '/console-commands/attributes/example-attribute' }
-        ]
-    },
-    {
-        text: 'Classes',
-        collapsed: false,
-        items: [
-            { text: 'ConsoleCommand', link: '/console-commands/classes/console-command' },
-            { text: 'ConsoleCommandBase', link: '/console-commands/classes/console-command-base/' },
-            {
-                text: 'ConsoleCommandHandler',
-                link: '/console-commands/classes/console-command-handler/',
-                collapsed: true,
-                items: [
-                    { text: 'StartAsync', link: '/console-commands/classes/console-command-handler/start-async' }
-                ]
-            },
-            {
-                text: 'ConsoleUtils',
-                link: '/console-commands/classes/console-utils/',
-                collapsed: true,
-                items: [
-                    { text: 'AskQuestionAsync', link: '/console-commands/classes/console-utils/ask-question-async' },
-                    { text: 'GetAllCommands', link: '/console-commands/classes/console-utils/get-all-commands' },
-                    { text: 'RemoveLastConsoleLine', link: '/console-commands/classes/console-utils/remove-last-console-line' }
-                ]
-            }
-        ]
-    },
-    {
         text: 'Extensions',
         collapsed: false,
         items: [
             { text: 'AddConsoleCommands', link: '/console-commands/extensions/add-console-commands' },
             { text: 'RegisterConsoleCommands', link: '/console-commands/extensions/register-console-commands' }
+        ]
+    },
+    {
+        text: 'Attributes',
+        collapsed: false,
+        items: [
+            { text: 'Alias', link: '/console-commands/attributes/alias-attribute' },
+            { text: 'ConsoleCommand', link: '/console-commands/attributes/console-command-attribute' },
+            { text: 'Example', link: '/console-commands/attributes/example-attribute' }
+        ]
+    },
+    {
+        text: 'Services',
+        collapsed: false,
+        items: [
+            { text: 'ConsoleCommandHandler', link: '/console-commands/services/console-command-handler' }
+        ]
+    },
+    {
+        text: 'Types',
+        collapsed: false,
+        items: [
+            { text: 'ConsoleCommand', link: '/console-commands/types/console-command' },
+            { text: 'ConsoleCommandBase', link: '/console-commands/types/console-command-base' },
+            { text: 'ConsoleUtils', link: '/console-commands/types/console-utils' }
         ]
     },
 ];

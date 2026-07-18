@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 returns: The `IServiceCollection` instance with the console command handler registered.
 ---
 
@@ -25,7 +23,3 @@ builder.Services.AddConsoleCommands();
 ```csharp
 public IServiceCollection AddConsoleCommands();
 ```
-
-## Uses
-
-- [ConsoleCommandHandler](../classes/console-command-handler/)

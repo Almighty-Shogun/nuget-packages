@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: name
       description: Command name typed by the user in the console input.
@@ -25,10 +23,29 @@ Use this attribute on every class that inherits from `ConsoleCommandBase`. Each 
 
 ## Usage
 
-```csharp
+::: code-group
+
+```csharp [StatusCommand.cs]
 using Microsoft.Extensions.Logging;
 using AlmightyShogun.ConsoleCommands;
 
+[ConsoleCommand("status", "Writes the current worker status.")]
+public sealed class StatusCommand(ILogger<ConsoleCommandBase> logger) : ConsoleCommandBase(logger)
+{
+    public Task ExecuteAsync()
+    {
+        Console.WriteLine("Worker is running.");
+
+        return Task.CompletedTask;
+    }
+}
+```
+
+```csharp [DeployCommand.cs]
+using Microsoft.Extensions.Logging;
+using AlmightyShogun.ConsoleCommands;
+
+[Example("production true")]
 [ConsoleCommand("deploy", "Deploys a named environment.")]
 public sealed class DeployCommand(ILogger<ConsoleCommandBase> logger) : ConsoleCommandBase(logger)
 {
@@ -41,4 +58,16 @@ public sealed class DeployCommand(ILogger<ConsoleCommandBase> logger) : ConsoleC
 }
 ```
 
+:::
+
 <FrontmatterDocs/>
+
+## Type signature
+
+```csharp
+public ConsoleCommandAttribute(
+    string name,
+    string? description = null,
+    bool ignoreExtraArgs = false
+);
+```

@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: args
       description: Example arguments appended after the command name when metadata is generated.
@@ -34,3 +32,9 @@ public sealed class UserCommand(ILogger<ConsoleCommandBase> logger) : ConsoleCom
 ```
 
 <FrontmatterDocs/>
+
+## Type signature
+
+```csharp
+public ExampleAttribute(params object[] args);
+```

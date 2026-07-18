@@ -8,7 +8,7 @@ dotnet add package AlmightyShogun.ConsoleCommands
 
 ## Dependencies
 
-- `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.8` &mdash; provides the service registration APIs used by the package.
+- `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.10` &mdash; provides the service registration APIs used by the package.
 - `AlmightyShogun.Logging` project reference &mdash; provides logging support used by the command runtime.
 - `AlmightyShogun.Utils` project reference &mdash; provides assembly scanning and inherited-type registration helpers.
 
