@@ -1,6 +1,6 @@
 # Introduction
 
-Welcome to NuGet Packages, a small collection of .NET packages used across ASP.NET Core APIs, hosted applications, console tooling, background jobs, logging, email, Entity Framework Core, and shared application utilities. Each package is published independently and documented with the same structure: installation, configuration, usage examples, parameters, returns, type signatures, and public dependencies where relevant.
+Welcome to NuGet Packages, a small collection of .NET packages used across ASP.NET Core APIs, hosted applications, console tooling, background jobs, logging, email, Entity Framework Core, and shared application utilities. Each package is published independently and documented with the same structure: installation, configuration, usage examples, parameters, returns, type signatures, and dependency notes where relevant.
 
 The repository is intentionally practical. Packages are small, .NET-first, dependency-injection-friendly, and focused on reusable application infrastructure that is common enough to share but not large enough to become a framework.
 

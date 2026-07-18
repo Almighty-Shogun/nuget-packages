@@ -4,8 +4,7 @@ layout: home
 hero:
     name: NuGet Packages
     text: Small NuGet packages for easier development.
-    tagline: ASP.NET JWT Auth and Utils, Console commands, Remote commands, Logging, Hangfire, EF Core Utils and much more...
-    #tagline: API-focused documentation for utilities, Vue composables, prototype helpers, and a WebKit native bridge.
+    tagline: Small .NET infrastructure packages for APIs, jobs, logging, email, EF Core, and shared utilities.
     image:
         src: /logo.svg
         alt: Shogun App Icon
