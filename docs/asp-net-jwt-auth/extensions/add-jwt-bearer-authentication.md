@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: configuration
       description: Application configuration containing the `Auth` section.
@@ -39,8 +37,3 @@ public AuthenticationBuilder AddJwtBearerAuthentication(
     IConfiguration configuration
 );
 ```
-
-## Uses
-
-- [AuthSettings](../configuration/auth-settings)
-- [AppHostResolver](../classes/app-host-resolver/)

@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: configuration
       description: Application configuration containing the `Auth` section.
@@ -36,9 +34,3 @@ public IServiceCollection AddApiAuth(
     IConfiguration configuration
 );
 ```
-
-## Uses
-
-- [AddJwtBearerAuthentication](./add-jwt-bearer-authentication)
-- [AuthSettings](../configuration/auth-settings)
-- [AppHostResolver](../classes/app-host-resolver/)

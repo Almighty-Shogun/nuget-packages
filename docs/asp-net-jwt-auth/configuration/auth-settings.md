@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 fields:
     - name: Issuer
       description: Expected JWT issuer value.

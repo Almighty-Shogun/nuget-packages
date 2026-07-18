@@ -6,11 +6,11 @@ Use this package when an API should accept JWT access tokens, store refresh toke
 
 ## Categories
 
-- [Attributes](./attributes/auth-permission-attribute) &mdash; endpoint metadata for permission-based authorization.
-- [Classes](./classes/app-host-resolver/) &mdash; concrete package services, with guidance on the DI interfaces consumers should request.
 - [Configuration](./configuration/auth-settings) &mdash; public configuration shapes bound from application configuration.
-- [Constants](./constants/cookie-names) &mdash; shared names used by the cookie helpers.
 - [Extensions](./extensions/add-api-auth) &mdash; startup, request, response, and claims-principal extension methods.
+- [Attributes](./attributes/auth-permission-attribute) &mdash; endpoint metadata for permission-based authorization.
+- [Services](./services/app-host-resolver) &mdash; dependency-injection services and contracts used by authentication.
+- [Constants](./constants/cookie-names) &mdash; shared names used by the cookie helpers.
 
 ## Quick Example
 

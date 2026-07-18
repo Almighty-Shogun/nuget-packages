@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 returns: The refresh-token cookie value, or `null` when the cookie is not present.
 ---
 
@@ -29,7 +27,3 @@ string? refreshToken = httpContext.Request.GetRefreshTokenCookie();
 ```csharp
 public string? GetRefreshTokenCookie();
 ```
-
-## Uses
-
-- [CookieNames](../constants/cookie-names)

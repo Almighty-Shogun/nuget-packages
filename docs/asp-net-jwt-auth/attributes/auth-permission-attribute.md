@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: permission
       description: Permission claim value required to access the controller or action.
@@ -30,3 +28,9 @@ public sealed class AdminUsersController : ControllerBase
 ```
 
 <FrontmatterDocs/>
+
+## Type signature
+
+```csharp
+public AuthPermissionAttribute(string permission);
+```
