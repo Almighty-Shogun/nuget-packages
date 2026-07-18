@@ -1,16 +1,22 @@
 namespace AlmightyShogun.ConsoleCommands;
 
+/// <summary>
+/// Exposes the command execution entry point used by the internal dispatcher.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>3.0.0</since>
 internal interface IInternalConsoleCommand
 {
     /// <summary>
-    /// Handles the execution of a console command with the provided arguments.
+    /// Executes the command after the dispatcher has parsed the command arguments.
     /// </summary>
-    /// 
-    /// <param name="args">An array of strings representing the arguments passed to the command. Arguments must match the command's parameter configuration.</param>
     ///
-    /// <returns>A task that represents the asynchronous operation of handling the command.</returns>
+    /// <param name="args">The raw argument values passed after the command name.</param>
+    ///
+    /// <returns>A task that completes when the command execution finishes.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>1.0.0</since>
+    /// <since>3.0.0</since>
     Task InternallyExecuteCommandAsync(string[] args);
 }
