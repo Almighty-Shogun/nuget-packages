@@ -1,6 +1,4 @@
 ---
-outline: deep
-
 params:
     - name: shutdownTimeout
       description: Maximum amount of time the host should wait for graceful shutdown.
