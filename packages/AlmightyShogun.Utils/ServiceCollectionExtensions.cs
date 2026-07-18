@@ -4,35 +4,47 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AlmightyShogun.Utils;
 
+/// <summary>
+/// Provides dependency-injection registration helpers for options, service registries, and assembly scanning.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>1.0.0</since>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Provides dependency-injection extension methods for the target service collection.
+    /// </summary>
+    ///
+    /// <param name="serviceCollection">The service collection that receives the registrations.</param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>1.0.0</since>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
         /// Adds and configures the service of type <typeparamref name="T"/> into the provided <see cref="IServiceCollection"/>.
         /// </summary>
-        /// 
-        /// <typeparam name="T">The service type implementing <see cref="IService"/> to be added and configured.</typeparam>
-        /// 
+        ///
+        /// <typeparam name="T">The service type implementing <see cref="IServiceRegistry"/> to be added and configured.</typeparam>
+        ///
         /// <returns>The updated <see cref="IServiceCollection"/> with the configured service.</returns>
-        /// 
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
-        public IServiceCollection AddService<T>() where T : IService, new()
-        {
-            return new T().ConfigureService(serviceCollection);
-        }
-        
+        public IServiceCollection AddService<T>() where T : IServiceRegistry, new()
+            => new T().ConfigureService(serviceCollection);
+
         /// <summary>
         /// Adds a strongly typed options class of type <typeparamref name="T"/> to the service collection
         /// and binds it to a configuration section.
         /// </summary>
-        /// 
+        ///
         /// <typeparam name="T">The type of the options class to configure.</typeparam>
         /// <param name="section">The <see cref="IConfigurationSection"/> from which the options will be bound.</param>
         ///
-        /// <returns>The updated <see cref="IServiceCollection"/> with the configured configuration.</returns>
-        /// 
+        /// <returns>The <see cref="IServiceCollection"/> instance with the options binding configured.</returns>
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
         public IServiceCollection AddConfiguration<T>(IConfigurationSection section) where T : class
@@ -46,14 +58,14 @@ public static class ServiceCollectionExtensions
         }
 
         /// <summary>
-        /// Registers services of types inheriting or implementing the specified type <typeparamref name="T"/> into the provided <see cref="IServiceCollection"/>.
+        /// Registers concrete types that inherit from or implement <typeparamref name="T"/> using <typeparamref name="T"/> as the service type.
         /// </summary>
-        /// 
+        ///
         /// <typeparam name="T">The base type or interface to search for inheriting or implementing types.</typeparam>
         /// <param name="serviceLifetime">The lifetime of the registered services. Defaults to <see cref="ServiceLifetime.Singleton"/>.</param>
-        /// <param name="assemblies">The assemblies to search for inheriting or implementing types. If not specified, the calling assembly is used.</param>
-        /// 
-        /// <returns>The updated <see cref="IServiceCollection"/> with the registered services.</returns>
+        /// <param name="assemblies">The assemblies to search. If none are provided, the calling assembly is used.</param>
+        ///
+        /// <returns>The <see cref="IServiceCollection"/> instance with matching implementations registered.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
@@ -63,20 +75,20 @@ public static class ServiceCollectionExtensions
             {
                 assemblies = [Assembly.GetCallingAssembly()];
             }
-            
+
             return serviceCollection.InternalRegister<T>(serviceLifetime, true, assemblies);
         }
 
         /// <summary>
-        /// Registers all types inheriting from the specified base type <typeparamref name="T"/> found in the given assemblies with the provided <see cref="IServiceCollection"/>.
+        /// Registers concrete types that inherit from or implement <typeparamref name="T"/> with configurable service type behavior.
         /// </summary>
-        /// 
+        ///
         /// <typeparam name="T">The base type to search for inheriting types.</typeparam>
-        /// <param name="addType">Specifies whether the base type <typeparamref name="T"/> itself should also be registered.</param>
-        /// <param name="serviceLifetime">The service lifetime to be used for the registrations (e.g., Singleton, Scoped, Transient).</param>
-        /// <param name="assemblies">The assemblies to search for types inheriting from <typeparamref name="T"/>. If not specified, the calling assembly is used by default.</param>
-        /// 
-        /// <returns>The updated <see cref="IServiceCollection"/> containing the registered services.</returns>
+        /// <param name="addType">Whether to register each implementation under <typeparamref name="T"/> instead of its concrete type.</param>
+        /// <param name="serviceLifetime">The lifetime to use for each registration.</param>
+        /// <param name="assemblies">The assemblies to search. If none are provided, the calling assembly is used.</param>
+        ///
+        /// <returns>The <see cref="IServiceCollection"/> instance with matching implementations registered.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
@@ -86,21 +98,20 @@ public static class ServiceCollectionExtensions
             {
                 assemblies = [Assembly.GetCallingAssembly()];
             }
-            
+
             return serviceCollection.InternalRegister<T>(serviceLifetime, addType, assemblies);
         }
 
         /// <summary>
-        /// Registers types that inherit from or implement the specified base type or interface <typeparamref name="T"/>
-        /// into the service collection with the specified service lifetime and optional service type addition.
+        /// Registers discovered implementation types using either <typeparamref name="T"/> or the concrete type as the service type.
         /// </summary>
-        /// 
+        ///
         /// <typeparam name="T">The base type or interface to search for inheriting or implementing types.</typeparam>
-        /// <param name="serviceLifetime">The lifetime of the registered services (e.g., Singleton, Scoped, Transient).</param>
-        /// <param name="addType">Indicates whether to register the base type or interface <typeparamref name="T"/> as the service type.</param>
-        /// <param name="assemblies">The assemblies to scan for types inheriting from or implementing <typeparamref name="T"/>.</param>
-        /// 
-        /// <returns>The updated <see cref="IServiceCollection"/> with the registered services.</returns>
+        /// <param name="serviceLifetime">The lifetime to use for each registration.</param>
+        /// <param name="addType">Whether to register each implementation under <typeparamref name="T"/> instead of its concrete type.</param>
+        /// <param name="assemblies">The assemblies to scan for implementations.</param>
+        ///
+        /// <returns>The <see cref="IServiceCollection"/> instance with matching implementations registered.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
@@ -108,7 +119,7 @@ public static class ServiceCollectionExtensions
         {
             IEnumerable<Type> types = ApplicationUtils.GetOnInherit<T>(assemblies)
                 .Where(t => t is { IsInterface: false, IsAbstract: false });
-            
+
             foreach (Type type in types)
             {
                 Type serviceType = addType ? typeof(T) : type;
