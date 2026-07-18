@@ -2,6 +2,12 @@ using System.Security.Claims;
 
 namespace AlmightyShogun.AspNet.JwtAuth;
 
+/// <summary>
+/// Provides helpers for reading package-specific authentication claims from the current principal.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>2.3.0</since>
 public static class ClaimsPrincipalExtensions
 {
     extension(ClaimsPrincipal principal)
@@ -9,10 +15,10 @@ public static class ClaimsPrincipalExtensions
         /// <summary>
         /// Gets the current authenticated user id from the <c>userId</c> claim.
         /// </summary>
-        /// 
-        /// <exception cref="UnauthorizedAccessException">Thrown when the user id claim is missing or invalid. </exception>
         ///
-        /// <returns>The user ID of the user.</returns>
+        /// <exception cref="UnauthorizedAccessException">Thrown when the user id claim is missing or cannot be parsed as an integer.</exception>
+        ///
+        /// <returns>The parsed user id from the authenticated principal.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.3.0</since>

@@ -11,6 +11,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace AlmightyShogun.AspNet.JwtAuth;
 
+/// <summary>
+/// Registers the services and authentication handlers provided by ASP.NET JWT Auth.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>2.3.0</since>
 public static class PackageRegistry
 {
     /// <param name="serviceCollection">The service collection used to register the API auth functionality.</param>
@@ -20,8 +26,8 @@ public static class PackageRegistry
         /// Registers the API auth package services using the provided configuration root.
         /// </summary>
         ///
-        /// <param name="configuration">The<see cref="IConfiguration"/> to be provided.</param>
-        /// 
+        /// <param name="configuration">The application configuration that contains the required <c>Auth</c> section.</param>
+        ///
         /// <returns>The <see cref="IServiceCollection"/> instance with authentication configured.</returns>
         ///
         /// <author>Almighty-Shogun</author>
@@ -49,7 +55,7 @@ public static class PackageRegistry
         /// Registers JWT bearer authentication configured from the <c>Auth</c> configuration section.
         /// </summary>
         ///
-        /// <param name="configuration">The<see cref="IConfiguration"/> to be provided.</param>
+        /// <param name="configuration">The application configuration that contains issuer, secret, lifetime, and host mapping settings.</param>
         ///
         /// <returns>The <see cref="AuthenticationBuilder"/> instance with JWT bearer configured.</returns>
         ///
@@ -61,7 +67,7 @@ public static class PackageRegistry
 
             if (authSettings is null)
                 throw new InvalidOperationException("Missing Auth configuration");
-            
+
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
@@ -81,7 +87,7 @@ public static class PackageRegistry
                     if (!appHostResolver.TryResolveAppFromHost(context.HttpContext.Request.Host.Host, out string app))
                     {
                         context.Fail("Unknown application");
-                        
+
                         return Task.CompletedTask;
                     }
 
