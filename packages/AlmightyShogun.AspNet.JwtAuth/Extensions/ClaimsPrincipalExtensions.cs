@@ -10,6 +10,14 @@ namespace AlmightyShogun.AspNet.JwtAuth;
 /// <since>2.3.0</since>
 public static class ClaimsPrincipalExtensions
 {
+    /// <summary>
+    /// Provides claim-reading extension methods for the target claims principal.
+    /// </summary>
+    ///
+    /// <param name="principal">The claims principal that supplies authentication claims.</param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.3.0</since>
     extension(ClaimsPrincipal principal)
     {
         /// <summary>
