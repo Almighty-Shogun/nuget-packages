@@ -1,5 +1,8 @@
 ---
 params:
+    - name: stream
+      description: Writable stream that receives the serialized JSON payload.
+      type: Stream
     - name: options
       description: Serializer options passed directly to `System.Text.Json`.
       type: JsonSerializerOptions
@@ -8,12 +11,12 @@ params:
       type: bool
       default: 'true'
 
-returns: A task that resolves to the deserialized value, or `null` when `System.Text.Json` cannot create a value.
+returns: A task that completes when the value has been serialized to the stream.
 ---
 
-# DeserializeAsync
+# SerializeAsync
 
-Deserializes JSON from a stream into a nullable value of type `T`. Use this method when reading JSON from files, request bodies, network streams, or any other source where loading the entire payload into a string first would be unnecessary.
+Serializes a value of type `T` into a writable stream. Use this method when writing JSON to a file, response body, network stream, or another destination where creating an intermediate string is unnecessary.
 
 Pass `JsonSerializerOptions` when the caller needs exact control over serializer behavior. Use the `bool` overload when the caller wants the package default camel-case options, or pass `false` to use the runtime serializer defaults.
 
@@ -25,9 +28,11 @@ Pass `JsonSerializerOptions` when the caller needs exact control over serializer
 using System.IO;
 using AlmightyShogun.Utils;
 
-await using FileStream stream = File.OpenRead("settings.json");
+WorkerSettings settings = new("Importer", true);
 
-WorkerSettings? settings = await stream.DeserializeAsync<WorkerSettings>();
+await using FileStream stream = File.Create("settings.json");
+
+await settings.SerializeAsync(stream);
 ```
 
 ```csharp [CustomOptions.cs]
@@ -37,12 +42,14 @@ using AlmightyShogun.Utils;
 
 JsonSerializerOptions options = new()
 {
-    PropertyNameCaseInsensitive = true
+    WriteIndented = true
 };
 
-await using FileStream stream = File.OpenRead("settings.json");
+WorkerSettings settings = new("Importer", true);
 
-WorkerSettings? settings = await stream.DeserializeAsync<WorkerSettings>(options);
+await using FileStream stream = File.Create("settings.json");
+
+await settings.SerializeAsync(stream, options);
 ```
 
 ```json [settings.json]
@@ -63,7 +70,7 @@ public sealed record WorkerSettings(string Name, bool Enabled);
 ## Type signature
 
 ```csharp
-public Task<T?> DeserializeAsync<T>(JsonSerializerOptions options);
+public Task SerializeAsync(Stream stream, JsonSerializerOptions options);
 
-public Task<T?> DeserializeAsync<T>(bool useDefaultOptions = true);
+public Task SerializeAsync(Stream stream, bool useDefaultOptions = true);
 ```

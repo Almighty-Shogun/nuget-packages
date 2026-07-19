@@ -16,7 +16,9 @@ export const utils: DefaultTheme.SidebarItem[] = [
             { text: 'AddService', link: '/utils/extensions/add-service' },
             { text: 'Deserialize', link: '/utils/extensions/deserialize' },
             { text: 'DeserializeAsync', link: '/utils/extensions/deserialize-async' },
-            { text: 'RegisterOnInherit', link: '/utils/extensions/register-on-inherit' }
+            { text: 'RegisterOnInherit', link: '/utils/extensions/register-on-inherit' },
+            { text: 'Serialize', link: '/utils/extensions/serialize' },
+            { text: 'SerializeAsync', link: '/utils/extensions/serialize-async' }
         ]
     },
     {
