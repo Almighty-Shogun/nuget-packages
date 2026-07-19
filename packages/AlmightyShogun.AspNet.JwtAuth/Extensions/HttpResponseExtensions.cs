@@ -10,7 +10,14 @@ namespace AlmightyShogun.AspNet.JwtAuth;
 /// <since>2.3.0</since>
 public static class HttpResponseExtensions
 {
-    /// <param name="httpResponse">The <see cref="HttpResponse"/> used to register the functionalities.</param>
+    /// <summary>
+    /// Provides response extension methods for writing and clearing JWT auth cookies.
+    /// </summary>
+    ///
+    /// <param name="httpResponse">The HTTP response used by the extension methods.</param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.3.0</since>
     extension(HttpResponse httpResponse)
     {
         /// <summary>
@@ -24,11 +31,11 @@ public static class HttpResponseExtensions
         /// <since>2.3.0</since>
         public void SetRefreshTokenCookie(string token, int days) => httpResponse.Cookies.Append(CookieNames.RefreshToken, token, new CookieOptions
         {
-            HttpOnly = true,
-            Secure = httpResponse.HttpContext.Request.IsHttps,
-            SameSite = SameSiteMode.Strict,
             Path = "/",
-            Expires = DateTimeOffset.UtcNow.AddDays(days)
+            HttpOnly = true,
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTimeOffset.UtcNow.AddDays(days),
+            Secure = httpResponse.HttpContext.Request.IsHttps
         });
 
         /// <summary>
@@ -39,7 +46,12 @@ public static class HttpResponseExtensions
         /// <since>2.3.0</since>
         public void DeleteAuthCookies()
         {
-            httpResponse.Cookies.Delete(CookieNames.RefreshToken);
+            httpResponse.Cookies.Delete(CookieNames.RefreshToken, new CookieOptions
+            {
+                Path = "/",
+                SameSite = SameSiteMode.Lax,
+                Secure = httpResponse.HttpContext.Request.IsHttps
+            });
         }
     }
 }

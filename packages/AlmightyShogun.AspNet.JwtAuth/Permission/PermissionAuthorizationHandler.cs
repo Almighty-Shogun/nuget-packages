@@ -11,14 +11,11 @@ namespace AlmightyShogun.AspNet.JwtAuth;
 internal sealed class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
 {
     /// <inheritdoc />
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>2.3.0</since>
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
     {
         bool hasPermission = context.User
             .FindAll("permission")
-            .Any(c => c.Value == requirement.Permission);
+            .Any(claim => claim.Value == requirement.Permission);
 
         if (hasPermission)
             context.Succeed(requirement);
