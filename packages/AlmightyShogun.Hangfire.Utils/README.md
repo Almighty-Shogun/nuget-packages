@@ -1,6 +1,6 @@
 # 🚀 `AlmightyShogun.Hangfire.Utils`
 
-A simple C# library that adds extensions & utilities to Hangfire.
+A C# library that adds attribute-based recurring job registration for Hangfire.
 
 ## 📃 Prerequisites
 - **[.NET](https://dotnet.microsoft.com/)**: >= 10

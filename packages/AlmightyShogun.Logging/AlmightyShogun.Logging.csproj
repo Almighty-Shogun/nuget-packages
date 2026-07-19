@@ -13,7 +13,7 @@
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Description>A C# logging wrapper around Serilog with custom color support</Description>
+        <Description>A C# library that configures Serilog logging with custom console formatting and colors.</Description>
 
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.Logging</RepositoryUrl>

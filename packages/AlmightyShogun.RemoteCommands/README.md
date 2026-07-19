@@ -1,6 +1,6 @@
 # 🚀 `AlmightyShogun.RemoteCommands`
 
-A simple C# implementation for remote commands using attributes.
+A C# library that adds attribute-based TCP remote command hosting and dispatch.
 
 ## 📃 Prerequisites
 - **[.NET](https://dotnet.microsoft.com/)**: >= 10

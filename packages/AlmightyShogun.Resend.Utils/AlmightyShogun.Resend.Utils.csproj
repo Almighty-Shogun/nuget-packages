@@ -13,7 +13,7 @@
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Description>A C# library for sending branded templated emails through Resend.</Description>
+        <Description>A C# library that sends branded templated emails through Resend.</Description>
 
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.Resend.Utils</RepositoryUrl>

@@ -1,6 +1,6 @@
 # 🚀 `AlmightyShogun.Resend.Utils`
 
-A simple C# library for sending templated emails using Resend.
+A C# library that sends branded templated emails through Resend.
 
 ## 📃 Prerequisites
 - **[.NET](https://dotnet.microsoft.com/)**: >= 10

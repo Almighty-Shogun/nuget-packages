@@ -1,6 +1,6 @@
 # 🚀 `AlmightyShogun.EntityFrameworkCore.Utils`
 
-A simple C# library that adds extensions to Entity Framework Core.
+A C# library that adds Entity Framework Core model-building helpers for relationships, indexes, and auto-includes.
 
 ## 📃 Prerequisites
 - **[.NET](https://dotnet.microsoft.com/)**: >= 10

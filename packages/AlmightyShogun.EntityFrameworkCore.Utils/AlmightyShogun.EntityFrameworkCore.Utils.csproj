@@ -13,7 +13,7 @@
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Description>A simple C# library that add extensions to Entity Framework Core</Description>
+        <Description>A C# library that adds Entity Framework Core model-building helpers for relationships, indexes, and auto-includes.</Description>
 
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.EntityFrameworkCore.Utils</RepositoryUrl>

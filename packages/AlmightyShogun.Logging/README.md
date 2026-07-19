@@ -1,6 +1,6 @@
 # 🚀 `AlmightyShogun.Logging`
 
-A C# logging wrapper around Serilog with custom color support.
+A C# library that configures Serilog logging with custom console formatting and colors.
 
 ## 📃 Prerequisites
 - **[.NET](https://dotnet.microsoft.com/)**: >= 10

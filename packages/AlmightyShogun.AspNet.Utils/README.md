@@ -1,6 +1,6 @@
 # 🚀 `AlmightyShogun.AspNet.Utils`
 
-A simple C# library that adds extensions & utilities to ASP.NET.
+A C# library that adds session context, user-agent parsing, and HTTP helper extensions to ASP.NET Core.
 
 ## 📃 Prerequisites
 - **[.NET](https://dotnet.microsoft.com/)**: >= 10

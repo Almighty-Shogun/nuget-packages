@@ -1,6 +1,6 @@
 # 🚀 `AlmightyShogun.Hosting.Utils`
 
-A simple C# library that adds extensions to Hosting.
+A C# library that adds hosting helpers for custom console lifetime behavior.
 
 ## 📃 Prerequisites
 - **[.NET](https://dotnet.microsoft.com/)**: >= 10

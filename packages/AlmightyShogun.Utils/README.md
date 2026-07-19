@@ -1,6 +1,6 @@
 # 🚀 `AlmightyShogun.Utils`
 
-A simple C# library including some common utils I use in various projects.
+A C# library that adds shared JSON, dependency-injection, console, and reflection utilities.
 
 ## 📃 Prerequisites
 - **[.NET](https://dotnet.microsoft.com/)**: >= 10

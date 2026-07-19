@@ -1,6 +1,6 @@
 # 🚀 `AlmightyShogun.ConsoleCommands`
 
-A simple C# implementation for console commands using attributes.
+A C# library that adds attribute-based console command registration and execution.
 
 ## 📃 Prerequisites
 - **[.NET](https://dotnet.microsoft.com/)**: >= 10
