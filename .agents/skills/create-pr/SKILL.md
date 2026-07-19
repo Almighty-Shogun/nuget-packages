@@ -127,7 +127,8 @@ Use this personal PR style:
 - Body should be two or three short paragraphs.
 - First paragraph starts with `This PR resolves`, `This PR adds`, `This PR updates`, or `This PR improves`.
 - For a bugfix, second paragraph should explain the previous behavior with `Before this, ...` and then the new behavior with `This now ...`.
-- Final paragraph should explain scope or safety with `This also ...` or `This keeps ...`.
+- Final paragraph should describe a concrete related change, validation impact, or compatibility note when useful.
+- Do not add meta statements about the PR being scoped, limited, focused, or only containing certain files.
 - Do not add markdown headings, checklists, or test sections unless the user asks.
 
 Write the proposed body to a temporary file, for example:
