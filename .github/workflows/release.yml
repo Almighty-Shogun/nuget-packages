@@ -29,6 +29,7 @@ jobs:
                     cd packages
                     
                     dotnet build AlmightyShogun.AspNet.JwtAuth/AlmightyShogun.AspNet.JwtAuth.csproj --configuration Release
+                    dotnet build AlmightyShogun.AspNet.Maintenance/AlmightyShogun.AspNet.Maintenance.csproj --configuration Release
                     dotnet build AlmightyShogun.AspNet.Utils/AlmightyShogun.AspNet.Utils.csproj --configuration Release
                     dotnet build AlmightyShogun.ConsoleCommands/AlmightyShogun.ConsoleCommands.csproj --configuration Release
                     dotnet build AlmightyShogun.EntityFrameworkCore.Utils/AlmightyShogun.EntityFrameworkCore.Utils.csproj --configuration Release
@@ -44,6 +45,7 @@ jobs:
                     cd packages
                     
                     dotnet pack AlmightyShogun.AspNet.JwtAuth/AlmightyShogun.AspNet.JwtAuth.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.AspNet.Maintenance/AlmightyShogun.AspNet.Maintenance.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.AspNet.Utils/AlmightyShogun.AspNet.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.ConsoleCommands/AlmightyShogun.ConsoleCommands.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.EntityFrameworkCore.Utils/AlmightyShogun.EntityFrameworkCore.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
