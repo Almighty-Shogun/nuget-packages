@@ -23,6 +23,11 @@ features:
         link: /asp-net-jwt-auth/
         linkText: View package
 
+    -   title: ASP.NET Maintenance
+        details: File-backed maintenance mode for ASP.NET Core.
+        link: /asp-net-maintenance/
+        linkText: View package
+
     -   title: ASP.NET Utils
         details: Request helpers, CORS setup, filters, and User-Agent parsing.
         link: /asp-net-utils/
