@@ -1,6 +1,6 @@
 # 🚀 `AlmightyShogun.AspNet.JwtAuth`
 
-A C# library that adds JWT bearer authentication and permission-based authorization to ASP.NET Core APIs.
+A C# library that adds JWT bearer authentication, refresh-token cookie helpers, and app-scoped permission authorization to ASP.NET Core APIs.
 
 ## 📃 Prerequisites
 - **[.NET](https://dotnet.microsoft.com/)**: >= 10
