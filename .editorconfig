@@ -38,6 +38,7 @@ ij_json_wrap_long_lines = false
 [*.cs]
 # Disable irrelevant ReSharper inspections.
 resharper_check_namespace_highlighting = none
+resharper_class_never_instantiated_global_highlighting = none
 resharper_unused_type_global_highlighting = none
 
 csharp_style_namespace_declarations = file_scoped:suggestion
