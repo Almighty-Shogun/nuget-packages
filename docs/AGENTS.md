@@ -78,6 +78,7 @@ Avoid duplicate pages for the same API. Overloads of the same method belong on o
 - Include practical, copy-paste-ready examples. Never use placeholder comments such as `// Use XXX from application code after installing the package.`
 - Include all required `using` statements in examples and order them from shortest line to longest line.
 - Chain extension-method registrations when the APIs return the same builder or service collection and chaining is applicable.
+- Link references to documented APIs when they appear in prose. Use relative links within the same package, absolute docs-root links for other packages, and do not link an API to its own page.
 - Use `::: code-group` when an example needs multiple files, configuration plus code, or multiple valid setup forms.
 - Give code-group files meaningful names such as `[Program.cs]`, `[appsettings.json]`, or `[ExampleSettings.cs]`.
 - Do not place unrelated classes in one code block. An interface and its implementation may share a block only when that makes the specific example clearer.
@@ -101,6 +102,7 @@ Installation pages:
 - Show only the `dotnet` CLI installation command in one shell code block.
 - Explain the target framework and runtime expectations.
 - Add `## Dependencies` and list actual package, framework, and project dependencies with their current versions.
+- Split dependencies into `### Framework references`, `### Package references`, and `### Project references`; omit groups that do not apply.
 - Read dependency information from the current `.csproj` files and central package management files when present. Do not reuse stale dependency versions from existing docs.
 - Show startup registration once when required.
 - When configuration is required, use this warning style with the actual section name:
@@ -122,10 +124,16 @@ When a package binds configuration from `appsettings.json`:
 - Add each configuration record under `docs/{package}/configuration/{configuration-name}.md`.
 - Link the package introduction directly to the configuration type category, for example `./configuration/auth-settings`; do not add separate “Configuration” and “Configuration types” categories.
 - Use `fields` frontmatter on dedicated configuration type pages.
-- Do not repeat the same field table on the package-level `configuration.md` page when a dedicated configuration type page exists. The package-level page should show the JSON shape and link to the dedicated configuration type page for field descriptions and defaults.
+- Do not repeat the same field table on the package-level `configuration.md` page when a dedicated configuration type page exists. The package-level page should show the JSON shape and any package-level behavior notes, but do not add generic cross-reference lines such as “See ConfigName for field descriptions and defaults.”
 - If a package has a package-level configuration page but no dedicated configuration type page, `fields` may live on `configuration.md`.
 - Include every configuration field with `name`, `description`, `type`, and `default` when a real default exists.
-- Do not repeat the full JSON block on individual configuration type pages; link to the package configuration page instead.
+- Do not repeat the full JSON block on individual configuration type pages. Under `## Usage`, place the configuration-page note in a `::: tip` before the code example, for example:
+
+```md
+::: tip
+The JSON shape is documented on the [configuration page](../configuration). The example below shows how application services can consume the already-bound options.
+:::
+```
 
 Example:
 
