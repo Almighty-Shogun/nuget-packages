@@ -22,7 +22,7 @@ dotnet add package AlmightyShogun.AspNet.JwtAuth
 ```csharp
 using AlmightyShogun.AspNet.JwtAuth;
 
-builder.Services.AddApiAuth(builder.Configuration);
+builder.Services.AddJwtAuth(builder.Configuration);
 ```
 
 The package expects an `Auth` section in `appsettings.json`. See the [ASP.NET JWT Auth configuration page](/asp-net-jwt-auth/configuration) for the full JSON shape and field descriptions.
@@ -41,7 +41,7 @@ using AlmightyShogun.AspNet.Utils;
 using AlmightyShogun.AspNet.JwtAuth;
 
 builder.Services
-    .AddApiAuth(builder.Configuration)
+    .AddJwtAuth(builder.Configuration)
     .AddActionFilters()
     .AddAllowedOrigins("DefaultCors", builder.Configuration);
 ```

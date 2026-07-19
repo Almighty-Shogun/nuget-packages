@@ -1,6 +1,8 @@
 # Configuration
 
-ASP.NET JWT Auth reads the `Auth` section from `appsettings.json`. The section is bound to `AuthSettings` during `AddApiAuth`, and `AddJwtBearerAuthentication` reads the same section when it configures JWT bearer validation.
+ASP.NET JWT Auth reads the `Auth` section from `appsettings.json`. The section is bound to [`AuthSettings`](./configuration/auth-settings) during [`AddJwtAuth`](./extensions/add-jwt-auth), and the package reads the same section when it configures JWT bearer validation.
+
+The `Auth` section is required. [`AuthSettings`](./configuration/auth-settings) uses validation attributes, so `Issuer`, `Secret`, `Hours`, and `RefreshTokenDays` must be present and usable before the application starts successfully. When `Hosts` contains mappings, JWT audience validation is enabled for the configured app audiences and protected endpoints also require the token audience to match the current request host. When `Hosts` is empty, app-audience validation is disabled completely.
 
 ```json
 {
@@ -17,5 +19,3 @@ ASP.NET JWT Auth reads the `Auth` section from `appsettings.json`. The section i
     }
 }
 ```
-
-See [AuthSettings](./configuration/auth-settings) for field descriptions and defaults.

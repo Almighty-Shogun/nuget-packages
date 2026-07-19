@@ -4,9 +4,9 @@ returns: The authenticated user's numeric user id.
 
 # GetCurrentUserId
 
-Reads the current user's id from the `userId` claim on a `ClaimsPrincipal`. The method is intended for controller, endpoint, and service code that has already received an authenticated principal and needs the application user id as an `int`.
+Reads the current user's id from a `ClaimsPrincipal`. The method checks the package `userId` claim first and then falls back to `ClaimTypes.NameIdentifier`. It is intended for controller, endpoint, and service code that has already received an authenticated principal and needs the application user id as an `int`.
 
-If the claim is missing or cannot be parsed as an integer, the method throws `UnauthorizedAccessException`. This makes missing identity data fail immediately instead of silently returning a default value.
+If neither claim exists or the value cannot be parsed as an integer, the method throws [`HttpErrorException`](/asp-net-utils/types/http-error-exception) with status code `401 Unauthorized`. This makes missing identity data fail immediately instead of silently returning a default value.
 
 ## Usage
 

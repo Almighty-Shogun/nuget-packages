@@ -2,7 +2,7 @@
 
 Deletes the authentication cookies managed by ASP.NET JWT Auth from an `HttpResponse`.
 
-Use this helper in logout endpoints, token-revocation flows, or any place where the API should explicitly clear the package's refresh-token cookie. The helper keeps cookie naming centralized so application code does not need to repeat the raw cookie name.
+Use this helper in logout endpoints, token-revocation flows, or any place where the API should explicitly clear the package's refresh-token cookie. The helper keeps cookie naming centralized and deletes the cookie with the same path, `Secure`, and `SameSite.Lax` shape used when the cookie is written.
 
 ## Usage
 
