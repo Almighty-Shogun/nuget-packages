@@ -13,7 +13,7 @@
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Description>A C# library that adds session context, user-agent parsing, and HTTP helper extensions to ASP.NET Core.</Description>
+        <Description>Adds request helpers, CORS setup, User-Agent parsing, and standardized HTTP error responses to ASP.NET Core.</Description>
 
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.AspNet.Utils</RepositoryUrl>

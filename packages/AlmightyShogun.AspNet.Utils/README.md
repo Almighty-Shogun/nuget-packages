@@ -1,6 +1,6 @@
 # 🚀 `AlmightyShogun.AspNet.Utils`
 
-A C# library that adds session context, user-agent parsing, and HTTP helper extensions to ASP.NET Core.
+Adds request helpers, CORS setup, User-Agent parsing, and standardized HTTP error responses to ASP.NET Core.
 
 ## 📃 Prerequisites
 - **[.NET](https://dotnet.microsoft.com/)**: >= 10

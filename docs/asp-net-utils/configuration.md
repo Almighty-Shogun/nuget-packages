@@ -1,20 +1,27 @@
 ---
 fields:
     - name: AllowedOrigins
-      description: Array of allowed browser origins. Each value should include the scheme and host, and include the port when the application uses a non-default port.
+      description: Array of allowed browser origins used by `AddAllowedOrigins`. Each value should include the scheme and host, and include the port when the application uses a non-default port.
       type: string[]
+      default: '[]'
+
+    - name: DefaultLanguage
+      description: Default language code used by HTTP message resolution when the request does not provide `Accept-Language` or no requested-language message exists.
+      type: string
+      default: en
 ---
 
 # Configuration
 
-ASP.NET Utils reads the `AllowedOrigins` section from `appsettings.json` when `AddAllowedOrigins` registers a CORS policy. The section is an array of exact origins that should be allowed to call the API.
+ASP.NET Utils reads configuration directly from `appsettings.json` for startup helpers that need application-level values. `AddAllowedOrigins` reads `AllowedOrigins`, and `AddHttpErrorResponses` reads `DefaultLanguage`.
 
-```json
+```json [appsettings.json]
 {
     "AllowedOrigins": [
         "https://app.example.com",
         "https://admin.example.com"
-    ]
+    ],
+    "DefaultLanguage": "en"
 }
 ```
 

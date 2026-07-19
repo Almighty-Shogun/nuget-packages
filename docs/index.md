@@ -29,7 +29,7 @@ features:
         linkText: View package
 
     -   title: ASP.NET Utils
-        details: Request helpers, CORS setup, filters, and User-Agent parsing.
+        details: Request helpers, CORS setup, and HTTP error responses.
         link: /asp-net-utils/
         linkText: View package
 

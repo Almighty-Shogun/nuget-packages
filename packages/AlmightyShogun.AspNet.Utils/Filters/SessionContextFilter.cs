@@ -12,9 +12,6 @@ namespace AlmightyShogun.AspNet.Utils;
 internal sealed class SessionContextFilter : IActionFilter
 {
     /// <inheritdoc />
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>2.2.1</since>
     public void OnActionExecuting(ActionExecutingContext context)
     {
         HttpContext httpContext = context.HttpContext;
@@ -29,8 +26,5 @@ internal sealed class SessionContextFilter : IActionFilter
     }
 
     /// <inheritdoc />
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>2.2.1</since>
     public void OnActionExecuted(ActionExecutedContext context) { }
 }

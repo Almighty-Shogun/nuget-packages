@@ -20,14 +20,27 @@ Use this method when allowed browser origins should be controlled from configura
 ## Usage
 
 ::: warning
-Requires an `AllowedOrigins` section in application configuration, usually from `appsettings.json`.
+When `AllowedOrigins` is missing or empty, the policy is registered with no configured origins. Configure explicit origins before using the policy in production.
 :::
 
-```csharp
+::: code-group
+
+```csharp [Program.cs]
 using AlmightyShogun.AspNet.Utils;
 
 builder.Services.AddAllowedOrigins("DefaultCors", builder.Configuration);
 ```
+
+```json [appsettings.json]
+{
+    "AllowedOrigins": [
+        "https://app.example.com",
+        "https://admin.example.com"
+    ]
+}
+```
+
+:::
 
 <FrontmatterDocs/>
 

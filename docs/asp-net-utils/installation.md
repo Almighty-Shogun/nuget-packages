@@ -1,6 +1,6 @@
 # Installation
 
-Install `AlmightyShogun.AspNet.Utils` in the ASP.NET Core API that needs request helpers, CORS setup, MVC action filters, cookie cleanup, or User-Agent parsing. The package targets `net10.0`, uses ASP.NET Core framework APIs, and depends on `UAParser` for parsing raw User-Agent header values.
+Install `AlmightyShogun.AspNet.Utils` in the ASP.NET Core API that needs request helpers, CORS setup, MVC action filters, cookie cleanup, language header helpers, User-Agent parsing, or standardized HTTP error responses. The package targets `net10.0`, uses ASP.NET Core framework APIs, and depends on `UAParser` for parsing raw User-Agent header values.
 
 ```sh
 dotnet add package AlmightyShogun.AspNet.Utils
@@ -13,16 +13,35 @@ dotnet add package AlmightyShogun.AspNet.Utils
 
 ## Startup Registration
 
-Register action filters when the application wants `SessionContextFilter` to populate request context before controller actions run. Register allowed origins when the application wants CORS origins to come from the `AllowedOrigins` configuration section.
+Register only the helpers the application needs. `AddActionFilters` adds MVC controllers and captures `SessionContext` before controller actions run. `AddAllowedOrigins` registers a named CORS policy from configuration. `AddHttpErrorResponses` reads `DefaultLanguage` from application configuration and registers the message resolver, MVC error-response filter, and exception handler used by `UseHttpErrorResponses`.
 
-::: warning
-Requires an `AllowedOrigins` section in application configuration, usually from `appsettings.json`.
-:::
+When `AllowedOrigins` is missing or empty, the CORS policy is still registered but no browser origins are added to it. Configure explicit origins before enabling that policy in production, especially because the helper enables credentials.
 
-```csharp
+::: code-group
+
+```csharp [Program.cs]
 using AlmightyShogun.AspNet.Utils;
 
 builder.Services
     .AddActionFilters()
-    .AddAllowedOrigins("DefaultCors", builder.Configuration);
+    .AddAllowedOrigins("DefaultCors", builder.Configuration)
+    .AddHttpErrorResponses(builder.Configuration);
+
+WebApplication app = builder.Build();
+
+app.UseHttpErrorResponses();
+app.MapControllers();
+
+await app.RunAsync();
 ```
+
+```json [appsettings.json]
+{
+    "AllowedOrigins": [
+        "https://app.example.com"
+    ],
+    "DefaultLanguage": "en"
+}
+```
+
+:::
