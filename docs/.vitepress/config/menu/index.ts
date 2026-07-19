@@ -1,6 +1,7 @@
 import type { DefaultTheme } from 'vitepress'
 import { guide } from './guide'
 import { aspNetJwtAuth } from './asp-net-jwt-auth'
+import { aspNetMaintenance } from './asp-net-maintenance'
 import { aspNetUtils } from './asp-net-utils'
 import { consoleCommands } from './console-commands'
 import { efCoreUtils } from './ef-core-utils'
@@ -18,26 +19,44 @@ export const nav: DefaultTheme.NavItem[] = [
         activeMatch: '^/guide/',
     },
     {
-        text: 'Packages',
-        activeMatch: '^/(asp-net-jwt-auth|asp-net-utils|console-commands|ef-core-utils|hangfire-utils|hosting-utils|logging|remote-commands|resend-utils|utils)/',
+        text: 'ASP.NET',
+        activeMatch: '^/(asp-net-jwt-auth|asp-net-maintenance|asp-net-utils)/',
         items: [
-            { text: 'ASP.NET JWT Auth', activeMatch: '^/asp-net-jwt-auth/', link: '/asp-net-jwt-auth/' },
-            { text: 'ASP.NET Utils', activeMatch: '^/asp-net-utils/', link: '/asp-net-utils/' },
+            { text: 'JWT Auth', activeMatch: '^/asp-net-jwt-auth/', link: '/asp-net-jwt-auth/' },
+            { text: 'Maintenance', activeMatch: '^/asp-net-maintenance/', link: '/asp-net-maintenance/' },
+            { text: 'Utils', activeMatch: '^/asp-net-utils/', link: '/asp-net-utils/' }
+        ]
+    },
+    {
+        text: 'Operations',
+        activeMatch: '^/(console-commands|hangfire-utils|hosting-utils|logging|remote-commands)/',
+        items: [
             { text: 'Console Commands', activeMatch: '^/console-commands/', link: '/console-commands/' },
-            { text: 'Entity Framework Core Utils', activeMatch: '^/ef-core-utils/', link: '/ef-core-utils/' },
             { text: 'Hangfire Utils', activeMatch: '^/hangfire-utils/', link: '/hangfire-utils/' },
             { text: 'Hosting Utils', activeMatch: '^/hosting-utils/', link: '/hosting-utils/' },
             { text: 'Logging', activeMatch: '^/logging/', link: '/logging/' },
-            { text: 'Remote Commands', activeMatch: '^/remote-commands/', link: '/remote-commands/' },
-            { text: 'Resend Utils', activeMatch: '^/resend-utils/', link: '/resend-utils/' },
-            { text: 'Utils', activeMatch: '^/utils/', link: '/utils/' }
+            { text: 'Remote Commands', activeMatch: '^/remote-commands/', link: '/remote-commands/' }
         ]
+    },
+    {
+        text: 'Data',
+        activeMatch: '^/(ef-core-utils|resend-utils)/',
+        items: [
+            { text: 'EF Core Utils', activeMatch: '^/ef-core-utils/', link: '/ef-core-utils/' },
+            { text: 'Resend Utils', activeMatch: '^/resend-utils/', link: '/resend-utils/' }
+        ]
+    },
+    {
+        text: 'Utils',
+        link: '/utils/',
+        activeMatch: '^/utils/',
     }
 ];
 
 export const sidebar = {
     "/guide/": guide,
     "/asp-net-jwt-auth/": aspNetJwtAuth,
+    "/asp-net-maintenance/": aspNetMaintenance,
     "/asp-net-utils/": aspNetUtils,
     "/console-commands/": consoleCommands,
     "/ef-core-utils/": efCoreUtils,
