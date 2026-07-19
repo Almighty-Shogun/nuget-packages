@@ -8,7 +8,7 @@ params:
 
 # ExampleAttribute
 
-Adds example input for a command class. `ConsoleUtils.GetAllCommands` reads this attribute and combines the command name with the provided values to produce the `Example` value on `ConsoleCommand`.
+Adds example input for a command class. [`ConsoleUtils.GetAllCommands`](../types/console-utils#getallcommands) reads this attribute and combines the command name with the provided values to produce the `Example` value on [`ConsoleCommand`](../types/console-command).
 
 Use this attribute when command listing or help output should show a realistic invocation instead of only the generated parameter usage string.
 

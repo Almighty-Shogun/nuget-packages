@@ -12,9 +12,9 @@ params:
 
 # RemoteCommandAttribute
 
-Marks a class as a remote command and defines the command name used by incoming payloads. `RemoteCommand<T>` reads this attribute to expose the command name to the listener.
+Marks a class as a remote command and defines the command name used by incoming payloads. [`RemoteCommand<T>`](../types/remote-command) reads this attribute to expose the command name to the listener.
 
-Use this attribute on classes that inherit from `RemoteCommand<T>`. The `name` must match the `Command` value sent by remote clients.
+Use this attribute on classes that inherit from [`RemoteCommand<T>`](../types/remote-command). The `name` must match the `Command` value sent by remote clients.
 
 ## Usage
 

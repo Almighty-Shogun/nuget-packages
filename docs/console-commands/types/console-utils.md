@@ -21,7 +21,7 @@ foreach (ConsoleCommand command in commands)
 
 Writes a question prompt to the console and waits until a non-null answer is available. When `defaultValue` is provided, pressing enter without typing a value returns that default.
 
-Use this helper inside command handlers that need a small interactive prompt. After reading input, the method clears the prompt line with `RemoveLastLine`.
+Use this helper inside command handlers that need a small interactive prompt. After reading input, the method clears the prompt line with [`RemoveLastLine`](#removelastline).
 
 ```csharp
 using AlmightyShogun.ConsoleCommands;
@@ -43,7 +43,7 @@ public static Task<string> AskQuestionAsync(
 
 ## GetAllCommands
 
-Discovers command metadata from currently loaded assemblies. The method finds concrete command implementations marked with `ConsoleCommandAttribute`, reads class-level aliases and examples, inspects the public `ExecuteAsync` method, and returns `ConsoleCommand` values containing names, descriptions, aliases, generated usage, and examples.
+Discovers command metadata from currently loaded assemblies. The method finds concrete command implementations marked with [`ConsoleCommandAttribute`](../attributes/console-command-attribute), reads class-level aliases and examples, inspects the public `ExecuteAsync` method, and returns [`ConsoleCommand`](./console-command) values containing names, descriptions, aliases, generated usage, and examples.
 
 Use this method to build help output or command listings. It reads loaded assemblies from the current application domain, so command assemblies must already be loaded for their metadata to appear.
 

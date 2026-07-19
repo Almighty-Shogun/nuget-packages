@@ -8,12 +8,14 @@ dotnet add package AlmightyShogun.Hosting.Utils
 
 ## Dependencies
 
+### Package references
+
 - `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.10` &mdash; provides the service collection APIs used by the extension methods.
 - `Microsoft.Extensions.Hosting` `10.0.10` &mdash; provides host options, host lifetime contracts, and background-service exception behavior.
 
 ## Startup Registration
 
-Call the extension methods while configuring services. `ConfigureHost` updates `HostOptions`; `UseCustomConsoleLifetime` replaces the default `ConsoleLifetime` service when it is present.
+Call the extension methods while configuring services. [`ConfigureHost`](./extensions/configure-host) updates `HostOptions`; [`UseCustomConsoleLifetime`](./extensions/use-custom-console-lifetime) replaces the default `ConsoleLifetime` service when it is present.
 
 ```csharp
 using Microsoft.Extensions.Hosting;

@@ -11,7 +11,7 @@ params:
 
 # MailButton
 
-Represents a call-to-action button rendered by `BaseMailTemplate`. Derived mail templates return `MailButton` values from the protected `Buttons` member when an email should include one or more prominent links.
+Represents a call-to-action button rendered by [`BaseMailTemplate`](../types/base-mail-template). Derived mail templates return `MailButton` values from the protected `Buttons` member when an email should include one or more prominent links.
 
 The renderer uses the label as visible button text and the URL as the button target. Both values are encoded when rendered into the HTML template.
 

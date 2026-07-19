@@ -1,8 +1,8 @@
 # MaintenanceRequest
 
-Represents the values used when enabling maintenance mode through `IMaintenanceService.EnableAsync`. Every property is optional so callers can provide only the values that should differ from `MaintenanceSettings`.
+Represents the values used when enabling maintenance mode through [`IMaintenanceService.EnableAsync`](../services/maintenance-service#enableasync). Every property is optional so callers can provide only the values that should differ from [`MaintenanceSettings`](../configuration/maintenance-settings).
 
-Use this type from protected endpoints, deployment workflows, or operational tools that enable maintenance mode. The service resolves missing values from configuration before writing the persisted `MaintenanceState`.
+Use this type from protected endpoints, deployment workflows, or operational tools that enable maintenance mode. The service resolves missing values from configuration before writing the persisted [`MaintenanceState`](./maintenance-state).
 
 ## Usage
 

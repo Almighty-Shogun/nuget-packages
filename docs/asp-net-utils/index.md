@@ -2,7 +2,7 @@
 
 Adds small ASP.NET Core helpers for request context capture, CORS registration, MVC action filter setup, cookie cleanup, language headers, User-Agent parsing, and standardized HTTP error responses. The package is intended for APIs that need reusable request utilities without adopting a larger application framework.
 
-Use this package when controllers or services need a consistent `SessionContext`, when startup code should register allowed origins from configuration, when application code needs parsed User-Agent details through `HttpContext`, or when API errors should be returned as predictable JSON objects with localized descriptions.
+Use this package when controllers or services need a consistent [`SessionContext`](./records/session-context), when startup code should register allowed origins from configuration, when application code needs parsed [`UserAgent`](./records/user-agent) details through `HttpContext`, or when API errors should be returned as predictable JSON objects with localized descriptions.
 
 ## Categories
 

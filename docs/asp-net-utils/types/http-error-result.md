@@ -1,8 +1,8 @@
 # HttpErrorResult
 
-Creates MVC `ObjectResult` values for standardized HTTP error responses. The helper exists for controller actions that manually construct an `HttpErrorResponse` and want the MVC result status code to match the response body.
+Creates MVC `ObjectResult` values for standardized HTTP error responses. The helper exists for controller actions that manually construct an [`HttpErrorResponse`](../records/http-error-response) and want the MVC result status code to match the response body.
 
-Most applications do not need to call this type directly because `UseHttpErrorResponses`, `HttpErrorException`, and the package MVC filter cover the common error paths. Use it when an action already has a concrete `HttpErrorResponse` value and should return it through MVC.
+Most applications do not need to call this type directly because [`UseHttpErrorResponses`](../extensions/use-http-error-responses), [`HttpErrorException`](./http-error-exception), and the package MVC filter cover the common error paths. Use it when an action already has a concrete [`HttpErrorResponse`](../records/http-error-response) value and should return it through MVC.
 
 ## Usage
 
@@ -32,7 +32,7 @@ public sealed class UsersController : ControllerBase
 
 ## Create
 
-Creates an `ObjectResult` with the supplied response as the body and `HttpErrorResponse.Code` as the MVC result status code.
+Creates an `ObjectResult` with the supplied response as the body and [`HttpErrorResponse.Code`](../records/http-error-response) as the MVC result status code.
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;

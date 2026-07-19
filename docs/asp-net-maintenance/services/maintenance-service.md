@@ -1,6 +1,6 @@
 # MaintenanceService
 
-Dependency-injection service for reading and changing the persisted maintenance mode state. `AddMaintenanceMode` registers the package implementation for `IMaintenanceService`, and application code should depend on the interface when it needs to enable maintenance from a protected endpoint, disable it after work completes, or check the current state.
+Dependency-injection service for reading and changing the persisted maintenance mode state. [`AddMaintenanceMode`](../extensions/add-maintenance-mode) registers the package implementation for `IMaintenanceService`, and application code should depend on the interface when it needs to enable maintenance from a protected endpoint, disable it after work completes, or check the current state.
 
 The implementation stores state in `maintenance.json` under the application content root. Reads and writes are serialized with an internal lock, corrupt or unreadable state files are treated as enabled maintenance mode, and expired states can disable themselves when `AutoDisableWhenExpired` is active.
 
@@ -68,7 +68,7 @@ public Task<bool> IsEnabledAsync();
 
 ## EnableAsync
 
-Enables maintenance mode and writes a new state file. Values supplied in `MaintenanceRequest` override configured defaults for the new state; omitted values fall back to `MaintenanceSettings`.
+Enables maintenance mode and writes a new state file. Values supplied in [`MaintenanceRequest`](../types/maintenance-request) override configured defaults for the new state; omitted values fall back to [`MaintenanceSettings`](../configuration/maintenance-settings).
 
 Use this method from protected admin routes, deployment automation, or operational tooling that can decide when maintenance mode should begin.
 

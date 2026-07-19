@@ -20,13 +20,15 @@ fields:
 
 # RemoteServerSettings
 
-Represents the `RemoteServer` configuration section used by Remote Commands. `AddRemoteCommands` binds this record through the package's configuration registration, and `RemoteCommandHandler` receives it through `IOptions<RemoteServerSettings>`.
+Represents the `RemoteServer` configuration section used by Remote Commands. [`AddRemoteCommands`](../extensions/add-remote-commands) binds this record through the package's configuration registration, and [`RemoteCommandHandler`](../services/remote-command-handler) receives it through `IOptions<RemoteServerSettings>`.
 
 Application code normally does not create this record manually. Inject `IOptions<RemoteServerSettings>` when a service needs to inspect the configured remote command endpoint or whitelist.
 
 ## Usage
 
+::: tip
 The JSON shape is documented on the [configuration page](/remote-commands/configuration). The example below shows how application services can consume the already-bound options.
+:::
 
 ```csharp
 using Microsoft.Extensions.Options;

@@ -13,9 +13,9 @@ returns: A request metadata record containing the client IP address, raw User-Ag
 
 # SessionContext
 
-Represents request metadata captured for the current HTTP request. `AddActionFilters` registers the package action filter that stores a `SessionContext` in `HttpContext.Items` before controller actions run.
+Represents request metadata captured for the current HTTP request. [`AddActionFilters`](../extensions/add-action-filters) registers the package action filter that stores a `SessionContext` in `HttpContext.Items` before controller actions run.
 
-Use this record when application code needs a lightweight view of the caller's IP address and raw User-Agent header. `GetSessionContext` returns the stored value when it exists and creates a fallback value from the current `HttpContext` when the filter has not populated one yet.
+Use this record when application code needs a lightweight view of the caller's IP address and raw User-Agent header. [`GetSessionContext`](../extensions/get-session-context) returns the stored value when it exists and creates a fallback value from the current `HttpContext` when the filter has not populated one yet.
 
 ## Usage
 

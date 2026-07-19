@@ -1,8 +1,8 @@
 # RemoteCommandHandler
 
-Dependency-injection service for controlling the remote command listener. `AddRemoteCommands` registers the package listener for `IRemoteCommandHandler`, and application code should resolve the interface when it needs to start or stop accepting remote command connections.
+Dependency-injection service for controlling the remote command listener. [`AddRemoteCommands`](../extensions/add-remote-commands) registers the package listener for `IRemoteCommandHandler`, and application code should resolve the interface when it needs to start or stop accepting remote command connections.
 
-Use this service from hosted services, startup code, or controlled shutdown paths. Command discovery still happens through `RegisterRemoteCommands`; the handler service controls the TCP listener that receives payloads and dispatches them to registered `RemoteCommand<T>` implementations.
+Use this service from hosted services, startup code, or controlled shutdown paths. Command discovery still happens through [`RegisterRemoteCommands`](../extensions/register-remote-commands); the handler service controls the TCP listener that receives payloads and dispatches them to registered [`RemoteCommand<T>`](../types/remote-command) implementations.
 
 ## Usage
 
@@ -21,9 +21,9 @@ public sealed class RemoteCommandWorker(IRemoteCommandHandler commandHandler) : 
 
 ## StartAsync
 
-Starts the remote command listener through the registered handler. The provided implementation binds to the configured address and port, rejects clients outside the whitelist, reads length-prefixed UTF-8 JSON payloads, and dispatches known commands to registered `RemoteCommand<T>` implementations.
+Starts the remote command listener through the registered handler. The provided implementation binds to the configured address and port, rejects clients outside the whitelist, reads length-prefixed UTF-8 JSON payloads, and dispatches known commands to registered [`RemoteCommand<T>`](../types/remote-command) implementations.
 
-Use this method after `AddRemoteCommands` and `RegisterRemoteCommands` have been called and the service provider is built. Resolve the handler through `IRemoteCommandHandler` so application code depends on the public DI contract instead of the concrete listener implementation.
+Use this method after [`AddRemoteCommands`](../extensions/add-remote-commands) and [`RegisterRemoteCommands`](../extensions/register-remote-commands) have been called and the service provider is built. Resolve the handler through `IRemoteCommandHandler` so application code depends on the public DI contract instead of the concrete listener implementation.
 
 ```csharp
 using Microsoft.Extensions.Hosting;

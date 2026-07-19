@@ -1,15 +1,15 @@
 ---
 params:
     - name: name
-      description: Command name read from `ConsoleCommandAttribute`.
+      description: Command name read from the command class metadata.
       type: string
 
     - name: description
-      description: Optional command description read from `ConsoleCommandAttribute`.
+      description: Optional command description read from the command class metadata.
       type: string?
 
     - name: aliases
-      description: Aliases read from `AliasAttribute`.
+      description: Aliases read from the command class metadata.
       type: string[]
 
     - name: usage
@@ -17,7 +17,7 @@ params:
       type: string
 
     - name: example
-      description: Optional example arguments read from `ExampleAttribute`.
+      description: Optional example arguments read from the command class metadata.
       type: string?
 
 returns: Command metadata containing the name, optional description, aliases, generated usage, and optional example.
@@ -25,9 +25,9 @@ returns: Command metadata containing the name, optional description, aliases, ge
 
 # ConsoleCommand
 
-Represents metadata for a discovered console command. `ConsoleUtils.GetAllCommands` creates this value from command class attributes and `ExecuteAsync` parameters so application code can build help output, command listings, or diagnostics.
+Represents metadata for a discovered console command. [`ConsoleUtils.GetAllCommands`](./console-utils#getallcommands) creates this value from command class attributes and `ExecuteAsync` parameters so application code can build help output, command listings, or diagnostics.
 
-Use this class as a read model. It does not execute commands; command execution is handled by the registered command handler and by `ConsoleCommandBase`.
+Use this class as a read model. It does not execute commands; command execution is handled by the registered command handler and by [`ConsoleCommandBase`](./console-command-base).
 
 ## Usage
 

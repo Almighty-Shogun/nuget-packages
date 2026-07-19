@@ -8,6 +8,8 @@ dotnet add package AlmightyShogun.Logging
 
 ## Dependencies
 
+### Package references
+
 - `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.10` &mdash; provides service collection logging registration APIs.
 - `Microsoft.Extensions.Hosting` `10.0.10` &mdash; provides host-builder integration.
 - `Serilog` `4.4.0` &mdash; provides the core logger configuration and logger types.

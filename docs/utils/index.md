@@ -1,6 +1,6 @@
 # Utils
 
-Provides shared helpers used by the other packages in this repository and by applications that need the same small building blocks directly. The package contains console helpers, reflection-based type discovery, JSON serialization extension methods, dependency-injection registration helpers, and the `IServiceRegistry` module contract.
+Provides shared helpers used by the other packages in this repository and by applications that need the same small building blocks directly. The package contains console helpers, reflection-based type discovery, JSON serialization extension methods, dependency-injection registration helpers, and the [`IServiceRegistry`](./services/service-registry) module contract.
 
 Use this package when an application needs lightweight infrastructure utilities without taking a dependency on one of the more specific packages. The APIs are intentionally small and are most useful in startup code, command-line applications, and packages that need to scan assemblies or bind strongly typed options.
 

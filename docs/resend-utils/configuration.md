@@ -1,8 +1,8 @@
 # Configuration
 
-Resend Utils reads the `Email` section from `appsettings.json` when `AddResendEmail` receives an `IConfiguration` instance. The section is bound to `EmailSettings` and is used to configure the Resend API token, sender identity, brand values, footer text, and reusable template placeholders.
+Resend Utils reads the `Email` section from `appsettings.json` when [`AddResendEmail`](./extensions/add-resend-email) receives an `IConfiguration` instance. The section is bound to [`EmailSettings`](./configuration/email-settings) and is used to configure the Resend API token, sender identity, brand values, footer text, and reusable template placeholders.
 
-The `Email` section is required during startup registration. If the section is missing, `AddResendEmail` throws an `InvalidOperationException` before any email services are registered, so configuration mistakes fail early instead of surfacing later when the application tries to send an email.
+The `Email` section is required during startup registration. If the section is missing, [`AddResendEmail`](./extensions/add-resend-email) throws an `InvalidOperationException` before any email services are registered, so configuration mistakes fail early instead of surfacing later when the application tries to send an email.
 
 ```json
 {
@@ -27,5 +27,3 @@ The `Email` section is required during startup registration. If the section is m
 ```
 
 `CopyrightTextTemplate` and `FooterLinkText` support `{app_name}` and `{app_url}` placeholders in HTML and plain-text output. `IgnoreText` is resolved in HTML output and rendered as configured in plain-text output.
-
-See [EmailSettings](./configuration/email-settings) and [EmailTemplateSettings](./configuration/email-template-settings) for field descriptions.

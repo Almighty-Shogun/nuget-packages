@@ -13,7 +13,7 @@ returns: A parsed User-Agent record containing browser and device strings.
 
 # UserAgent
 
-Represents simplified User-Agent information returned by `UserAgent.Parse` and `GetUserAgent`. The record keeps only the browser and device strings that are usually useful for request logging, audit trails, and simple client displays.
+Represents simplified User-Agent information returned by `UserAgent.Parse` and [`GetUserAgent`](../extensions/get-user-agent). The record keeps only the browser and device strings that are usually useful for request logging, audit trails, and simple client displays.
 
 Use this record when application code does not need the full `UAParser` result. If parsing starts with a missing or empty header, both values are set to `Unknown`.
 
@@ -45,7 +45,7 @@ public record UserAgent(
 
 Parses a raw User-Agent header value into a compact `UserAgent` record. The method extracts the browser family and major version into `Browser`, and the operating-system family and major version into `Device`.
 
-When the input is empty, the method returns `Unknown` for both values so callers can safely store or display the result without special error handling. `GetUserAgent` calls this method with the current request's `User-Agent` header.
+When the input is empty, the method returns `Unknown` for both values so callers can safely store or display the result without special error handling. [`GetUserAgent`](../extensions/get-user-agent) calls this method with the current request's `User-Agent` header.
 
 ```csharp
 using AlmightyShogun.AspNet.Utils;

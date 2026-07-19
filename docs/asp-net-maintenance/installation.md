@@ -8,12 +8,17 @@ dotnet add package AlmightyShogun.AspNet.Maintenance
 
 ## Dependencies
 
-- `Microsoft.AspNetCore.App` framework reference &mdash; provides `IApplicationBuilder`, middleware, HTTP response, and ASP.NET Core hosting APIs used by the package.
-- `AlmightyShogun.Utils` project reference &mdash; provides configuration binding and JSON serialization helpers used by the package.
+### Framework references
+
+- `Microsoft.AspNetCore.App` &mdash; provides `IApplicationBuilder`, middleware, HTTP response, and ASP.NET Core hosting APIs used by the package.
+
+### Project references
+
+- `AlmightyShogun.Utils` &mdash; provides configuration binding and JSON serialization helpers used by the package.
 
 ## Startup Registration
 
-Register the service once during application startup, then add the middleware to the request pipeline. Place `UseMaintenanceMode` early enough that it can block normal application endpoints, but after middleware that must always run for every request.
+Register the service once during application startup, then add the middleware to the request pipeline. Place [`UseMaintenanceMode`](./extensions/use-maintenance-mode) early enough that it can block normal application endpoints, but after middleware that must always run for every request.
 
 The `Maintenance` configuration section is optional. When it is omitted, the package uses `/maintenance` as the maintenance details path, no default message, no automatic expiration, redirects blocked requests to the maintenance path, and has no allowed paths configured.
 

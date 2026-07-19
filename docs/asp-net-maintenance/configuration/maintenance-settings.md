@@ -33,13 +33,15 @@ fields:
 
 # MaintenanceSettings
 
-Represents the `Maintenance` configuration section consumed by ASP.NET Maintenance. The package binds this class during `AddMaintenanceMode` and uses the values as defaults for the middleware and for maintenance states created by `IMaintenanceService`.
+Represents the `Maintenance` configuration section consumed by ASP.NET Maintenance. The package binds this class during [`AddMaintenanceMode`](../extensions/add-maintenance-mode) and uses the values as defaults for the middleware and for maintenance states created by [`IMaintenanceService`](../services/maintenance-service).
 
 Application code normally does not create `MaintenanceSettings` manually. Configure it through `appsettings.json`, then inject `IOptions<MaintenanceSettings>` only when application-specific code needs to inspect the configured maintenance path, redirect behavior, or allowed routes.
 
 ## Usage
 
+::: tip
 The JSON shape is documented on the [configuration page](../configuration). The example below shows how application services can consume the already-bound options.
+:::
 
 ```csharp
 using Microsoft.Extensions.Options;

@@ -8,9 +8,10 @@ dotnet add package AlmightyShogun.ConsoleCommands
 
 ## Dependencies
 
-- `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.10` &mdash; provides the service registration APIs used by the package.
-- `AlmightyShogun.Logging` project reference &mdash; provides logging support used by the command runtime.
-- `AlmightyShogun.Utils` project reference &mdash; provides assembly scanning and inherited-type registration helpers.
+### Project references
+
+- `AlmightyShogun.Utils` &mdash; provides assembly scanning and inherited-type registration helpers.
+- `AlmightyShogun.Logging` &mdash; provides logging support used by the command runtime.
 
 ## Startup Registration
 
@@ -24,7 +25,7 @@ builder.Services
     .RegisterConsoleCommands(typeof(Program).Assembly);
 ```
 
-When the application is ready to run the input loop, resolve the handler through `IConsoleCommandHandler` and call `StartAsync`.
+When the application is ready to run the input loop, resolve the handler through [`IConsoleCommandHandler`](./services/console-command-handler) and call `StartAsync`.
 
 ```csharp
 using AlmightyShogun.ConsoleCommands;

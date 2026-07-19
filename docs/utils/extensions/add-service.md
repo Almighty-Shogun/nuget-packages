@@ -4,7 +4,7 @@ returns: The same `IServiceCollection` instance after the module has applied its
 
 # AddService
 
-Creates a new `IServiceRegistry` module of type `T` and calls `ConfigureService` so the module can add its own dependencies to the service collection. The generic type must implement `IServiceRegistry` and expose a public parameterless constructor.
+Creates a new [`IServiceRegistry`](../services/service-registry) module of type `T` and calls `ConfigureService` so the module can add its own dependencies to the service collection. The generic type must implement [`IServiceRegistry`](../services/service-registry) and expose a public parameterless constructor.
 
 Use this method for small registration modules that do not need constructor arguments. It keeps startup code compact while still letting each module own its dependency-injection registrations. Prefer a dedicated extension method when registration requires runtime values such as configuration objects or options.
 

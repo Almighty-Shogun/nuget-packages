@@ -8,6 +8,8 @@ dotnet add package AlmightyShogun.Utils
 
 ## Dependencies
 
+### Package references
+
 - `Microsoft.Extensions.Configuration.Abstractions` `10.0.10` &mdash; provides `IConfigurationSection` for options binding.
 - `Microsoft.Extensions.Configuration.Binder` `10.0.10` &mdash; binds configuration sections to strongly typed options.
 - `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.10` &mdash; provides `IServiceCollection` and service lifetime types.

@@ -8,7 +8,7 @@ params:
 
 # AliasAttribute
 
-Adds one or more aliases to a command class. `ConsoleCommandBase` reads the aliases from the same class that has `ConsoleCommandAttribute`, and `ConsoleCommandHandler` maps each alias to the same command instance.
+Adds one or more aliases to a command class. [`ConsoleCommandBase`](../types/console-command-base) reads the aliases from the same class that has [`ConsoleCommandAttribute`](./console-command-attribute), and [`ConsoleCommandHandler`](../services/console-command-handler) maps each alias to the same command instance.
 
 Use this attribute when a command should support short names or older command names without duplicating command classes.
 

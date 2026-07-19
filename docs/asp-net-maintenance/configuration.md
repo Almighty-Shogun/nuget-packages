@@ -1,6 +1,6 @@
 # Configuration
 
-ASP.NET Maintenance can read a `Maintenance` section from `appsettings.json`. The section is bound to `MaintenanceSettings` during `AddMaintenanceMode`, and the middleware uses the bound settings as defaults when no request-specific values are provided.
+ASP.NET Maintenance can read a `Maintenance` section from `appsettings.json`. The section is bound to [`MaintenanceSettings`](./configuration/maintenance-settings) during [`AddMaintenanceMode`](./extensions/add-maintenance-mode), and the middleware uses the bound settings as defaults when no request-specific values are provided.
 
 ```json
 {
@@ -19,4 +19,4 @@ ASP.NET Maintenance can read a `Maintenance` section from `appsettings.json`. Th
 }
 ```
 
-See [MaintenanceSettings](./configuration/maintenance-settings) for field descriptions and defaults. The complete section can be omitted when the built-in defaults are correct.
+The complete section can be omitted when the built-in defaults are correct.

@@ -10,9 +10,9 @@ returns: The `IServiceCollection` instance with discovered console command class
 
 # RegisterConsoleCommands
 
-Registers application command classes from one or more assemblies. The method scans for concrete implementations of the public command contract and registers them as transient services so `ConsoleCommandHandler` can receive them from dependency injection.
+Registers application command classes from one or more assemblies. The method scans for concrete implementations of the public command contract and registers them as transient services so [`ConsoleCommandHandler`](../services/console-command-handler) can receive them from dependency injection.
 
-Use this method after `AddConsoleCommands`. Pass explicit assemblies when command classes live in another project; relying on the calling assembly is only appropriate when commands are defined in the startup assembly. Command classes should inherit from `ConsoleCommandBase`; the handler rejects registered command services that do not use the base class.
+Use this method after [`AddConsoleCommands`](./add-console-commands). Pass explicit assemblies when command classes live in another project; relying on the calling assembly is only appropriate when commands are defined in the startup assembly. Command classes should inherit from [`ConsoleCommandBase`](../types/console-command-base); the handler rejects registered command services that do not use the base class.
 
 ## Usage
 

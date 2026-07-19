@@ -35,13 +35,15 @@ fields:
 
 # EmailSettings
 
-Represents the `Email` configuration section used by Resend Utils. The package binds this record during `AddResendEmail` and consumes it while configuring the Resend client and rendering `BaseMailTemplate` instances.
+Represents the `Email` configuration section used by Resend Utils. The package binds this record during [`AddResendEmail`](../extensions/add-resend-email) and consumes it while configuring the Resend client and rendering [`BaseMailTemplate`](../types/base-mail-template) instances.
 
 Application code normally does not create this record manually. Inject `IOptions<EmailSettings>` only when a service needs to inspect the configured sender, brand, or shared links.
 
 ## Usage
 
+::: tip
 The JSON shape is documented on the [configuration page](/resend-utils/configuration). The example below shows how application services can consume the already-bound options.
+:::
 
 ```csharp
 using AlmightyShogun.Resend.Utils;

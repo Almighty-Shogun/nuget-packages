@@ -8,6 +8,8 @@ dotnet add package AlmightyShogun.EntityFrameworkCore.Utils
 
 ## Dependencies
 
+### Package references
+
 - `Microsoft.EntityFrameworkCore` `10.0.10` &mdash; provides `ModelBuilder`, relationship builders, delete behavior options, and navigation configuration APIs used by the package.
 
 ## Startup Registration

@@ -4,9 +4,9 @@ returns: The `IApplicationBuilder` instance with standardized HTTP error respons
 
 # UseHttpErrorResponses
 
-Adds the middleware and exception handling needed to write standardized HTTP error bodies. The method registers an exception handler for unhandled exceptions and runs middleware that fills empty error responses with an `HttpErrorResponse` body.
+Adds the middleware and exception handling needed to write standardized HTTP error bodies. The method registers an exception handler for unhandled exceptions and runs middleware that fills empty error responses with an [`HttpErrorResponse`](../records/http-error-response) body.
 
-Use this method in the request pipeline after `AddHttpErrorResponses` has registered the required services. Place it before endpoint execution so exceptions and empty error status codes produced by downstream middleware, controllers, or endpoints can be normalized.
+Use this method in the request pipeline after [`AddHttpErrorResponses`](./add-http-error-responses) has registered the required services. Place it before endpoint execution so exceptions and empty error status codes produced by downstream middleware, controllers, or endpoints can be normalized.
 
 ## Usage
 

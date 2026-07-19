@@ -2,7 +2,7 @@
 
 Adds a TCP-based remote command listener with attribute-discovered command handlers. The package reads listener settings from configuration, registers command handlers through dependency injection, receives JSON payloads over a network stream, and dispatches each command to a typed handler.
 
-Use this package when an application needs a small internal command channel for operational commands, automation hooks, or local network integrations. Commands are implemented as classes that inherit from `RemoteCommand<T>` and are marked with `RemoteCommandAttribute`.
+Use this package when an application needs a small internal command channel for operational commands, automation hooks, or local network integrations. Commands are implemented as classes that inherit from [`RemoteCommand<T>`](./types/remote-command) and are marked with [`RemoteCommandAttribute`](./attributes/remote-command-attribute).
 
 ## Categories
 

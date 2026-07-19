@@ -1,6 +1,6 @@
 # Formatter
 
-The package always registers its internal console formatter when `AddCustomLogging` is used. Application code does not instantiate the formatter directly; write normal Serilog message templates and the registered logger applies the formatter to console output.
+The package always registers its internal console formatter when [`AddCustomLogging`](./extensions/add-custom-logging) is used. Application code does not instantiate the formatter directly; write normal Serilog message templates and the registered logger applies the formatter to console output.
 
 The formatter writes a timestamp, a three-letter log level, message-template text, colored property values, and exception details. Scalar values get default colors by type: strings are white, numbers are cyan, booleans are magenta, and `null` values are dark gray.
 

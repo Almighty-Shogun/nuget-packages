@@ -1,6 +1,6 @@
 # ServiceRegistry
 
-Contract for service registry modules that configure an `IServiceCollection`. A type implementing `IServiceRegistry` can be registered through `AddService<T>`, which constructs the module and calls `ConfigureService`.
+Contract for service registry modules that configure an `IServiceCollection`. A type implementing `IServiceRegistry` can be registered through [`AddService<T>`](../extensions/add-service), which constructs the module and calls `ConfigureService`.
 
 Use this contract when a package or application wants to group related dependency-injection registrations behind a reusable module. Keep implementations focused on registration only; runtime behavior should live in the services the module registers.
 
@@ -41,7 +41,7 @@ public sealed class NotificationFormatter
 
 ## ConfigureService
 
-Adds the registry module's dependency-injection registrations to the provided `IServiceCollection`. `AddService<T>` calls this method after constructing the module, but application code can call it directly when it already owns a module instance.
+Adds the registry module's dependency-injection registrations to the provided `IServiceCollection`. [`AddService<T>`](../extensions/add-service) calls this method after constructing the module, but application code can call it directly when it already owns a module instance.
 
 Return the same service collection to keep registration calls chainable. Implementations should avoid resolving services or performing runtime work here; this method should only describe registrations.
 

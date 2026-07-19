@@ -1,6 +1,6 @@
 # Installation
 
-Install `AlmightyShogun.Hangfire.Utils` in the application that should configure Hangfire and schedule recurring jobs from attributes. The package targets `net10.0`, registers Hangfire with in-memory storage, and discovers job classes that inherit from `RecurringJobBase`.
+Install `AlmightyShogun.Hangfire.Utils` in the application that should configure Hangfire and schedule recurring jobs from attributes. The package targets `net10.0`, registers Hangfire with in-memory storage, and discovers job classes that inherit from [`RecurringJobBase`](./types/recurring-job-base).
 
 ```sh
 dotnet add package AlmightyShogun.Hangfire.Utils
@@ -8,14 +8,19 @@ dotnet add package AlmightyShogun.Hangfire.Utils
 
 ## Dependencies
 
+### Package references
+
 - `Hangfire` `1.8.24` &mdash; provides the background job server, recurring job manager, and job metadata types.
-- `Hangfire.InMemory` `1.0.0` &mdash; provides the in-memory Hangfire storage used by `AddHangfire`.
+- `Hangfire.InMemory` `1.0.0` &mdash; provides the in-memory Hangfire storage used by [`AddHangfire`](./extensions/add-hangfire).
 - `Newtonsoft.Json` `13.0.4` &mdash; dependency used by Hangfire serialization.
-- `AlmightyShogun.Utils` project reference &mdash; provides assembly scanning and inherited-type registration helpers.
+
+### Project references
+
+- `AlmightyShogun.Utils` &mdash; provides assembly scanning and inherited-type registration helpers.
 
 ## Startup Registration
 
-Register Hangfire first, then register recurring job classes from the assemblies that contain them. `RegisterRecurringJobs` also registers the hosted scheduler that applies the discovered recurring jobs during startup.
+Register Hangfire first, then register recurring job classes from the assemblies that contain them. [`RegisterRecurringJobs`](./extensions/register-recurring-jobs) also registers the hosted scheduler that applies the discovered recurring jobs during startup.
 
 ::: code-group
 

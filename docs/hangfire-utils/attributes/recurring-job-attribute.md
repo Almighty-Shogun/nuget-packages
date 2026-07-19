@@ -11,9 +11,9 @@ params:
 
 # RecurringJobAttribute
 
-Marks a class as a recurring Hangfire job. `RegisterRecurringJobs` discovers `RecurringJobBase` types with this attribute and registers them for scheduling during application startup.
+Marks a class as a recurring Hangfire job. [`RegisterRecurringJobs`](../extensions/register-recurring-jobs) discovers [`RecurringJobBase`](../types/recurring-job-base) types with this attribute and registers them for scheduling during application startup.
 
-Use this attribute on classes that inherit from `RecurringJobBase`. The scheduler creates the Hangfire job from the marked type and its public parameterless `RunAsync` method.
+Use this attribute on classes that inherit from [`RecurringJobBase`](../types/recurring-job-base). The scheduler creates the Hangfire job from the marked type and its public parameterless [`RunAsync`](../types/recurring-job-base#runasync) method.
 
 ## Usage
 

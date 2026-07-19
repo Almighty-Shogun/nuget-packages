@@ -1,8 +1,8 @@
 # ConsoleCommandHandler
 
-Dependency-injection service for starting the console command input loop. `AddConsoleCommands` registers the package handler for `IConsoleCommandHandler`, and application code should resolve the interface when it is ready to read and dispatch console commands.
+Dependency-injection service for starting the console command input loop. [`AddConsoleCommands`](../extensions/add-console-commands) registers the package handler for `IConsoleCommandHandler`, and application code should resolve the interface when it is ready to read and dispatch console commands.
 
-Use this service from hosted services, startup code, or console application entry points that control when command input should begin. Command discovery and registration still happen through `RegisterConsoleCommands`; this service starts and stops the runtime loop that consumes the registered command instances.
+Use this service from hosted services, startup code, or console application entry points that control when command input should begin. Command discovery and registration still happen through [`RegisterConsoleCommands`](../extensions/register-console-commands); this service starts and stops the runtime loop that consumes the registered command instances.
 
 ## Usage
 

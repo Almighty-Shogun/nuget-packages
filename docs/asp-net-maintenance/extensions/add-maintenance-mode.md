@@ -9,9 +9,9 @@ returns: The same `IServiceCollection` instance with maintenance options and ser
 
 # AddMaintenanceMode
 
-Registers ASP.NET Maintenance services in dependency injection. The method binds `MaintenanceSettings` from the `Maintenance` configuration section and registers the file-backed implementation behind `IMaintenanceService`.
+Registers ASP.NET Maintenance services in dependency injection. The method binds [`MaintenanceSettings`](../configuration/maintenance-settings) from the `Maintenance` configuration section and registers the file-backed implementation behind [`IMaintenanceService`](../services/maintenance-service).
 
-Use this during application startup before resolving `IMaintenanceService` or adding the middleware. If the `Maintenance` section is missing, the package keeps the default values defined by `MaintenanceSettings`.
+Use this during application startup before resolving [`IMaintenanceService`](../services/maintenance-service) or adding the middleware. If the `Maintenance` section is missing, the package keeps the default values defined by [`MaintenanceSettings`](../configuration/maintenance-settings).
 
 ## Usage
 

@@ -2,7 +2,7 @@
 
 Adds Serilog-based logging registration with a compact custom console formatter. The package configures log context enrichment, writes console output through an asynchronous Serilog sink, and can optionally read additional Serilog settings from application configuration.
 
-Use this package when an application should use the same console logging format across service-collection based and host-builder based startup code. The custom formatter is internal; application code configures it through the public `AddCustomLogging` extension methods.
+Use this package when an application should use the same console logging format across service-collection based and host-builder based startup code. The custom formatter is internal; application code configures it through the public [`AddCustomLogging`](./extensions/add-custom-logging) extension methods.
 
 ## Categories
 

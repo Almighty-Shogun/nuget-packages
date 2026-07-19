@@ -1,6 +1,6 @@
 # MessageResolver
 
-Resolves localized HTTP messages from message keys. `AddHttpErrorResponses` registers `IMessageResolver` with the package's JSON-backed implementation, and application code can depend on the interface when it needs to resolve the same messages used by standardized HTTP error responses.
+Resolves localized HTTP messages from message keys. [`AddHttpErrorResponses`](../extensions/add-http-error-responses) registers `IMessageResolver` with the package's JSON-backed implementation, and application code can depend on the interface when it needs to resolve the same messages used by standardized HTTP error responses.
 
 The registered implementation reads JSON files from `messages/{language}` directories, flattens nested objects into dot-separated keys, and falls back from the requested language to the neutral language and then to the configured `DefaultLanguage`. When a message is resolved, the response `Content-Language` header is updated through the package language helpers.
 

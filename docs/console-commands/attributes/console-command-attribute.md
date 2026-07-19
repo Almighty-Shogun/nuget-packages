@@ -17,9 +17,9 @@ params:
 
 # ConsoleCommandAttribute
 
-Marks a command class with the command name, optional description, and argument-count behavior used by the console command runtime. `ConsoleCommandBase` reads this attribute from the class when the command is constructed. When the description is omitted, command metadata keeps the description as `null`.
+Marks a command class with the command name, optional description, and argument-count behavior used by the console command runtime. [`ConsoleCommandBase`](../types/console-command-base) reads this attribute from the class when the command is constructed. When the description is omitted, command metadata keeps the description as `null`.
 
-Use this attribute on every class that inherits from `ConsoleCommandBase`. Each command class must define exactly one public instance method named `ExecuteAsync`, and that method must return `Task`. Parameters on `ExecuteAsync` become command arguments; optional method parameters can be omitted by the user, and `ignoreExtraArgs` controls whether unexpected trailing arguments are accepted.
+Use this attribute on every class that inherits from [`ConsoleCommandBase`](../types/console-command-base). Each command class must define exactly one public instance method named `ExecuteAsync`, and that method must return `Task`. Parameters on `ExecuteAsync` become command arguments; optional method parameters can be omitted by the user, and `ignoreExtraArgs` controls whether unexpected trailing arguments are accepted.
 
 ## Usage
 

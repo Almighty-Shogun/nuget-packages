@@ -2,7 +2,7 @@
 
 Represents the persisted maintenance mode state read by the middleware and service. The package writes this type to `maintenance.json` when maintenance mode is enabled and reads it back on later requests or process restarts.
 
-Application code usually receives this type from `IMaintenanceService.GetAsync`. Treat it as a state snapshot: use `MaintenanceRequest` to change maintenance mode instead of creating or editing the state file manually.
+Application code usually receives this type from [`IMaintenanceService.GetAsync`](../services/maintenance-service#getasync). Treat it as a state snapshot: use [`MaintenanceRequest`](./maintenance-request) to change maintenance mode instead of creating or editing the state file manually.
 
 ## Usage
 

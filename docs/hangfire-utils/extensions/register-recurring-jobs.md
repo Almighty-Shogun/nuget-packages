@@ -12,7 +12,7 @@ returns: The `IServiceCollection` instance with recurring job registrations appl
 
 Registers recurring job services and metadata from one or more assemblies. When no assembly is provided, the method uses the calling assembly.
 
-Use this method after `AddHangfire` and pass the assembly that contains recurring job classes. Each discovered job class must inherit from `RecurringJobBase`, be marked with `RecurringJobAttribute`, and expose a public parameterless `RunAsync` method that returns `Task`. The method registers matching job classes as scoped services and registers the package scheduler hosted service that applies the discovered jobs during startup.
+Use this method after [`AddHangfire`](./add-hangfire) and pass the assembly that contains recurring job classes. Each discovered job class must inherit from [`RecurringJobBase`](../types/recurring-job-base), be marked with [`RecurringJobAttribute`](../attributes/recurring-job-attribute), and expose a public parameterless [`RunAsync`](../types/recurring-job-base#runasync) method that returns `Task`. The method registers matching job classes as scoped services and registers the package scheduler hosted service that applies the discovered jobs during startup.
 
 ## Usage
 

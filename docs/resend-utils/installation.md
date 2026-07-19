@@ -8,14 +8,18 @@ dotnet add package AlmightyShogun.Resend.Utils
 
 ## Dependencies
 
-- `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.10` &mdash; provides service registration APIs used by the startup extension.
+### Package references
+
 - `Resend` `0.6.0` &mdash; provides the Resend API client used to send email messages.
-- `AlmightyShogun.Logging` project reference &mdash; provides shared logging behavior used across the package set.
-- `AlmightyShogun.Utils` project reference &mdash; provides the configuration binding helper used during startup registration.
+
+### Project references
+
+- `AlmightyShogun.Logging` &mdash; provides shared logging behavior used across the package set.
+- `AlmightyShogun.Utils` &mdash; provides the configuration binding helper used during startup registration.
 
 ## Startup Registration
 
-Register the package once during application startup. The registration binds email settings, configures the Resend API token, and exposes the mail sender through `IResendMailService`.
+Register the package once during application startup. The registration binds email settings, configures the Resend API token, and exposes the mail sender through [`IResendMailService`](./services/resend-mail-service).
 
 ::: warning
 Requires an `Email` section in application configuration, usually from `appsettings.json`.

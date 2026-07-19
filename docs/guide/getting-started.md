@@ -78,7 +78,7 @@ builder.Services
     .RegisterConsoleCommands(typeof(Program).Assembly);
 ```
 
-Commands are public classes that derive from the package command base, add `ConsoleCommandAttribute` to the class, and expose exactly one public `ExecuteAsync` method returning `Task`.
+Commands are public classes that derive from [`ConsoleCommandBase`](/console-commands/types/console-command-base), add [`ConsoleCommandAttribute`](/console-commands/attributes/console-command-attribute) to the class, and expose exactly one public `ExecuteAsync` method returning `Task`.
 
 ```csharp
 using Microsoft.Extensions.Logging;

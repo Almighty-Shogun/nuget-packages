@@ -1,6 +1,6 @@
 # Maintenance Controls
 
-Maintenance controls are application-owned entry points that call `IMaintenanceService`. The package registers the service and provides the request/state types, but it does not ship a controller or endpoint because every application needs to decide how maintenance mode should be protected and exposed.
+Maintenance controls are application-owned entry points that call [`IMaintenanceService`](./services/maintenance-service). The package registers the service and provides the request/state types, but it does not ship a controller or endpoint because every application needs to decide how maintenance mode should be protected and exposed.
 
 Use this pattern for protected HTTP endpoints, deployment tooling, background workflows, or any other operational path that needs to read, enable, or disable maintenance mode. When the controls must stay reachable during maintenance, add their route to `AllowedPaths` or `AllowedPathPrefixes`; otherwise the middleware can block the same endpoint that would disable maintenance mode.
 
@@ -36,4 +36,4 @@ public sealed class MaintenanceController(IMaintenanceService maintenanceService
 }
 ```
 
-The request body for `POST /ops/maintenance/enable` maps directly to `MaintenanceRequest`. Omitted values fall back to `MaintenanceSettings`, so callers can send only the fields that need to change for the current maintenance window.
+The request body for `POST /ops/maintenance/enable` maps directly to [`MaintenanceRequest`](./types/maintenance-request). Omitted values fall back to [`MaintenanceSettings`](./configuration/maintenance-settings), so callers can send only the fields that need to change for the current maintenance window.

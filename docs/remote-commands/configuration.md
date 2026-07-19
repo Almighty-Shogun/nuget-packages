@@ -1,6 +1,6 @@
 # Configuration
 
-Remote Commands reads the `RemoteServer` section from `appsettings.json` when `AddRemoteCommands` receives an `IConfiguration` instance. The section is bound to `RemoteServerSettings` and consumed by `RemoteCommandHandler` through options.
+Remote Commands reads the `RemoteServer` section from `appsettings.json` when [`AddRemoteCommands`](./extensions/add-remote-commands) receives an `IConfiguration` instance. The section is bound to [`RemoteServerSettings`](./configuration/remote-server-settings) and consumed by [`RemoteCommandHandler`](./services/remote-command-handler) through options.
 
 ```json
 {
@@ -14,5 +14,3 @@ Remote Commands reads the `RemoteServer` section from `appsettings.json` when `A
     }
 }
 ```
-
-See [RemoteServerSettings](./configuration/remote-server-settings) for field descriptions and defaults.

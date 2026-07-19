@@ -9,9 +9,9 @@ returns: The `IServiceCollection` instance with remote command services configur
 
 # AddRemoteCommands
 
-Registers the remote command listener services and configuration. The method validates that the `RemoteServer` configuration section exists, binds it to `RemoteServerSettings`, and registers `RemoteCommandHandler` for `IRemoteCommandHandler`.
+Registers the remote command listener services and configuration. The method validates that the `RemoteServer` configuration section exists, binds it to [`RemoteServerSettings`](../configuration/remote-server-settings), and registers [`RemoteCommandHandler`](../services/remote-command-handler) for `IRemoteCommandHandler`.
 
-Use this method before registering command classes with `RegisterRemoteCommands`.
+Use this method before registering command classes with [`RegisterRemoteCommands`](./register-remote-commands).
 
 ## Usage
 

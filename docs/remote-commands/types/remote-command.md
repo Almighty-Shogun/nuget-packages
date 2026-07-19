@@ -2,7 +2,7 @@
 
 Base type for typed remote commands. A command class should inherit from this type, specify the message type as `T`, and implement `HandleCommandAsync`.
 
-The base type reads `RemoteCommandAttribute` to expose the command name and uses the package's internal execution contract to deserialize incoming JSON into the typed message. Application code should inherit from this type; it should not call the internal raw execution path directly.
+The base type reads [`RemoteCommandAttribute`](../attributes/remote-command-attribute) to expose the command name and uses the package's internal execution contract to deserialize incoming JSON into the typed message. Application code should inherit from this type; it should not call the internal raw execution path directly.
 
 ## Usage
 
