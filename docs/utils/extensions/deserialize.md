@@ -64,9 +64,7 @@ public sealed record WorkerSettings(string Name, bool Enabled);
 ## Type signature
 
 ```csharp
-extension(string json)
-{
-    public T? Deserialize<T>(JsonSerializerOptions options);
-    public T? Deserialize<T>(bool useDefaultOptions = true);
-}
+public T? Deserialize<T>(JsonSerializerOptions options);
+
+public T? Deserialize<T>(bool useDefaultOptions = true);
 ```

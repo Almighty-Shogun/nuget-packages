@@ -63,9 +63,7 @@ public sealed record WorkerSettings(string Name, bool Enabled);
 ## Type signature
 
 ```csharp
-extension(Stream stream)
-{
-    public Task<T?> DeserializeAsync<T>(JsonSerializerOptions options);
-    public Task<T?> DeserializeAsync<T>(bool useDefaultOptions = true);
-}
+public Task<T?> DeserializeAsync<T>(JsonSerializerOptions options);
+
+public Task<T?> DeserializeAsync<T>(bool useDefaultOptions = true);
 ```
