@@ -127,7 +127,8 @@ Use this personal PR style:
 - Body should be two or three short paragraphs.
 - First paragraph starts with `This PR resolves`, `This PR adds`, `This PR updates`, or `This PR improves`.
 - For a bugfix, second paragraph should explain the previous behavior with `Before this, ...` and then the new behavior with `This now ...`.
-- Final paragraph should describe a concrete related change, validation impact, or compatibility note when useful.
+- Final paragraph should describe a concrete related change or compatibility note when useful.
+- Do not include validation commands or results in the PR body unless the user explicitly asks. Report validation separately in the assistant response.
 - Do not add meta statements about the PR being scoped, limited, focused, or only containing certain files.
 - Do not add markdown headings, checklists, or test sections unless the user asks.
 
