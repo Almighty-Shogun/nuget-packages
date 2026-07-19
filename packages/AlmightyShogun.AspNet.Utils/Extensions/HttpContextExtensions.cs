@@ -10,7 +10,14 @@ namespace AlmightyShogun.AspNet.Utils;
 /// <since>2.2.2</since>
 public static class HttpContextExtensions
 {
-    /// <param name="httpContext">The <see cref="HttpContext"/> used to register the functionalities.</param>
+    /// <summary>
+    /// Provides HTTP context extension methods for the target context instance.
+    /// </summary>
+    ///
+    /// <param name="httpContext">The HTTP context used by the extension methods.</param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.2.2</since>
     extension(HttpContext httpContext)
     {
         /// <summary>
