@@ -20,19 +20,20 @@ export const aspNetJwtAuth: DefaultTheme.SidebarItem[] = [
         text: 'Extensions',
         collapsed: false,
         items: [
-            { text: 'AddApiAuth', link: '/asp-net-jwt-auth/extensions/add-api-auth' },
-            { text: 'AddJwtBearerAuthentication', link: '/asp-net-jwt-auth/extensions/add-jwt-bearer-authentication' },
+            { text: 'AddJwtAuth', link: '/asp-net-jwt-auth/extensions/add-jwt-auth' },
             { text: 'DeleteAuthCookies', link: '/asp-net-jwt-auth/extensions/delete-auth-cookies' },
             { text: 'GetCurrentUserId', link: '/asp-net-jwt-auth/extensions/get-current-user-id' },
             { text: 'GetRefreshTokenCookie', link: '/asp-net-jwt-auth/extensions/get-refresh-token-cookie' },
-            { text: 'SetRefreshTokenCookie', link: '/asp-net-jwt-auth/extensions/set-refresh-token-cookie' }
+            { text: 'SetRefreshTokenCookie', link: '/asp-net-jwt-auth/extensions/set-refresh-token-cookie' },
+            { text: 'TryGetRefreshTokenCookie', link: '/asp-net-jwt-auth/extensions/try-get-refresh-token-cookie' }
         ]
     },
     {
         text: 'Attributes',
         collapsed: false,
         items: [
-            { text: 'AuthPermission', link: '/asp-net-jwt-auth/attributes/auth-permission-attribute' }
+            { text: 'AuthPermission', link: '/asp-net-jwt-auth/attributes/auth-permission-attribute' },
+            { text: 'RequireRefreshToken', link: '/asp-net-jwt-auth/attributes/require-refresh-token-attribute' }
         ]
     },
     {

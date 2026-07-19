@@ -19,7 +19,7 @@ internal sealed class PermissionPolicyProvider(IOptions<AuthorizationOptions> op
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
-    public const string PolicyPrefix = "permission:";
+    internal const string PolicyPrefix = "permission:";
 
     /// <summary>
     /// Stores the default ASP.NET Core policy provider used for non-permission policies.
@@ -30,32 +30,51 @@ internal sealed class PermissionPolicyProvider(IOptions<AuthorizationOptions> op
     private readonly DefaultAuthorizationPolicyProvider _fallback = new(options);
 
     /// <inheritdoc />
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>2.3.0</since>
-    public Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
+    public async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
     {
         if (!policyName.StartsWith(PolicyPrefix, StringComparison.OrdinalIgnoreCase))
-            return _fallback.GetPolicyAsync(policyName);
+            return AddAppAudienceRequirement(await _fallback.GetPolicyAsync(policyName));
 
         string permission = policyName[PolicyPrefix.Length..];
+
         AuthorizationPolicy policy = new AuthorizationPolicyBuilder()
             .RequireAuthenticatedUser()
             .AddRequirements(new PermissionRequirement(permission))
             .Build();
 
-        return Task.FromResult<AuthorizationPolicy?>(policy);
+        return AddAppAudienceRequirement(policy);
     }
 
     /// <inheritdoc />
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>2.3.0</since>
-    public Task<AuthorizationPolicy> GetDefaultPolicyAsync() => _fallback.GetDefaultPolicyAsync();
+    public async Task<AuthorizationPolicy> GetDefaultPolicyAsync()
+        => AddAppAudienceRequirement(await _fallback.GetDefaultPolicyAsync())!;
 
     /// <inheritdoc />
+    public async Task<AuthorizationPolicy?> GetFallbackPolicyAsync()
+        => AddAppAudienceRequirement(await _fallback.GetFallbackPolicyAsync());
+
+    /// <summary>
+    /// Adds app-audience authorization to a policy when it is not already present.
+    /// </summary>
+    ///
+    /// <param name="policy">The authorization policy to decorate.</param>
+    ///
+    /// <returns>The decorated authorization policy, or <c>null</c> when no policy was provided.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>2.3.0</since>
-    public Task<AuthorizationPolicy?> GetFallbackPolicyAsync() => _fallback.GetFallbackPolicyAsync();
+    /// <since>Unreleased</since>
+    private static AuthorizationPolicy? AddAppAudienceRequirement(AuthorizationPolicy? policy)
+    {
+        if (policy is null || policy.Requirements.Any(requirement => requirement is AppAudienceRequirement))
+            return policy;
+
+        AuthorizationPolicyBuilder builder = new(policy.AuthenticationSchemes.ToArray());
+
+        foreach (IAuthorizationRequirement requirement in policy.Requirements)
+            builder.AddRequirements(requirement);
+
+        return builder
+            .AddRequirements(new AppAudienceRequirement())
+            .Build();
+    }
 }

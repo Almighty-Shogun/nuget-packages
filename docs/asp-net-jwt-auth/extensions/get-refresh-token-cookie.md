@@ -1,12 +1,12 @@
 ---
-returns: The refresh-token cookie value, or `null` when the cookie is not present.
+returns: The refresh-token cookie value.
 ---
 
 # GetRefreshTokenCookie
 
-Reads the package refresh-token cookie from an `HttpRequest`. The helper looks up the cookie name from `CookieNames.RefreshToken`, so application code can read the same cookie that `SetRefreshTokenCookie` writes.
+Reads the package refresh-token cookie from an `HttpRequest` and returns it as a non-nullable `string`. The helper looks up the cookie name from [`CookieNames.RefreshToken`](../constants/cookie-names), so application code can read the same cookie that [`SetRefreshTokenCookie`](./set-refresh-token-cookie) writes.
 
-Use this in refresh-token endpoints when the access token has expired and the API needs to retrieve the refresh token sent by the browser. The method returns `null` when the cookie does not exist, allowing the endpoint to return an unauthorized response or start a new sign-in flow.
+Use this in refresh-token, logout, or token-revocation code after the endpoint has already established that a refresh token must be present. If the cookie is missing or empty, the method throws [`HttpErrorException`](/asp-net-utils/types/http-error-exception) with status code `401 Unauthorized` instead of returning `null`, which keeps required refresh-token flows explicit.
 
 ## Usage
 
@@ -17,7 +17,7 @@ using AlmightyShogun.AspNet.JwtAuth;
 var httpContext = new DefaultHttpContext();
 httpContext.Request.Headers.Cookie = "refreshToken=abc123";
 
-string? refreshToken = httpContext.Request.GetRefreshTokenCookie();
+string refreshToken = httpContext.Request.GetRefreshTokenCookie();
 ```
 
 <FrontmatterDocs/>
@@ -25,5 +25,5 @@ string? refreshToken = httpContext.Request.GetRefreshTokenCookie();
 ## Type signature
 
 ```csharp
-public string? GetRefreshTokenCookie();
+public string GetRefreshTokenCookie();
 ```

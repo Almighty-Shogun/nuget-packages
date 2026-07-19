@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace AlmightyShogun.AspNet.JwtAuth;
 
 /// <summary>
@@ -14,6 +16,7 @@ public sealed record AuthSettings
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
+    [Required]
     public required string Issuer { get; init; }
 
     /// <summary>
@@ -22,6 +25,7 @@ public sealed record AuthSettings
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
+    [Required]
     public required string Secret { get; init; }
 
     /// <summary>
@@ -30,6 +34,7 @@ public sealed record AuthSettings
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
+    [Range(1, int.MaxValue)]
     public required int Hours { get; init; }
 
     /// <summary>
@@ -38,6 +43,7 @@ public sealed record AuthSettings
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
+    [Range(1, int.MaxValue)]
     public required int RefreshTokenDays { get; init; }
 
     /// <summary>
@@ -55,4 +61,42 @@ public sealed record AuthSettings
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
     public Dictionary<string, string> Hosts { get; init; } = [];
+
+    /// <summary>
+    /// Gets the normalized audience values configured for localhost and host mappings.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// The value is used by JWT bearer validation when host-based app scoping is enabled.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal IReadOnlyList<string> ValidAudiences
+    {
+        get
+        {
+            HashSet<string> audiences = new(StringComparer.OrdinalIgnoreCase);
+
+            if (!string.IsNullOrWhiteSpace(LocalhostApp))
+                audiences.Add(LocalhostApp);
+
+            foreach (string audience in Hosts.Values.Where(audience => !string.IsNullOrWhiteSpace(audience)))
+            {
+                audiences.Add(audience);
+            }
+
+            return [.. audiences];
+        }
+    }
+
+    /// <summary>
+    /// Determines whether host-based app scoping is active for authentication and authorization.
+    /// </summary>
+    ///
+    /// <returns><c>true</c> when host mappings are configured; otherwise, <c>false</c>.</returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal bool IsScoped() => Hosts.Count > 0;
 }
