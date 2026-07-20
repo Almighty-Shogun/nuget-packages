@@ -7,6 +7,7 @@ The repository is intentionally practical. Packages are small, .NET-first, depen
 ## What packages are there?
 
 - [ASP.NET JWT Auth](/asp-net-jwt-auth/) &mdash; JWT bearer authentication, refresh-token cookies, host-to-application audience checks, and permission-based authorization helpers.
+- [ASP.NET Credential Auth](/asp-net-credential-auth/) &mdash; username or email password login, refresh sessions, and password reset helpers backed by Entity Framework Core.
 - [ASP.NET Maintenance](/asp-net-maintenance/) &mdash; file-backed maintenance mode middleware and services for ASP.NET Core applications.
 - [ASP.NET Utils](/asp-net-utils/) &mdash; ASP.NET Core request helpers for CORS, MVC filters, session context, cookies, and User-Agent parsing.
 - [Console Commands](/console-commands/) &mdash; Attribute-based console command discovery and execution for dependency-injected console applications.

@@ -7,6 +7,7 @@ This guide shows how to install one or more `AlmightyShogun.*` packages and use 
 - .NET 10 SDK.
 - ASP.NET Core when using `AlmightyShogun.AspNet.*` packages.
 - Entity Framework Core when using `AlmightyShogun.EntityFrameworkCore.Utils`.
+- Entity Framework Core when using `AlmightyShogun.AspNet.CredentialAuth`.
 - Hangfire when using `AlmightyShogun.Hangfire.Utils`.
 - Resend account and API key when using `AlmightyShogun.Resend.Utils`.
 - Application configuration from `appsettings.json` when a package reads options through `builder.Configuration`.
@@ -61,6 +62,32 @@ public sealed class AdminUsersController : ControllerBase
     public IActionResult ListUsers() => Ok();
 }
 ```
+
+## Credential login
+
+Use `AlmightyShogun.AspNet.CredentialAuth` when the API owns username/email password accounts. It builds on ASP.NET JWT Auth for access tokens, ASP.NET Utils for request metadata and HTTP errors, ASP.NET Validation for request validation, and Entity Framework Core for user/session storage.
+
+```sh
+dotnet add package AlmightyShogun.AspNet.CredentialAuth
+```
+
+```csharp
+using AlmightyShogun.AspNet.Utils;
+using Microsoft.EntityFrameworkCore;
+using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.CredentialAuth;
+
+builder.Services
+    .AddHttpErrorResponses(builder.Configuration)
+    .AddJwtAuth(builder.Configuration)
+    .AddAspNetValidation()
+    .AddDbContext<AppDbContext>(options =>
+        options.UseSqlite(builder.Configuration.GetConnectionString("Database")))
+    .AddCredentialAuth<AppDbContext, AppUser>();
+```
+
+Application code derives its auth context from [`AuthDbContext<TUser>`](/asp-net-credential-auth/types/auth-db-context) and user entity from [`AuthUser`](/asp-net-credential-auth/types/auth-user). Use [`IAuthUserService<TUser>`](/asp-net-credential-auth/services/auth-user-service) for login and registration, [`IAuthSessionService<TUser>`](/asp-net-credential-auth/services/auth-session-service) for refresh-token rotation, and [`IAuthPasswordService`](/asp-net-credential-auth/services/auth-password-service) for password changes and password reset flows.
 
 ## Console commands
 

@@ -18,6 +18,11 @@ hero:
             link: /guide/
 
 features:
+    -   title: ASP.NET Credential Auth
+        details: Password login, refresh sessions, and reset tokens.
+        link: /asp-net-credential-auth/
+        linkText: View package
+
     -   title: ASP.NET JWT Auth
         details: JWT auth, refresh-token cookies, and permission policies.
         link: /asp-net-jwt-auth/
