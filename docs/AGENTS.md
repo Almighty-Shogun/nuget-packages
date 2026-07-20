@@ -33,6 +33,7 @@ docs/{package}/
   configuration.md
   configuration/{configuration-name}.md
   attributes/{attribute-name}.md
+  validation-rules/{rule-family}.md
   constants/{constant-name}.md
   extensions/{api-name}.md
   records/{record-name}.md
@@ -40,7 +41,7 @@ docs/{package}/
   types/{type-name}.md
 ```
 
-Use meaningful categories such as `attributes`, `configuration`, `constants`, `extensions`, `records`, `services`, and `types`. Do not introduce separate `classes` and `interfaces` groups for new or migrated documentation unless the user explicitly asks for that structure.
+Use meaningful categories such as `attributes`, `configuration`, `constants`, `extensions`, `records`, `services`, `types`, and package-specific categories such as `validation-rules`. Do not introduce separate `classes` and `interfaces` groups for new or migrated documentation unless the user explicitly asks for that structure.
 
 Service pages document consumer-facing DI contracts and the behavior of the registered implementation in one place. The route and page title use the service name without the interface prefix, for example `IAppHostResolver` is documented at `services/app-host-resolver.md` with `# AppHostResolver`. Examples and type signatures still use `IAppHostResolver`.
 
@@ -54,13 +55,65 @@ Public non-DI classes, structs, records, and values can use focused categories s
 
 Avoid duplicate pages for the same API. Overloads of the same method belong on one method page or one method section.
 
+Packages that expose a very large set of closely related validation-rule APIs may use grouped family pages instead of one page per rule attribute or fluent rule method. Each public rule API must still be documented exactly once on the relevant family page, with clear usage, behavior notes, and type signatures. Use this only when separate pages would create repetitive, low-value navigation.
+
+## Validation Rule Documentation
+
+`AlmightyShogun.AspNet.Validation` uses grouped rule-family pages because validation attributes and fluent rule methods expose a large, repetitive public surface.
+
+Validation rule family pages under `docs/asp-net-validation/validation-rules/` use:
+
+````md
+# Rule Family
+
+Family description.
+
+## RuleName
+
+Rule behavior, when to use it, and important constraints.
+
+::: code-group
+
+```csharp [Attribute.cs]
+[AttributeName(parameter shape)]
+
+[AttributeName(real, values)]
+```
+
+```csharp [FluentRule.cs]
+RuleFor(x => x.Value)
+    .RuleName(real, values);
+```
+
+:::
+````
+
+Rules:
+
+- Document every public validation attribute exactly once on the relevant family page.
+- Document every public fluent validation rule method exactly once on the relevant family page.
+- Document `CustomRule` on `docs/asp-net-validation/custom-rules.md`, not inside a rule family, because it needs implementation guidance for the DI-resolved rule type and optional custom attribute wrapper.
+- Use one `## RuleName` section per validation rule.
+- Do not use shared rule tables or shared `## Type signature` blocks on validation rule family pages.
+- For no-argument attributes, show only the real attribute usage once, for example `[Required]`.
+- For attributes with arguments, show the constructor-shaped attribute first, then a blank line, then a concrete real usage.
+- Use `::: code-group` with `[Attribute.cs]` and `[FluentRule.cs]` when both APIs exist.
+- If a rule is fluent-only or attribute-only, document the existing public API and call out the missing counterpart as a package parity question before release.
+- Do not add label comments such as `// Real example` inside the code block.
+
+The `docs/asp-net-validation/fluent-validation.md` page documents `ValidatableRequest<TRequest>` and general fluent-rule behavior:
+
+- Keep one main request example near the top.
+- Do not duplicate the full rule catalog on this page.
+- Link to the validation rule family pages for concrete rule examples.
+
 ## Navigation
 
 - Update the matching file in `docs/.vitepress/config/menu/`.
 - Every package must be available from the top navigation package dropdown.
 - Every API page must be reachable from its package sidebar.
 - Introduction, installation, and package-level configuration links stay in the first non-collapsible group.
-- Sidebar groups use this order when present: package pages, `Configuration`, `Extensions`, `Attributes`, `Services`, `Types`, `Records`, `Constants`.
+- Sidebar groups use this order when present: package pages, `Configuration`, `Extensions`, package-specific groups such as `Validation Rules`, `Attributes`, `Services`, `Types`, `Records`, `Constants`.
 - Package-specific guide pages, such as Logging's `Formatter`, stay in the first group after `Configuration`.
 - Category and API groups use `collapsed: false` so they are collapsible and initially open.
 - Use human-readable labels and slugified links.
@@ -90,7 +143,7 @@ Package introductions use the package name as the H1 and contain:
 - A clear description of the package.
 - A `## Categories` list.
 - Category links followed by `&mdash;` and a concise description.
-- Categories use the same order as the package sidebar: `Configuration`, `Extensions`, `Attributes`, `Services`, `Types`, `Records`, `Constants`.
+- Categories use the same order as the package sidebar: `Configuration`, `Extensions`, package-specific groups such as `Validation Rules`, `Attributes`, `Services`, `Types`, `Records`, `Constants`.
 - Package-specific guide pages, such as Logging's `Formatter`, appear after `Configuration` in the package introduction category list when present.
 - A short practical example.
 - Dependency/runtime notes where useful.
