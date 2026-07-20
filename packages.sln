@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Resend.Utils
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Maintenance", "packages\AlmightyShogun.AspNet.Maintenance\AlmightyShogun.AspNet.Maintenance.csproj", "{A9F799FD-7FE0-437A-B5C1-6E6BC8E2D2C8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Validation", "packages\AlmightyShogun.AspNet.Validation\AlmightyShogun.AspNet.Validation.csproj", "{C192A826-26F0-4C42-A2F4-C474B2B4FE7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,5 +73,9 @@ Global
 		{A9F799FD-7FE0-437A-B5C1-6E6BC8E2D2C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9F799FD-7FE0-437A-B5C1-6E6BC8E2D2C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9F799FD-7FE0-437A-B5C1-6E6BC8E2D2C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C192A826-26F0-4C42-A2F4-C474B2B4FE7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C192A826-26F0-4C42-A2F4-C474B2B4FE7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C192A826-26F0-4C42-A2F4-C474B2B4FE7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C192A826-26F0-4C42-A2F4-C474B2B4FE7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

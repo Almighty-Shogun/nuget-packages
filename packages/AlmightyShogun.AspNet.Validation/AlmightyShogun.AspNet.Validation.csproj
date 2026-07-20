@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <TargetFramework>net10.0</TargetFramework>
+
+        <Authors>Almighty-Shogun</Authors>
+        <PackageId>AlmightyShogun.AspNet.Validation</PackageId>
+        <RootNamespace>AlmightyShogun.AspNet.Validation</RootNamespace>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Description>A C# library that adds attribute and fluent request validation with standardized ASP.NET Core error responses.</Description>
+
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.AspNet.Validation</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.AspNet.Validation</PackageProjectUrl>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="icon.png" Pack="true" PackagePath=""/>
+        <None Update="README.md" Pack="true" PackagePath=""/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AlmightyShogun.AspNet.Utils\AlmightyShogun.AspNet.Utils.csproj"/>
+    </ItemGroup>
+
+</Project>

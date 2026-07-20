@@ -3,6 +3,7 @@ import { guide } from './guide'
 import { aspNetJwtAuth } from './asp-net-jwt-auth'
 import { aspNetMaintenance } from './asp-net-maintenance'
 import { aspNetUtils } from './asp-net-utils'
+import { aspNetValidation } from './asp-net-validation'
 import { consoleCommands } from './console-commands'
 import { efCoreUtils } from './ef-core-utils'
 import { hangfireUtils } from './hangfire-utils'
@@ -20,11 +21,12 @@ export const nav: DefaultTheme.NavItem[] = [
     },
     {
         text: 'ASP.NET',
-        activeMatch: '^/(asp-net-jwt-auth|asp-net-maintenance|asp-net-utils)/',
+        activeMatch: '^/(asp-net-jwt-auth|asp-net-maintenance|asp-net-utils|asp-net-validation)/',
         items: [
             { text: 'JWT Auth', activeMatch: '^/asp-net-jwt-auth/', link: '/asp-net-jwt-auth/' },
             { text: 'Maintenance', activeMatch: '^/asp-net-maintenance/', link: '/asp-net-maintenance/' },
-            { text: 'Utils', activeMatch: '^/asp-net-utils/', link: '/asp-net-utils/' }
+            { text: 'Utils', activeMatch: '^/asp-net-utils/', link: '/asp-net-utils/' },
+            { text: 'Validation', activeMatch: '^/asp-net-validation/', link: '/asp-net-validation/' }
         ]
     },
     {
@@ -58,6 +60,7 @@ export const sidebar = {
     "/asp-net-jwt-auth/": aspNetJwtAuth,
     "/asp-net-maintenance/": aspNetMaintenance,
     "/asp-net-utils/": aspNetUtils,
+    "/asp-net-validation/": aspNetValidation,
     "/console-commands/": consoleCommands,
     "/ef-core-utils/": efCoreUtils,
     "/hangfire-utils/": hangfireUtils,
