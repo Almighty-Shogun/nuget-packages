@@ -28,6 +28,7 @@ jobs:
                 run: |
                     cd packages
                     
+                    dotnet build AlmightyShogun.AspNet.CredentialAuth/AlmightyShogun.AspNet.CredentialAuth.csproj --configuration Release
                     dotnet build AlmightyShogun.AspNet.JwtAuth/AlmightyShogun.AspNet.JwtAuth.csproj --configuration Release
                     dotnet build AlmightyShogun.AspNet.Maintenance/AlmightyShogun.AspNet.Maintenance.csproj --configuration Release
                     dotnet build AlmightyShogun.AspNet.Utils/AlmightyShogun.AspNet.Utils.csproj --configuration Release
@@ -45,6 +46,7 @@ jobs:
                 run: |
                     cd packages
                     
+                    dotnet pack AlmightyShogun.AspNet.CredentialAuth/AlmightyShogun.AspNet.CredentialAuth.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.AspNet.JwtAuth/AlmightyShogun.AspNet.JwtAuth.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.AspNet.Maintenance/AlmightyShogun.AspNet.Maintenance.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.AspNet.Utils/AlmightyShogun.AspNet.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..

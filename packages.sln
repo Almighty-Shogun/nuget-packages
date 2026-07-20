@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Maint
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Validation", "packages\AlmightyShogun.AspNet.Validation\AlmightyShogun.AspNet.Validation.csproj", "{C192A826-26F0-4C42-A2F4-C474B2B4FE7D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.CredentialAuth", "packages\AlmightyShogun.AspNet.CredentialAuth\AlmightyShogun.AspNet.CredentialAuth.csproj", "{13E7324F-3726-43C9-80B5-816C513F75D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,5 +79,9 @@ Global
 		{C192A826-26F0-4C42-A2F4-C474B2B4FE7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C192A826-26F0-4C42-A2F4-C474B2B4FE7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C192A826-26F0-4C42-A2F4-C474B2B4FE7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13E7324F-3726-43C9-80B5-816C513F75D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13E7324F-3726-43C9-80B5-816C513F75D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13E7324F-3726-43C9-80B5-816C513F75D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13E7324F-3726-43C9-80B5-816C513F75D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,5 +1,6 @@
 import type { DefaultTheme } from 'vitepress'
 import { guide } from './guide'
+import { aspNetCredentialAuth } from './asp-net-credential-auth'
 import { aspNetJwtAuth } from './asp-net-jwt-auth'
 import { aspNetMaintenance } from './asp-net-maintenance'
 import { aspNetUtils } from './asp-net-utils'
@@ -21,12 +22,18 @@ export const nav: DefaultTheme.NavItem[] = [
     },
     {
         text: 'ASP.NET',
-        activeMatch: '^/(asp-net-jwt-auth|asp-net-maintenance|asp-net-utils|asp-net-validation)/',
+        activeMatch: '^/(asp-net-credential-auth|asp-net-jwt-auth|asp-net-maintenance|asp-net-utils|asp-net-validation)/',
         items: [
             { text: 'JWT Auth', activeMatch: '^/asp-net-jwt-auth/', link: '/asp-net-jwt-auth/' },
             { text: 'Maintenance', activeMatch: '^/asp-net-maintenance/', link: '/asp-net-maintenance/' },
             { text: 'Utils', activeMatch: '^/asp-net-utils/', link: '/asp-net-utils/' },
-            { text: 'Validation', activeMatch: '^/asp-net-validation/', link: '/asp-net-validation/' }
+            { text: 'Validation', activeMatch: '^/asp-net-validation/', link: '/asp-net-validation/' },
+            {
+                text: 'Login Systems',
+                items: [
+                    { text: 'Credential Auth', activeMatch: '^/asp-net-credential-auth/', link: '/asp-net-credential-auth/' }
+                ]
+            }
         ]
     },
     {
@@ -57,6 +64,7 @@ export const nav: DefaultTheme.NavItem[] = [
 
 export const sidebar = {
     "/guide/": guide,
+    "/asp-net-credential-auth/": aspNetCredentialAuth,
     "/asp-net-jwt-auth/": aspNetJwtAuth,
     "/asp-net-maintenance/": aspNetMaintenance,
     "/asp-net-utils/": aspNetUtils,

@@ -8,8 +8,10 @@
 A collection of NuGet packages I use in (personal) projects.
 
 ## 📦 Packages
+- **[ASP.NET Credential Auth](packages/AlmightyShogun.AspNet.CredentialAuth)**: `AlmightyShogun.AspNet.CredentialAuth`
 - **[ASP.NET JWT Auth](packages/AlmightyShogun.AspNet.JwtAuth)**: `AlmightyShogun.AspNet.JwtAuth`
-- **[ASP.NET Utils](packages/AlmightyShogun.AspNet.JwtAuth)**: `AlmightyShogun.AspNet.Utils`
+- **[ASP.NET Maintenance](packages/AlmightyShogun.AspNet.Maintenance)**: `AlmightyShogun.AspNet.Maintenance`
+- **[ASP.NET Utils](packages/AlmightyShogun.AspNet.Utils)**: `AlmightyShogun.AspNet.Utils`
 - **[ASP.NET Validation](packages/AlmightyShogun.AspNet.Validation)**: `AlmightyShogun.AspNet.Validation`
 - **[ConsoleCommands](packages/AlmightyShogun.ConsoleCommands)**: `AlmightyShogun.ConsoleCommands`
 - **[EFCore Utils](packages/AlmightyShogun.EntityFrameworkCore.Utils)**: `AlmightyShogun.EntityFrameworkCore.Utils`
