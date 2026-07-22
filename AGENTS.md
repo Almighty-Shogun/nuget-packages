@@ -44,9 +44,11 @@ Important high-level rules:
 - Every documented public API page must be reachable from the VitePress sidebar.
 - Do not silently change documentation conventions. Explain broad convention changes before applying them.
 
-## Git And PR Safety
+## Releasing
 
-- Do not use `git add .`, `git add -A`, `git reset --hard`, force pushes, rebases, or destructive cleanup unless the user explicitly asks.
-- Inspect untracked files before including them in a commit.
-- Keep commits focused and use the repository's commit/PR skills when requested.
-- If a command needs to write to `.git` and the sandbox blocks it, request escalation instead of working around Git metadata.
+User-level release skills should use these repository overrides.
+
+- Publishing and documentation deployment are CI-driven by `.github/workflows/release.yml`.
+- Before releasing, replace exact `<since>Unreleased</since>` markers under `packages/` with `<since><version></since>`.
+- Commit only release-marker changes with `chore: prepare release metadata for <version>`.
+- Release checks: `dotnet build packages.sln --configuration Release` and `bun run docs:build`.
