@@ -1,13 +1,16 @@
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using AlmightyShogun.AspNet.JwtAuth;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
 /// Provides database-backed validation checks for authentication requests.
 /// </summary>
+///
+/// <param name="databaseContext">The authentication database context used for validation lookups.</param>
+/// <param name="httpContextAccessor">The HTTP context accessor used to resolve the current authenticated user.</param>
 ///
 /// <typeparam name="TUser">The authentication user entity type.</typeparam>
 ///
@@ -25,77 +28,56 @@ internal sealed class AuthValidationService<TUser>(
     /// <since>Unreleased</since>
     private readonly PasswordHasher<TUser> _hasher = new();
 
+    /// <summary>
+    /// The identifier of the current authenticated user, or <c>0</c> when no user is available.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private int CurrentUserId => httpContextAccessor.HttpContext?.User.GetCurrentUserId() ?? 0;
+
     /// <inheritdoc />
-    public async Task<bool> IsCurrentPasswordAsync(
-        string? currentPassword,
-        CancellationToken cancellationToken = default)
+    public async Task<bool> IsCurrentPasswordAsync(string? currentPassword, CancellationToken cancellationToken = default)
     {
         if (currentPassword is null)
             return true;
 
-        int userId = httpContextAccessor.HttpContext?.User.GetCurrentUserId() ?? 0;
-
-        if (userId <= 0)
+        if (CurrentUserId <= 0)
             return false;
 
-        TUser? user = await databaseContext.Users.FindAsync([userId], cancellationToken);
+        TUser? user = await databaseContext.Users.FindAsync([CurrentUserId], cancellationToken);
 
         return user is not null && PasswordMatches(user, currentPassword);
     }
 
     /// <inheritdoc />
-    public async Task<bool> IsDifferentFromCurrentPasswordAsync(
-        string? newPassword,
-        CancellationToken cancellationToken = default)
+    public async Task<bool> IsDifferentFromCurrentPasswordAsync(string? newPassword, CancellationToken cancellationToken = default)
     {
         if (newPassword is null)
             return true;
 
-        int userId = httpContextAccessor.HttpContext?.User.GetCurrentUserId() ?? 0;
-
-        if (userId <= 0)
+        if (CurrentUserId <= 0)
             return false;
 
-        TUser? user = await databaseContext.Users.FindAsync([userId], cancellationToken);
+        TUser? user = await databaseContext.Users.FindAsync([CurrentUserId], cancellationToken);
 
         return user is not null && !PasswordMatches(user, newPassword);
     }
 
     /// <inheritdoc />
-    public async Task<bool> LoginIdentifierExistsAsync(
-        string? identifier,
-        CancellationToken cancellationToken = default)
-    {
-        if (identifier is null)
-            return true;
-
-        return await databaseContext.Users
-            .AnyAsync(user => user.Username == identifier || user.Email == identifier, cancellationToken);
-    }
+    public async Task<bool> LoginIdentifierExistsAsync(string? identifier, CancellationToken cancellationToken = default)
+        => identifier is null
+           || await databaseContext.Users.AnyAsync(user => user.Username == identifier || user.Email == identifier, cancellationToken);
 
     /// <inheritdoc />
-    public async Task<bool> IsUsernameUniqueAsync(
-        string? username,
-        CancellationToken cancellationToken = default)
-    {
-        if (username is null)
-            return true;
-
-        return !await databaseContext.Users
-            .AnyAsync(user => user.Username == username, cancellationToken);
-    }
+    public async Task<bool> IsUsernameUniqueAsync(string? username, CancellationToken cancellationToken = default)
+        => username is null
+           || !await databaseContext.Users.AnyAsync(user => user.Username == username, cancellationToken);
 
     /// <inheritdoc />
-    public async Task<bool> IsEmailUniqueAsync(
-        string? email,
-        CancellationToken cancellationToken = default)
-    {
-        if (email is null)
-            return true;
-
-        return !await databaseContext.Users
-            .AnyAsync(user => user.Email == email, cancellationToken);
-    }
+    public async Task<bool> IsEmailUniqueAsync(string? email, CancellationToken cancellationToken = default)
+        => email is null
+           || !await databaseContext.Users.AnyAsync(user => user.Email == email, cancellationToken);
 
     /// <inheritdoc />
     public async Task<bool> IsCurrentPasswordAsync(
@@ -112,21 +94,17 @@ internal sealed class AuthValidationService<TUser>(
     }
 
     /// <inheritdoc />
-    public async Task<bool> IsPasswordResetTokenActiveAsync(
-        string? token,
-        CancellationToken cancellationToken = default)
+    public async Task<bool> IsPasswordResetTokenActiveAsync(string? token, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(token))
             return true;
 
-        string tokenHash = PasswordResetTokenHasher.Hash(token);
+        string tokenHash = TokenHasher.Hash(token);
 
         return await databaseContext.PasswordResetTokens
-            .AnyAsync(
-                passwordToken => passwordToken.TokenHash == tokenHash
-                                 && passwordToken.UsedAt == null
-                                 && passwordToken.ExpiresAt > DateTime.UtcNow,
-                cancellationToken);
+            .Where(passwordToken => passwordToken.ExpiresAt > DateTime.UtcNow)
+            .Where(passwordToken => passwordToken.UsedAt == null && passwordToken.TokenHash == tokenHash)
+            .AnyAsync(cancellationToken);
     }
 
     /// <inheritdoc />
@@ -138,14 +116,12 @@ internal sealed class AuthValidationService<TUser>(
         if (string.IsNullOrEmpty(token) || newPassword is null)
             return true;
 
-        string tokenHash = PasswordResetTokenHasher.Hash(token);
+        string tokenHash = TokenHasher.Hash(token);
 
         PasswordResetToken? passwordToken = await databaseContext.PasswordResetTokens
-            .FirstOrDefaultAsync(
-                resetToken => resetToken.TokenHash == tokenHash
-                              && resetToken.UsedAt == null
-                              && resetToken.ExpiresAt > DateTime.UtcNow,
-                cancellationToken);
+            .Where(resetToken => resetToken.ExpiresAt > DateTime.UtcNow)
+            .Where(resetToken => resetToken.UsedAt == null && resetToken.TokenHash == tokenHash)
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (passwordToken is null)
             return true;
@@ -167,10 +143,8 @@ internal sealed class AuthValidationService<TUser>(
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private async Task<TUser?> FindUserByIdentifierAsync(string identifier, CancellationToken cancellationToken)
-    {
-        return await databaseContext.Users
+        => await databaseContext.Users
             .FirstOrDefaultAsync(user => user.Username == identifier || user.Email == identifier, cancellationToken);
-    }
 
     /// <summary>
     /// Checks whether a password matches the supplied authentication user.
@@ -184,9 +158,5 @@ internal sealed class AuthValidationService<TUser>(
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private bool PasswordMatches(TUser user, string password)
-    {
-        PasswordVerificationResult verificationResult = _hasher.VerifyHashedPassword(user, user.Password, password);
-
-        return verificationResult is not PasswordVerificationResult.Failed;
-    }
+        => _hasher.VerifyHashedPassword(user, user.Password, password) is not PasswordVerificationResult.Failed;
 }

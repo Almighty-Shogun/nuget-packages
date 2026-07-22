@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.Utils;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
@@ -13,26 +13,22 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 internal sealed partial class AuthService<TUser> where TUser : AuthUser
 {
     /// <inheritdoc />
-    public async Task<AuthSessionResult<TUser>> LoginAsync(
-        LoginRequest request,
-        HttpContext context)
+    public async Task<AuthSessionResult<TUser>> LoginAsync(LoginRequest request, HttpContext context)
     {
         string? app = ResolveApp();
         SessionContext sessionContext = context.GetSessionContext();
 
-        TUser? user = await DatabaseContext.Users
-            .FirstOrDefaultAsync(user => user.Username == request.Identifier || user.Email == request.Identifier);
-
-        if (user is null || !PasswordMatches(user, request.Password))
-            throw new HttpErrorException(StatusCodes.Status401Unauthorized, "auth.failed");
+        TUser user = await GetUserAsync(
+            user => user.Username == request.Identifier || user.Email == request.Identifier,
+            "auth.failed");
 
         string refreshToken = await CreateSessionAsync(user, app, sessionContext);
 
         return new AuthSessionResult<TUser>
         {
             User = user,
-            AccessToken = GenerateToken(user, app),
-            RefreshToken = refreshToken
+            RefreshToken = refreshToken,
+            AccessToken = GenerateToken(user, app)
         };
     }
 
@@ -48,23 +44,25 @@ internal sealed partial class AuthService<TUser> where TUser : AuthUser
     }
 
     /// <inheritdoc />
-    public async Task<AuthSessionResult<TUser>> RegisterAsync(
-        TUser user,
-        string password,
-        HttpContext context)
+    public async Task<AuthSessionResult<TUser>> RegisterAsync(TUser user, string password, HttpContext context)
     {
+        await using IDbContextTransaction transaction = await DatabaseContext.Database.BeginTransactionAsync();
+
         string? app = ResolveApp();
         SessionContext sessionContext = context.GetSessionContext();
 
         TUser createdUser = await CreateUserAsync(user, password);
-
         string refreshToken = await CreateSessionAsync(createdUser, app, sessionContext);
 
-        return new AuthSessionResult<TUser>
+        AuthSessionResult<TUser> result = new()
         {
             User = createdUser,
-            AccessToken = GenerateToken(createdUser, app),
-            RefreshToken = refreshToken
+            RefreshToken = refreshToken,
+            AccessToken = GenerateToken(createdUser, app)
         };
+
+        await transaction.CommitAsync();
+
+        return result;
     }
 }

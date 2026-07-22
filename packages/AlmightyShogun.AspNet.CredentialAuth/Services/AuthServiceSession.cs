@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Http;
+using AlmightyShogun.AspNet.Utils;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.AspNet.Utils;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// Provides authenticated session creation and refresh operations for the authentication service.
+/// Provides authenticated session creation, refresh, and revoke operations for the authentication service.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -15,15 +16,17 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 internal sealed partial class AuthService<TUser> where TUser : AuthUser
 {
     /// <inheritdoc />
-    public async Task<AuthSessionResult<TUser>> RefreshSessionAsync(
-        string refreshToken,
-        HttpContext httpContext)
+    public async Task<AuthSessionResult<TUser>> RefreshSessionAsync(string refreshToken, HttpContext httpContext)
     {
+        await using IDbContextTransaction transaction = await DatabaseContext.Database.BeginTransactionAsync();
+
         string? app = ResolveApp();
+        string refreshTokenHash = TokenHasher.Hash(refreshToken);
+
         SessionContext sessionContext = httpContext.GetSessionContext();
 
         IQueryable<UserSession> query = DatabaseContext.UserSessions
-            .Where(session => session.RefreshToken == refreshToken)
+            .Where(session => session.RefreshTokenHash == refreshTokenHash)
             .Where(session => !session.IsRevoked && session.ExpiresAt > DateTime.UtcNow);
 
         if (app is not null)
@@ -34,36 +37,55 @@ internal sealed partial class AuthService<TUser> where TUser : AuthUser
         if (session is null || !session.IsActive)
             throw new HttpErrorException(StatusCodes.Status401Unauthorized);
 
+        TUser user = await GetUserAsync(user => user.Id == session.UserId);
+
         string newRefreshToken = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(64));
 
-        UserAgent userAgent = UserAgent.Parse(sessionContext.UserAgent ?? string.Empty);
+        var userAgent = UserAgent.Parse(sessionContext.UserAgent ?? string.Empty);
 
         session.Device = userAgent.Device;
         session.Browser = userAgent.Browser;
-        session.RefreshToken = newRefreshToken;
         session.LastActiveAt = DateTime.UtcNow;
         session.IpAddress = sessionContext.IpAddress;
         session.UserAgent = sessionContext.UserAgent;
+        session.RefreshTokenHash = TokenHasher.Hash(newRefreshToken);
         session.ExpiresAt = DateTime.UtcNow.AddDays(AuthSettings.RefreshTokenDays);
 
         DatabaseContext.UserSessions.Update(session);
+
         await DatabaseContext.SaveChangesAsync();
-
-        TUser? user = await DatabaseContext.Users.FindAsync(session.UserId);
-
-        if (user is null)
-            throw new HttpErrorException(StatusCodes.Status401Unauthorized);
+        await transaction.CommitAsync();
 
         return new AuthSessionResult<TUser>
         {
             User = user,
-            AccessToken = GenerateToken(user, app),
-            RefreshToken = newRefreshToken
+            RefreshToken = newRefreshToken,
+            AccessToken = GenerateToken(user, app)
         };
     }
 
+    /// <inheritdoc />
+    public async Task RevokeSessionAsync(string refreshToken)
+    {
+        string refreshTokenHash = TokenHasher.Hash(refreshToken);
+
+        UserSession? session = await DatabaseContext.UserSessions
+            .Where(session => session.RefreshTokenHash == refreshTokenHash)
+            .Where(session => !session.IsRevoked && session.ExpiresAt > DateTime.UtcNow)
+            .FirstOrDefaultAsync();
+
+        if (session is null)
+            return;
+
+        session.IsRevoked = true;
+
+        DatabaseContext.UserSessions.Update(session);
+
+        await DatabaseContext.SaveChangesAsync();
+    }
+
     /// <summary>
-    /// Creates a new refresh-token session for a user.
+    /// Creates a new refresh-token session for a user and stores the token hash.
     /// </summary>
     ///
     /// <param name="user">The user that owns the session.</param>
@@ -78,18 +100,18 @@ internal sealed partial class AuthService<TUser> where TUser : AuthUser
     {
         string refreshToken = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(64));
 
-        UserAgent userAgent = UserAgent.Parse(context.UserAgent ?? string.Empty);
+        var userAgent = UserAgent.Parse(context.UserAgent ?? string.Empty);
 
         await DatabaseContext.UserSessions.AddAsync(new UserSession
         {
-            App = app ?? string.Empty,
             UserId = user.Id,
+            App = app ?? string.Empty,
             Device = userAgent.Device,
             Browser = userAgent.Browser,
             IpAddress = context.IpAddress,
             UserAgent = context.UserAgent,
-            ExpiresAt = DateTime.UtcNow.AddDays(AuthSettings.RefreshTokenDays),
-            RefreshToken = refreshToken
+            RefreshTokenHash = TokenHasher.Hash(refreshToken),
+            ExpiresAt = DateTime.UtcNow.AddDays(AuthSettings.RefreshTokenDays)
         });
 
         await DatabaseContext.SaveChangesAsync();

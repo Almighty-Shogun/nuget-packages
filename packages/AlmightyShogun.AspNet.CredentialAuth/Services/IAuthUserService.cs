@@ -13,19 +13,17 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 public interface IAuthUserService<TUser> where TUser : AuthUser
 {
     /// <summary>
-    /// Authenticates a user by username or email and creates a new authenticated session.
+    /// Creates a new authenticated session for a validated login request.
     /// </summary>
     ///
-    /// <param name="request">The login request containing the username or email and password.</param>
+    /// <param name="request">The validated login request containing the username or email and password.</param>
     /// <param name="context">The HTTP context used to resolve host and session details.</param>
     ///
     /// <returns>The authenticated session result.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    Task<AuthSessionResult<TUser>> LoginAsync(
-        LoginRequest request,
-        HttpContext context);
+    Task<AuthSessionResult<TUser>> LoginAsync(LoginRequest request, HttpContext context);
 
     /// <summary>
     /// Creates a new user without creating an authenticated session.
@@ -52,8 +50,5 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    Task<AuthSessionResult<TUser>> RegisterAsync(
-        TUser user,
-        string password,
-        HttpContext context);
+    Task<AuthSessionResult<TUser>> RegisterAsync(TUser user, string password, HttpContext context);
 }

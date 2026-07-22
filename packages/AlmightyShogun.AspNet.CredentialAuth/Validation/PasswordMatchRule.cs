@@ -17,22 +17,18 @@ internal sealed class PasswordMatchRule :
         ChangePasswordRequest request,
         string? value,
         CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(PasswordMatches(request.NewPassword, value)
+        => Task.FromResult(PasswordMatches(request.NewPassword, value)
             ? ValidationRuleResult.Success()
             : ValidationRuleResult.Failure("passwords.match"));
-    }
 
     /// <inheritdoc />
     public Task<ValidationRuleResult> ValidateAsync(
         CompleteForgotPasswordRequest request,
         string? value,
         CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(PasswordMatches(request.NewPassword, value)
+        => Task.FromResult(PasswordMatches(request.NewPassword, value)
             ? ValidationRuleResult.Success()
             : ValidationRuleResult.Failure("passwords.match"));
-    }
 
     /// <summary>
     /// Checks whether a request password field matches a confirmation value.

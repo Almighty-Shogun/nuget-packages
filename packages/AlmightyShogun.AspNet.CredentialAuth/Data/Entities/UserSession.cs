@@ -32,15 +32,15 @@ public sealed class UserSession
     public int UserId { get; set; }
 
     /// <summary>
-    /// Gets or sets the refresh token value.
+    /// Gets or sets the hashed refresh token value.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     [Required]
     [JsonIgnore]
-    [MaxLength(128)]
-    public string RefreshToken { get; set; } = string.Empty;
+    [MaxLength(64)]
+    public string RefreshTokenHash { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the application scope for the session.

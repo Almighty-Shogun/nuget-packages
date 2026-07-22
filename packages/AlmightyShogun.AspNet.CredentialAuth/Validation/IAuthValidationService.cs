@@ -19,9 +19,7 @@ internal interface IAuthValidationService
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    Task<bool> IsCurrentPasswordAsync(
-        string? currentPassword,
-        CancellationToken cancellationToken = default);
+    Task<bool> IsCurrentPasswordAsync(string? currentPassword, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks whether the supplied password differs from the current authenticated user's stored password.
@@ -34,9 +32,7 @@ internal interface IAuthValidationService
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    Task<bool> IsDifferentFromCurrentPasswordAsync(
-        string? newPassword,
-        CancellationToken cancellationToken = default);
+    Task<bool> IsDifferentFromCurrentPasswordAsync(string? newPassword, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks whether the supplied login identifier matches a user.
@@ -49,9 +45,7 @@ internal interface IAuthValidationService
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    Task<bool> LoginIdentifierExistsAsync(
-        string? identifier,
-        CancellationToken cancellationToken = default);
+    Task<bool> LoginIdentifierExistsAsync(string? identifier, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks whether the supplied username is available.
@@ -64,9 +58,7 @@ internal interface IAuthValidationService
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    Task<bool> IsUsernameUniqueAsync(
-        string? username,
-        CancellationToken cancellationToken = default);
+    Task<bool> IsUsernameUniqueAsync(string? username, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks whether the supplied email address is available.
@@ -79,9 +71,7 @@ internal interface IAuthValidationService
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    Task<bool> IsEmailUniqueAsync(
-        string? email,
-        CancellationToken cancellationToken = default);
+    Task<bool> IsEmailUniqueAsync(string? email, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks whether the supplied password matches the user identified by username or email address.
@@ -98,10 +88,7 @@ internal interface IAuthValidationService
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    Task<bool> IsCurrentPasswordAsync(
-        string? identifier,
-        string? currentPassword,
-        CancellationToken cancellationToken = default);
+    Task<bool> IsCurrentPasswordAsync(string? identifier, string? currentPassword, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks whether a password reset token exists and is still active.
@@ -114,9 +101,7 @@ internal interface IAuthValidationService
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    Task<bool> IsPasswordResetTokenActiveAsync(
-        string? token,
-        CancellationToken cancellationToken = default);
+    Task<bool> IsPasswordResetTokenActiveAsync(string? token, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks whether the supplied password differs from the password owned by an active reset token.

@@ -12,6 +12,7 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 [Table("users")]
+[SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
 public class AuthUser
 {
     /// <summary>
