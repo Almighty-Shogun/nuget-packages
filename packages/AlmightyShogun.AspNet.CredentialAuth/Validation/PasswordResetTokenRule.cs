@@ -7,6 +7,8 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 /// Validates that a password reset token exists and is active.
 /// </summary>
 ///
+/// <param name="serviceProvider">The service provider used to resolve validation dependencies.</param>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class PasswordResetTokenRule(IServiceProvider serviceProvider) : ICustomValidationRule<object, string>
@@ -17,14 +19,10 @@ internal sealed class PasswordResetTokenRule(IServiceProvider serviceProvider) :
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private readonly IAuthValidationService _authValidationService = serviceProvider
-        .GetRequiredService<IAuthValidationService>();
+    private readonly IAuthValidationService _authValidationService = serviceProvider.GetRequiredService<IAuthValidationService>();
 
     /// <inheritdoc />
-    public async Task<ValidationRuleResult> ValidateAsync(
-        object request,
-        string? value,
-        CancellationToken cancellationToken = default)
+    public async Task<ValidationRuleResult> ValidateAsync(object request, string? value, CancellationToken cancellationToken = default)
         => await IsActiveTokenAsync(value, cancellationToken);
 
     /// <summary>
@@ -39,9 +37,7 @@ internal sealed class PasswordResetTokenRule(IServiceProvider serviceProvider) :
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private async Task<ValidationRuleResult> IsActiveTokenAsync(string? value, CancellationToken cancellationToken)
-    {
-        return await _authValidationService.IsPasswordResetTokenActiveAsync(value, cancellationToken)
+        => await _authValidationService.IsPasswordResetTokenActiveAsync(value, cancellationToken)
             ? ValidationRuleResult.Success()
             : ValidationRuleResult.Failure("passwords.token");
-    }
 }

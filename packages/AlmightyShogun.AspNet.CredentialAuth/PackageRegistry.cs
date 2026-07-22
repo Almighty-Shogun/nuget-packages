@@ -31,11 +31,8 @@ public static class PackageRegistry
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
-        public IServiceCollection AddCredentialAuth<TDbContext, TUser>()
-            where TDbContext : AuthDbContext<TUser>
-            where TUser : AuthUser
-        {
-            serviceCollection
+        public IServiceCollection AddCredentialAuth<TDbContext, TUser>() where TDbContext : AuthDbContext<TUser> where TUser : AuthUser
+            => serviceCollection
                 .AddHttpContextAccessor()
                 .AddScoped<AuthDbContext<TUser>>(serviceProvider => serviceProvider.GetRequiredService<TDbContext>())
                 .AddScoped<IAuthValidationService, AuthValidationService<TUser>>()
@@ -51,8 +48,5 @@ public static class PackageRegistry
                 .AddScoped<IAuthUserService<TUser>>(serviceProvider => serviceProvider.GetRequiredService<AuthService<TUser>>())
                 .AddScoped<IAuthSessionService<TUser>>(serviceProvider => serviceProvider.GetRequiredService<AuthService<TUser>>())
                 .AddScoped<IAuthPasswordService>(serviceProvider => serviceProvider.GetRequiredService<AuthService<TUser>>());
-
-            return serviceCollection;
-        }
     }
 }

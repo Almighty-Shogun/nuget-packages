@@ -23,7 +23,17 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    Task<AuthSessionResult<TUser>> RefreshSessionAsync(
-        string refreshToken,
-        HttpContext httpContext);
+    Task<AuthSessionResult<TUser>> RefreshSessionAsync(string refreshToken, HttpContext httpContext);
+
+    /// <summary>
+    /// Revokes the session that matches the supplied refresh token.
+    /// </summary>
+    ///
+    /// <param name="refreshToken">The plain refresh token for the session to revoke.</param>
+    ///
+    /// <returns>A task representing the asynchronous revoke operation.</returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    Task RevokeSessionAsync(string refreshToken);
 }

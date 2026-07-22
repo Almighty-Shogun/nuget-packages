@@ -1,8 +1,8 @@
 # AuthSessionService
 
-Refreshes credential-auth sessions by rotating stored refresh tokens and returning a fresh JWT access token. Application code should depend on `IAuthSessionService<TUser>`; [`AddCredentialAuth`](../extensions/add-credential-auth) registers the package implementation.
+Refreshes and revokes credential-auth sessions. Application code should depend on `IAuthSessionService<TUser>`; [`AddCredentialAuth`](../extensions/add-credential-auth) registers the package implementation.
 
-The service reads request metadata through [ASP.NET Utils](/asp-net-utils/records/session-context), updates browser, device, IP address, User-Agent, and last-active values on the stored [`UserSession`](../types/user-session), and rejects revoked, expired, unknown, or wrong-app refresh tokens.
+The service reads request metadata through [ASP.NET Utils](/asp-net-utils/records/session-context), updates browser, device, IP address, User-Agent, and last-active values on the stored [`UserSession`](../types/user-session), and rejects revoked, expired, unknown, or wrong-app refresh tokens. Refresh tokens are hashed before storage; only the generated token returned to the caller is plain text.
 
 ## Usage
 
@@ -25,6 +25,18 @@ public sealed class AuthSessionController(IAuthSessionService<AppUser> sessions)
         Response.SetRefreshTokenCookie(result.RefreshToken, 30);
 
         return Ok(result);
+    }
+
+    [HttpPost("logout")]
+    [RequireRefreshToken]
+    public async Task<IActionResult> Logout()
+    {
+        string refreshToken = Request.GetRefreshTokenCookie();
+
+        await sessions.RevokeSessionAsync(refreshToken);
+        Response.DeleteAuthCookies();
+
+        return NoContent();
     }
 }
 ```
@@ -50,4 +62,25 @@ public Task<AuthSessionResult<TUser>> RefreshSessionAsync(
     string refreshToken,
     HttpContext httpContext
 );
+```
+
+## RevokeSessionAsync
+
+Revokes the active session that matches the submitted refresh token. Use this method for logout endpoints so the application does not compare the browser cookie against the hashed refresh token stored in [`UserSession`](../types/user-session).
+
+The method does nothing when the token is unknown, expired, or already revoked. That keeps logout idempotent: deleting the browser cookie can still succeed even when the stored session is already gone.
+
+```csharp
+using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.CredentialAuth;
+
+string refreshToken = httpContext.Request.GetRefreshTokenCookie();
+
+await sessions.RevokeSessionAsync(refreshToken);
+```
+
+### Type signature
+
+```csharp
+public Task RevokeSessionAsync(string refreshToken);
 ```

@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 public interface IAuthPasswordService
 {
     /// <summary>
-    /// Changes a user's password after verifying the current password.
+    /// Changes a user's password after the password-change request has been validated.
     /// </summary>
     ///
     /// <param name="userId">The identifier of the user whose password should be changed.</param>

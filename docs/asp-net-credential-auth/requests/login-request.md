@@ -1,8 +1,8 @@
 # LoginRequest
 
-Represents a username/email and password login request. The `Identifier` field accepts either a username or an email address, and the package validates that it exists before checking the submitted password.
+Represents a username/email and password login request. The `Identifier` field accepts either a username or an email address, and the `Password` field is validated against the user found by that identifier before the login service creates a session.
 
-Use this DTO with [`IAuthUserService<TUser>.LoginAsync`](../services/auth-user-service#loginasync). The request already includes `[Required]`, [`LoginIdentifierExists`](../attributes/login-identifier-exists-attribute), and [`CurrentPassword`](../attributes/current-password-attribute), so it works with [ASP.NET Validation](/asp-net-validation/) when the package is registered.
+Use this DTO with [`IAuthUserService<TUser>.LoginAsync`](../services/auth-user-service#loginasync). The request includes `[Required]`, [`LoginIdentifierExists`](../attributes/login-identifier-exists-attribute), and [`CurrentPassword`](../attributes/current-password-attribute), so it works with [ASP.NET Validation](/asp-net-validation/) when the package is registered. The service still looks up the user again before creating a session, but the password check belongs to request validation.
 
 ## Usage
 

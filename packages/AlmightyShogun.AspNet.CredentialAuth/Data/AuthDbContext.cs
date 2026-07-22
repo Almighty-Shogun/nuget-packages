@@ -51,7 +51,7 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
             .IsRequired();
 
         modelBuilder.Entity<UserSession>()
-            .HasIndex(session => session.RefreshToken)
+            .HasIndex(session => session.RefreshTokenHash)
             .IsUnique();
 
         modelBuilder.Entity<UserSession>()

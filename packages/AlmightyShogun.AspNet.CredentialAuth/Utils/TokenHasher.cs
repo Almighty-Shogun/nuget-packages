@@ -4,15 +4,15 @@ using System.Security.Cryptography;
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// Provides hashing helpers for password reset tokens.
+/// Provides hashing helpers for tokens that must not be stored as plain text.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-internal static class PasswordResetTokenHasher
+internal static class TokenHasher
 {
     /// <summary>
-    /// Hashes a password reset token.
+    /// Hashes a token value.
     /// </summary>
     ///
     /// <param name="token">The token to hash.</param>

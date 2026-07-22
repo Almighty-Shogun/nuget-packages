@@ -7,6 +7,8 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 /// Validates that an email address is not already used by another authentication user.
 /// </summary>
 ///
+/// <param name="serviceProvider">The service provider used to resolve validation dependencies.</param>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class UniqueEmailRule(IServiceProvider serviceProvider) : ICustomValidationRule<object, string>
@@ -17,17 +19,11 @@ internal sealed class UniqueEmailRule(IServiceProvider serviceProvider) : ICusto
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private readonly IAuthValidationService _authValidationService = serviceProvider
-        .GetRequiredService<IAuthValidationService>();
+    private readonly IAuthValidationService _authValidationService = serviceProvider.GetRequiredService<IAuthValidationService>();
 
     /// <inheritdoc />
-    public async Task<ValidationRuleResult> ValidateAsync(
-        object request,
-        string? value,
-        CancellationToken cancellationToken = default)
-    {
-        return await _authValidationService.IsEmailUniqueAsync(value, cancellationToken)
+    public async Task<ValidationRuleResult> ValidateAsync(object request, string? value, CancellationToken cancellationToken = default)
+        => await _authValidationService.IsEmailUniqueAsync(value, cancellationToken)
             ? ValidationRuleResult.Success()
             : ValidationRuleResult.Failure("validation.unique");
-    }
 }

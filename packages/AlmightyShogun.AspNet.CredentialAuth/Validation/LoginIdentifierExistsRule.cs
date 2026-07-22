@@ -7,6 +7,8 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 /// Validates that a login identifier matches an existing user.
 /// </summary>
 ///
+/// <param name="serviceProvider">The service provider used to resolve validation dependencies.</param>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class LoginIdentifierExistsRule(IServiceProvider serviceProvider) : ICustomValidationRule<object, string>
@@ -17,17 +19,11 @@ internal sealed class LoginIdentifierExistsRule(IServiceProvider serviceProvider
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private readonly IAuthValidationService _authValidationService = serviceProvider
-        .GetRequiredService<IAuthValidationService>();
+    private readonly IAuthValidationService _authValidationService = serviceProvider.GetRequiredService<IAuthValidationService>();
 
     /// <inheritdoc />
-    public async Task<ValidationRuleResult> ValidateAsync(
-        object request,
-        string? value,
-        CancellationToken cancellationToken = default)
-    {
-        return await _authValidationService.LoginIdentifierExistsAsync(value, cancellationToken)
+    public async Task<ValidationRuleResult> ValidateAsync(object request, string? value, CancellationToken cancellationToken = default)
+        => await _authValidationService.LoginIdentifierExistsAsync(value, cancellationToken)
             ? ValidationRuleResult.Success()
             : ValidationRuleResult.Failure("auth.failed");
-    }
 }

@@ -3,7 +3,7 @@ using AlmightyShogun.AspNet.Validation;
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// Declares that the property must match the current user's password.
+/// Declares that the property must match the relevant credential user's current password.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

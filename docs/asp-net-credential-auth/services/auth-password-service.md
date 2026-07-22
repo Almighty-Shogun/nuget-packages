@@ -31,9 +31,9 @@ public sealed class PasswordController(IAuthPasswordService passwords) : Control
 
 ## ChangePasswordAsync
 
-Changes the current user's password after verifying the submitted current password. The new password must be different from the user's current stored password. The optional `currentRefreshToken` keeps the current browser session active while revoking the user's other active sessions.
+Changes the current user's password after the request has passed [`ChangePasswordRequest`](../requests/change-password-request) validation. The optional `currentRefreshToken` keeps the current browser session active while revoking the user's other active sessions.
 
-The method throws [`HttpErrorException`](/asp-net-utils/types/http-error-exception) with status code `401 Unauthorized` when the user cannot be found or the current password does not match. It throws `422 Unprocessable Entity` with message key `passwords.reused` when the new password matches the current stored password.
+The method throws [`HttpErrorException`](/asp-net-utils/types/http-error-exception) with status code `401 Unauthorized` when the user cannot be found. Current-password and reused-password checks are handled by [`CurrentPassword`](../attributes/current-password-attribute) and [`NotCurrentPassword`](../attributes/not-current-password-attribute) before the service runs.
 
 ```csharp
 using AlmightyShogun.AspNet.JwtAuth;
@@ -61,6 +61,8 @@ Creates a one-hour password reset token for the user with the supplied email add
 
 When the user already has active reset tokens, the service removes them before storing the new token. The optional `requestIpAddress` is stored on the [`PasswordResetToken`](../types/password-reset-token) record for auditing.
 
+The method throws [`HttpErrorException`](/asp-net-utils/types/http-error-exception) with status code `401 Unauthorized` and message key `auth.failed` when no credential user exists for the submitted email address.
+
 ```csharp
 using AlmightyShogun.AspNet.CredentialAuth;
 
@@ -81,9 +83,9 @@ public Task<string> RequestForgotPasswordAsync(
 
 ## CompleteForgotPasswordAsync
 
-Completes a forgot-password flow by finding an active reset token, rejecting reused passwords, marking the token used, updating the user's password, revoking all active sessions, and invalidating any other reset tokens for the same user.
+Completes a forgot-password flow by finding an active reset token, marking the token used, updating the user's password, revoking all active sessions, and invalidating any other reset tokens for the same user.
 
-The method throws [`HttpErrorException`](/asp-net-utils/types/http-error-exception) with status code `401 Unauthorized` when the reset token is unknown, used, expired, or points to a missing user. It throws `422 Unprocessable Entity` with message key `passwords.reused` when the new password matches the current stored password.
+The method throws [`HttpErrorException`](/asp-net-utils/types/http-error-exception) with status code `401 Unauthorized` when the reset token is unknown, used, expired, or points to a missing user. Reused-password checks are handled by [`NotCurrentPassword`](../attributes/not-current-password-attribute) before the service runs.
 
 ```csharp
 using AlmightyShogun.AspNet.CredentialAuth;
