@@ -2,7 +2,7 @@
 
 Provides user-facing credential operations for login, user creation, and registration. Application code should depend on `IAuthUserService<TUser>`; [`AddCredentialAuth`](../extensions/add-credential-auth) registers the package implementation for the configured [`AuthDbContext<TUser>`](../types/auth-db-context).
 
-The service hashes passwords before storing users, creates refresh-token sessions for login and registration, and generates JWT access tokens using [ASP.NET JWT Auth](/asp-net-jwt-auth/) settings. Login checks the submitted password inside the service even when request validation has already run, so direct service calls cannot bypass credential verification.
+The service hashes passwords before storing users, creates refresh-token sessions for login and registration, and generates JWT access tokens using [ASP.NET JWT Auth](/asp-net-jwt-auth/) settings. Login requests should be validated with [`LoginRequest`](../requests/login-request) before the service runs; the service then looks up the user again before creating the session.
 
 ## Usage
 
@@ -29,9 +29,9 @@ public sealed class AuthController(IAuthUserService<AppUser> authUsers) : Contro
 
 ## LoginAsync
 
-Authenticates a user by username or email address, verifies the password, creates a refresh-token session, and returns a signed JWT access token. When [app scoping](/asp-net-jwt-auth/configuration/auth-settings) is enabled, the current request host determines the access-token audience and the session app value.
+Authenticates a validated username/email login request, creates a refresh-token session, and returns a signed JWT access token. When [app scoping](/asp-net-jwt-auth/configuration/auth-settings) is enabled, the current request host determines the access-token audience and the session app value.
 
-The method throws [`HttpErrorException`](/asp-net-utils/types/http-error-exception) with status code `401 Unauthorized` and message key `auth.failed` when the identifier is unknown or the password does not match.
+The method throws [`HttpErrorException`](/asp-net-utils/types/http-error-exception) with status code `401 Unauthorized` and message key `auth.failed` when the identifier no longer resolves to a user by the time the session is created. The submitted password is checked by [`CurrentPassword`](../attributes/current-password-attribute) during request validation.
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
@@ -102,14 +102,12 @@ using AlmightyShogun.AspNet.CredentialAuth;
 
 public sealed class RegisterController(IAuthUserService<AppUser> authUsers) : ControllerBase
 {
-    public async Task<ActionResult<AuthSessionResult<AppUser>>> Register(CreateUserRequest request)
+    public async Task<ActionResult<AuthSessionResult<AppUser>>> Register(RegisterRequest request)
     {
         AppUser user = new()
         {
-            Role = request.Role,
             Email = request.Email,
-            Username = request.Username,
-            Permissions = request.Permissions
+            Username = request.Username
         };
 
         AuthSessionResult<AppUser> result = await authUsers.RegisterAsync(user, request.Password, HttpContext);

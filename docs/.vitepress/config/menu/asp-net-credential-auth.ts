@@ -50,7 +50,8 @@ export const aspNetCredentialAuth: DefaultTheme.SidebarItem[] = [
             { text: 'CreateUser', link: '/asp-net-credential-auth/requests/create-user-request' },
             { text: 'ForgotPassword', link: '/asp-net-credential-auth/requests/forgot-password-request' },
             { text: 'ForgotPasswordToken', link: '/asp-net-credential-auth/requests/forgot-password-token-request' },
-            { text: 'Login', link: '/asp-net-credential-auth/requests/login-request' }
+            { text: 'Login', link: '/asp-net-credential-auth/requests/login-request' },
+            { text: 'Register', link: '/asp-net-credential-auth/requests/register-request' }
         ]
     },
     {

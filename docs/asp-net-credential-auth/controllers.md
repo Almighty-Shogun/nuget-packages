@@ -8,14 +8,13 @@ These examples assume the application has already registered [ASP.NET Utils](/as
 
 Use this controller for login, registration, refresh-token rotation, and browser logout. Login calls [`LoginAsync`](./services/auth-user-service#loginasync), registration calls [`RegisterAsync`](./services/auth-user-service#registerasync), and refresh calls [`RefreshSessionAsync`](./services/auth-session-service#refreshsessionasync).
 
-The refresh-token helpers come from ASP.NET JWT Auth: [`RequireRefreshToken`](/asp-net-jwt-auth/attributes/require-refresh-token-attribute), [`GetRefreshTokenCookie`](/asp-net-jwt-auth/extensions/get-refresh-token-cookie), [`SetRefreshTokenCookie`](/asp-net-jwt-auth/extensions/set-refresh-token-cookie), and [`DeleteAuthCookies`](/asp-net-jwt-auth/extensions/delete-auth-cookies). Logout uses the application `AppDbContext` directly to revoke the current refresh-token session before deleting the browser cookie.
+The refresh-token helpers come from ASP.NET JWT Auth: [`RequireRefreshToken`](/asp-net-jwt-auth/attributes/require-refresh-token-attribute), [`GetRefreshTokenCookie`](/asp-net-jwt-auth/extensions/get-refresh-token-cookie), [`SetRefreshTokenCookie`](/asp-net-jwt-auth/extensions/set-refresh-token-cookie), and [`DeleteAuthCookies`](/asp-net-jwt-auth/extensions/delete-auth-cookies). Logout uses [`RevokeSessionAsync`](./services/auth-session-service#revokesessionasync) so application code does not need to know how refresh tokens are stored.
 
 ::: code-group
 
 ```csharp [AuthController.cs]
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.JwtAuth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
@@ -23,7 +22,6 @@ using AlmightyShogun.AspNet.CredentialAuth;
 [Route("auth")]
 public sealed class AuthController(
     IAuthUserService<AppUser> userService,
-    AppDbContext databaseContext,
     IAuthSessionService<AppUser> sessionService,
     IOptions<AuthSettings> authOptions) : ControllerBase
 {
@@ -44,14 +42,12 @@ public sealed class AuthController(
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterAsync([FromBody] CreateUserRequest request)
+    public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest request)
     {
         AppUser user = new()
         {
-            Role = request.Role,
             Email = request.Email,
-            Username = request.Username,
-            Permissions = request.Permissions
+            Username = request.Username
         };
 
         AuthSessionResult<AppUser> result = await userService.RegisterAsync(user, request.Password, HttpContext);
@@ -87,15 +83,7 @@ public sealed class AuthController(
     {
         string refreshToken = Request.GetRefreshTokenCookie();
 
-        UserSession? session = await databaseContext.UserSessions
-            .FirstOrDefaultAsync(session => session.RefreshToken == refreshToken);
-
-        if (session is not null)
-        {
-            session.IsRevoked = true;
-            await databaseContext.SaveChangesAsync();
-        }
-
+        await sessionService.RevokeSessionAsync(refreshToken);
         Response.DeleteAuthCookies();
 
         return NoContent();
@@ -164,7 +152,7 @@ The `token` route intentionally does not call a service method. [`ForgotPassword
 
 ## Session Controller
 
-Use this controller when the API needs to list or revoke refresh-token sessions. Credential Auth exposes [`UserSession`](./types/user-session) and [`AuthDbContext<TUser>.UserSessions`](./types/auth-db-context), so the controller can use the registered auth database context directly instead of a custom repository.
+Use this controller when the API needs to list or revoke refresh-token sessions by session id. Credential Auth exposes [`UserSession`](./types/user-session) and [`AuthDbContext<TUser>.UserSessions`](./types/auth-db-context), so the controller can use the registered auth database context for account-owned session management.
 
 ::: code-group
 
@@ -181,11 +169,9 @@ using AlmightyShogun.AspNet.CredentialAuth;
 public sealed class SessionController(AppDbContext databaseContext) : ControllerBase
 {
     [HttpGet]
-    [RequireRefreshToken]
     public async Task<ActionResult<List<UserSessionResponse>>> GetSessionsAsync()
     {
         int userId = User.GetCurrentUserId();
-        string currentToken = Request.GetRefreshTokenCookie();
 
         List<UserSession> sessions = await databaseContext.UserSessions
             .Where(session => session.UserId == userId)
@@ -193,7 +179,7 @@ public sealed class SessionController(AppDbContext databaseContext) : Controller
             .ToListAsync();
 
         List<UserSessionResponse> response = sessions
-            .Select(session => UserSessionResponse.From(session, session.RefreshToken == currentToken))
+            .Select(UserSessionResponse.From)
             .ToList();
 
         return Ok(response);
@@ -251,9 +237,9 @@ public sealed record UserSessionResponse(
     DateTime CreatedAt,
     DateTime LastActiveAt,
     bool IsRevoked,
-    bool IsCurrent)
+    bool IsActive)
 {
-    public static UserSessionResponse From(UserSession session, bool isCurrent)
+    public static UserSessionResponse From(UserSession session)
         => new(
             session.Id,
             session.App,
@@ -265,10 +251,10 @@ public sealed record UserSessionResponse(
             session.CreatedAt,
             session.LastActiveAt,
             session.IsRevoked,
-            isCurrent);
+            session.IsActive);
 }
 ```
 
 :::
 
-The session routes use [`GetCurrentUserId`](/asp-net-jwt-auth/extensions/get-current-user-id) so users can only query and revoke their own sessions. The session list route uses [`RequireRefreshToken`](/asp-net-jwt-auth/attributes/require-refresh-token-attribute) and [`GetRefreshTokenCookie`](/asp-net-jwt-auth/extensions/get-refresh-token-cookie) so the current browser session can be marked without nullable refresh-token handling.
+The session routes use [`GetCurrentUserId`](/asp-net-jwt-auth/extensions/get-current-user-id) so users can only query and revoke their own sessions. Refresh tokens are hashed before they are stored, so routes that revoke a session by cookie should call [`RevokeSessionAsync`](./services/auth-session-service#revokesessionasync) instead of comparing the cookie value to the stored session.

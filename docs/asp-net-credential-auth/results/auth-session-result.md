@@ -31,8 +31,8 @@ public sealed class SessionResultController : ControllerBase
 ```csharp
 public sealed class AuthSessionResult<TUser> where TUser : AuthUser
 {
-    public string AccessToken { get; init; }
-    public string RefreshToken { get; init; }
-    public TUser User { get; init; }
+    public required string AccessToken { get; init; }
+    public required string RefreshToken { get; init; }
+    public required TUser User { get; init; }
 }
 ```

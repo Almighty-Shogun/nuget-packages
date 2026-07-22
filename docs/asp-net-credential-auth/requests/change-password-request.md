@@ -2,7 +2,7 @@
 
 Represents a password-change request for an already authenticated user. The current password is validated against the current user, the new password must satisfy the secure password rule, and the confirmation password must match the new password.
 
-Use this DTO with [`IAuthPasswordService.ChangePasswordAsync`](../services/auth-password-service#changepasswordasync). The `NewPassword` field uses [`NotCurrentPassword`](../attributes/not-current-password-attribute), so password-change requests cannot reuse the currently stored password. The service verifies both the current password and the new-password reuse rule again before saving, so direct service calls cannot bypass the request validation attributes.
+Use this DTO with [`IAuthPasswordService.ChangePasswordAsync`](../services/auth-password-service#changepasswordasync). `CurrentPassword` is validated by [`CurrentPassword`](../attributes/current-password-attribute), and `NewPassword` uses [`NotCurrentPassword`](../attributes/not-current-password-attribute), so password-change requests cannot reuse the currently stored password. The service still checks that the target user exists before saving the new password.
 
 ## Usage
 
