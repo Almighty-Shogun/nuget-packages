@@ -1,4 +1,4 @@
-name: 🚀 Release packages
+name: 🚀 Release packages and docs
 
 on:
     release:
@@ -9,6 +9,8 @@ env:
 
 permissions:
     contents: read
+    id-token: write
+    deployments: write
 
 jobs:
     publish:
@@ -28,37 +30,63 @@ jobs:
                 run: |
                     cd packages
                     
-                    dotnet build AlmightyShogun.AspNet.CredentialAuth/AlmightyShogun.AspNet.CredentialAuth.csproj --configuration Release
-                    dotnet build AlmightyShogun.AspNet.JwtAuth/AlmightyShogun.AspNet.JwtAuth.csproj --configuration Release
-                    dotnet build AlmightyShogun.AspNet.Maintenance/AlmightyShogun.AspNet.Maintenance.csproj --configuration Release
+                    dotnet build AlmightyShogun.Utils/AlmightyShogun.Utils.csproj --configuration Release
                     dotnet build AlmightyShogun.AspNet.Utils/AlmightyShogun.AspNet.Utils.csproj --configuration Release
-                    dotnet build AlmightyShogun.AspNet.Validation/AlmightyShogun.AspNet.Validation.csproj --configuration Release
-                    dotnet build AlmightyShogun.ConsoleCommands/AlmightyShogun.ConsoleCommands.csproj --configuration Release
-                    dotnet build AlmightyShogun.EntityFrameworkCore.Utils/AlmightyShogun.EntityFrameworkCore.Utils.csproj --configuration Release
-                    dotnet build AlmightyShogun.Hangfire.Utils/AlmightyShogun.Hangfire.Utils.csproj --configuration Release
-                    dotnet build AlmightyShogun.Hosting.Utils/AlmightyShogun.Hosting.Utils.csproj --configuration Release
                     dotnet build AlmightyShogun.Logging/AlmightyShogun.Logging.csproj --configuration Release
+                    dotnet build AlmightyShogun.EntityFrameworkCore.Utils/AlmightyShogun.EntityFrameworkCore.Utils.csproj --configuration Release
+                    dotnet build AlmightyShogun.Hosting.Utils/AlmightyShogun.Hosting.Utils.csproj --configuration Release
+                    dotnet build AlmightyShogun.AspNet.Maintenance/AlmightyShogun.AspNet.Maintenance.csproj --configuration Release
+                    dotnet build AlmightyShogun.AspNet.Validation/AlmightyShogun.AspNet.Validation.csproj --configuration Release
+                    dotnet build AlmightyShogun.AspNet.JwtAuth/AlmightyShogun.AspNet.JwtAuth.csproj --configuration Release
+                    dotnet build AlmightyShogun.ConsoleCommands/AlmightyShogun.ConsoleCommands.csproj --configuration Release
+                    dotnet build AlmightyShogun.Hangfire.Utils/AlmightyShogun.Hangfire.Utils.csproj --configuration Release
                     dotnet build AlmightyShogun.RemoteCommands/AlmightyShogun.RemoteCommands.csproj --configuration Release
                     dotnet build AlmightyShogun.Resend.Utils/AlmightyShogun.Resend.Utils.csproj --configuration Release
-                    dotnet build AlmightyShogun.Utils/AlmightyShogun.Utils.csproj --configuration Release
+                    dotnet build AlmightyShogun.AspNet.CredentialAuth/AlmightyShogun.AspNet.CredentialAuth.csproj --configuration Release
 
             -   name: 📦️ Pack packages
                 run: |
                     cd packages
                     
-                    dotnet pack AlmightyShogun.AspNet.CredentialAuth/AlmightyShogun.AspNet.CredentialAuth.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
-                    dotnet pack AlmightyShogun.AspNet.JwtAuth/AlmightyShogun.AspNet.JwtAuth.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
-                    dotnet pack AlmightyShogun.AspNet.Maintenance/AlmightyShogun.AspNet.Maintenance.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.Utils/AlmightyShogun.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.AspNet.Utils/AlmightyShogun.AspNet.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
-                    dotnet pack AlmightyShogun.AspNet.Validation/AlmightyShogun.AspNet.Validation.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
-                    dotnet pack AlmightyShogun.ConsoleCommands/AlmightyShogun.ConsoleCommands.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
-                    dotnet pack AlmightyShogun.EntityFrameworkCore.Utils/AlmightyShogun.EntityFrameworkCore.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
-                    dotnet pack AlmightyShogun.Hangfire.Utils/AlmightyShogun.Hangfire.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
-                    dotnet pack AlmightyShogun.Hosting.Utils/AlmightyShogun.Hosting.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.Logging/AlmightyShogun.Logging.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.EntityFrameworkCore.Utils/AlmightyShogun.EntityFrameworkCore.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.Hosting.Utils/AlmightyShogun.Hosting.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.AspNet.Maintenance/AlmightyShogun.AspNet.Maintenance.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.AspNet.Validation/AlmightyShogun.AspNet.Validation.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.AspNet.JwtAuth/AlmightyShogun.AspNet.JwtAuth.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.ConsoleCommands/AlmightyShogun.ConsoleCommands.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.Hangfire.Utils/AlmightyShogun.Hangfire.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.RemoteCommands/AlmightyShogun.RemoteCommands.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.Resend.Utils/AlmightyShogun.Resend.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
-                    dotnet pack AlmightyShogun.Utils/AlmightyShogun.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.AspNet.CredentialAuth/AlmightyShogun.AspNet.CredentialAuth.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
 
             -   name: 🚀 Publish packages
                 run: dotnet nuget push "*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+    docs:
+        runs-on: ubuntu-latest
+        name: 🚀 Build and deploy documentation
+        needs: publish
+
+        steps:
+            -   name: 👀 Checkout
+                uses: actions/checkout@v6
+
+            -   name: ⚙️ Setup Bun
+                uses: oven-sh/setup-bun@v2
+
+            -   name: 📦️ Install dependencies
+                run: bun install --frozen-lockfile
+
+            -   name: 🔨 Build VitePress docs
+                run: bun run docs:build
+
+            -   name: 🚀 Deploy VitePress docs
+                uses: cloudflare/wrangler-action@v3
+                with:
+                    accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+                    apiToken: ${{ secrets.CLOUDFLARE_ACCOUNT_TOKEN }}
+                    gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+                    wranglerVersion: "4.69.0"
