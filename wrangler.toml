@@ -8,5 +8,5 @@ directory = "./docs/.vitepress/dist"
 not_found_handling = "404-page"
 
 [[routes]]
-pattern = "nuget-packages.shogun.ms"
+pattern = "nuget.docs.shogun.ms"
 custom_domain = true
