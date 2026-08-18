@@ -16,8 +16,8 @@
         <Description>A C# library that configures Serilog logging with custom console formatting and colors.</Description>
 
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.Logging</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.Logging</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.Logging</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>
