@@ -1,7 +1,10 @@
+using System.Collections.Frozen;
+
 namespace AlmightyShogun.Logging;
 
 /// <summary>
-/// Provides ANSI escape codes used by the color formatter.
+/// Holds the ANSI foreground codes the formatter writes, and the shorthand table a message template uses to pick one.
+/// Only foreground colors are covered; nothing here changes background, weight, or any other attribute.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -9,15 +12,16 @@ namespace AlmightyShogun.Logging;
 internal static class AnsiColor
 {
     /// <summary>
-    /// Resets the console color back to the terminal default.
+    /// Returns the terminal to its default colors. Written after every colored span, so a log line never leaks its color
+    /// into whatever the terminal prints next.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    public const string Reset = "\e[0m";
+    internal const string Reset = "\e[0m";
 
     /// <summary>
-    /// Gets the ANSI code for red foreground text.
+    /// Red foreground, selected by the <c>r</c> shorthand and used for the <c>Error</c> level.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -25,7 +29,7 @@ internal static class AnsiColor
     internal const string Red = "\e[31m";
 
     /// <summary>
-    /// Gets the ANSI code for blue foreground text.
+    /// Blue foreground, reachable only through the <c>b</c> shorthand. No level or value type uses it by default.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -33,7 +37,7 @@ internal static class AnsiColor
     private const string Blue = "\e[34m";
 
     /// <summary>
-    /// Gets the ANSI code for cyan foreground text.
+    /// Cyan foreground, selected by the <c>c</c> shorthand and used for numeric property values.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -41,7 +45,7 @@ internal static class AnsiColor
     internal const string Cyan = "\e[36m";
 
     /// <summary>
-    /// Gets the ANSI code for green foreground text.
+    /// Green foreground, selected by the <c>g</c> shorthand and used for the <c>Information</c> level.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -49,7 +53,7 @@ internal static class AnsiColor
     internal const string Green = "\e[32m";
 
     /// <summary>
-    /// Gets the ANSI code for yellow foreground text.
+    /// Yellow foreground, selected by the <c>y</c> shorthand and used for the <c>Warning</c> level.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -57,7 +61,7 @@ internal static class AnsiColor
     internal const string Yellow = "\e[33m";
 
     /// <summary>
-    /// Gets the ANSI code for magenta foreground text.
+    /// Magenta foreground, selected by the <c>m</c> shorthand and used for boolean property values.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -65,7 +69,8 @@ internal static class AnsiColor
     internal const string Magenta = "\e[35m";
 
     /// <summary>
-    /// Gets the ANSI code for white foreground text.
+    /// White foreground, the fallback whenever nothing more specific applies: the <c>Verbose</c> and <c>Debug</c>
+    /// levels, string values, and any shorthand that is not recognized.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -73,7 +78,8 @@ internal static class AnsiColor
     internal const string White = "\e[37m";
 
     /// <summary>
-    /// Gets the ANSI code for dark gray foreground text.
+    /// Dark gray foreground, used for null property values and for the exception block appended below a line.
+    /// Not reachable from a template, since no shorthand maps to it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -81,7 +87,8 @@ internal static class AnsiColor
     internal const string DarkGray = "\e[90m";
 
     /// <summary>
-    /// Gets the ANSI code for bright red foreground text.
+    /// Bright red foreground, selected by the <c>br</c> shorthand and used for the <c>Fatal</c> level, so it reads
+    /// as more severe than <c>Error</c>.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -89,7 +96,7 @@ internal static class AnsiColor
     internal const string BrightRed = "\e[91m";
 
     /// <summary>
-    /// Gets the ANSI code for bright blue foreground text.
+    /// Bright blue foreground, reachable only through the <c>bb</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -97,7 +104,7 @@ internal static class AnsiColor
     private const string BrightBlue = "\e[94m";
 
     /// <summary>
-    /// Gets the ANSI code for bright cyan foreground text.
+    /// Bright cyan foreground, reachable only through the <c>bc</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -105,7 +112,7 @@ internal static class AnsiColor
     private const string BrightCyan = "\e[96m";
 
     /// <summary>
-    /// Gets the ANSI code for bright green foreground text.
+    /// Bright green foreground, reachable only through the <c>bg</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -113,7 +120,7 @@ internal static class AnsiColor
     private const string BrightGreen = "\e[92m";
 
     /// <summary>
-    /// Gets the ANSI code for bright yellow foreground text.
+    /// Bright yellow foreground, reachable only through the <c>by</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -121,7 +128,7 @@ internal static class AnsiColor
     private const string BrightYellow = "\e[93m";
 
     /// <summary>
-    /// Gets the ANSI code for bright magenta foreground text.
+    /// Bright magenta foreground, reachable only through the <c>bm</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -129,29 +136,43 @@ internal static class AnsiColor
     private const string BrightMagenta = "\e[95m";
 
     /// <summary>
-    /// Converts a shorthand color code into its corresponding ANSI escape code.
+    /// Maps every supported shorthand color code to its ANSI escape code. This is the single source of truth for which
+    /// shorthand codes exist, so recognition and lookup cannot disagree.
     /// </summary>
     ///
-    /// <param name="shortCode">The shorthand color code, such as <c>r</c> for red or <c>bg</c> for bright green.</param>
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static readonly FrozenDictionary<string, string> _shortCodes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["r"] = Red,
+        ["g"] = Green,
+        ["b"] = Blue,
+        ["c"] = Cyan,
+        ["y"] = Yellow,
+        ["m"] = Magenta,
+        ["br"] = BrightRed,
+        ["bg"] = BrightGreen,
+        ["bb"] = BrightBlue,
+        ["bc"] = BrightCyan,
+        ["by"] = BrightYellow,
+        ["bm"] = BrightMagenta
+    }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Resolves a shorthand written in a message template into the escape code to emit.
+    /// </summary>
     ///
-    /// <returns>The matching ANSI escape code, or white when the shorthand code is not recognized.</returns>
+    /// <param name="shortCode">
+    /// The shorthand taken from the part of a format specifier after <c>|</c>. Matched without regard to case, so
+    /// <c>BR</c> and <c>br</c> both reach bright red.
+    /// </param>
+    ///
+    /// <returns>
+    /// The matching escape code, or <see cref="White"/> for anything unrecognized. An unknown shorthand therefore prints in
+    /// the fallback color rather than failing the log write, which keeps a typo in a template from losing the line.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    public static string FromShort(string shortCode) => shortCode.ToLowerInvariant() switch
-    {
-        "r" => Red,
-        "g" => Green,
-        "b" => Blue,
-        "c" => Cyan,
-        "y" => Yellow,
-        "m" => Magenta,
-        "br" => BrightRed,
-        "bg" => BrightGreen,
-        "bb" => BrightBlue,
-        "bc" => BrightCyan,
-        "by" => BrightYellow,
-        "bm" => BrightMagenta,
-        _ => White
-    };
+    internal static string FromShort(string shortCode) => _shortCodes.GetValueOrDefault(shortCode, White);
 }
