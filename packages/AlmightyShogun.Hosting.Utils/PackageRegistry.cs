@@ -1,65 +1,169 @@
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AlmightyShogun.Hosting.Utils;
 
 /// <summary>
-/// Registers hosting utilities for console lifetime and host option configuration.
+/// Provides the two startup helpers this package contributes: taking over the console lifetime so <c>Ctrl+C</c> no longer
+/// stops the process, and setting the host options that govern shutdown. Each is offered on all three startup entry points.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.0.0</since>
 public static class PackageRegistry
 {
-    /// <param name="serviceCollection">The service collection used to register the functionality.</param>
+    /// <param name="serviceCollection">
+    /// The collection the registrations are made on. Use this receiver from a registration module or anywhere the builder
+    /// itself is out of reach. Both helpers return it so calls can be chained.
+    /// </param>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Replaces the standard <see cref="ConsoleLifetime"/> with a custom implementation.
-        /// The custom lifetime prevents the host application from shutting down when <c>Ctrl+C</c> is pressed outside an IDE.
-        /// To allow shutdown via <c>Ctrl+C</c> in your IDE, set the environment variable
-        /// <c>DOTNET_RUNNING_IN_IDE=true</c> in your run/debug configuration. This enables IDE stop commands
-        /// or allows you to stop the application manually using <c>Ctrl+C</c>.
+        /// Takes over the console lifetime so <c>Ctrl+C</c> no longer stops the application, for a worker or daemon that
+        /// should only stop when something asks it to. <c>SIGTERM</c> still shuts the host down in an orderly way.
         /// </summary>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the custom <see cref="IHostLifetime"/> registered.</returns>
         ///
+        /// <remarks>
+        /// Set <c>DOTNET_RUNNING_IN_IDE</c> in a run configuration to keep <c>Ctrl+C</c> working while debugging, otherwise a
+        /// locally launched process can only be stopped from outside.
+        ///
+        /// The default lifetime is replaced rather than added, so calling this twice still leaves exactly one registration.
+        /// </remarks>
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.0.0</since>
-        public IServiceCollection UseCustomConsoleLifetime()
+        public IServiceCollection UseCustomConsoleLifetime() => serviceCollection
+            .Replace(ServiceDescriptor.Singleton<IHostLifetime, CustomConsoleLifetime>());
+
+        /// <summary>
+        /// Sets how long shutdown may take and what a failing background service does to the host.
+        /// </summary>
+        ///
+        /// <param name="shutdownTimeout">
+        /// How long the host waits for hosted services to stop before it gives up and continues shutting down. Too short
+        /// truncates work that was mid-flight; too long delays a restart and can trip an orchestrator's own kill timeout.
+        /// </param>
+        /// <param name="backgroundServiceExceptionBehavior">
+        /// What an unhandled exception in a <see cref="BackgroundService"/> does.
+        /// <see cref="BackgroundServiceExceptionBehavior.StopHost"/> brings the whole application down, which surfaces the
+        /// fault; <see cref="BackgroundServiceExceptionBehavior.Ignore"/> logs it and leaves the process running with that one
+        /// service dead.
+        /// </param>
+        ///
+        /// <returns>The <see cref="IServiceCollection"/> instance with the host options configured.</returns>
+        ///
+        /// <author>Almighty-Shogun</author>
+        /// <since>2.0.0</since>
+        public IServiceCollection ConfigureHostOptions(
+            TimeSpan shutdownTimeout,
+            BackgroundServiceExceptionBehavior backgroundServiceExceptionBehavior
+        ) => serviceCollection.Configure<HostOptions>(options =>
         {
-            ServiceDescriptor? baseConsoleLifetime = serviceCollection
-                .FirstOrDefault(sd => sd.ServiceType == typeof(IHostLifetime) && sd.ImplementationType == typeof(ConsoleLifetime));
+            options.ShutdownTimeout = shutdownTimeout;
+            options.BackgroundServiceExceptionBehavior = backgroundServiceExceptionBehavior;
+        });
+    }
 
-            if (baseConsoleLifetime is not null)
-            {
-                serviceCollection.Remove(baseConsoleLifetime);
-            }
+    /// <param name="hostApplicationBuilder">
+    /// The builder whose services receive the registrations. This is the receiver to reach for in a modern minimal-hosting
+    /// <c>Program.cs</c>, where the builder is what startup code has in hand.
+    /// </param>
+    extension(IHostApplicationBuilder hostApplicationBuilder)
+    {
+        /// <summary>
+        /// Takes over the console lifetime so <c>Ctrl+C</c> no longer stops the application, leaving <c>SIGTERM</c> as the
+        /// orderly way out.
+        /// </summary>
+        ///
+        /// <returns>The <see cref="IHostApplicationBuilder"/> instance with the custom <see cref="IHostLifetime"/> registered.</returns>
+        ///
+        /// <remarks>
+        /// Delegates to the <see cref="IServiceCollection"/> receiver, so the behavior and the <c>DOTNET_RUNNING_IN_IDE</c>
+        /// escape hatch documented there apply unchanged.
+        /// </remarks>
+        ///
+        /// <author>Almighty-Shogun</author>
+        /// <since>Unreleased</since>
+        public IHostApplicationBuilder UseCustomConsoleLifetime()
+        {
+            hostApplicationBuilder.Services.UseCustomConsoleLifetime();
 
-            return serviceCollection.AddSingleton<IHostLifetime, CustomConsoleLifetime>();
+            return hostApplicationBuilder;
         }
 
         /// <summary>
-        /// Configures the host with the specified shutdown timeout and background service exception behavior.
-        /// This method allows customization of host options, including handling of shutdown delays
-        /// and configurable behavior when background services throw exceptions.
+        /// Sets how long shutdown may take and what a failing background service does to the host.
         /// </summary>
         ///
-        /// <param name="shutdownTimeout">The maximum amount of time to allow for a graceful host shutdown.</param>
-        /// <param name="backgroundServiceExceptionBehavior">Specifies how the host should respond when a background service throws an exception.</param>
+        /// <param name="shutdownTimeout">
+        /// How long the host waits for hosted services to stop before it gives up and continues shutting down.
+        /// </param>
+        /// <param name="backgroundServiceExceptionBehavior">
+        /// Whether an unhandled exception in a <see cref="BackgroundService"/> stops the host or is logged and ignored.
+        /// </param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with configured host options.</returns>
+        /// <returns>The <see cref="IHostApplicationBuilder"/> instance with the host options configured.</returns>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>2.0.0</since>
-        public IServiceCollection ConfigureHost(TimeSpan shutdownTimeout, BackgroundServiceExceptionBehavior backgroundServiceExceptionBehavior)
+        /// <since>Unreleased</since>
+        public IHostApplicationBuilder ConfigureHostOptions(
+            TimeSpan shutdownTimeout,
+            BackgroundServiceExceptionBehavior backgroundServiceExceptionBehavior
+        )
         {
-            return serviceCollection.Configure<HostOptions>(options =>
-            {
-                options.ShutdownTimeout = shutdownTimeout;
-                options.BackgroundServiceExceptionBehavior = backgroundServiceExceptionBehavior;
-            });
+            hostApplicationBuilder.Services.ConfigureHostOptions(shutdownTimeout, backgroundServiceExceptionBehavior);
+
+            return hostApplicationBuilder;
         }
+    }
+
+    /// <param name="hostBuilder">
+    /// The generic host builder that receives the registrations. This is the receiver for an application still built with
+    /// <c>Host.CreateDefaultBuilder</c> rather than the newer builder.
+    /// </param>
+    extension(IHostBuilder hostBuilder)
+    {
+        /// <summary>
+        /// Takes over the console lifetime so <c>Ctrl+C</c> no longer stops the application, leaving <c>SIGTERM</c> as the
+        /// orderly way out.
+        /// </summary>
+        ///
+        /// <returns>The <see cref="IHostBuilder"/> instance with the custom <see cref="IHostLifetime"/> registered.</returns>
+        ///
+        /// <remarks>
+        /// Registration is deferred into <see cref="IHostBuilder.ConfigureServices"/>, so it lands whenever the builder runs
+        /// its callbacks rather than at the moment this is called.
+        /// </remarks>
+        ///
+        /// <author>Almighty-Shogun</author>
+        /// <since>Unreleased</since>
+        public IHostBuilder UseCustomConsoleLifetime()
+            => hostBuilder.ConfigureServices(services => services.UseCustomConsoleLifetime());
+
+        /// <summary>
+        /// Sets how long shutdown may take and what a failing background service does to the host.
+        /// </summary>
+        ///
+        /// <param name="shutdownTimeout">
+        /// How long the host waits for hosted services to stop before it gives up and continues shutting down.
+        /// </param>
+        /// <param name="backgroundServiceExceptionBehavior">
+        /// Whether an unhandled exception in a <see cref="BackgroundService"/> stops the host or is logged and ignored.
+        /// </param>
+        ///
+        /// <returns>The <see cref="IHostBuilder"/> instance with the host options configured.</returns>
+        ///
+        /// <author>Almighty-Shogun</author>
+        /// <since>Unreleased</since>
+        public IHostBuilder ConfigureHostOptions(
+            TimeSpan shutdownTimeout,
+            BackgroundServiceExceptionBehavior backgroundServiceExceptionBehavior
+        ) => hostBuilder.ConfigureServices(services =>
+        {
+            services.ConfigureHostOptions(shutdownTimeout, backgroundServiceExceptionBehavior);
+        });
     }
 }
