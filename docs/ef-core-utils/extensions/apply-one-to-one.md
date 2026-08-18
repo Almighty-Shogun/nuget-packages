@@ -1,41 +1,36 @@
 ---
 params:
     - name: navigation
-      description: Reference navigation on the principal entity pointing to the dependent entity.
+      description: Reference navigation on the principal entity.
       type: 'Expression<Func<TEntity, TDependent?>>'
-
     - name: foreignKey
       description: Foreign key property on the dependent entity.
       type: 'Expression<Func<TDependent, object?>>'
-
     - name: principalKey
-      description: Optional principal key property. When omitted, EF Core uses the principal primary key.
+      description: Principal key property. When omitted, the principal's primary key is used.
       type: 'Expression<Func<TEntity, object?>>?'
       default: 'null'
-
     - name: isRequired
-      description: Whether the dependent relationship is required.
+      description: Whether the dependent must always have a principal.
       type: bool
       default: 'true'
-
     - name: deleteBehavior
-      description: Delete behavior applied to the relationship.
+      description: What happens to the dependent when the principal is deleted.
       type: DeleteBehavior
-      default: DeleteBehavior.ClientSetNull
-
+      default: DeleteBehavior.Cascade
     - name: inverseNavigation
-      description: Optional reference navigation on the dependent entity back to the principal entity. When omitted, EF Core configures the relationship without an inverse navigation.
+      description: Reference navigation on the dependent back to the principal. When omitted, the relationship has no inverse navigation.
       type: 'Expression<Func<TDependent, TEntity?>>?'
       default: 'null'
 
-returns: The model builder instance.
+returns: The same `ModelBuilder` instance.
 ---
 
 # ApplyOneToOne
 
-Configures a one-to-one relationship where `TEntity` is the principal entity and `TDependent` is the dependent entity. The method starts from the principal entity, uses the provided reference navigation, configures the dependent foreign key, applies delete behavior, and optionally sets the inverse navigation and principal key.
+Configures a one-to-one relationship where `TEntity` is the principal and `TDependent` is the dependent.
 
-Use this method when the principal entity has a single dependent reference and the dependent entity owns the foreign key. Pass `inverseNavigation` when the dependent entity also has a reference back to the principal entity. If it is omitted, EF Core configures the relationship as one-sided even when such a property exists on the dependent entity.
+The defaults describe a required relationship: the dependent cannot exist without its principal, and deleting the principal deletes it. For an optional one, pass `isRequired: false` with `DeleteBehavior.ClientSetNull`.
 
 ## Usage
 
@@ -45,45 +40,42 @@ Use this method when the principal entity has a single dependent reference and t
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.EntityFrameworkCore.Utils;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
-{
-    public DbSet<User> Users => Set<User>();
+modelBuilder.ApplyOneToOne<Account, Profile>(
+    account => account.Profile,
+    profile => profile.AccountId
+);
+```
 
-    public DbSet<UserProfile> Profiles => Set<UserProfile>();
+```csharp [Optional.cs]
+using Microsoft.EntityFrameworkCore;
+using AlmightyShogun.EntityFrameworkCore.Utils;
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder
-            .ApplyOneToOne<User, UserProfile>(
-                user => user.Profile,
-                profile => profile.UserId,
-                isRequired: true,
-                deleteBehavior: DeleteBehavior.Cascade,
-                inverseNavigation: profile => profile.User
-            )
-            .ApplyAutoInclude<User>(user => user.Profile);
-    }
-}
+modelBuilder.ApplyOneToOne<Account, Profile>(
+    account => account.Profile,
+    profile => profile.AccountId,
+    isRequired: false,
+    deleteBehavior: DeleteBehavior.ClientSetNull
+);
 ```
 
 ```csharp [Entities.cs]
-public sealed class User
+public sealed class Account
 {
     public int Id { get; set; }
-
-    public UserProfile? Profile { get; set; }
+    public Profile? Profile { get; set; }
 }
 
-public sealed class UserProfile
+public sealed class Profile
 {
     public int Id { get; set; }
-
-    public int UserId { get; set; }
-
-    public User? User { get; set; }
+    public int AccountId { get; set; }
 }
 ```
 
+:::
+
+::: warning
+`DeleteBehavior.ClientSetNull` on a required relationship is not a valid combination. It clears the dependent's foreign key, which a non-nullable column rejects, so deleting a principal fails at `SaveChanges` when the dependent is loaded and leaves an orphan or violates a database constraint when it is not.
 :::
 
 <FrontmatterDocs/>
@@ -96,7 +88,7 @@ public ModelBuilder ApplyOneToOne<TEntity, TDependent>(
     Expression<Func<TDependent, object?>> foreignKey,
     Expression<Func<TEntity, object?>>? principalKey = null,
     bool isRequired = true,
-    DeleteBehavior deleteBehavior = DeleteBehavior.ClientSetNull,
+    DeleteBehavior deleteBehavior = DeleteBehavior.Cascade,
     Expression<Func<TDependent, TEntity?>>? inverseNavigation = null
 ) where TEntity : class where TDependent : class;
 ```

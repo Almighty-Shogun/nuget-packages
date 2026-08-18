@@ -1,41 +1,36 @@
 ---
 params:
     - name: navigation
-      description: Reference navigation on the dependent entity pointing to the principal entity.
+      description: Reference navigation on the dependent entity pointing to the principal.
       type: 'Expression<Func<TDependent, TEntity?>>'
-
     - name: foreignKey
       description: Foreign key property on the dependent entity.
       type: 'Expression<Func<TDependent, object?>>'
-
     - name: principalKey
-      description: Optional principal key property. When omitted, EF Core uses the principal primary key.
+      description: Principal key property. When omitted, the principal's primary key is used.
       type: 'Expression<Func<TEntity, object?>>?'
       default: 'null'
-
     - name: isRequired
-      description: Whether the dependent relationship is required.
+      description: Whether the relationship is required.
       type: bool
       default: 'false'
-
     - name: deleteBehavior
-      description: Delete behavior applied to the relationship.
+      description: What happens to the dependents when the principal is deleted.
       type: DeleteBehavior
       default: DeleteBehavior.ClientSetNull
-
     - name: inverseNavigation
-      description: Optional collection navigation on the principal entity containing dependent entities. When omitted, EF Core configures the relationship without an inverse navigation.
+      description: Collection navigation on the principal containing the dependents.
       type: 'Expression<Func<TEntity, IEnumerable<TDependent>?>>?'
       default: 'null'
 
-returns: The model builder instance.
+returns: The same `ModelBuilder` instance.
 ---
 
 # ApplyManyToOne
 
-Configures a many-to-one relationship from a dependent entity to a principal entity. The method starts from the dependent entity, uses the dependent reference navigation, configures the dependent foreign key, applies delete behavior, and optionally sets the principal inverse collection and principal key.
+The same relationship as [`ApplyOneToMany`](./apply-one-to-many), configured from the dependent's side.
 
-Use this method when the model code is written from the dependent side of the relationship. This is useful for entities such as sessions, orders, or audit records that each point back to one owning entity. Pass `inverseNavigation` when the principal entity also exposes a collection of dependents.
+Use it when the dependent holds the navigation and the principal does not, which is the usual shape for a lookup table: an `Order` points at a `Country`, and `Country` holds no collection of orders. Both helpers produce the same schema, so the choice is only about which side the navigation is written on.
 
 ## Usage
 
@@ -45,41 +40,24 @@ Use this method when the model code is written from the dependent side of the re
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.EntityFrameworkCore.Utils;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
-{
-    public DbSet<User> Users => Set<User>();
-
-    public DbSet<UserSession> Sessions => Set<UserSession>();
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder
-            .ApplyManyToOne<User, UserSession>(
-                session => session.User,
-                session => session.UserId,
-                isRequired: true,
-                inverseNavigation: user => user.Sessions
-            )
-            .ApplyIndex<UserSession>(session => session.UserId);
-    }
-}
+modelBuilder.ApplyManyToOne<Country, Order>(
+    order => order.Country,
+    order => order.CountryId
+);
 ```
 
 ```csharp [Entities.cs]
-public sealed class User
+public sealed class Country
 {
     public int Id { get; set; }
-
-    public List<UserSession> Sessions { get; set; } = [];
+    public required string Name { get; set; }
 }
 
-public sealed class UserSession
+public sealed class Order
 {
     public int Id { get; set; }
-
-    public int UserId { get; set; }
-
-    public User? User { get; set; }
+    public int? CountryId { get; set; }
+    public Country? Country { get; set; }
 }
 ```
 

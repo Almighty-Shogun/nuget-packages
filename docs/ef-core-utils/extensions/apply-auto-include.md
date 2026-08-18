@@ -1,57 +1,38 @@
 ---
 params:
     - name: navigation
-      description: Navigation property that EF Core should automatically include whenever the entity is queried.
+      description: The navigation property to load automatically.
       type: 'Expression<Func<TEntity, object?>>'
 
-returns: The model builder instance.
+returns: The same `ModelBuilder` instance.
 ---
 
 # ApplyAutoInclude
 
-Configures an entity navigation to be automatically included in EF Core queries. The method calls EF Core's navigation configuration for `TEntity` and enables `AutoInclude` on the provided navigation expression.
+Configures a navigation to be loaded on every query for the entity, without an explicit `Include`. The include lives in the model rather than the query, so it applies to every read of that entity, including reads written in another project that only references it.
 
-Use this method for navigations that should almost always be loaded with the entity. Avoid applying it to large collections or rarely needed navigations, because automatic includes affect every query for the entity unless explicitly ignored. The method returns the same `ModelBuilder` instance for fluent model configuration.
+::: warning
+This applies to **every** query for that entity, including ones that only need a count or a single column. A navigation that is expensive, or a chain of them, makes queries that never asked for the data pay for it.
+
+Use it for something small and almost always needed, such as a lookup or a translation row. Call `IgnoreAutoIncludes()` on a query to opt out once.
+:::
 
 ## Usage
 
 ::: code-group
 
 ```csharp [AppDbContext.cs]
-using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.EntityFrameworkCore.Utils;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
-{
-    public DbSet<User> Users => Set<User>();
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder
-            .ApplyAutoInclude<User>(user => user.Profile)
-            .ApplyIndex<User>(user => user.Email, isUnique: true);
-    }
-}
+modelBuilder.ApplyAutoInclude<Order>(order => order.Country);
 ```
 
-```csharp [Entities.cs]
-public sealed class User
-{
-    public int Id { get; set; }
+```csharp [OptingOut.cs]
+using Microsoft.EntityFrameworkCore;
 
-    public string Email { get; set; } = "";
-
-    public UserProfile? Profile { get; set; }
-}
-
-public sealed class UserProfile
-{
-    public int Id { get; set; }
-
-    public int UserId { get; set; }
-
-    public User? User { get; set; }
-}
+int count = await database.Orders
+    .IgnoreAutoIncludes()
+    .CountAsync(cancellationToken);
 ```
 
 :::

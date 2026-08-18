@@ -1,64 +1,72 @@
 ---
 params:
     - name: index
-      description: Property expression, or anonymous-object expression, that identifies the indexed property or composite index properties.
+      description: The property or property set to index.
       type: 'Expression<Func<TEntity, object?>>'
-
     - name: isUnique
-      description: Whether EF Core should configure the index as unique.
+      description: Whether the index enforces uniqueness.
       type: bool
       default: 'false'
+    - name: databaseName
+      description: Index name in the database. Set it to keep the name stable across migrations instead of using the generated one, which changes whenever the indexed columns change.
+      type: string?
+      default: 'null'
+    - name: filter
+      description: SQL filter expression limiting the index to matching rows. A unique index needs one to tolerate multiple nulls, which some providers otherwise treat as equal and reject.
+      type: string?
+      default: 'null'
 
-returns: The model builder instance.
+returns: The same `ModelBuilder` instance.
 ---
 
 # ApplyIndex
 
-Configures an EF Core index for an entity type. The method starts from `ModelBuilder.Entity<TEntity>()`, calls EF Core's index builder with the provided expression, and applies the requested uniqueness setting.
-
-Use this method when model configuration needs a compact, chainable index declaration alongside the package relationship helpers. Pass a single property for a normal index, or an anonymous object when the index should cover multiple properties. If the index needs a database name, filter, sort order, or provider-specific options, use EF Core's fluent API directly for that mapping.
+Configures an index on one property or a set of properties, optionally unique, explicitly named, and filtered. A unique index without a filter treats nulls as equal on most providers, so two rows with a null value collide. Naming it keeps the name stable across migrations, where a generated name changes whenever the indexed columns do.
 
 ## Usage
 
 ::: code-group
 
-```csharp [AppDbContext.cs]
-using Microsoft.EntityFrameworkCore;
+```csharp [Simple.cs]
 using AlmightyShogun.EntityFrameworkCore.Utils;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
-{
-    public DbSet<User> Users => Set<User>();
-
-    public DbSet<UserSession> Sessions => Set<UserSession>();
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder
-            .ApplyIndex<User>(user => user.Email, isUnique: true)
-            .ApplyIndex<UserSession>(session => new { session.UserId, session.CreatedAt });
-    }
-}
+modelBuilder.ApplyIndex<Account>(account => account.Email, isUnique: true);
 ```
 
-```csharp [Entities.cs]
-public sealed class User
+```csharp [Composite.cs]
+using AlmightyShogun.EntityFrameworkCore.Utils;
+
+modelBuilder.ApplyIndex<Order>(order => new 
 {
-    public int Id { get; set; }
-
-    public string Email { get; set; } = "";
-}
-
-public sealed class UserSession
-{
-    public int Id { get; set; }
-
-    public int UserId { get; set; }
-
-    public DateTimeOffset CreatedAt { get; set; }
-}
+    order.AccountId,
+    order.PlacedAt
+});
 ```
 
+```csharp [Named.cs]
+using AlmightyShogun.EntityFrameworkCore.Utils;
+
+modelBuilder.ApplyIndex<Account>(
+    account => account.Email,
+    isUnique: true,
+    databaseName: "ix_accounts_email"
+);
+```
+
+```csharp [Filtered.cs]
+using AlmightyShogun.EntityFrameworkCore.Utils;
+
+modelBuilder.ApplyIndex<Account>(
+    account => account.Slug,
+    isUnique: true,
+    filter: "[Slug] IS NOT NULL"
+);
+```
+
+:::
+
+::: warning
+`filter` is raw SQL and its identifier quoting is provider-specific: `[Slug]` on SQL Server, `"Slug"` on PostgreSQL and SQLite, `` `Slug` `` on MySQL and MariaDB.
 :::
 
 <FrontmatterDocs/>
@@ -68,6 +76,8 @@ public sealed class UserSession
 ```csharp
 public ModelBuilder ApplyIndex<TEntity>(
     Expression<Func<TEntity, object?>> index,
-    bool isUnique = false
+    bool isUnique = false,
+    string? databaseName = null,
+    string? filter = null
 ) where TEntity : class;
 ```
