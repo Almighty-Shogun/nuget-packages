@@ -1,12 +1,12 @@
 ---
-returns: The same `IServiceCollection` instance after the module has applied its registrations.
+returns: The `IServiceCollection` returned by the module's `ConfigureService` implementation.
 ---
 
 # AddService
 
-Creates a new [`IServiceRegistry`](../services/service-registry) module of type `T` and calls `ConfigureService` so the module can add its own dependencies to the service collection. The generic type must implement [`IServiceRegistry`](../services/service-registry) and expose a public parameterless constructor.
+Constructs a service registry module and calls its [`ConfigureService`](../services/service-registry) method, so a group of related registrations can live in one reusable type instead of being spread across startup code.
 
-Use this method for small registration modules that do not need constructor arguments. It keeps startup code compact while still letting each module own its dependency-injection registrations. Prefer a dedicated extension method when registration requires runtime values such as configuration objects or options.
+The module type must implement [`IServiceRegistry`](../services/service-registry) and have a public parameterless constructor. It is created directly rather than resolved from the container, so it cannot take constructor dependencies.
 
 ## Usage
 
@@ -16,28 +16,20 @@ Use this method for small registration modules that do not need constructor argu
 using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
-ServiceCollection services = new();
-
-services.AddService<ReportingServiceRegistry>();
+builder.Services.AddService<NotificationsRegistry>();
 ```
 
-```csharp [ReportingServiceRegistry.cs]
+```csharp [NotificationsRegistry.cs]
 using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
-public sealed class ReportingServiceRegistry : IServiceRegistry
+public sealed class NotificationsRegistry : IServiceRegistry
 {
-    public IServiceCollection ConfigureService(IServiceCollection serviceCollection)
-    {
-        return serviceCollection.AddSingleton<ReportRenderer>();
-    }
-}
-```
-
-```csharp [ReportRenderer.cs]
-public sealed class ReportRenderer
-{
-    public string Render(string title) => $"Report: {title}";
+    public IServiceCollection ConfigureService(
+        IServiceCollection serviceCollection
+    ) => serviceCollection 
+            .AddSingleton<NotificationFormatter>()
+            .AddScoped<INotificationSender, EmailNotificationSender>();
 }
 ```
 

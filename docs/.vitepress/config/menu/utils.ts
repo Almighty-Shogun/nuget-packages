@@ -17,8 +17,14 @@ export const utils: DefaultTheme.SidebarItem[] = [
             { text: 'Deserialize', link: '/utils/extensions/deserialize' },
             { text: 'DeserializeAsync', link: '/utils/extensions/deserialize-async' },
             { text: 'RegisterOnInherit', link: '/utils/extensions/register-on-inherit' },
-            { text: 'Serialize', link: '/utils/extensions/serialize' },
-            { text: 'SerializeAsync', link: '/utils/extensions/serialize-async' }
+            { text: 'TryDeserialize', link: '/utils/extensions/try-deserialize' }
+        ]
+    },
+    {
+        text: 'Attributes',
+        collapsed: false,
+        items: [
+            { text: 'SkipAutoRegistration', link: '/utils/attributes/skip-auto-registration' }
         ]
     },
     {
@@ -29,10 +35,10 @@ export const utils: DefaultTheme.SidebarItem[] = [
         ]
     },
     {
-        text: 'Types',
+        text: 'Utilities',
         collapsed: false,
         items: [
-            { text: 'ApplicationUtils', link: '/utils/types/application-utils' }
+            { text: 'ApplicationUtils', link: '/utils/utilities/application-utils' }
         ]
     },
 ];
