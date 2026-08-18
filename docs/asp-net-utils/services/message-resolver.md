@@ -1,26 +1,36 @@
 # MessageResolver
 
-Resolves localized HTTP messages from message keys. [`AddHttpErrorResponses`](../extensions/add-http-error-responses) registers `IMessageResolver` with the package's JSON-backed implementation, and application code can depend on the interface when it needs to resolve the same messages used by standardized HTTP error responses.
-
-The registered implementation reads JSON files from `messages/{language}` directories, flattens nested objects into dot-separated keys, and falls back from the requested language to the neutral language and then to the configured `DefaultLanguage`. When a message is resolved, the response `Content-Language` header is updated through the package language helpers.
+Resolves localized messages from the JSON message files described on the [configuration](../configuration) page. Application code depends on `IMessageResolver`. Resolution never fails: a key no language in the fallback chain defines is returned as itself, so a missing translation degrades to a readable identifier instead of an exception or a blank body.
 
 ## Usage
 
 ::: code-group
 
-```csharp [LocalizedErrors.cs]
+```csharp [OrdersController.cs]
+using Microsoft.AspNetCore.Mvc;
 using AlmightyShogun.AspNet.Utils;
 
-public sealed class LocalizedErrors(IMessageResolver messageResolver)
+[ApiController]
+[Route("orders")]
+public sealed class OrdersController(
+    IMessageResolver messageResolver
+) : ControllerBase
 {
-    public string GetUserNotFoundMessage(int userId)
-        => messageResolver.Resolve("users.not-found", [userId]);
+    [HttpGet("{id:int}")]
+    public IActionResult Get(int id)
+    {
+        Order? order = FindOrder(id);
+
+        return order is null
+            ? NotFound(messageResolver.Resolve("orders.not-found", [id]))
+            : Ok(order);
+    }
 }
 ```
 
-```json [messages/en/users.json]
+```json [messages/en/orders.json]
 {
-    "not-found": "User {0} was not found."
+    "not-found": "Order {0} does not exist"
 }
 ```
 
@@ -28,27 +38,39 @@ public sealed class LocalizedErrors(IMessageResolver messageResolver)
 
 ## Resolve
 
-Resolves a message by key. The key must match the flattened message-file key, where the file name becomes the root group. For example, `messages/en/users.json` with a `not-found` property resolves as `users.not-found`.
+Resolves a message key, optionally formatting it with parameters. Parameters are substituted with `string.Format`, so the template uses `{0}`, `{1}`, and so on.
 
-When parameters are supplied, the resolved message is formatted with `string.Format`. Formatting errors return the unformatted template instead of throwing. Missing languages, missing files, and missing keys return the original message key.
+A template whose placeholders do not match the supplied parameters returns the raw template rather than throwing, so a bad message file cannot fail a request.
 
 ```csharp
 using AlmightyShogun.AspNet.Utils;
 
-public sealed class ErrorMessageService(IMessageResolver messageResolver)
-{
-    public string GetLockedMessage(string username)
-        => messageResolver.Resolve("users.locked", [username]);
-}
+string message = messageResolver.Resolve("auth.failed");
+string formatted = messageResolver.Resolve("auth.expired", [expiredAt]);
 ```
 
 ### Type signature
 
 ```csharp
-public string Resolve(string key);
+string Resolve(string key);
 
-public string Resolve(
-    string key,
-    IReadOnlyList<object?> parameters
-);
+string Resolve(string key, IReadOnlyList<object?> parameters);
+```
+
+## ResolveLanguage
+
+Returns the language messages are currently being served in, following the same negotiation chain as `Resolve`. This is what the middleware writes to the response `Content-Language` header.
+
+Useful when a response needs to state its own language, for example an email body rendered from the same message files.
+
+```csharp
+using AlmightyShogun.AspNet.Utils;
+
+string language = messageResolver.ResolveLanguage();
+```
+
+### Type signature
+
+```csharp
+string ResolveLanguage();
 ```

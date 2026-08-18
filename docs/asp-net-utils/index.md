@@ -1,29 +1,62 @@
-# ASP.NET Utils
+# AspNet Utils
 
-Adds small ASP.NET Core helpers for request context capture, CORS registration, MVC action filter setup, cookie cleanup, language headers, User-Agent parsing, and standardized HTTP error responses. The package is intended for APIs that need reusable request utilities without adopting a larger application framework.
+Provides the shared ASP.NET Core layer the other web packages build on: one standardized error response shape, localized messages resolved from JSON files, request metadata capture, CORS setup, and forwarded-header configuration for a Cloudflare-proxied application.
 
-Use this package when controllers or services need a consistent [`SessionContext`](./records/session-context), when startup code should register allowed origins from configuration, when application code needs parsed [`UserAgent`](./records/user-agent) details through `HttpContext`, or when API errors should be returned as predictable JSON objects with localized descriptions.
+Every error body produced by this repository is written in exactly one place, [`HttpErrorResponseWriter`](./services/http-error-response-writer), so the shape stays consistent and can be changed once.
+
+Adopting it is a set of independent registrations followed by two middleware calls, so an application can take message localization without the exception handlers, or the reverse. Everything beyond that is a helper reached from `HttpContext`, `HttpRequest`, or `HttpResponse`.
 
 ## Categories
 
-- [Configuration](./configuration) &mdash; allowed origins and default message language read from `appsettings.json`.
-- [Localization](./localization) &mdash; message-file structure and complete HTTP error message examples.
-- [Extensions](./extensions/add-action-filters) &mdash; startup, request, response, and error-handling extension methods.
-- [Services](./services/message-resolver) &mdash; DI contracts for resolving localized HTTP messages.
-- [Types](./types/http-error-exception) &mdash; exception and MVC result helpers for standardized HTTP errors.
-- [Records](./records/http-error-response) &mdash; immutable values returned by package helpers and error response middleware.
+- [Configuration](./configuration) &mdash; the optional `HttpErrors`, `Localization`, and `AllowedOrigins` sections.
+- [Localization](./localization) &mdash; how message files are laid out, resolved, and negotiated per request.
+- [Exceptions](./exceptions) &mdash; the `IAppException` contract every exception in this repository implements.
+- [Extensions](./extensions/add-exception-handling) &mdash; registration, middleware, and request helpers.
+- [Handlers](./handlers/app-exception-handler) &mdash; the exception handlers that turn a thrown exception into the standard error body.
+- [Services](./services/message-resolver) &mdash; message resolution, language negotiation, and error response writing.
+- [Utilities](./utilities/cloudflare) &mdash; the Cloudflare edge ranges and the MVC error result helper.
+- [Records](./records/http-error-response) &mdash; the response body, session context, and parsed User-Agent.
 
 ## Quick Example
 
-```csharp
+::: code-group
+
+```csharp [Program.cs]
 using AlmightyShogun.AspNet.Utils;
 
 builder.Services
-    .AddActionFilters()
-    .AddAllowedOrigins("DefaultCors", builder.Configuration)
-    .AddHttpErrorResponses(builder.Configuration);
+    .AddMessageLocalization(builder.Configuration)
+    .AddHttpErrorResponseWriter(builder.Configuration)
+    .AddExceptionHandling()
+    .AddHttpErrorResponseFilter()
+    .AddSessionContextFilter();
 
 WebApplication app = builder.Build();
 
 app.UseHttpErrorResponses();
 ```
+
+```csharp [SessionsController.cs]
+using Microsoft.AspNetCore.Mvc;
+using AlmightyShogun.AspNet.Utils;
+
+[ApiController]
+[Route("sessions")]
+public sealed class SessionsController(
+    IMessageResolver messageResolver
+) : ControllerBase
+{
+    [HttpGet]
+    public IActionResult Get() 
+        => Ok(messageResolver.Resolve("auth.failed"));
+}
+```
+
+```json [messages/en/auth.json]
+{
+    "failed": "Authentication failed",
+    "expired": "Your session expired at {0}"
+}
+```
+
+:::

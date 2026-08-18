@@ -1,6 +1,6 @@
 # Installation
 
-Install `AlmightyShogun.AspNet.Utils` in the ASP.NET Core API that needs request helpers, CORS setup, MVC action filters, cookie cleanup, language header helpers, User-Agent parsing, or standardized HTTP error responses. The package targets `net10.0`, uses ASP.NET Core framework APIs, and depends on `UAParser` for parsing raw User-Agent header values.
+Install `AlmightyShogun.AspNet.Utils` in the ASP.NET Core application, or in a package that builds on it. The package targets `net10.0` and references the ASP.NET Core shared framework. Every other package in this repository that returns an error response depends on it, so it is usually already present transitively.
 
 ```sh
 dotnet add package AlmightyShogun.AspNet.Utils
@@ -10,43 +10,35 @@ dotnet add package AlmightyShogun.AspNet.Utils
 
 ### Framework references
 
-- `Microsoft.AspNetCore.App` &mdash; provides HTTP context, response cookies, MVC filters, controller registration, CORS, and request header APIs used by the package.
+- `Microsoft.AspNetCore.App` &mdash; the ASP.NET Core shared framework.
 
 ### Package references
 
-- `UAParser` `3.1.47` &mdash; parses User-Agent strings into browser, operating system, and device information.
+- `UAParser` `3.1.47` &mdash; parses User-Agent headers for [`UserAgent`](./records/user-agent).
+
+### Project references
+
+- `AlmightyShogun.Utils` &mdash; supplies the configuration binding helper both settings sections are bound through, so a missing or malformed value fails at startup.
 
 ## Startup Registration
 
-Register only the helpers the application needs. [`AddActionFilters`](./extensions/add-action-filters) adds MVC controllers and captures [`SessionContext`](./records/session-context) before controller actions run. [`AddAllowedOrigins`](./extensions/add-allowed-origins) registers a named CORS policy from configuration. [`AddHttpErrorResponses`](./extensions/add-http-error-responses) reads `DefaultLanguage` from application configuration and registers the message resolver, MVC error-response filter, and exception handler used by [`UseHttpErrorResponses`](./extensions/use-http-error-responses).
+Each concern is registered on its own, so an application takes only what it needs. [`AddMessageLocalization`](./extensions/add-message-localization) and [`AddHttpErrorResponseWriter`](./extensions/add-http-error-response-writer) are the two everything else depends on. [`UseHttpErrorResponses`](./extensions/use-http-error-responses) adds the middleware that runs the handler chain and fills in empty error responses; [`UseMessageLocalization`](./extensions/use-message-localization) sets `Content-Language`.
 
-When `AllowedOrigins` is missing or empty, the CORS policy is still registered but no browser origins are added to it. Configure explicit origins before enabling that policy in production, especially because the helper enables credentials.
+::: warning
+Call [`UseMessageLocalization`](./extensions/use-message-localization) before [`UseHttpErrorResponses`](./extensions/use-http-error-responses), so the header is set on error responses too.
+:::
 
-::: code-group
-
-```csharp [Program.cs]
+```csharp
 using AlmightyShogun.AspNet.Utils;
 
 builder.Services
-    .AddActionFilters()
-    .AddAllowedOrigins("DefaultCors", builder.Configuration)
-    .AddHttpErrorResponses(builder.Configuration);
+    .AddMessageLocalization(builder.Configuration)
+    .AddHttpErrorResponseWriter(builder.Configuration)
+    .AddExceptionHandling()
+    .AddHttpErrorResponseFilter();
 
 WebApplication app = builder.Build();
 
+app.UseMessageLocalization();
 app.UseHttpErrorResponses();
-app.MapControllers();
-
-await app.RunAsync();
 ```
-
-```json [appsettings.json]
-{
-    "AllowedOrigins": [
-        "https://app.example.com"
-    ],
-    "DefaultLanguage": "en"
-}
-```
-
-:::

@@ -1,24 +1,29 @@
 ---
-returns: The preferred request language, or `null` when the `Accept-Language` header is missing or empty.
+returns: The preferred language when the header contains a well-formed language tag; otherwise `null`.
 ---
 
 # GetAcceptLanguage
 
-Reads the preferred language from an HTTP request's `Accept-Language` header. The helper returns only the first language value and strips any quality value, so `en-US,en;q=0.9` becomes `en-US`.
-
-Use this method when application code needs the caller's preferred language without parsing the full header format. Empty, whitespace-only, or missing headers return `null`.
+Reads the preferred language from the request `Accept-Language` header. The header is a ranked list, and this takes the first entry and discards its quality value, so `nl-BE,nl;q=0.9,en;q=0.8` yields `nl-BE`. It returns `null` when the header is absent or its first entry is not a well-formed language tag, including the `*` wildcard.
 
 ## Usage
 
 ```csharp
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using AlmightyShogun.AspNet.Utils;
 
-var httpContext = new DefaultHttpContext();
-httpContext.Request.Headers.AcceptLanguage = "en-US,en;q=0.9";
-
-string? language = httpContext.Request.GetAcceptLanguage();
+[ApiController]
+[Route("preferences")]
+public sealed class PreferencesController : ControllerBase
+{
+    [HttpGet("language")]
+    public IActionResult Get() => Ok(Request.GetAcceptLanguage() ?? "en");
+}
 ```
+
+::: warning
+Rejecting a malformed tag is a security boundary, not a formatting nicety. The returned value is used to build a filesystem path when message files are resolved, so an unvalidated header would allow directory traversal out of the messages directory.
+:::
 
 <FrontmatterDocs/>
 
