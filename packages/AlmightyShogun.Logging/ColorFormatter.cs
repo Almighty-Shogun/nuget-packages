@@ -6,19 +6,47 @@ using System.Globalization;
 namespace AlmightyShogun.Logging;
 
 /// <summary>
-/// Formats Serilog events with level colors, property colors, and optional property value formatting.
+/// Renders a Serilog event as one console line: a colored level and timestamp prefix, then the message template with each
+/// property colored by its type or by an explicit shorthand, and any exception appended below in dark gray.
 /// </summary>
+///
+/// <param name="enableColors">
+/// Whether escape codes are written at all. When <c>false</c> the same text is produced without them, so a redirected log
+/// stays readable rather than filling with escape sequences.
+/// </param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>1.0.0</since>
-internal sealed class ColorFormatter : ITextFormatter
+internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
 {
     /// <summary>
-    /// Writes a log event as colored console text.
+    /// Gets whether the current output can be expected to render escape codes. Redirected output and a set <c>NO_COLOR</c>
+    /// both mean no, which covers a log being piped to a file or collected by a service manager.
     /// </summary>
     ///
-    /// <param name="logEvent">The Serilog event containing the level, timestamp, template, properties, and optional exception.</param>
-    /// <param name="output">The writer that receives the formatted log line.</param>
+    /// <remarks>
+    /// Evaluated once per process, so a console redirected after start is not noticed. This is the default the registration
+    /// helpers fall back to when the caller expresses no preference.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal static bool OutputSupportsColors { get; } =
+        !Console.IsOutputRedirected && string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NO_COLOR"));
+
+    /// <summary>
+    /// Writes one event, then a trailing newline. A property named in the template but absent from the event is written back
+    /// as its original <c>{token}</c> rather than dropped, so a template typo is visible in the log instead of silent.
+    /// </summary>
+    ///
+    /// <param name="logEvent">The event to render, supplying the level, timestamp, template, properties, and exception.</param>
+    /// <param name="output">The writer receiving the line. Not flushed here; the sink owns that.</param>
+    ///
+    /// <remarks>
+    /// A property format specifier may carry a color after a <c>|</c>, as in <c>{Count:N0|c}</c>, where the left side is the
+    /// numeric format and the right side is a shorthand from <see cref="AnsiColor"/>. Without one, the color follows the
+    /// value's type.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
@@ -27,24 +55,23 @@ internal sealed class ColorFormatter : ITextFormatter
         MessageTemplate messageTemplate = logEvent.MessageTemplate;
         IReadOnlyDictionary<string, LogEventPropertyValue> properties = logEvent.Properties;
 
-        output.Write(GetLogLevelColor(logEvent.Level));
-        output.Write($"[{logEvent.Timestamp:HH:mm:ss} {logEvent.Level.ToString()[..3].ToUpper()}] ");
-        output.Write(AnsiColor.Reset);
+        Write(output, GetLogLevelColor(logEvent.Level));
+        output.Write($"[{logEvent.Timestamp:HH:mm:ss} {logEvent.Level.ToString()[..3].ToUpperInvariant()}] ");
+        Write(output, AnsiColor.Reset);
 
         foreach (MessageTemplateToken token in messageTemplate.Tokens)
-        {
             switch (token)
             {
                 case TextToken textToken:
                     output.Write(textToken.Text);
-                break;
+                    break;
                 case PropertyToken propToken:
                 {
                     string format = propToken.Format ?? "";
                     string propName = propToken.PropertyName;
 
                     string? colorSpec = null;
-                    string? numericFormat = null;
+                    string numericFormat = format;
 
                     if (format.Contains('|'))
                     {
@@ -52,17 +79,6 @@ internal sealed class ColorFormatter : ITextFormatter
 
                         numericFormat = parts[0];
                         colorSpec = parts[1];
-                    }
-                    else
-                    {
-                        if (IsKnownColor(format))
-                        {
-                            colorSpec = format;
-                        }
-                        else
-                        {
-                            numericFormat = format;
-                        }
                     }
 
                     if (!properties.TryGetValue(propName, out LogEventPropertyValue? propertyValue))
@@ -82,36 +98,45 @@ internal sealed class ColorFormatter : ITextFormatter
 
                     string renderedValue = RenderPropertyValue(propertyValue, numericFormat);
 
-                    string ansiColor = colorSpec != null ? AnsiColor.FromShort(colorSpec) : GetDefaultColor(propertyValue);
+                    string ansiColor = colorSpec is not null ? AnsiColor.FromShort(colorSpec) : GetDefaultColor(propertyValue);
 
-                    output.Write(ansiColor);
+                    Write(output, ansiColor);
                     output.Write(renderedValue);
-                    output.Write(AnsiColor.Reset);
+                    Write(output, AnsiColor.Reset);
 
                     break;
                 }
             }
-        }
 
         if (logEvent.Exception is not null)
         {
             output.WriteLine();
-            output.Write(AnsiColor.DarkGray);
+            Write(output, AnsiColor.DarkGray);
             output.Write(logEvent.Exception);
-            output.Write(AnsiColor.Reset);
+            Write(output, AnsiColor.Reset);
         }
 
         output.WriteLine();
     }
 
     /// <summary>
-    /// Renders a log event property value with optional numeric formatting.
+    /// Turns a property value into the text that appears in the line.
     /// </summary>
     ///
-    /// <param name="value">The log event property value to render.</param>
-    /// <param name="numericFormat">The optional numeric format string to apply when the scalar value supports formatting.</param>
+    /// <param name="value">
+    /// The value to render. A scalar is written directly; anything structured falls back to Serilog's own rendering.
+    /// </param>
+    /// <param name="numericFormat">
+    /// The format applied when the value implements <see cref="IFormattable"/>, always under the invariant culture so a log
+    /// reads the same on every machine. Ignored when empty or when the value cannot be formatted.
+    /// </param>
     ///
-    /// <returns>The rendered property value.</returns>
+    /// <returns>The rendered text, or the literal <c>null</c> for a scalar holding no value.</returns>
+    ///
+    /// <remarks>
+    /// A bad format string is swallowed and the unformatted value is written instead. Losing a log line to a
+    /// <see cref="FormatException"/> raised inside the logger would be worse than losing the formatting.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
@@ -131,7 +156,7 @@ internal sealed class ColorFormatter : ITextFormatter
             {
                 return formattable.ToString(numericFormat, CultureInfo.InvariantCulture);
             }
-            catch
+            catch (FormatException)
             {
                 return obj.ToString() ?? string.Empty;
             }
@@ -144,29 +169,32 @@ internal sealed class ColorFormatter : ITextFormatter
     }
 
     /// <summary>
-    /// Determines whether a string is a supported color shorthand code.
+    /// Writes an escape code, or nothing when colors are off. Centralized so no caller has to repeat the check and risk
+    /// emitting a stray code into a plain-text log.
     /// </summary>
     ///
-    /// <param name="colorCode">The color shorthand code to evaluate.</param>
-    ///
-    /// <returns><c>true</c> when the value is a supported color shorthand code; otherwise <c>false</c>.</returns>
+    /// <param name="output">The writer receiving the escape code.</param>
+    /// <param name="ansiColor">The escape code to write, discarded when colors are off.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>1.0.0</since>
-    private static bool IsKnownColor(string colorCode)
+    /// <since>Unreleased</since>
+    private void Write(TextWriter output, string ansiColor)
     {
-        if (string.IsNullOrWhiteSpace(colorCode)) return false;
-
-        return colorCode.ToLowerInvariant() is "r" or "g" or "b" or "c" or "y" or "m" or "br" or "bg" or "bb" or "bc" or "by" or "bm";
+        if (enableColors)
+            output.Write(ansiColor);
     }
 
     /// <summary>
-    /// Determines the default ANSI color for a log event property value.
+    /// Picks a color from the value's type, so numbers, flags, and text stay distinguishable at a glance without any
+    /// template author having to ask for it.
     /// </summary>
     ///
-    /// <param name="value">The log event property value to evaluate.</param>
+    /// <param name="value">The value whose runtime type decides the color.</param>
     ///
-    /// <returns>The ANSI color code selected for the property value type.</returns>
+    /// <returns>
+    /// Cyan for numeric types, magenta for <see cref="bool"/>, dark gray for null, and white for strings and anything else,
+    /// including structured values.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
@@ -185,17 +213,20 @@ internal sealed class ColorFormatter : ITextFormatter
             string => AnsiColor.White,
             int or long or float or double or decimal => AnsiColor.Cyan,
             bool => AnsiColor.Magenta,
-            _ => AnsiColor.White,
+            _ => AnsiColor.White
         };
     }
 
     /// <summary>
-    /// Determines the ANSI color for a log event level.
+    /// Picks the color of the level and timestamp prefix, so severity is readable from the left edge of the line.
     /// </summary>
     ///
-    /// <param name="logLevel">The <see cref="LogEventLevel"/> value to evaluate.</param>
+    /// <param name="logLevel">The level being written.</param>
     ///
-    /// <returns>The ANSI color code selected for the log level.</returns>
+    /// <returns>
+    /// Green for <c>Information</c>, yellow for <c>Warning</c>, red for <c>Error</c>, bright red for <c>Fatal</c>, and white
+    /// for <c>Verbose</c> and <c>Debug</c>, which keeps routine output quiet.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
