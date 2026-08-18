@@ -1,41 +1,71 @@
+---
+params:
+    - name: configuration
+      description: Application configuration to read the optional `Serilog` section from. Omit it and Serilog's own defaults apply.
+      type: IConfiguration?
+      default: 'null'
+    - name: includeConsoleSink
+      description: Adds the package console sink. Set it to `false` when the application declares its own sinks in configuration, otherwise a console entry there produces a second console sink and every line appears twice.
+      type: bool
+      default: 'true'
+    - name: enableColors
+      description: Writes ANSI color codes. When `null`, colors are enabled unless output is redirected or `NO_COLOR` is set. Pass `true` to force them on for a terminal that reports its output as redirected, or `false` to force them off.
+      type: bool?
+      default: 'null'
+
+returns: The same service collection or host builder instance, with Serilog configured.
+---
+
 # AddCustomLogging
 
-Registers Serilog with the package's compact console formatter. The package exposes two overloads with the same method name: one extends `IServiceCollection`, and one extends `IHostBuilder`.
+Configures Serilog with log-context enrichment and the package's asynchronous colored console sink, and registers it as the `Microsoft.Extensions.Logging` provider. Inject `ILogger<T>` as usual afterwards. The logger is registered for disposal, which flushes the asynchronous sink's buffer during an orderly [shutdown](../installation#flushing-on-shutdown).
 
-Both overloads create a Serilog logger with log-context enrichment and an asynchronous console sink that uses the package formatter. When configuration is provided, the logger also reads supported Serilog settings from `IConfiguration`.
+## Usage
 
-## ServiceCollection
+::: code-group
 
-Adds Serilog logging through `IServiceCollection`. Use this overload when application startup configures logging from `builder.Services` and the logger should be connected through `Microsoft.Extensions.Logging`.
-
-```csharp
+```csharp [IServiceCollection.cs]
 using AlmightyShogun.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.AddCustomLogging(builder.Configuration);
 ```
 
-### Type signature
+```csharp [IHostBuilder.cs]
+using AlmightyShogun.Logging;
+using Microsoft.Extensions.Hosting;
 
-```csharp
-public IServiceCollection AddCustomLogging(
-    IConfiguration? configuration = null
+IHost host = Host.CreateDefaultBuilder(args)
+    .AddCustomLogging()
+    .Build();
+```
+
+```csharp [SinksFromConfiguration.cs]
+using AlmightyShogun.Logging;
+using Microsoft.Extensions.DependencyInjection;
+
+builder.Services.AddCustomLogging(
+    builder.Configuration,
+    includeConsoleSink: false
 );
 ```
 
-## HostBuilder
+:::
 
-Adds Serilog logging through `IHostBuilder`. Use this overload when application startup configures logging at the host level through `builder.Host` and should register Serilog as the host logger.
+<FrontmatterDocs/>
 
-```csharp
-using AlmightyShogun.Logging;
-
-builder.Host.AddCustomLogging(builder.Configuration);
-```
-
-### Type signature
+## Type signature
 
 ```csharp
+public IServiceCollection AddCustomLogging(
+    IConfiguration? configuration = null,
+    bool includeConsoleSink = true,
+    bool? enableColors = null
+);
+
 public IHostBuilder AddCustomLogging(
-    IConfiguration? configuration = null
+    IConfiguration? configuration = null,
+    bool includeConsoleSink = true,
+    bool? enableColors = null
 );
 ```

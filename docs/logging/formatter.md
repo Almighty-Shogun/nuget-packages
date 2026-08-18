@@ -1,8 +1,6 @@
 # Formatter
 
-The package always registers its internal console formatter when [`AddCustomLogging`](./extensions/add-custom-logging) is used. Application code does not instantiate the formatter directly; write normal Serilog message templates and the registered logger applies the formatter to console output.
-
-The formatter writes a timestamp, a three-letter log level, message-template text, colored property values, and exception details. Scalar values get default colors by type: strings are white, numbers are cyan, booleans are magenta, and `null` values are dark gray.
+The console formatter is registered automatically by [`AddCustomLogging`](./extensions/add-custom-logging). It is internal to the package, so application code never constructs it; write normal Serilog message templates and the registered logger applies it to console output.
 
 ## Usage
 
@@ -10,29 +8,29 @@ The formatter writes a timestamp, a three-letter log level, message-template tex
 
 ```csharp [Program.cs]
 using AlmightyShogun.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
-builder.Services
-    .AddCustomLogging(builder.Configuration)
-    .AddHostedService<ImportWorker>();
+builder.Services.AddCustomLogging(builder.Configuration);
 ```
 
 ```csharp [ImportWorker.cs]
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-public sealed class ImportWorker(ILogger<ImportWorker> logger) : BackgroundService
+public sealed class ImportWorker(
+    ILogger<ImportWorker> logger
+) : BackgroundService
 {
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         logger.LogInformation(
-            "Processed {Count:c} items for {Application:bg} in {Elapsed:0.00|y} ms",
-            42,
-            "admin",
-            18.742
+            "Imported {Count} rows for {Tenant:|bg} in {Elapsed:N1|y} ms",
+            4218,
+            "contoso",
+            92.47
         );
 
-        logger.LogInformation("User {UserId:y} logged in", 42);
-        logger.LogInformation("Completed in {Elapsed:0.00|g} ms", 18.742);
+        logger.LogWarning("Retrying after {Failures:|br} failures", 3);
 
         return Task.CompletedTask;
     }
@@ -41,9 +39,51 @@ public sealed class ImportWorker(ILogger<ImportWorker> logger) : BackgroundServi
 
 :::
 
-Message-template property formats can include color shorthand. Use the shorthand as the property format, or combine a numeric format and color with `|`.
+## Output format
 
-## Colors
+Each line starts with a timestamp and a three-letter, upper-case level, colored by severity, followed by the rendered message template:
+
+```text
+[13:45:02 INF] Imported 4218 rows in 92.5 ms
+```
+
+An exception is written on the following line in dark gray.
+
+### Level colors
+
+| Level | Color |
+| --- | --- |
+| `Verbose` | White |
+| `Debug` | White |
+| `Information` | Green |
+| `Warning` | Yellow |
+| `Error` | Red |
+| `Fatal` | Bright red |
+
+### Default property colors
+
+A property with no color code is colored by the type of its value:
+
+| Value | Color |
+| --- | --- |
+| `string` | White |
+| `int`, `long`, `float`, `double`, `decimal` | Cyan |
+| `bool` | Magenta |
+| `null` | Dark gray |
+| Anything else | White |
+
+## Template syntax
+
+A color is applied by putting a shorthand code after a `|` in the property's format section:
+
+| Template | Result |
+| --- | --- |
+| `{Value}` | Default color for the value's type. |
+| `{Value:\|r}` | Red, no format applied. |
+| `{Value:N2\|r}` | Formatted with `N2`, then colored red. |
+| `{Value:N2}` | Formatted with `N2`, default color. |
+
+### Colors
 
 | Code | Color |
 | --- | --- |
@@ -59,3 +99,11 @@ Message-template property formats can include color shorthand. Use the shorthand
 | `bc` | Bright cyan |
 | `by` | Bright yellow |
 | `bm` | Bright magenta |
+
+Codes are matched case-insensitively. An unrecognized code renders white rather than failing.
+
+## When colors are suppressed
+
+ANSI escape codes are omitted when the output is redirected, or when the `NO_COLOR` environment variable is set. This keeps escape sequences out of a log file or a piped stream, where they would otherwise appear as literal bytes.
+
+Detection runs once per process. Pass `enableColors` to [`AddCustomLogging`](./extensions/add-custom-logging) to override it, for example on a CI system that renders ANSI but reports its output as redirected.
