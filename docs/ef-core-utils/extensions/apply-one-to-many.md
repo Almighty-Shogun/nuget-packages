@@ -1,85 +1,74 @@
 ---
 params:
     - name: navigation
-      description: Collection navigation on the principal entity containing dependent entities.
+      description: Collection navigation on the principal entity.
       type: 'Expression<Func<TEntity, IEnumerable<TDependent>?>>'
-
     - name: foreignKey
       description: Foreign key property on the dependent entity.
       type: 'Expression<Func<TDependent, object?>>'
-
     - name: principalKey
-      description: Optional principal key property. When omitted, EF Core uses the principal primary key.
+      description: Principal key property. When omitted, the principal's primary key is used.
       type: 'Expression<Func<TEntity, object?>>?'
       default: 'null'
-
     - name: isRequired
-      description: Whether the dependent relationship is required.
+      description: Whether the relationship is required.
       type: bool
       default: 'false'
-
     - name: deleteBehavior
-      description: Delete behavior applied to the relationship.
+      description: What happens to the dependents when the principal is deleted.
       type: DeleteBehavior
       default: DeleteBehavior.ClientSetNull
-
     - name: inverseNavigation
-      description: Optional reference navigation on the dependent entity back to the principal entity. When omitted, EF Core configures the relationship without an inverse navigation.
+      description: Reference navigation on the dependent back to the principal.
       type: 'Expression<Func<TDependent, TEntity?>>?'
       default: 'null'
 
-returns: The model builder instance.
+returns: The same `ModelBuilder` instance.
 ---
 
 # ApplyOneToMany
 
-Configures a one-to-many relationship where `TEntity` is the principal entity and `TDependent` is the dependent entity. The method starts from the principal collection navigation, configures the dependent foreign key, applies delete behavior, and optionally sets the dependent inverse navigation and principal key.
+Configures a one-to-many relationship where `TEntity` is the principal holding a collection of `TDependent`.
 
-Use this method when a principal entity owns a collection of dependents and the dependent entity stores the foreign key. Pass `inverseNavigation` when each dependent also has a reference back to the principal entity. If it is omitted, EF Core configures the collection side only.
+The defaults describe an optional relationship: the foreign key is nullable and is cleared when the principal is deleted. Pass `isRequired: true` with `DeleteBehavior.Cascade` when the dependents cannot exist without it.
 
 ## Usage
 
 ::: code-group
 
-```csharp [AppDbContext.cs]
+```csharp [Optional.cs]
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.EntityFrameworkCore.Utils;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
-{
-    public DbSet<User> Users => Set<User>();
+modelBuilder.ApplyOneToMany<Account, Order>(
+    account => account.Orders,
+    order => order.AccountId
+);
+```
 
-    public DbSet<UserSession> Sessions => Set<UserSession>();
+```csharp [Required.cs]
+using Microsoft.EntityFrameworkCore;
+using AlmightyShogun.EntityFrameworkCore.Utils;
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder
-            .ApplyOneToMany<User, UserSession>(
-                user => user.Sessions,
-                session => session.UserId,
-                deleteBehavior: DeleteBehavior.Cascade,
-                inverseNavigation: session => session.User
-            )
-            .ApplyIndex<UserSession>(session => session.UserId);
-    }
-}
+modelBuilder.ApplyOneToMany<Account, Order>(
+    account => account.Orders,
+    order => order.AccountId,
+    isRequired: true,
+    deleteBehavior: DeleteBehavior.Cascade
+);
 ```
 
 ```csharp [Entities.cs]
-public sealed class User
+public sealed class Account
 {
     public int Id { get; set; }
-
-    public List<UserSession> Sessions { get; set; } = [];
+    public List<Order> Orders { get; set; } = [];
 }
 
-public sealed class UserSession
+public sealed class Order
 {
     public int Id { get; set; }
-
-    public int UserId { get; set; }
-
-    public User? User { get; set; }
+    public int? AccountId { get; set; }
 }
 ```
 

@@ -1,12 +1,12 @@
 # Entity Framework Core Utils
 
-Adds small `ModelBuilder` extension methods for common Entity Framework Core relationship, navigation, and index configuration. The package focuses on reducing repeated fluent API code in `OnModelCreating` while still using EF Core's normal builders under the hood.
+Model configuration helpers for `ModelBuilder`, covering the shapes written on almost every model: relationships, indexes, owned types, enum storage, and eager loading.
 
-Use this package when a project repeatedly configures one-to-one, one-to-many, many-to-one, auto-included navigation properties, or simple indexes and wants those patterns to stay compact and consistent. Relationship helpers can map only the supplied navigation or include the inverse navigation when both sides exist on the entities.
+Each helper wraps a fluent-API sequence whose parameter order or default is easy to get wrong in a way the compiler accepts. Every one is called inside `OnModelCreating` and returns the `ModelBuilder`, so calls chain.
 
 ## Categories
 
-- [Extensions](./extensions/apply-auto-include) &mdash; public `ModelBuilder` extension methods for relationship, navigation, and index configuration.
+- [Extensions](./extensions/apply-one-to-one) &mdash; model configuration helpers on `ModelBuilder`.
 
 ## Quick Example
 
@@ -16,40 +16,64 @@ Use this package when a project repeatedly configures one-to-one, one-to-many, m
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.EntityFrameworkCore.Utils;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public sealed class AppDbContext(
+    DbContextOptions<AppDbContext> options
+) : DbContext(options)
 {
-    public DbSet<User> Users => Set<User>();
-
-    public DbSet<UserSession> Sessions => Set<UserSession>();
+    public DbSet<Account> Accounts => Set<Account>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder
-            .ApplyOneToMany<User, UserSession>(
-                user => user.Sessions,
-                session => session.UserId,
-                inverseNavigation: session => session.User
-            )
-            .ApplyIndex<UserSession>(session => session.UserId);
+        modelBuilder.ApplyOneToOne<Account, Profile>(
+            account => account.Profile,
+            profile => profile.AccountId
+        );
+        
+        modelBuilder.ApplyOneToMany<Account, Order>(
+            account => account.Orders,
+            order => order.AccountId
+        );
+
+        modelBuilder.ApplyIndex<Account>(
+            account => account.Email,
+            isUnique: true
+        );
+        
+        modelBuilder.ApplyIndex<Account>(
+            account => account.Slug,
+            isUnique: true,
+            filter: "[Slug] IS NOT NULL"
+        );
+        
+        modelBuilder.ApplyEnumAsString<Account, Tier>(
+            account => account.Tier
+        );
+        
+        modelBuilder.ApplyOwned<Account, Address>(
+            account => account.BillingAddress,
+            "Billing"
+        );
+
+        modelBuilder.ApplyManyToMany<Account, Tag>(
+            account => account.Tags,
+            tag => tag.Accounts,
+            "account_tags"
+        );
     }
 }
 ```
 
-```csharp [Entities.cs]
-public sealed class User
+```csharp [Account.cs]
+public sealed class Account
 {
     public int Id { get; set; }
-
-    public List<UserSession> Sessions { get; set; } = [];
-}
-
-public sealed class UserSession
-{
-    public int Id { get; set; }
-
-    public int UserId { get; set; }
-
-    public User? User { get; set; }
+    public required string Email { get; set; }
+    public string? Slug { get; set; }
+    public Tier Tier { get; set; }
+    public Profile? Profile { get; set; }
+    public Address? BillingAddress { get; set; }
+    public List<Order> Orders { get; set; } = [];
+    public List<Tag> Tags { get; set; } = [];
 }
 ```
 

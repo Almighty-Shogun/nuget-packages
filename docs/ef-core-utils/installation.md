@@ -1,6 +1,6 @@
 # Installation
 
-Install `AlmightyShogun.EntityFrameworkCore.Utils` in the project that contains the `DbContext` or entity model configuration. The package targets `net10.0` and adds extension methods for Entity Framework Core's `ModelBuilder`.
+Install `AlmightyShogun.EntityFrameworkCore.Utils` in the project that owns the `DbContext`, which is the project where `OnModelCreating` is written. The package targets `net10.0`.
 
 ```sh
 dotnet add package AlmightyShogun.EntityFrameworkCore.Utils
@@ -10,53 +10,54 @@ dotnet add package AlmightyShogun.EntityFrameworkCore.Utils
 
 ### Package references
 
-- `Microsoft.EntityFrameworkCore` `10.0.10` &mdash; provides `ModelBuilder`, relationship builders, delete behavior options, and navigation configuration APIs used by the package.
+- `Microsoft.EntityFrameworkCore` `10.0.11` &mdash; supplies `ModelBuilder`, the type every helper extends.
+- `Microsoft.EntityFrameworkCore.Relational` `10.0.11` &mdash; supplies index names, index filters, and owned-type column naming.
 
-## Startup Registration
+## Usage
 
-This package does not register services. Call the extension methods from `DbContext.OnModelCreating` or from model configuration code that receives a `ModelBuilder`. The methods return the same model builder instance, so related configuration can be chained when it belongs together.
+The package registers no services and has no startup call. The helpers are extension methods on `ModelBuilder`, available inside `OnModelCreating` once the namespace is imported:
 
-::: code-group
-
-```csharp [AppDbContext.cs]
+```csharp
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.EntityFrameworkCore.Utils;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public sealed class AppDbContext(
+    DbContextOptions<AppDbContext> options
+) : DbContext(options)
 {
-    public DbSet<User> Users => Set<User>();
-
-    public DbSet<UserSession> Sessions => Set<UserSession>();
+    public DbSet<Account> Accounts => Set<Account>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder
-            .ApplyOneToMany<User, UserSession>(
-                user => user.Sessions,
-                session => session.UserId,
-                inverseNavigation: session => session.User
-            )
-            .ApplyIndex<UserSession>(session => session.UserId);
+        modelBuilder.ApplyOneToMany<Account, Order>(
+            account => account.Orders,
+            order => order.AccountId
+        );
+        
+        modelBuilder.ApplyIndex<Account>(
+            account => account.Email,
+            isUnique: true
+        );
     }
 }
 ```
 
-```csharp [Entities.cs]
-public sealed class User
-{
-    public int Id { get; set; }
+Every helper returns the same `ModelBuilder`, so calls can be chained or written one per line. Configuration applied through a helper can still be extended afterwards with the standard fluent API on the same entity.
 
-    public List<UserSession> Sessions { get; set; } = [];
-}
+Adding or changing a helper call changes the model, so generate a migration afterwards:
 
-public sealed class UserSession
-{
-    public int Id { get; set; }
-
-    public int UserId { get; set; }
-
-    public User? User { get; set; }
-}
+```sh
+dotnet ef migrations add AddAccountEmailIndex
 ```
 
-:::
+## Provider support
+
+The relational dependency means these helpers assume a relational provider: SQL Server, PostgreSQL, MySQL, MariaDB, SQLite, and equivalents.
+
+Three parameters carry provider-specific behavior:
+
+- `filter` on [`ApplyIndex`](./extensions/apply-index) is raw SQL, and identifier quoting differs per provider: `[Slug]` on SQL Server, `"Slug"` on PostgreSQL and SQLite, `` `Slug` `` on MySQL and MariaDB.
+- `databaseName` on [`ApplyIndex`](./extensions/apply-index) sets the physical index name and is subject to the provider's identifier length limit.
+- `columnPrefix` on [`ApplyOwned`](./extensions/apply-owned) renames physical columns.
+
+On a document provider such as Cosmos, those three have no effect and the relationship helpers do not apply.
