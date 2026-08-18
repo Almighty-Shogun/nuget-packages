@@ -16,8 +16,8 @@
         <Description>A C# library that adds hosting helpers for custom console lifetime behavior.</Description>
 
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.Hosting.Utils</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.Hosting.Utils</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.Hosting.Utils</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>
