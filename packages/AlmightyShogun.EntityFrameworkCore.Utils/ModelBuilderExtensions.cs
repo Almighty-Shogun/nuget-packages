@@ -6,9 +6,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace AlmightyShogun.EntityFrameworkCore.Utils;
 
 /// <summary>
-/// Collapses the fluent calls a relationship, index, or owned value normally takes into one call per mapping, so an
-/// <c>OnModelCreating</c> reads as a list of decisions rather than a chain per entity.
+/// Collapses the fluent chain a relationship, index, or owned value normally takes into a single call, so every mapping
+/// in <c>OnModelCreating</c> is one statement taking the same parameters in the same order whatever its kind.
 /// </summary>
+///
+/// <remarks>
+/// The defaults are the helpers' own rather than EF Core's conventions: a relationship is required and cascades unless
+/// told otherwise, where a convention-driven mapping infers both from the foreign key's nullability instead.
+/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>1.0.0</since>
