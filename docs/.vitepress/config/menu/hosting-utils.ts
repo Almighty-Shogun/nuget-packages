@@ -12,7 +12,7 @@ export const hostingUtils: DefaultTheme.SidebarItem[] = [
         text: 'Extensions',
         collapsed: false,
         items: [
-            { text: 'ConfigureHost', link: '/hosting-utils/extensions/configure-host' },
+            { text: 'ConfigureHostOptions', link: '/hosting-utils/extensions/configure-host-options' },
             { text: 'UseCustomConsoleLifetime', link: '/hosting-utils/extensions/use-custom-console-lifetime' }
         ]
     },

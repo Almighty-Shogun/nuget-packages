@@ -1,20 +1,55 @@
 ---
-returns: The `IServiceCollection` instance with the custom console lifetime registered.
+returns: The same builder or service collection instance, with the custom `IHostLifetime` registered.
 ---
 
 # UseCustomConsoleLifetime
 
-Replaces the default .NET `ConsoleLifetime` with the package's custom console lifetime. The custom lifetime prevents `Ctrl+C` from stopping the host unless the `DOTNET_RUNNING_IN_IDE` environment variable is set. On non-Windows platforms, it also registers a `SIGTERM` handler that cancels the signal.
-
-Use this method when a console-hosted application should not be stopped accidentally by `Ctrl+C` in normal terminal usage, while still allowing IDE run/debug sessions to stop cleanly when `DOTNET_RUNNING_IN_IDE=true` is configured.
+Replaces the host's console lifetime so that `Ctrl+C` does not stop the application, while `SIGTERM` still triggers an orderly shutdown. Use it for a service that must not be killed by a stray key press in a shared terminal, but that still has to stop cleanly when an orchestrator asks it to. The replacement is unconditional, so ordering relative to `Host.CreateApplicationBuilder` does not matter.
 
 ## Usage
 
-```csharp
+::: code-group
+
+```csharp [IHostApplicationBuilder.cs]
 using AlmightyShogun.Hosting.Utils;
+using Microsoft.Extensions.Hosting;
+
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+
+builder.UseCustomConsoleLifetime();
+```
+
+```csharp [IHostBuilder.cs]
+using AlmightyShogun.Hosting.Utils;
+using Microsoft.Extensions.Hosting;
+
+IHost host = Host.CreateDefaultBuilder(args)
+    .UseCustomConsoleLifetime()
+    .Build();
+```
+
+```csharp [IServiceCollection.cs]
+using AlmightyShogun.Hosting.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.UseCustomConsoleLifetime();
 ```
+
+:::
+
+::: warning
+There is no way to stop the application from the keyboard once this is registered outside an IDE. Stop it with `docker stop`, `systemctl stop`, or `kill`, all of which send `SIGTERM`, rather than `Ctrl+C`.
+:::
+
+## Shutdown behavior
+
+| Signal | Source | Behavior |
+|---|---|---|
+| Ctrl+C | interactive terminal | Suppressed. The application keeps running. |
+| Ctrl+C | IDE run, with `DOTNET_RUNNING_IN_IDE` set | Allowed, so the IDE stop button works. |
+| SIGTERM | `docker stop`, Kubernetes, systemd | Orderly shutdown through `IHostApplicationLifetime.StopApplication`. `StopAsync` runs on every hosted service, within `ShutdownTimeout` from [`ConfigureHostOptions`](./configure-host-options), and registered services are disposed. |
+
+`SIGTERM` is honored on Linux and macOS. Windows has no `SIGTERM`, so only the `Ctrl+C` behavior applies there.
 
 <FrontmatterDocs/>
 
@@ -22,4 +57,8 @@ builder.Services.UseCustomConsoleLifetime();
 
 ```csharp
 public IServiceCollection UseCustomConsoleLifetime();
+
+public IHostApplicationBuilder UseCustomConsoleLifetime();
+
+public IHostBuilder UseCustomConsoleLifetime();
 ```
