@@ -1,29 +1,26 @@
----
-params:
-    - name: cookieNames
-      description: One or more cookie names to delete. Empty or whitespace names are ignored.
-      type: string[]
-      default: '[]'
----
-
 # DeleteCookies
 
-Deletes one or more cookies from an `HttpResponse`. The method skips empty and whitespace-only names, so callers can pass filtered or optional cookie-name arrays without manually checking every value first.
-
-Use this helper in logout endpoints, cleanup flows, or anywhere an API needs to remove several application cookies in a consistent way.
+Deletes one or more cookies by name, emitting an expired `Set-Cookie` for each. Blank and whitespace-only names are ignored, so a name read from configuration that turns out to be empty does not throw. The expiry is scoped to the root path and the current host, so a cookie written with a different path or domain is a different cookie to the browser and survives this call.
 
 ## Usage
 
 ```csharp
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using AlmightyShogun.AspNet.Utils;
 
-var httpContext = new DefaultHttpContext();
+[ApiController]
+[Route("sessions")]
+public sealed class SessionsController : ControllerBase
+{
+    [HttpDelete]
+    public IActionResult SignOut()
+    {
+        Response.DeleteCookies("access_token", "refresh_token");
 
-httpContext.Response.DeleteCookies("session", "preferences");
+        return NoContent();
+    }
+}
 ```
-
-<FrontmatterDocs/>
 
 ## Type signature
 

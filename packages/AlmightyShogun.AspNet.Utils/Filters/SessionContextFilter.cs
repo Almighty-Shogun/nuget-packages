@@ -4,8 +4,14 @@ using Microsoft.AspNetCore.Mvc.Filters;
 namespace AlmightyShogun.AspNet.Utils;
 
 /// <summary>
-/// Captures request metadata and stores it in <see cref="HttpContext.Items"/> before controller actions execute.
+/// Captures the request address and User-Agent into <see cref="HttpContext.Items"/> before an action runs, so repeated
+/// calls to <c>GetSessionContext</c> within one request share a single captured value instead of rebuilding it.
 /// </summary>
+///
+/// <remarks>
+/// Registered globally by <c>AddSessionContextFilter</c>. Because it is an action filter, a request short-circuited by
+/// middleware never reaches it; <c>GetSessionContext</c> falls back to building the context on demand in that case.
+/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.2.1</since>
@@ -16,13 +22,7 @@ internal sealed class SessionContextFilter : IActionFilter
     {
         HttpContext httpContext = context.HttpContext;
 
-        string? ip = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
-
-        ip ??= httpContext.Connection.RemoteIpAddress?.ToString();
-
-        var sessionCtx = new SessionContext(ip, httpContext.Request.Headers.UserAgent.ToString());
-
-        httpContext.Items[SessionContext.ItemKey] = sessionCtx;
+        httpContext.Items[SessionContext.ItemKey] = httpContext.CreateSessionContext();
     }
 
     /// <inheritdoc />

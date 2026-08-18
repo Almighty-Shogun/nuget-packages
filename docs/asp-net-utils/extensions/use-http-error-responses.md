@@ -1,26 +1,67 @@
 ---
-returns: The `IApplicationBuilder` instance with standardized HTTP error response middleware configured.
+returns: The same `IApplicationBuilder` instance with the error response middleware configured.
 ---
 
 # UseHttpErrorResponses
 
-Adds the middleware and exception handling needed to write standardized HTTP error bodies. The method registers an exception handler for unhandled exceptions and runs middleware that fills empty error responses with an [`HttpErrorResponse`](../records/http-error-response) body.
+Adds the middleware that completes the standardized error handling, running the exception handlers registered through [`AddExceptionHandling`](./add-exception-handling) and its siblings.
 
-Use this method in the request pipeline after [`AddHttpErrorResponses`](./add-http-error-responses) has registered the required services. Place it before endpoint execution so exceptions and empty error status codes produced by downstream middleware, controllers, or endpoints can be normalized.
+Two things are added, in order: the exception handler middleware that runs the registered handler chain, and middleware that fills in a body for an error response that has a status code but no content.
+
+The second is what turns a bare `return NotFound();` into a full error body without the endpoint doing anything.
 
 ## Usage
 
-```csharp
-using AlmightyShogun.AspNet.Utils;
+::: code-group
 
-builder.Services.AddHttpErrorResponses(builder.Configuration);
+```csharp [Program.cs]
+using AlmightyShogun.AspNet.Utils;
 
 WebApplication app = builder.Build();
 
 app.UseHttpErrorResponses();
-app.MapControllers();
+```
 
-await app.RunAsync();
+```csharp [OrdersController.cs]
+using Microsoft.AspNetCore.Mvc;
+
+[ApiController]
+[Route("orders")]
+public sealed class OrdersController : ControllerBase
+{
+    [HttpGet("{id:int}")]
+    public IActionResult Get(int id) => NotFound();
+}
+```
+
+:::
+
+The empty `NotFound()` above returns:
+
+```json
+{
+    "code": 404,
+    "error": "not_found",
+    "errorDescription": "http-error.404"
+}
+```
+
+## Pipeline order
+
+Call it early, before routing and before endpoints, so it wraps the rest of the pipeline. An exception thrown by middleware registered *before* this call is not handled by it.
+
+```csharp
+using AlmightyShogun.AspNet.Utils;
+
+WebApplication app = builder.Build();
+
+app.UseForwardedHeaders();
+app.UseMessageLocalization();
+app.UseHttpErrorResponses();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
 ```
 
 <FrontmatterDocs/>

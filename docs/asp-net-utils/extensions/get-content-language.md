@@ -1,12 +1,12 @@
 ---
-returns: The response content language, or `null` when the `Content-Language` header is missing or empty.
+returns: The response `Content-Language` header when set; otherwise `null`.
 ---
 
 # GetContentLanguage
 
-Reads the current `Content-Language` response header. The helper returns `null` when the header has not been set or contains only whitespace.
+Reads the response `Content-Language` header, returning `null` when it is absent or blank.
 
-Use this method when response-building code needs to inspect which language was selected by the message resolver or by application-specific localization logic.
+The header is set automatically by the middleware from [`UseMessageLocalization`](./use-message-localization), using the language message resolution negotiated for the request. Multiple languages come back joined by commas rather than as separate values.
 
 ## Usage
 
@@ -14,10 +14,21 @@ Use this method when response-building code needs to inspect which language was 
 using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.Utils;
 
-var httpContext = new DefaultHttpContext();
-httpContext.Response.SetContentLanguage("en");
+public sealed class LanguageAuditMiddleware(RequestDelegate next)
+{
+    public async Task InvokeAsync(
+        HttpContext context,
+        ILogger<LanguageAuditMiddleware> logger
+    )
+    {
+        await next(context);
 
-string? language = httpContext.Response.GetContentLanguage();
+        logger.LogDebug(
+            "Responded in {Language}",
+            context.Response.GetContentLanguage() ?? "unset"
+        );
+    }
+}
 ```
 
 <FrontmatterDocs/>

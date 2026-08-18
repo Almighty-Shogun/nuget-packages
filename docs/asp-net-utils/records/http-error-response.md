@@ -1,30 +1,47 @@
+---
+fields:
+    - name: Code
+      description: The HTTP status code returned by the response.
+      type: int
+
+    - name: Error
+      description: Stable machine-readable identifier for the failure, such as `invalid_credentials`.
+      type: string
+
+    - name: ErrorDescription
+      description: Human-readable description, resolved for the request's language.
+      type: string?
+      default: 'null'
+---
+
 # HttpErrorResponse
 
-Represents the standardized HTTP error response body written by the package middleware, exception handler, MVC filter, and manual MVC result helper. The response contains the numeric status code, a stable machine-readable error identifier, and an optional localized description.
+The standardized error body returned by every package in this repository. `ErrorDescription` is the only optional field, and holds the unresolved message key when no message file defines it.
 
-Use this record when application code needs to return the same error shape manually, inspect a generated error response in tests, or integrate custom MVC results with [`HttpErrorResult`](../types/http-error-result).
+```json
+{
+    "code": 401,
+    "error": "invalid_credentials",
+    "errorDescription": "Authentication failed"
+}
+```
+
+Property names are camel-cased by the default ASP.NET Core serializer, so `ErrorDescription` appears as `errorDescription` on the wire.
 
 ## Usage
+
+Construct one directly only when returning it through [`HttpErrorResult`](../utilities/http-error-result). Everywhere else, [`IHttpErrorResponseWriter`](../services/http-error-response-writer) builds it.
 
 ```csharp
 using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.Utils;
 
-var response = new HttpErrorResponse
+HttpErrorResponse response = new()
 {
-    Code = StatusCodes.Status404NotFound,
-    Error = "not_found",
-    ErrorDescription = "The requested resource was not found."
+    Code = StatusCodes.Status409Conflict,
+    Error = "order_already_shipped",
+    ErrorDescription = messageResolver.Resolve("orders.already-shipped")
 };
 ```
 
-## Type signature
-
-```csharp
-public record HttpErrorResponse
-{
-    public required int Code { get; init; }
-    public required string Error { get; init; }
-    public required string? ErrorDescription { get; init; }
-}
-```
+<FrontmatterDocs/>

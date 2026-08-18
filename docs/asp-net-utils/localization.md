@@ -1,10 +1,28 @@
 # Localization
 
-ASP.NET Utils supports localized messages through language-specific JSON files under `messages/{language}`. A language directory can contain one file or several files; when that language is requested, the resolver loads every `.json` file in that directory and flattens them into message keys.
+ASP.NET Utils supports localized messages through language-specific JSON files under `messages/{language}`. A language directory can contain one file or several files; when that language is requested, the resolver loads every `.json` file in that directory and flattens them into message keys. Files are read once and cached for the life of the process unless `AutomaticReload` is on.
 
-The file name becomes the message group. For example, `messages/en/users.json` with a `not-found` property resolves the key `users.not-found`, while `messages/en/http-error.json` with a `404` property resolves the key `http-error.404`.
+## Language negotiation
 
-The resolver first tries the request language from `Accept-Language`, then the neutral language for culture-specific values such as `nl-BE`, and finally the configured `DefaultLanguage` from `appsettings.json`. When no matching language directory, message file, or message key is found, the resolver returns the original message key so callers still receive a stable fallback value.
+`Accept-Language` is a ranked list, and all of it is honoured. Every accepted language is tried in the client's preference order, each one immediately followed by its neutral form, with `DefaultLanguage` from the [`Localization`](./configuration) section last. The first language that has the key wins.
+
+For `Accept-Language: nl-BE,fr;q=0.9` with `DefaultLanguage` of `en`, the resolver tries:
+
+```text
+nl-BE  ->  nl  ->  fr  ->  en
+```
+
+So an application with `messages/nl/` but no `messages/nl-BE/` serves Dutch, and an application with neither still serves French before falling back to English, because the client said it would accept French.
+
+A neutral form sits directly behind its own tag rather than after every accepted language, because `nl` is a closer match for a client asking for `nl-BE` than an `fr` the client ranked lower. Quality values decide the order between different languages: `nl-BE;q=0.2,fr;q=0.9` tries `fr` first.
+
+Candidates appear once each, so a header that repeats a language, or names both `nl` and `nl-BE`, does not read the same directory twice.
+
+When no candidate has the key, the resolver returns the message key itself so a caller still receives a stable value rather than an empty string, and logs a warning naming the key.
+
+::: warning
+An entry that is not a well-formed language tag is dropped, as is the `*` wildcard, which names no directory. Each value is combined into a filesystem path when message files are resolved, so anything containing a path separator or `..` is refused rather than followed.
+:::
 
 ## HTTP Error Messages
 

@@ -1,31 +1,31 @@
----
-params:
-    - name: language
-      description: Language code to write to the response `Content-Language` header.
-      type: string
----
-
 # SetContentLanguage
 
-Sets the response `Content-Language` header when the response has not started. If ASP.NET Core has already started sending the response, the method leaves the headers unchanged.
-
-Use this helper when application code or a custom message resolver wants to tell clients which language was used for the response body. The package's internal language provider uses the same helper after resolving localized HTTP error messages.
+Sets the response `Content-Language` header, but only while the response has not started. Once the first byte is written the headers are already on the wire, so a late call is ignored rather than throwing. It replaces any language already set, and [`UseMessageLocalization`](./use-message-localization) already does this for every response.
 
 ## Usage
 
 ```csharp
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using AlmightyShogun.AspNet.Utils;
 
-var httpContext = new DefaultHttpContext();
+[ApiController]
+[Route("legal")]
+public sealed class LegalController : ControllerBase
+{
+    [HttpGet("terms")]
+    public IActionResult GetTerms()
+    {
+        Response.SetContentLanguage("en");
 
-httpContext.Response.SetContentLanguage("en");
+        return Ok(LoadCanonicalEnglishTerms());
+    }
+}
 ```
-
-<FrontmatterDocs/>
 
 ## Type signature
 
 ```csharp
-public void SetContentLanguage(string language);
+public void SetContentLanguage(
+    string language
+);
 ```

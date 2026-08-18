@@ -1,14 +1,12 @@
 ---
-returns: The current request `SessionContext`.
+returns: The stored `SessionContext`, or one built from the connection address and User-Agent header when none is stored.
 ---
 
 # GetSessionContext
 
-Returns the current request's `SessionContext` from `HttpContext.Items`. When no stored value exists, the method creates a fallback context from `HttpContext.Connection.RemoteIpAddress` and the current `User-Agent` request header.
+Reads the current request's [`SessionContext`](../records/session-context) from `HttpContext.Items`.
 
-If the reserved [`SessionContext.ItemKey`](../records/session-context) exists but contains another value type, the method ignores that value and creates the same fallback context. This keeps the helper safe to call even when another component has written an unexpected value to `HttpContext.Items`.
-
-Use this method in controllers, endpoint handlers, and request-scoped services that need the request IP address or raw User-Agent value. For the most consistent result, register [`AddActionFilters`](./add-action-filters) so the package filter captures forwarded IP information before actions run.
+When [`AddSessionContextFilter`](./add-session-context-filter) is registered, this returns the value the filter captured. Otherwise it builds one from the connection address and the User-Agent header, so it always returns a usable value and never throws.
 
 ## Usage
 
@@ -17,12 +15,20 @@ using Microsoft.AspNetCore.Mvc;
 using AlmightyShogun.AspNet.Utils;
 
 [ApiController]
-[Route("session")]
-public sealed class SessionController : ControllerBase
+[Route("sessions")]
+public sealed class SessionsController : ControllerBase
 {
-    [HttpGet]
-    public ActionResult<SessionContext> Get()
-        => HttpContext.GetSessionContext();
+    [HttpPost]
+    public IActionResult Create()
+    {
+        SessionContext sessionContext = HttpContext.GetSessionContext();
+
+        return Ok(new 
+        {
+            sessionContext.IpAddress,
+            sessionContext.UserAgent
+        });
+    }
 }
 ```
 
