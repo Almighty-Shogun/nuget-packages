@@ -1,8 +1,8 @@
 # ServiceRegistry
 
-Contract for service registry modules that configure an `IServiceCollection`. A type implementing `IServiceRegistry` can be registered through [`AddService<T>`](../extensions/add-service), which constructs the module and calls `ConfigureService`.
+Contract for service registry modules that configure an `IServiceCollection`. A type implementing it is added through [`AddService<T>`](../extensions/add-service), which constructs the module and calls `ConfigureService`.
 
-Use this contract when a package or application wants to group related dependency-injection registrations behind a reusable module. Keep implementations focused on registration only; runtime behavior should live in the services the module registers.
+Implementations need a public parameterless constructor, because `AddService<T>` constructs the module directly rather than resolving it from the container.
 
 ## Usage
 
@@ -12,9 +12,7 @@ Use this contract when a package or application wants to group related dependenc
 using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
-ServiceCollection services = new();
-
-services.AddService<NotificationsRegistry>();
+builder.Services.AddService<NotificationsRegistry>();
 ```
 
 ```csharp [NotificationsRegistry.cs]
@@ -23,10 +21,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 public sealed class NotificationsRegistry : IServiceRegistry
 {
-    public IServiceCollection ConfigureService(IServiceCollection serviceCollection)
-    {
-        return serviceCollection.AddSingleton<NotificationFormatter>();
-    }
+    public IServiceCollection ConfigureService(
+        IServiceCollection serviceCollection
+    ) => serviceCollection.AddSingleton<NotificationFormatter>();
 }
 ```
 
@@ -41,9 +38,9 @@ public sealed class NotificationFormatter
 
 ## ConfigureService
 
-Adds the registry module's dependency-injection registrations to the provided `IServiceCollection`. [`AddService<T>`](../extensions/add-service) calls this method after constructing the module, but application code can call it directly when it already owns a module instance.
+Adds the module's registrations to the provided `IServiceCollection`. [`AddService<T>`](../extensions/add-service) calls this after constructing the module, and application code can call it directly when it already owns an instance.
 
-Return the same service collection to keep registration calls chainable. Implementations should avoid resolving services or performing runtime work here; this method should only describe registrations.
+Return the same service collection so registration calls stay chainable. Do not resolve services or perform runtime work here; this method should only describe registrations.
 
 ### Type signature
 

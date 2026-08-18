@@ -1,17 +1,25 @@
 ---
 params:
     - name: section
-      description: Configuration section that is bound to the options type `T`.
+      description: Configuration section the options type is bound to.
       type: IConfigurationSection
+    - name: validateDataAnnotations
+      description: Validates the bound options against their data annotations.
+      type: bool
+      default: 'true'
+    - name: validateOnStart
+      description: Runs validation during application startup instead of on first resolution.
+      type: bool
+      default: 'true'
 
-returns: The same `IServiceCollection` instance with options binding, validation, and startup validation configured.
+returns: The same `IServiceCollection` instance with the options binding configured.
 ---
 
 # AddConfiguration
 
-Registers a strongly typed options class and binds it to an `IConfigurationSection`. The method enables options binding, data-annotation validation, and startup validation through `ValidateOnStart`.
+Binds a strongly typed options class to a configuration section, validating it against its data annotations at startup so a missing or malformed setting stops the application with a message naming the property.
 
-Use this helper when a package or application has a configuration record or class that should be injected through `IOptions<T>`. Pass the exact section that should be bound, such as `builder.Configuration.GetSection("Email")`; the method does not choose the section name for you.
+Resolve the result through `IOptions<T>` as usual. Set `validateDataAnnotations` to `false` for a settings type that is legitimately partial, and `validateOnStart` to `false` to defer validation to first resolution.
 
 ## Usage
 
@@ -19,27 +27,33 @@ Use this helper when a package or application has a configuration record or clas
 
 ```csharp [Program.cs]
 using AlmightyShogun.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
-builder.Services.AddConfiguration<ExampleSettings>(
-    builder.Configuration.GetSection("Example")
+builder.Services.AddConfiguration<MailSettings>(
+    builder.Configuration.GetSection("Mail")
 );
+```
+
+```csharp [MailSettings.cs]
+using System.ComponentModel.DataAnnotations;
+
+public sealed class MailSettings
+{
+    [Required]
+    [EmailAddress]
+    public required string FromAddress { get; init; }
+
+    [Range(1, 300)]
+    public int TimeoutSeconds { get; init; } = 30;
+}
 ```
 
 ```json [appsettings.json]
 {
-    "Example": {
-        "Name": "Importer",
-        "Enabled": true
+    "Mail": {
+        "FromAddress": "noreply@example.com",
+        "TimeoutSeconds": 30
     }
-}
-```
-
-```csharp [ExampleSettings.cs]
-public sealed record ExampleSettings
-{
-    public required string Name { get; init; }
-
-    public bool Enabled { get; init; }
 }
 ```
 
@@ -51,6 +65,8 @@ public sealed record ExampleSettings
 
 ```csharp
 public IServiceCollection AddConfiguration<T>(
-    IConfigurationSection section
+    IConfigurationSection section,
+    bool validateDataAnnotations = true,
+    bool validateOnStart = true
 ) where T : class;
 ```

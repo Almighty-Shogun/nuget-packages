@@ -1,14 +1,15 @@
 # Utils
 
-Provides shared helpers used by the other packages in this repository and by applications that need the same small building blocks directly. The package contains console helpers, reflection-based type discovery, JSON serialization extension methods, dependency-injection registration helpers, and the [`IServiceRegistry`](./services/service-registry) module contract.
+Provides the shared building blocks used by the other packages in this repository and by applications that want the same helpers without taking a dependency on a more specific package. The package covers assembly scanning for dependency-injection registration, strongly typed configuration binding, JSON deserialization helpers, and small console utilities.
 
-Use this package when an application needs lightweight infrastructure utilities without taking a dependency on one of the more specific packages. The APIs are intentionally small and are most useful in startup code, command-line applications, and packages that need to scan assemblies or bind strongly typed options.
+The APIs are intentionally narrow and are most useful in startup code, worker services, and packages that need to discover types across assemblies.
 
 ## Categories
 
-- [Extensions](./extensions/add-configuration) &mdash; JSON and dependency-injection extension methods.
-- [Services](./services/service-registry) &mdash; service registry contracts used by the DI helpers.
-- [Types](./types/application-utils) &mdash; console and assembly scanning helpers.
+- [Extensions](./extensions/add-configuration) &mdash; configuration binding, service registration, and JSON deserialization extension methods.
+- [Attributes](./attributes/skip-auto-registration) &mdash; opt a type out of assembly scanning.
+- [Services](./services/service-registry) &mdash; the service registry module contract.
+- [Utilities](./utilities/application-utils) &mdash; console helpers and type discovery.
 
 ## Quick Example
 
@@ -16,29 +17,36 @@ Use this package when an application needs lightweight infrastructure utilities 
 
 ```csharp [Program.cs]
 using AlmightyShogun.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
-ApplicationUtils.Title("Worker");
+ApplicationUtils.Title("Importer");
 
 builder.Services.AddConfiguration<WorkerSettings>(
     builder.Configuration.GetSection("Worker")
 );
+
+builder.Services.RegisterOnInherit<IImportStep>(ServiceLifetime.Scoped);
+```
+
+```csharp [WorkerSettings.cs]
+using System.ComponentModel.DataAnnotations;
+
+public sealed class WorkerSettings
+{
+    [Required]
+    public required string Name { get; init; }
+
+    [Range(1, 10000)]
+    public int BatchSize { get; init; } = 100;
+}
 ```
 
 ```json [appsettings.json]
 {
     "Worker": {
         "Name": "Importer",
-        "Enabled": true
+        "BatchSize": 500
     }
-}
-```
-
-```csharp [WorkerSettings.cs]
-public sealed record WorkerSettings
-{
-    public required string Name { get; init; }
-
-    public bool Enabled { get; init; }
 }
 ```
 
