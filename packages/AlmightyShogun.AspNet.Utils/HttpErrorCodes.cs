@@ -3,89 +3,29 @@ using Microsoft.AspNetCore.Http;
 namespace AlmightyShogun.AspNet.Utils;
 
 /// <summary>
-/// Creates standardized HTTP error responses.
+/// Maps a status code to the snake-case identifier clients branch on, covering every error status the framework names
+/// plus <c>425 Too Early</c>. These strings are part of the response contract, so an existing mapping must not change
+/// once released, even to correct its wording.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-internal static class HttpErrorResponseFactory
+internal static class HttpErrorCodes
 {
     /// <summary>
-    /// Creates a standardized HTTP error response for a status code.
+    /// Looks up the identifier a client sees in the <c>error</c> field, for a status the application is about to return.
     /// </summary>
     ///
-    /// <param name="statusCode">The HTTP status code.</param>
-    /// <param name="messageResolver">The message resolver used to resolve the response description.</param>
+    /// <param name="statusCode">The status code being returned. Only error codes are mapped; anything else falls through.</param>
     ///
-    /// <returns>The standardized HTTP error response.</returns>
+    /// <returns>
+    /// The identifier for a known error status, such as <c>not_found</c>, or <c>http_error_{code}</c> for one this map
+    /// does not name. The fallback keeps the field populated, so a client can always read a code.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public static HttpErrorResponse Create(int statusCode, IMessageResolver messageResolver)
-    {
-        return new HttpErrorResponse
-        {
-            Code = statusCode,
-            Error = GetError(statusCode),
-            ErrorDescription = messageResolver.Resolve($"http-error.{statusCode}")
-        };
-    }
-
-    /// <summary>
-    /// Creates a standardized HTTP error response for a status code with a custom message key.
-    /// </summary>
-    ///
-    /// <param name="statusCode">The HTTP status code.</param>
-    /// <param name="messageResolver">The message resolver used to resolve the response description.</param>
-    /// <param name="message">The message key to resolve for the response description.</param>
-    ///
-    /// <returns>The standardized HTTP error response.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    public static HttpErrorResponse Create(int statusCode, IMessageResolver messageResolver, string message)
-        => Create(statusCode, messageResolver, message, []);
-
-    /// <summary>
-    /// Creates a standardized HTTP error response for a status code with a custom formatted message key.
-    /// </summary>
-    ///
-    /// <param name="statusCode">The HTTP status code.</param>
-    /// <param name="messageResolver">The message resolver used to resolve the response description.</param>
-    /// <param name="message">The message key to resolve for the response description.</param>
-    /// <param name="parameters">The optional values used to format the resolved message.</param>
-    ///
-    /// <returns>The standardized HTTP error response.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    public static HttpErrorResponse Create(int statusCode, IMessageResolver messageResolver, string message, params object?[] parameters)
-    {
-        string? errorDescription = string.IsNullOrWhiteSpace(message)
-            ? null
-            : messageResolver.Resolve(message, parameters);
-
-        errorDescription ??= messageResolver.Resolve($"http-error.{statusCode}");
-
-        return new HttpErrorResponse
-        {
-            Code = statusCode,
-            Error = GetError(statusCode),
-            ErrorDescription = errorDescription
-        };
-    }
-
-    /// <summary>
-    /// Resolves the stable error name for an HTTP status code.
-    /// </summary>
-    ///
-    /// <param name="statusCode">The HTTP status code.</param>
-    ///
-    /// <returns>The stable error name.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private static string GetError(int statusCode) => statusCode switch
+    internal static string FromStatusCode(int statusCode) => statusCode switch
     {
         StatusCodes.Status400BadRequest => "bad_request",
         StatusCodes.Status401Unauthorized => "unauthorized",

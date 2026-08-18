@@ -1,30 +1,40 @@
 namespace AlmightyShogun.AspNet.Utils;
 
 /// <summary>
-/// Provides the active language used for HTTP message resolution.
+/// Provides the language used for HTTP message resolution. The default implementation reads the request
+/// <c>Accept-Language</c> header; register a replacement to negotiate from a cookie, a route value, or a user profile.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-internal interface ILanguageProvider
+public interface ILanguageProvider
 {
     /// <summary>
-    /// Gets the language code used to resolve HTTP messages.
+    /// Gets the single language to resolve messages in, ignoring any lower-ranked alternative the caller would accept.
     /// </summary>
     ///
-    /// <returns>The language code to use for message resolution.</returns>
+    /// <returns>
+    /// A language tag such as <c>nl-BE</c> or <c>en</c>. Never blank: an implementation with nothing to negotiate from
+    /// returns the configured default rather than an empty value, since the result is looked up as-is.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     string GetLanguage();
 
     /// <summary>
-    /// Sets the response content language for the resolved message.
+    /// Gets every language the caller accepts, in preference order, so message resolution can try a lower-ranked
+    /// language before falling back to the configured default.
     /// </summary>
     ///
-    /// <param name="language">The language code used by the response content.</param>
+    /// <returns>The accepted languages in preference order. Never empty.</returns>
+    ///
+    /// <remarks>
+    /// The default implementation returns only <see cref="GetLanguage"/>, so an existing provider keeps working
+    /// unchanged. Override it when the source of the language is itself ranked, as the <c>Accept-Language</c> header is.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    void SetContentLanguage(string language);
+    IReadOnlyList<string> GetLanguages() => [GetLanguage()];
 }

@@ -1,7 +1,8 @@
 namespace AlmightyShogun.AspNet.Utils;
 
 /// <summary>
-/// Resolves localized HTTP messages from message keys.
+/// Turns a message key into text in the language the caller asked for. Resolution never fails: an unresolvable key is
+/// returned as-is, so a missing translation degrades to a readable identifier instead of an exception or a blank body.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -9,27 +10,51 @@ namespace AlmightyShogun.AspNet.Utils;
 public interface IMessageResolver
 {
     /// <summary>
-    /// Resolves a message by key.
+    /// Resolves a message that takes no parameters. Equivalent to the overload with an empty parameter list, and the
+    /// one to use for a fixed message, since a template resolved this way keeps its placeholders literally.
     /// </summary>
     ///
-    /// <param name="key">The message key to resolve.</param>
+    /// <param name="key">
+    /// The dot-separated key, such as <c>http-error.404</c>, where the first segment names the message file and the rest
+    /// the path within it.
+    /// </param>
     ///
-    /// <returns>The resolved message when it exists; otherwise, the original message key.</returns>
+    /// <returns>
+    /// The message in the first language of the fallback chain that defines the key, or the key itself when no language
+    /// does. A returned key is the signal that a message file is missing an entry.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     string Resolve(string key);
 
     /// <summary>
-    /// Resolves a message by key and formats it with parameters.
+    /// Resolves a message and substitutes the supplied values into its placeholders.
     /// </summary>
     ///
-    /// <param name="key">The message key to resolve.</param>
-    /// <param name="parameters">The values used to format the resolved message.</param>
+    /// <param name="key">The dot-separated key, resolved through the same fallback chain as <see cref="Resolve(string)"/>.</param>
+    /// <param name="parameters">
+    /// The values substituted by position, as <c>{0}</c> and onwards. A count that does not match the template leaves
+    /// the template unformatted rather than throwing, so a placeholder can survive into the response.
+    /// </param>
     ///
-    /// <returns>The resolved and formatted message when it exists; otherwise, the original message key.</returns>
+    /// <returns>The formatted message, or the key itself when no language in the chain defines it.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     string Resolve(string key, IReadOnlyList<object?> parameters);
+
+    /// <summary>
+    /// Resolves the language that messages are currently being served in, following the same fallback chain as
+    /// <see cref="Resolve(string)"/>.
+    /// </summary>
+    ///
+    /// <returns>
+    /// The first accepted language that has messages defined for it, or the configured default when none does. Suitable
+    /// for the <c>Content-Language</c> header, since it names what was actually served rather than what was requested.
+    /// </returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    string ResolveLanguage();
 }
