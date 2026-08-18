@@ -63,7 +63,7 @@ public static class ModelBuilderExtensions
             Expression<Func<TDependent, object?>> foreignKey,
             Expression<Func<TEntity, object?>>? principalKey = null,
             bool isRequired = true,
-            DeleteBehavior deleteBehavior = DeleteBehavior.ClientSetNull,
+            DeleteBehavior deleteBehavior = DeleteBehavior.Cascade,
             Expression<Func<TDependent, TEntity?>>? inverseNavigation = null
         ) where TEntity : class where TDependent : class
         {
