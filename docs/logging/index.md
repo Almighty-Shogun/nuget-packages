@@ -1,19 +1,45 @@
 # Logging
 
-Adds Serilog-based logging registration with a compact custom console formatter. The package configures log context enrichment, writes console output through an asynchronous Serilog sink, and can optionally read additional Serilog settings from application configuration.
+Configures Serilog with a console formatter that colors log output by level and by property. Property values can also carry a color code in the message template, so the parts of a line that matter can be made to stand out without string concatenation.
 
-Use this package when an application should use the same console logging format across service-collection based and host-builder based startup code. The custom formatter is internal; application code configures it through the public [`AddCustomLogging`](./extensions/add-custom-logging) extension methods.
+Registration is a single call, and configuration is optional: without an `IConfiguration` the package adds log-context enrichment and its asynchronous console sink, leaving everything else to Serilog's defaults.
 
 ## Categories
 
-- [Configuration](./configuration) &mdash; optional Serilog configuration read from application settings.
-- [Formatter](./formatter) &mdash; console formatter behavior, message-template color syntax, and available colors.
-- [Extensions](./extensions/add-custom-logging) &mdash; logging registration methods for `IServiceCollection` and `IHostBuilder`.
+- [Configuration](./configuration) &mdash; optional `Serilog` settings read from `appsettings.json`.
+- [Formatter](./formatter) &mdash; the console output format, color codes, and template syntax.
+- [Extensions](./extensions/add-custom-logging) &mdash; registration for service collections and host builders.
 
 ## Quick Example
 
-```csharp
+::: code-group
+
+```csharp [Program.cs]
 using AlmightyShogun.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.AddCustomLogging(builder.Configuration);
 ```
+
+```csharp [ImportWorker.cs]
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+public sealed class ImportWorker(
+    ILogger<ImportWorker> logger
+) : BackgroundService
+{
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        logger.LogInformation(
+            "Imported {Count} rows in {Elapsed:N1|bg} ms",
+            4218,
+            92.47
+        );
+
+        return Task.CompletedTask;
+    }
+}
+```
+
+:::

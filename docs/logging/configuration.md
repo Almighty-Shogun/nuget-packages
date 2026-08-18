@@ -15,7 +15,7 @@ fields:
 
 # Configuration
 
-Logging can optionally read Serilog settings from `appsettings.json` when [`AddCustomLogging`](./extensions/add-custom-logging) receives an `IConfiguration` instance. The package always adds log-context enrichment and its custom asynchronous console sink; configuration can add or override extra Serilog behavior supported by `Serilog.Settings.Configuration`.
+Serilog settings are read from `appsettings.json` when [`AddCustomLogging`](./extensions/add-custom-logging) receives an `IConfiguration`. The section is optional and the call creates a working logger without it; add `Serilog` only to override levels or apply extra Serilog configuration. The package always adds log-context enrichment, and adds its asynchronous console sink unless `includeConsoleSink` is `false`; configuration can add sinks and override levels through anything `Serilog.Settings.Configuration` supports.
 
 ```json
 {
@@ -31,8 +31,8 @@ Logging can optionally read Serilog settings from `appsettings.json` when [`AddC
 }
 ```
 
-::: tip
-This configuration is optional. [`AddCustomLogging`](./extensions/add-custom-logging) always creates a Serilog logger with log-context enrichment and the package console formatter. Add the `Serilog` section only when the application needs to override levels or apply extra Serilog configuration from `appsettings.json`.
+::: warning
+A `WriteTo` entry for the console in configuration is **added to** the package console sink, not merged with it, so the same line is written twice. Pass `includeConsoleSink: false` when the console sink is declared in configuration.
 :::
 
 <FrontmatterDocs/>
