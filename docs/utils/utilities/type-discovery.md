@@ -25,10 +25,9 @@ IEnumerable<Type> local = TypeDiscovery.FindAssignableTypes<IImportStep>();
 IEnumerable<Type> contracts = TypeDiscovery
     .FindAssignableTypes<IImportStep>(typeof(IImportStep).Assembly);
 
-IEnumerable<Type> everywhere = TypeDiscovery.FindAssignableTypes<IImportStep>([
-    Assembly.GetExecutingAssembly(),
-    typeof(IImportStep).Assembly
-]);
+IEnumerable<Type> all = TypeDiscovery.FindAssignableTypes<IImportStep>(
+    [Assembly.GetExecutingAssembly(), typeof(IImportStep).Assembly]
+);
 ```
 
 ::: tip
