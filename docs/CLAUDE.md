@@ -146,7 +146,7 @@ Hard limits. A page that exceeds one is wrong, not a judgement call.
 | Sections not on the page kind's list | **none** |
 | Sections before `## Usage`, on a page that has one | **none** |
 
-**Description.** One sentence saying what the API does, and at most two more for a default, a constraint, or a failure the caller must handle. Never a fourth. If three sentences cannot carry it, the surplus is rationale and belongs nowhere. `logging/formatter.md` is the one exemption, because its colour syntax has no analogue elsewhere.
+**Description.** One sentence saying what the API does, and at most two more for a default, a constraint, or a failure the caller must handle. Never a fourth. If three sentences cannot carry it, the surplus is rationale and belongs nowhere. `serilog/formatter.md` is the one exemption, because its colour syntax has no analogue elsewhere.
 
 **Callouts.** One per page, for the single thing that costs the reader something if they get it wrong. Two callouts means neither stands out. When a page seems to need two, one of them is either a fact for the frontmatter `params` description or prose for the description.
 
