@@ -1,4 +1,4 @@
-namespace AlmightyShogun.Utils;
+namespace AlmightyShogun.Core;
 
 /// <summary>
 /// Groups the console primitives a long-running command-line application needs: naming the window and taking over what

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AlmightyShogun.Utils;
+namespace AlmightyShogun.Core;
 
 /// <summary>
 /// Defines a reusable registration module that groups related service registrations behind a single type, so a feature can

@@ -2,8 +2,9 @@ using System.Reflection;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace AlmightyShogun.Utils;
+namespace AlmightyShogun.Core;
 
 /// <summary>
 /// Provides the registration helpers this package contributes to startup: binding a validated options class, running a
@@ -86,6 +87,34 @@ public static class ServiceCollectionExtensions
         }
 
         /// <summary>
+        /// Swaps whatever is registered for <typeparamref name="TService"/> with
+        /// <typeparamref name="TImplementation"/>, for overriding a default that a framework or another package has
+        /// already registered.
+        /// </summary>
+        ///
+        /// <typeparam name="TService">
+        /// The service type whose existing registration is discarded. Only the first registration is replaced, so this is
+        /// the wrong tool for a service registered many times and resolved as a sequence.
+        /// </typeparam>
+        /// <typeparam name="TImplementation">The implementation registered in its place.</typeparam>
+        /// <param name="serviceLifetime">The lifetime applied to the replacement, which need not match the one it displaces.</param>
+        ///
+        /// <returns>The <see cref="IServiceCollection"/> instance with the registration replaced.</returns>
+        ///
+        /// <remarks>
+        /// Adds the registration when nothing was there to replace, so it is safe to call before the default is
+        /// registered. Order still matters the other way around: a later plain <c>Add</c> for the same service wins when
+        /// the service is resolved singly, because the last registration is the one returned.
+        /// </remarks>
+        ///
+        /// <author>Almighty-Shogun</author>
+        /// <since>Unreleased</since>
+        public IServiceCollection ReplaceService<TService, TImplementation>(
+            ServiceLifetime serviceLifetime = ServiceLifetime.Singleton
+        ) where TService : class where TImplementation : class, TService
+            => serviceCollection.Replace(ServiceDescriptor.Describe(typeof(TService), typeof(TImplementation), serviceLifetime));
+
+        /// <summary>
         /// Registers every concrete type assignable to <typeparamref name="T"/> in the calling assembly, under
         /// <typeparamref name="T"/> and with no filter. The shortest form, for the common case where the implementations sit
         /// beside the startup code that registers them.
@@ -106,30 +135,7 @@ public static class ServiceCollectionExtensions
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
         public IServiceCollection RegisterOnInherit<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Singleton) where T : class
-            => serviceCollection.InternalRegister<T>(serviceLifetime, true, null, [Assembly.GetCallingAssembly()]);
-
-        /// <summary>
-        /// Registers every concrete type assignable to <typeparamref name="T"/> in one assembly, under
-        /// <typeparamref name="T"/> and with no filter. Reach for it when the implementations live somewhere other than the
-        /// calling assembly, such as a separate handlers project.
-        /// </summary>
-        ///
-        /// <typeparam name="T">
-        /// The base type or interface to match, and the service type each implementation is registered under.
-        /// </typeparam>
-        /// <param name="serviceLifetime">The lifetime applied to every registration this call produces.</param>
-        /// <param name="assembly">
-        /// The assembly to scan. An assembly whose types cannot all be loaded still contributes the ones that did.
-        /// </param>
-        ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with matching implementations registered.</returns>
-        ///
-        /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
-        public IServiceCollection RegisterOnInherit<T>(
-            Assembly assembly,
-            ServiceLifetime serviceLifetime = ServiceLifetime.Singleton
-        ) where T : class => serviceCollection.InternalRegister<T>(serviceLifetime, true, null, [assembly]);
+            => serviceCollection.RegisterOnInherit<T>([Assembly.GetCallingAssembly()], serviceLifetime);
 
         /// <summary>
         /// Registers every concrete type assignable to <typeparamref name="T"/> found in the given assemblies, for command

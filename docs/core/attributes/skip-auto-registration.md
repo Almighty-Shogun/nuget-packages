@@ -9,7 +9,7 @@ It is honored unconditionally, so a type carrying it is never registered even wh
 ::: code-group
 
 ```csharp [Program.cs]
-using AlmightyShogun.Utils;
+using AlmightyShogun.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.RegisterOnInherit<IImportStep>(ServiceLifetime.Scoped);
@@ -19,7 +19,7 @@ builder.Services
 ```
 
 ```csharp [LegacyImportStep.cs]
-using AlmightyShogun.Utils;
+using AlmightyShogun.Core;
 
 [SkipAutoRegistration]
 public sealed class LegacyImportStep(string profile) : IImportStep

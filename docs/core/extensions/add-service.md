@@ -13,14 +13,14 @@ The module type must implement [`IServiceRegistry`](../services/service-registry
 ::: code-group
 
 ```csharp [Program.cs]
-using AlmightyShogun.Utils;
+using AlmightyShogun.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.AddService<NotificationsRegistry>();
 ```
 
 ```csharp [NotificationsRegistry.cs]
-using AlmightyShogun.Utils;
+using AlmightyShogun.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 public sealed class NotificationsRegistry : IServiceRegistry

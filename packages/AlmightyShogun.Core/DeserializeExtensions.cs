@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Diagnostics.CodeAnalysis;
 
-namespace AlmightyShogun.Utils;
+namespace AlmightyShogun.Core;
 
 /// <summary>
 /// Provides JSON deserialization for strings and streams. A string is read through the <c>Try</c> shape, which reports

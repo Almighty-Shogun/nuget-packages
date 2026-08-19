@@ -1,4 +1,4 @@
-# 🚀 `AlmightyShogun.Utils`
+# 🚀 `AlmightyShogun.Core`
 
 A C# library that adds assembly-scanning service registration, validated configuration binding, JSON deserialization, and console helpers.
 
@@ -8,5 +8,5 @@ A C# library that adds assembly-scanning service registration, validated configu
 ## 📦 Building
 
 ```sh
-dotnet build packages/AlmightyShogun.Utils/AlmightyShogun.Utils.csproj
+dotnet build packages/AlmightyShogun.Core/AlmightyShogun.Core.csproj
 ```
