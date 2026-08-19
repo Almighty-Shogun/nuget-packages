@@ -1,6 +1,5 @@
 using System.Reflection;
 using Microsoft.Extensions.Options;
-using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -87,13 +86,64 @@ public static class ServiceCollectionExtensions
         }
 
         /// <summary>
+        /// Registers every concrete type assignable to <typeparamref name="T"/> in the calling assembly, under
+        /// <typeparamref name="T"/> and with no filter. The shortest form, for the common case where the implementations sit
+        /// beside the startup code that registers them.
+        /// </summary>
+        ///
+        /// <typeparam name="T">
+        /// The base type or interface to match, and the service type each implementation is registered under.
+        /// </typeparam>
+        /// <param name="serviceLifetime">The lifetime applied to every registration this call produces.</param>
+        ///
+        /// <returns>The <see cref="IServiceCollection"/> instance with matching implementations registered.</returns>
+        ///
+        /// <remarks>
+        /// The assembly is resolved from the call stack, so it is whichever assembly contains the code that called this, not
+        /// the one that started the process. Name the assembly explicitly when registering from a shared startup helper.
+        /// </remarks>
+        ///
+        /// <author>Almighty-Shogun</author>
+        /// <since>Unreleased</since>
+        public IServiceCollection RegisterOnInherit<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Singleton) where T : class
+            => serviceCollection.InternalRegister<T>(serviceLifetime, true, null, [Assembly.GetCallingAssembly()]);
+
+        /// <summary>
+        /// Registers every concrete type assignable to <typeparamref name="T"/> in one assembly, under
+        /// <typeparamref name="T"/> and with no filter. Reach for it when the implementations live somewhere other than the
+        /// calling assembly, such as a separate handlers project.
+        /// </summary>
+        ///
+        /// <typeparam name="T">
+        /// The base type or interface to match, and the service type each implementation is registered under.
+        /// </typeparam>
+        /// <param name="serviceLifetime">The lifetime applied to every registration this call produces.</param>
+        /// <param name="assembly">
+        /// The assembly to scan. An assembly whose types cannot all be loaded still contributes the ones that did.
+        /// </param>
+        ///
+        /// <returns>The <see cref="IServiceCollection"/> instance with matching implementations registered.</returns>
+        ///
+        /// <author>Almighty-Shogun</author>
+        /// <since>Unreleased</since>
+        public IServiceCollection RegisterOnInherit<T>(
+            Assembly assembly,
+            ServiceLifetime serviceLifetime = ServiceLifetime.Singleton
+        ) where T : class => serviceCollection.InternalRegister<T>(serviceLifetime, true, null, [assembly]);
+
+        /// <summary>
         /// Registers every concrete type assignable to <typeparamref name="T"/> found in the given assemblies, for command
-        /// handlers, jobs, rules, and anything else better discovered than listed by hand.
+        /// handlers, jobs, rules, and anything else better discovered than listed by hand, across as many assemblies as the
+        /// implementations are spread over.
         /// </summary>
         ///
         /// <typeparam name="T">
         /// The base type or interface to match, and by default the service type each implementation is registered under.
         /// </typeparam>
+        /// <param name="assemblies">
+        /// The assemblies to scan, in the order they should be searched. An empty array registers nothing; the overload that
+        /// takes no assembly at all is the one that falls back to the calling assembly.
+        /// </param>
         /// <param name="serviceLifetime">The lifetime applied to every registration this call produces.</param>
         /// <param name="addType">
         /// Whether to register each implementation under <typeparamref name="T"/>, which is what a consumer resolving
@@ -102,10 +152,6 @@ public static class ServiceCollectionExtensions
         /// <param name="filter">
         /// An optional predicate narrowing what is registered, evaluated after the discovered type has already passed the
         /// assignability and <see cref="SkipAutoRegistrationAttribute"/> checks. Only types it accepts are registered.
-        /// </param>
-        /// <param name="assemblies">
-        /// The assemblies to scan. If none are provided the calling assembly is used, which is why this method must not be
-        /// inlined into its caller.
         /// </param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with matching implementations registered.</returns>
@@ -118,56 +164,16 @@ public static class ServiceCollectionExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
-        [MethodImpl(MethodImplOptions.NoInlining)]
         public IServiceCollection RegisterOnInherit<T>(
+            Assembly[] assemblies,
             ServiceLifetime serviceLifetime = ServiceLifetime.Singleton,
             bool addType = true,
-            Func<Type, bool>? filter = null,
-            params Assembly[] assemblies
-        ) where T : class
-        {
-            if (assemblies.Length == 0)
-                assemblies = [Assembly.GetCallingAssembly()];
-
-            return serviceCollection.InternalRegister<T>(serviceLifetime, addType, filter, assemblies);
-        }
+            Func<Type, bool>? filter = null
+        ) where T : class => serviceCollection.InternalRegister<T>(serviceLifetime, addType, filter, assemblies);
 
         /// <summary>
-        /// Registers every concrete type assignable to <typeparamref name="T"/> found in the given assemblies, under
-        /// <typeparamref name="T"/> and with no filter. Lets a lifetime be followed directly by assemblies.
-        /// </summary>
-        ///
-        /// <typeparam name="T">
-        /// The base type or interface to match, and the service type each implementation is registered under.
-        /// </typeparam>
-        /// <param name="serviceLifetime">The lifetime applied to every registration this call produces.</param>
-        /// <param name="assemblies">
-        /// The assemblies to scan. If none are provided the calling assembly is used, which is why this method must not be
-        /// inlined into its caller.
-        /// </param>
-        ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with matching implementations registered.</returns>
-        ///
-        /// <remarks>
-        /// Overload resolution prefers this one when only a lifetime is passed, because it needs no default arguments. That is
-        /// why the calling-assembly fallback is repeated here rather than delegated: collapsing it into the other overload
-        /// would leave a bare lifetime call scanning nothing at all.
-        /// </remarks>
-        ///
-        /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public IServiceCollection RegisterOnInherit<T>(ServiceLifetime serviceLifetime, params Assembly[] assemblies) where T : class
-        {
-            if (assemblies.Length == 0)
-                assemblies = [Assembly.GetCallingAssembly()];
-
-            return serviceCollection.InternalRegister<T>(serviceLifetime, true, null, assemblies);
-        }
-
-        /// <summary>
-        /// Performs the discovery and registration both public overloads delegate to, once the calling assembly has already
-        /// been resolved.
+        /// Performs the discovery and registration every public overload ends up at, once the assemblies have been resolved
+        /// to an explicit array.
         /// </summary>
         ///
         /// <typeparam name="T">The base type or interface to match.</typeparam>
@@ -189,10 +195,10 @@ public static class ServiceCollectionExtensions
             ServiceLifetime serviceLifetime,
             bool addType,
             Func<Type, bool>? filter,
-            params Assembly[] assemblies
+            Assembly[] assemblies
         ) where T : class
         {
-            IEnumerable<Type> types = ApplicationUtils.GetOnInherit<T>(assemblies)
+            IEnumerable<Type> types = TypeDiscovery.FindAssignableTypes<T>(assemblies)
                 .Where(t => !t.IsDefined(typeof(SkipAutoRegistrationAttribute), false))
                 .Where(t => filter is null || filter(t));
 
