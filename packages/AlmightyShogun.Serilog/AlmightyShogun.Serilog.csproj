@@ -6,8 +6,8 @@
         <TargetFramework>net10.0</TargetFramework>
 
         <Authors>Almighty-Shogun</Authors>
-        <PackageId>AlmightyShogun.Logging</PackageId>
-        <RootNamespace>AlmightyShogun.Logging</RootNamespace>
+        <PackageId>AlmightyShogun.Serilog</PackageId>
+        <RootNamespace>AlmightyShogun.Serilog</RootNamespace>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
         <PackageIcon>icon.png</PackageIcon>
@@ -17,7 +17,7 @@
 
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.Logging</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.Serilog</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>

@@ -1,4 +1,4 @@
-# Logging
+# Serilog
 
 Configures Serilog with a console formatter that colors log output by level and by property. Property values can also carry a color code in the message template, so the parts of a line that matter can be made to stand out without string concatenation.
 
@@ -15,7 +15,7 @@ Registration is a single call, and configuration is optional: without an `IConfi
 ::: code-group
 
 ```csharp [Program.cs]
-using AlmightyShogun.Logging;
+using AlmightyShogun.Serilog;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.AddCustomLogging(builder.Configuration);

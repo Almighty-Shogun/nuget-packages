@@ -3,7 +3,7 @@ using Serilog.Parsing;
 using Serilog.Formatting;
 using System.Globalization;
 
-namespace AlmightyShogun.Logging;
+namespace AlmightyShogun.Serilog;
 
 /// <summary>
 /// Renders a Serilog event as one console line: a colored level and timestamp prefix, then the message template with each

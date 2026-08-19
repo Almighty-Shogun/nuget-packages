@@ -1,4 +1,4 @@
-# 🚀 `AlmightyShogun.Logging`
+# 🚀 `AlmightyShogun.Serilog`
 
 A C# library that configures Serilog logging with custom console formatting and colors.
 
@@ -8,5 +8,5 @@ A C# library that configures Serilog logging with custom console formatting and 
 ## 📦 Building
 
 ```sh
-dotnet build packages/AlmightyShogun.Logging/AlmightyShogun.Logging.csproj
+dotnet build packages/AlmightyShogun.Serilog/AlmightyShogun.Serilog.csproj
 ```
