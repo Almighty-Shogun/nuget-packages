@@ -7,7 +7,7 @@ The console formatter is registered automatically by [`AddCustomLogging`](./exte
 ::: code-group
 
 ```csharp [Program.cs]
-using AlmightyShogun.Logging;
+using AlmightyShogun.Serilog;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.AddCustomLogging(builder.Configuration);

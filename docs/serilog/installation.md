@@ -1,9 +1,9 @@
 # Installation
 
-Install `AlmightyShogun.Logging` in the application that owns logging setup. The package targets `net10.0` and brings Serilog with it, so the application does not need to reference Serilog directly.
+Install `AlmightyShogun.Serilog` in the application that owns logging setup. The package targets `net10.0` and brings Serilog with it, so the application does not need to reference Serilog directly.
 
 ```sh
-dotnet add package AlmightyShogun.Logging
+dotnet add package AlmightyShogun.Serilog
 ```
 
 ## Dependencies
@@ -26,14 +26,14 @@ Call the extension method once during startup. Both overloads take the same opti
 ::: code-group
 
 ```csharp [IServiceCollection.cs]
-using AlmightyShogun.Logging;
+using AlmightyShogun.Serilog;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.AddCustomLogging(builder.Configuration);
 ```
 
 ```csharp [IHostBuilder.cs]
-using AlmightyShogun.Logging;
+using AlmightyShogun.Serilog;
 using Microsoft.Extensions.Hosting;
 
 IHost host = Host.CreateDefaultBuilder(args)
@@ -47,4 +47,4 @@ IHost host = Host.CreateDefaultBuilder(args)
 
 The console sink is asynchronous, so log events are buffered and written on a background thread. The package registers the logger for disposal, which flushes that buffer, but disposal only happens during an orderly shutdown.
 
-An application that exits by killing the process, or that suppresses shutdown signals, can still lose the last buffered events. If the host also uses `AlmightyShogun.Hosting.Utils`, [`UseCustomConsoleLifetime`](/hosting-utils/extensions/use-custom-console-lifetime) makes `SIGTERM` shut down cleanly, which is what allows the flush to run.
+An application that exits by killing the process, or that suppresses shutdown signals, can still lose the last buffered events. If the host also uses `AlmightyShogun.Hosting.ConsoleLifetime`, [`UseCustomConsoleLifetime`](/hosting-console-lifetime/extensions/use-custom-console-lifetime) makes `SIGTERM` shut down cleanly, which is what allows the flush to run.

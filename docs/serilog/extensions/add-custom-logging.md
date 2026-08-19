@@ -25,14 +25,14 @@ Configures Serilog with log-context enrichment and the package's asynchronous co
 ::: code-group
 
 ```csharp [IServiceCollection.cs]
-using AlmightyShogun.Logging;
+using AlmightyShogun.Serilog;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.AddCustomLogging(builder.Configuration);
 ```
 
 ```csharp [IHostBuilder.cs]
-using AlmightyShogun.Logging;
+using AlmightyShogun.Serilog;
 using Microsoft.Extensions.Hosting;
 
 IHost host = Host.CreateDefaultBuilder(args)
@@ -41,7 +41,7 @@ IHost host = Host.CreateDefaultBuilder(args)
 ```
 
 ```csharp [SinksFromConfiguration.cs]
-using AlmightyShogun.Logging;
+using AlmightyShogun.Serilog;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.AddCustomLogging(
