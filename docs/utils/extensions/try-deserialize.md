@@ -4,12 +4,9 @@ params:
       description: When the method returns `true`, contains the deserialized value, annotated so the compiler treats it as non-null from that point. Left at the default for `T` otherwise.
       type: 'out T?'
     - name: options
-      description: Serializer options to apply, in place of the package defaults.
-      type: JsonSerializerOptions
-    - name: useDefaultOptions
-      description: Applies the package default options, which use camel-case property naming, when `true`. Uses the `System.Text.Json` defaults when `false`.
-      type: bool
-      default: 'true'
+      description: Serializer options to apply. Left unset, the package defaults are used, which bind camel-case property names.
+      type: JsonSerializerOptions?
+      default: 'null'
 
 returns: '`true` when a non-null value was read; otherwise `false`.'
 ---
@@ -18,9 +15,7 @@ returns: '`true` when a non-null value was read; otherwise `false`.'
 
 Deserializes a JSON string into `T` without throwing on invalid input, for a request body, queue message, or user-supplied file where malformed JSON is an expected outcome.
 
-Returns `false` for a malformed payload and for the JSON literal `null`, so a `true` result always yields something usable; any other failure still throws, so a genuine programming error is not swallowed. `result` comes first because an `out` parameter cannot follow an optional one, and there is no stream equivalent because `out` is not allowed on async methods.
-
-Use [`Deserialize`](./deserialize) instead when a payload of `null` has to be told apart from malformed input.
+Returns `false` for a malformed payload and for the JSON literal `null`, so a `true` result always yields something usable; any other failure still throws, so a genuine programming error is not swallowed. `result` comes first because an `out` parameter cannot follow an optional one, and there is no stream equivalent because `out` is not allowed on async methods, so a stream uses [`DeserializeAsync`](./deserialize-async).
 
 ## Usage
 
@@ -64,11 +59,6 @@ public sealed record Order(int OrderId, string CustomerName);
 ```csharp
 public bool TryDeserialize<T>(
     [NotNullWhen(true)] out T? result,
-    JsonSerializerOptions options
-);
-
-public bool TryDeserialize<T>(
-    [NotNullWhen(true)] out T? result,
-    bool useDefaultOptions = true
+    JsonSerializerOptions? options = null
 );
 ```

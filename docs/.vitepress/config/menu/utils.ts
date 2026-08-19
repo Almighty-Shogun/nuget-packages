@@ -14,7 +14,6 @@ export const utils: DefaultTheme.SidebarItem[] = [
         items: [
             { text: 'AddConfiguration', link: '/utils/extensions/add-configuration' },
             { text: 'AddService', link: '/utils/extensions/add-service' },
-            { text: 'Deserialize', link: '/utils/extensions/deserialize' },
             { text: 'DeserializeAsync', link: '/utils/extensions/deserialize-async' },
             { text: 'RegisterOnInherit', link: '/utils/extensions/register-on-inherit' },
             { text: 'TryDeserialize', link: '/utils/extensions/try-deserialize' }
@@ -38,7 +37,8 @@ export const utils: DefaultTheme.SidebarItem[] = [
         text: 'Utilities',
         collapsed: false,
         items: [
-            { text: 'ApplicationUtils', link: '/utils/utilities/application-utils' }
+            { text: 'ConsoleUtils', link: '/utils/utilities/console-utils' },
+            { text: 'TypeDiscovery', link: '/utils/utilities/type-discovery' }
         ]
     },
 ];

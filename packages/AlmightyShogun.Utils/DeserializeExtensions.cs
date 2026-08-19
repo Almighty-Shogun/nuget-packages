@@ -4,9 +4,9 @@ using System.Diagnostics.CodeAnalysis;
 namespace AlmightyShogun.Utils;
 
 /// <summary>
-/// Provides JSON deserialization helpers for strings and streams. Each helper comes in two forms: one taking explicit
-/// <see cref="JsonSerializerOptions"/>, and one selecting between the package defaults and the
-/// <see cref="System.Text.Json"/> defaults with a flag, so the common case needs no options object at the call site.
+/// Provides JSON deserialization for strings and streams. A string is read through the <c>Try</c> shape, which reports
+/// malformed input rather than throwing; a stream throws, because an <c>out</c> parameter cannot appear on an asynchronous
+/// method. Options are optional on both, and omitting them applies the package defaults.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -62,49 +62,6 @@ public static class DeserializeExtensions
     extension(string json)
     {
         /// <summary>
-        /// Deserializes the JSON text into <typeparamref name="T"/> using the supplied options.
-        /// </summary>
-        ///
-        /// <typeparam name="T">The type to bind the payload to.</typeparam>
-        /// <param name="options">
-        /// The serializer options to apply, in place of the package defaults. Use this overload when the payload needs a
-        /// naming policy, converter, or tolerance the defaults do not provide.
-        /// </param>
-        ///
-        /// <returns>The deserialized value, or <c>null</c> when the payload is the JSON literal <c>null</c>.</returns>
-        ///
-        /// <exception cref="JsonException">
-        /// The text is not valid JSON, carries data after the first document, or cannot bind to <typeparamref name="T"/>.
-        /// Use <see cref="TryDeserialize{T}(string, out T, JsonSerializerOptions)"/> when invalid input is expected.
-        /// </exception>
-        ///
-        /// <author>Almighty-Shogun</author>
-        /// <since>1.1.0</since>
-        public T? Deserialize<T>(JsonSerializerOptions options) => JsonSerializer.Deserialize<T>(json, options);
-
-        /// <summary>
-        /// Deserializes the JSON text into <typeparamref name="T"/> using the package defaults.
-        /// </summary>
-        ///
-        /// <typeparam name="T">The type to bind the payload to.</typeparam>
-        /// <param name="useDefaultOptions">
-        /// Whether to apply the package defaults, which use camel-case property names. Pass <c>false</c> to fall back to the
-        /// <see cref="System.Text.Json"/> defaults, which match property names exactly.
-        /// </param>
-        ///
-        /// <returns>The deserialized value, or <c>null</c> when the payload is the JSON literal <c>null</c>.</returns>
-        ///
-        /// <exception cref="JsonException">
-        /// The text is not valid JSON, carries data after the first document, or cannot bind to <typeparamref name="T"/>.
-        /// Use <see cref="TryDeserialize{T}(string, out T, bool)"/> when invalid input is expected.
-        /// </exception>
-        ///
-        /// <author>Almighty-Shogun</author>
-        /// <since>1.1.0</since>
-        public T? Deserialize<T>(bool useDefaultOptions = true)
-            => JsonSerializer.Deserialize<T>(json, useDefaultOptions ? DefaultOptions : null);
-
-        /// <summary>
         /// Deserializes the JSON text into <typeparamref name="T"/> using the supplied options, without throwing on malformed
         /// input. Use it for a request body, queue message, or user-supplied file where invalid JSON is an expected outcome
         /// rather than a fault.
@@ -115,7 +72,9 @@ public static class DeserializeExtensions
         /// When this method returns <c>true</c>, contains the deserialized value, annotated so the compiler treats it as
         /// non-null from that point and no suppression is needed. Left at the default for <typeparamref name="T"/> otherwise.
         /// </param>
-        /// <param name="options">The serializer options to apply, in place of the package defaults.</param>
+        /// <param name="options">
+        /// The serializer options to apply. Left unset, the package defaults are used, which bind camel-case property names.
+        /// </param>
         ///
         /// <returns><c>true</c> when a non-null value was read; otherwise <c>false</c>.</returns>
         ///
@@ -124,17 +83,17 @@ public static class DeserializeExtensions
         /// not swallowed by a method whose name suggests it only reports success or failure.
         ///
         /// A payload that is the JSON literal <c>null</c> reports <c>false</c> rather than succeeding with a null value, so a
-        /// <c>true</c> result always yields something usable. Call <see cref="Deserialize{T}(string, JsonSerializerOptions)"/>
-        /// instead when that case must be told apart from malformed input.
+        /// <c>true</c> result always yields something usable. Nothing here distinguishes that case from malformed input; call
+        /// <see cref="JsonSerializer"/> directly when the two have to be told apart.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
-        public bool TryDeserialize<T>([NotNullWhen(true)] out T? result, JsonSerializerOptions options)
+        public bool TryDeserialize<T>([NotNullWhen(true)] out T? result, JsonSerializerOptions? options = null)
         {
             try
             {
-                var value = JsonSerializer.Deserialize<T>(json, options);
+                var value = JsonSerializer.Deserialize<T>(json, options ?? DefaultOptions);
 
                 result = value!;
 
@@ -147,37 +106,6 @@ public static class DeserializeExtensions
                 return false;
             }
         }
-
-        /// <summary>
-        /// Deserializes the JSON text into <typeparamref name="T"/> using the package defaults, without throwing on malformed
-        /// input.
-        /// </summary>
-        ///
-        /// <typeparam name="T">The type to bind the payload to.</typeparam>
-        /// <param name="result">
-        /// When this method returns <c>true</c>, contains the deserialized value, annotated so the compiler treats it as
-        /// non-null from that point and no suppression is needed. Left at the default for <typeparamref name="T"/> otherwise.
-        /// </param>
-        /// <param name="useDefaultOptions">
-        /// Whether to apply the package defaults, which use camel-case property names. Pass <c>false</c> to fall back to the
-        /// <see cref="System.Text.Json"/> defaults, which match property names exactly.
-        /// </param>
-        ///
-        /// <returns><c>true</c> when a non-null value was read; otherwise <c>false</c>.</returns>
-        ///
-        /// <remarks>
-        /// Only <see cref="JsonException"/> is caught. Any other failure still propagates, so a genuine programming error is
-        /// not swallowed by a method whose name suggests it only reports success or failure.
-        ///
-        /// A payload that is the JSON literal <c>null</c> reports <c>false</c> rather than succeeding with a null value, so a
-        /// <c>true</c> result always yields something usable. Call <see cref="Deserialize{T}(string, bool)"/> instead when
-        /// that case must be told apart from malformed input.
-        /// </remarks>
-        ///
-        /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
-        public bool TryDeserialize<T>([NotNullWhen(true)] out T? result, bool useDefaultOptions = true)
-            => json.TryDeserialize(out result, useDefaultOptions ? DefaultOptions : JsonSerializerOptions.Default);
     }
 
     /// <summary>
@@ -198,35 +126,8 @@ public static class DeserializeExtensions
         /// </summary>
         ///
         /// <typeparam name="T">The type to bind the payload to.</typeparam>
-        /// <param name="options">The serializer options to apply, in place of the package defaults.</param>
-        ///
-        /// <returns>
-        /// A task producing the deserialized value, or <c>null</c> when the payload is the JSON literal <c>null</c>.
-        /// </returns>
-        ///
-        /// <exception cref="JsonException">
-        /// The stream does not contain valid JSON, carries data after the first document, or cannot bind to
-        /// <typeparamref name="T"/>.
-        /// </exception>
-        ///
-        /// <remarks>
-        /// There is no <c>Try</c> counterpart for streams, because an <c>out</c> parameter cannot be used on an asynchronous
-        /// method. Catch <see cref="JsonException"/> at the call site when malformed input is expected.
-        /// </remarks>
-        ///
-        /// <author>Almighty-Shogun</author>
-        /// <since>1.1.0</since>
-        public async Task<T?> DeserializeAsync<T>(JsonSerializerOptions options)
-            => await JsonSerializer.DeserializeAsync<T>(stream, options);
-
-        /// <summary>
-        /// Asynchronously deserializes the stream into <typeparamref name="T"/> using the package defaults.
-        /// </summary>
-        ///
-        /// <typeparam name="T">The type to bind the payload to.</typeparam>
-        /// <param name="useDefaultOptions">
-        /// Whether to apply the package defaults, which use camel-case property names. Pass <c>false</c> to fall back to the
-        /// <see cref="System.Text.Json"/> defaults, which match property names exactly.
+        /// <param name="options">
+        /// The serializer options to apply. Left unset, the package defaults are used, which bind camel-case property names.
         /// </param>
         ///
         /// <returns>
@@ -245,7 +146,7 @@ public static class DeserializeExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.1.0</since>
-        public async Task<T?> DeserializeAsync<T>(bool useDefaultOptions = true)
-            => await JsonSerializer.DeserializeAsync<T>(stream, useDefaultOptions ? DefaultOptions : null);
+        public async Task<T?> DeserializeAsync<T>(JsonSerializerOptions? options = null)
+            => await JsonSerializer.DeserializeAsync<T>(stream, options ?? DefaultOptions);
     }
 }

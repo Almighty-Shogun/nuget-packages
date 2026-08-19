@@ -2,7 +2,7 @@
 
 Excludes a type from assembly scanning performed by [`RegisterOnInherit`](../extensions/register-on-inherit). Apply it to a concrete type that would otherwise be discovered but should be registered by hand.
 
-It is honored unconditionally, so a type carrying it is never registered even when a `filter` predicate would accept it, while [`ApplicationUtils.GetOnInherit`](../utilities/application-utils) ignores it entirely as a raw reflection primitive.
+It is honored unconditionally, so a type carrying it is never registered even when a `filter` predicate would accept it, while [`TypeDiscovery.FindAssignableTypes`](../utilities/type-discovery) ignores it entirely as a raw reflection primitive.
 
 ## Usage
 

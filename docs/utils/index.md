@@ -9,7 +9,7 @@ The APIs are intentionally narrow and are most useful in startup code, worker se
 - [Extensions](./extensions/add-configuration) &mdash; configuration binding, service registration, and JSON deserialization extension methods.
 - [Attributes](./attributes/skip-auto-registration) &mdash; opt a type out of assembly scanning.
 - [Services](./services/service-registry) &mdash; the service registry module contract.
-- [Utilities](./utilities/application-utils) &mdash; console helpers and type discovery.
+- [Utilities](./utilities/console-utils) &mdash; console helpers and assembly type discovery.
 
 ## Quick Example
 
@@ -19,7 +19,7 @@ The APIs are intentionally narrow and are most useful in startup code, worker se
 using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
-ApplicationUtils.Title("Importer");
+ConsoleUtils.Title("Importer");
 
 builder.Services.AddConfiguration<WorkerSettings>(
     builder.Configuration.GetSection("Worker")
