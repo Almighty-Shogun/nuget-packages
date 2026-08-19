@@ -22,7 +22,7 @@ Use it for a value that belongs to exactly one entity and has no identity of its
 ::: code-group
 
 ```csharp [Single.cs]
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyOwned<Account, Address>(
     account => account.BillingAddress
@@ -30,7 +30,7 @@ modelBuilder.ApplyOwned<Account, Address>(
 ```
 
 ```csharp [Two.cs]
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyOwned<Account, Address>(
     account => account.BillingAddress,

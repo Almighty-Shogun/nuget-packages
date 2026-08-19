@@ -22,13 +22,13 @@ Entity Framework Core stores an enum as an integer by default, so inserting a me
 ::: code-group
 
 ```csharp [AppDbContext.cs]
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyEnumAsString<Order, Status>(order => order.Status);
 ```
 
 ```csharp [LongerNames.cs]
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyEnumAsString<Order, FulfilmentStage>(
     order => order.Stage,

@@ -30,7 +30,7 @@ Documentation lives directly under `docs/{package-slug}/`, never under `docs/pac
 Package slugs use lowercase kebab case:
 
 - `AlmightyShogun.AspNet.JwtAuth` becomes `asp-net-jwt-auth`
-- `AlmightyShogun.EntityFrameworkCore.Utils` becomes `ef-core-utils`
+- `AlmightyShogun.EntityFrameworkCore.ModelBuilding` becomes `ef-core-model-building`
 - `AlmightyShogun.Resend.Utils` becomes `resend-utils`
 
 Each package normally contains:
@@ -243,7 +243,7 @@ Do not restate the sidebar as page content either. A table or list that repeats 
 
 Installation pages follow a fixed order too: **description, then `## Dependencies`, then `## Startup Registration` or `## Usage`, then anything else.** A section such as provider support, configuration, or state-file behavior comes after the registration or usage section, never between dependencies and it.
 
-Use `## Startup Registration` when the package must be registered at application startup, which is the usual case. Use `## Usage` instead for the rare package that registers nothing, such as `ef-core-utils` or `utils`, and show where its API is called from instead.
+Use `## Startup Registration` when the package must be registered at application startup, which is the usual case. Use `## Usage` instead for the rare package that registers nothing, such as `ef-core-model-building` or `core`, and show where its API is called from instead.
 
 - Show only the `dotnet` CLI installation command in one shell code block.
 - Explain the target framework and runtime expectations, and name the project the package belongs in when it is not obvious.

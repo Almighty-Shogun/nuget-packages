@@ -6,8 +6,8 @@
         <TargetFramework>net10.0</TargetFramework>
 
         <Authors>Almighty-Shogun</Authors>
-        <PackageId>AlmightyShogun.EntityFrameworkCore.Utils</PackageId>
-        <RootNamespace>AlmightyShogun.EntityFrameworkCore.Utils</RootNamespace>
+        <PackageId>AlmightyShogun.EntityFrameworkCore.ModelBuilding</PackageId>
+        <RootNamespace>AlmightyShogun.EntityFrameworkCore.ModelBuilding</RootNamespace>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
         <PackageIcon>icon.png</PackageIcon>
@@ -17,7 +17,7 @@
 
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.EntityFrameworkCore.Utils</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.EntityFrameworkCore.ModelBuilding</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace AlmightyShogun.EntityFrameworkCore.Utils;
+namespace AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 /// <summary>
 /// Collapses the fluent chain a relationship, index, or owned value normally takes into a single call, so every mapping

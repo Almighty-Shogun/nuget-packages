@@ -38,7 +38,7 @@ The defaults describe a required relationship: the dependent cannot exist withou
 
 ```csharp [AppDbContext.cs]
 using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyOneToOne<Account, Profile>(
     account => account.Profile,
@@ -48,7 +48,7 @@ modelBuilder.ApplyOneToOne<Account, Profile>(
 
 ```csharp [Optional.cs]
 using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyOneToOne<Account, Profile>(
     account => account.Profile,

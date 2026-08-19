@@ -1,4 +1,4 @@
-# Entity Framework Core Utils
+# Entity Framework Core Model Building
 
 Model configuration helpers for `ModelBuilder`, covering the shapes written on almost every model: relationships, indexes, owned types, enum storage, and eager loading.
 
@@ -14,7 +14,7 @@ Each helper wraps a fluent-API sequence whose parameter order or default is easy
 
 ```csharp [AppDbContext.cs]
 using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 public sealed class AppDbContext(
     DbContextOptions<AppDbContext> options

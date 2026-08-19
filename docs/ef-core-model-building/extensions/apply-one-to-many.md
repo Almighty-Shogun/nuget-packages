@@ -38,7 +38,7 @@ The defaults describe an optional relationship: the foreign key is nullable and 
 
 ```csharp [Optional.cs]
 using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyOneToMany<Account, Order>(
     account => account.Orders,
@@ -48,7 +48,7 @@ modelBuilder.ApplyOneToMany<Account, Order>(
 
 ```csharp [Required.cs]
 using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyOneToMany<Account, Order>(
     account => account.Orders,
