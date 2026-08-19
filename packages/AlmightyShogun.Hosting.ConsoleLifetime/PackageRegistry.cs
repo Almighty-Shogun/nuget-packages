@@ -1,8 +1,8 @@
+using AlmightyShogun.Core;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace AlmightyShogun.Hosting.Utils;
+namespace AlmightyShogun.Hosting.ConsoleLifetime;
 
 /// <summary>
 /// Provides the two startup helpers this package contributes: taking over the console lifetime so <c>Ctrl+C</c> no longer
@@ -13,10 +13,18 @@ namespace AlmightyShogun.Hosting.Utils;
 /// <since>2.0.0</since>
 public static class PackageRegistry
 {
+    /// <summary>
+    /// Provides both helpers on the service collection, which is where the registrations actually land. The two builder
+    /// receivers below forward here rather than registering anything of their own.
+    /// </summary>
+    ///
     /// <param name="serviceCollection">
     /// The collection the registrations are made on. Use this receiver from a registration module or anywhere the builder
     /// itself is out of reach. Both helpers return it so calls can be chained.
     /// </param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.0.0</since>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
@@ -35,8 +43,7 @@ public static class PackageRegistry
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.0.0</since>
-        public IServiceCollection UseCustomConsoleLifetime() => serviceCollection
-            .Replace(ServiceDescriptor.Singleton<IHostLifetime, CustomConsoleLifetime>());
+        public IServiceCollection UseCustomConsoleLifetime() => serviceCollection.ReplaceService<IHostLifetime, CustomConsoleLifetime>();
 
         /// <summary>
         /// Sets how long shutdown may take and what a failing background service does to the host.
@@ -67,10 +74,18 @@ public static class PackageRegistry
         });
     }
 
+    /// <summary>
+    /// Provides both helpers on the modern host builder, each forwarding to the service collection receiver so startup code
+    /// never has to reach through <c>Services</c> itself.
+    /// </summary>
+    ///
     /// <param name="hostApplicationBuilder">
     /// The builder whose services receive the registrations. This is the receiver to reach for in a modern minimal-hosting
     /// <c>Program.cs</c>, where the builder is what startup code has in hand.
     /// </param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     extension(IHostApplicationBuilder hostApplicationBuilder)
     {
         /// <summary>
@@ -120,10 +135,18 @@ public static class PackageRegistry
         }
     }
 
+    /// <summary>
+    /// Provides both helpers on the generic host builder, each deferring its registration into
+    /// <see cref="IHostBuilder.ConfigureServices"/> rather than applying it where it is called.
+    /// </summary>
+    ///
     /// <param name="hostBuilder">
     /// The generic host builder that receives the registrations. This is the receiver for an application still built with
     /// <c>Host.CreateDefaultBuilder</c> rather than the newer builder.
     /// </param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     extension(IHostBuilder hostBuilder)
     {
         /// <summary>

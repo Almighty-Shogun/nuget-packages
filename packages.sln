@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.RemoteComman
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Core", "packages\AlmightyShogun.Core\AlmightyShogun.Core.csproj", "{0B7D72CD-5FB3-4FB9-BBDB-C57F83EB40E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Hosting.Utils", "packages\AlmightyShogun.Hosting.Utils\AlmightyShogun.Hosting.Utils.csproj", "{DA5B39A2-ED24-4BE7-8549-13644820F71A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Hosting.ConsoleLifetime", "packages\AlmightyShogun.Hosting.ConsoleLifetime\AlmightyShogun.Hosting.ConsoleLifetime.csproj", "{DA5B39A2-ED24-4BE7-8549-13644820F71A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.EntityFrameworkCore.Utils", "packages\AlmightyShogun.EntityFrameworkCore.Utils\AlmightyShogun.EntityFrameworkCore.Utils.csproj", "{CBEF0305-01AA-40E1-AEC9-60B45491A8CD}"
 EndProject
