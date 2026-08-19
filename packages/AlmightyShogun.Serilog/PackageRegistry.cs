@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AlmightyShogun.Logging;
+namespace AlmightyShogun.Serilog;
 
 /// <summary>
 /// Wires Serilog up with this package's color formatter, from either the service collection or the host builder. The two

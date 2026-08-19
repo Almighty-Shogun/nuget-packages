@@ -1,6 +1,6 @@
 using System.Collections.Frozen;
 
-namespace AlmightyShogun.Logging;
+namespace AlmightyShogun.Serilog;
 
 /// <summary>
 /// Holds the ANSI foreground codes the formatter writes, and the shorthand table a message template uses to pick one.
@@ -142,7 +142,7 @@ internal static class AnsiColor
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static readonly FrozenDictionary<string, string> _shortCodes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly FrozenDictionary<string, string> ShortCodes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
         ["r"] = Red,
         ["g"] = Green,
@@ -174,5 +174,5 @@ internal static class AnsiColor
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    internal static string FromShort(string shortCode) => _shortCodes.GetValueOrDefault(shortCode, White);
+    internal static string FromShort(string shortCode) => ShortCodes.GetValueOrDefault(shortCode, White);
 }
