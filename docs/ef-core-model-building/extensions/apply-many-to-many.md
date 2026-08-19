@@ -37,7 +37,7 @@ The two navigations are supplied in the order the type parameters declare them, 
 
 ```csharp [AppDbContext.cs]
 using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyManyToMany<Account, Tag>(
     account => account.Tags,
@@ -48,7 +48,7 @@ modelBuilder.ApplyManyToMany<Account, Tag>(
 
 ```csharp [NamedColumns.cs]
 using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyManyToMany<Account, Tag>(
     account => account.Tags,

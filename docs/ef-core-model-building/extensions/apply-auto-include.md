@@ -22,7 +22,7 @@ Use it for something small and almost always needed, such as a lookup or a trans
 ::: code-group
 
 ```csharp [AppDbContext.cs]
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyAutoInclude<Order>(order => order.Country);
 ```

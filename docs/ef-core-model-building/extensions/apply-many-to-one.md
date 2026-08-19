@@ -38,7 +38,7 @@ Use it when the dependent holds the navigation and the principal does not, which
 
 ```csharp [AppDbContext.cs]
 using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyManyToOne<Country, Order>(
     order => order.Country,

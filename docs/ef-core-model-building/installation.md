@@ -1,9 +1,9 @@
 # Installation
 
-Install `AlmightyShogun.EntityFrameworkCore.Utils` in the project that owns the `DbContext`, which is the project where `OnModelCreating` is written. The package targets `net10.0`.
+Install `AlmightyShogun.EntityFrameworkCore.ModelBuilding` in the project that owns the `DbContext`, which is the project where `OnModelCreating` is written. The package targets `net10.0`.
 
 ```sh
-dotnet add package AlmightyShogun.EntityFrameworkCore.Utils
+dotnet add package AlmightyShogun.EntityFrameworkCore.ModelBuilding
 ```
 
 ## Dependencies
@@ -19,7 +19,7 @@ The package registers no services and has no startup call. The helpers are exten
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 public sealed class AppDbContext(
     DbContextOptions<AppDbContext> options

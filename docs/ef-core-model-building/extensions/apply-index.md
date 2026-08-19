@@ -28,13 +28,13 @@ Configures an index on one property or a set of properties, optionally unique, e
 ::: code-group
 
 ```csharp [Simple.cs]
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyIndex<Account>(account => account.Email, isUnique: true);
 ```
 
 ```csharp [Composite.cs]
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyIndex<Order>(order => new 
 {
@@ -44,7 +44,7 @@ modelBuilder.ApplyIndex<Order>(order => new
 ```
 
 ```csharp [Named.cs]
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyIndex<Account>(
     account => account.Email,
@@ -54,7 +54,7 @@ modelBuilder.ApplyIndex<Account>(
 ```
 
 ```csharp [Filtered.cs]
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyIndex<Account>(
     account => account.Slug,
