@@ -10,9 +10,9 @@ import { core } from './core'
 import { efCoreUtils } from './ef-core-utils'
 import { hangfireUtils } from './hangfire-utils'
 import { hostingConsoleLifetime } from './hosting-console-lifetime'
-import { logging } from './logging'
 import { remoteCommands } from './remote-commands'
 import { resendUtils } from './resend-utils'
+import { serilog } from './serilog'
 
 export const nav: DefaultTheme.NavItem[] = [
     {
@@ -38,13 +38,13 @@ export const nav: DefaultTheme.NavItem[] = [
     },
     {
         text: 'Operations',
-        activeMatch: '^/(console-commands|hangfire-utils|hosting-console-lifetime|logging|remote-commands)/',
+        activeMatch: '^/(console-commands|hangfire-utils|hosting-console-lifetime|remote-commands|serilog)/',
         items: [
             { text: 'Console Commands', activeMatch: '^/console-commands/', link: '/console-commands/' },
             { text: 'Hangfire Utils', activeMatch: '^/hangfire-utils/', link: '/hangfire-utils/' },
             { text: 'Hosting Console Lifetime', activeMatch: '^/hosting-console-lifetime/', link: '/hosting-console-lifetime/' },
-            { text: 'Logging', activeMatch: '^/logging/', link: '/logging/' },
-            { text: 'Remote Commands', activeMatch: '^/remote-commands/', link: '/remote-commands/' }
+            { text: 'Remote Commands', activeMatch: '^/remote-commands/', link: '/remote-commands/' },
+            { text: 'Serilog', activeMatch: '^/serilog/', link: '/serilog/' }
         ]
     },
     {
@@ -74,7 +74,7 @@ export const sidebar = {
     "/ef-core-utils/": efCoreUtils,
     "/hangfire-utils/": hangfireUtils,
     "/hosting-console-lifetime/": hostingConsoleLifetime,
-    "/logging/": logging,
     "/remote-commands/": remoteCommands,
     "/resend-utils/": resendUtils,
+    "/serilog/": serilog,
 };
