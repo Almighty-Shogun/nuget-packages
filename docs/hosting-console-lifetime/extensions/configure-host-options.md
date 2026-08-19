@@ -21,8 +21,8 @@ Sets the two `HostOptions` values that matter most to a long-running service: ho
 ::: code-group
 
 ```csharp [IHostApplicationBuilder.cs]
-using AlmightyShogun.Hosting.Utils;
 using Microsoft.Extensions.Hosting;
+using AlmightyShogun.Hosting.ConsoleLifetime;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
@@ -33,8 +33,8 @@ builder.ConfigureHostOptions(
 ```
 
 ```csharp [IHostBuilder.cs]
-using AlmightyShogun.Hosting.Utils;
 using Microsoft.Extensions.Hosting;
+using AlmightyShogun.Hosting.ConsoleLifetime;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureHostOptions(
@@ -45,8 +45,8 @@ IHost host = Host.CreateDefaultBuilder(args)
 ```
 
 ```csharp [IServiceCollection.cs]
-using AlmightyShogun.Hosting.Utils;
 using Microsoft.Extensions.Hosting;
+using AlmightyShogun.Hosting.ConsoleLifetime;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.ConfigureHostOptions(

@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Hosting;
 using System.Runtime.InteropServices;
 
-namespace AlmightyShogun.Hosting.Utils;
+namespace AlmightyShogun.Hosting.ConsoleLifetime;
 
 /// <summary>
 /// Keeps a console application alive when <c>Ctrl+C</c> is pressed, while still shutting down in an orderly way on
@@ -51,14 +51,12 @@ internal sealed class CustomConsoleLifetime(IHostApplicationLifetime application
         Console.CancelKeyPress += OnCancelKeyPress;
 
         if (!OperatingSystem.IsWindows())
-        {
             _sigTermRegistration = PosixSignalRegistration.Create(PosixSignal.SIGTERM, context =>
             {
                 context.Cancel = true;
 
                 applicationLifetime.StopApplication();
             });
-        }
 
         return Task.CompletedTask;
     }

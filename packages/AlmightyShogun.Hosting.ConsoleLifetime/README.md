@@ -1,4 +1,4 @@
-# 🚀 `AlmightyShogun.Hosting.Utils`
+# 🚀 `AlmightyShogun.Hosting.ConsoleLifetime`
 
 A C# library that adds hosting helpers for custom console lifetime behavior.
 
@@ -8,5 +8,5 @@ A C# library that adds hosting helpers for custom console lifetime behavior.
 ## 📦 Building
 
 ```sh
-dotnet build packages/AlmightyShogun.Hosting.Utils/AlmightyShogun.Hosting.Utils.csproj
+dotnet build packages/AlmightyShogun.Hosting.ConsoleLifetime/AlmightyShogun.Hosting.ConsoleLifetime.csproj
 ```

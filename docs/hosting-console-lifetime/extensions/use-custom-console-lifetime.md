@@ -11,8 +11,8 @@ Replaces the host's console lifetime so that `Ctrl+C` does not stop the applicat
 ::: code-group
 
 ```csharp [IHostApplicationBuilder.cs]
-using AlmightyShogun.Hosting.Utils;
 using Microsoft.Extensions.Hosting;
+using AlmightyShogun.Hosting.ConsoleLifetime;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
@@ -20,8 +20,8 @@ builder.UseCustomConsoleLifetime();
 ```
 
 ```csharp [IHostBuilder.cs]
-using AlmightyShogun.Hosting.Utils;
 using Microsoft.Extensions.Hosting;
+using AlmightyShogun.Hosting.ConsoleLifetime;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseCustomConsoleLifetime()
@@ -29,7 +29,7 @@ IHost host = Host.CreateDefaultBuilder(args)
 ```
 
 ```csharp [IServiceCollection.cs]
-using AlmightyShogun.Hosting.Utils;
+using AlmightyShogun.Hosting.ConsoleLifetime;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.UseCustomConsoleLifetime();

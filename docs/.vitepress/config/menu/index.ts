@@ -9,7 +9,7 @@ import { consoleCommands } from './console-commands'
 import { core } from './core'
 import { efCoreUtils } from './ef-core-utils'
 import { hangfireUtils } from './hangfire-utils'
-import { hostingUtils } from './hosting-utils'
+import { hostingConsoleLifetime } from './hosting-console-lifetime'
 import { logging } from './logging'
 import { remoteCommands } from './remote-commands'
 import { resendUtils } from './resend-utils'
@@ -38,11 +38,11 @@ export const nav: DefaultTheme.NavItem[] = [
     },
     {
         text: 'Operations',
-        activeMatch: '^/(console-commands|hangfire-utils|hosting-utils|logging|remote-commands)/',
+        activeMatch: '^/(console-commands|hangfire-utils|hosting-console-lifetime|logging|remote-commands)/',
         items: [
             { text: 'Console Commands', activeMatch: '^/console-commands/', link: '/console-commands/' },
             { text: 'Hangfire Utils', activeMatch: '^/hangfire-utils/', link: '/hangfire-utils/' },
-            { text: 'Hosting Utils', activeMatch: '^/hosting-utils/', link: '/hosting-utils/' },
+            { text: 'Hosting Console Lifetime', activeMatch: '^/hosting-console-lifetime/', link: '/hosting-console-lifetime/' },
             { text: 'Logging', activeMatch: '^/logging/', link: '/logging/' },
             { text: 'Remote Commands', activeMatch: '^/remote-commands/', link: '/remote-commands/' }
         ]
@@ -73,7 +73,7 @@ export const sidebar = {
     "/core/": core,
     "/ef-core-utils/": efCoreUtils,
     "/hangfire-utils/": hangfireUtils,
-    "/hosting-utils/": hostingUtils,
+    "/hosting-console-lifetime/": hostingConsoleLifetime,
     "/logging/": logging,
     "/remote-commands/": remoteCommands,
     "/resend-utils/": resendUtils,

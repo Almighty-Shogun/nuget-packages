@@ -1,9 +1,9 @@
 # Installation
 
-Install `AlmightyShogun.Hosting.Utils` in the .NET hosted application that needs custom host options or console lifetime behavior. The package targets `net10.0`.
+Install `AlmightyShogun.Hosting.ConsoleLifetime` in the .NET hosted application that needs custom host options or console lifetime behavior. The package targets `net10.0`.
 
 ```sh
-dotnet add package AlmightyShogun.Hosting.Utils
+dotnet add package AlmightyShogun.Hosting.ConsoleLifetime
 ```
 
 ## Dependencies
@@ -13,6 +13,10 @@ dotnet add package AlmightyShogun.Hosting.Utils
 - `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.11` &mdash; provides the service collection APIs used by the extension methods.
 - `Microsoft.Extensions.Hosting` `10.0.11` &mdash; provides host options, host lifetime contracts, and background-service exception behavior.
 
+### Project references
+
+- `AlmightyShogun.Core` &mdash; supplies `ReplaceService`, which swaps the framework's own console lifetime out rather than adding a second registration alongside it.
+
 ## Startup Registration
 
 Both methods have overloads for `IHostApplicationBuilder`, `IHostBuilder`, and `IServiceCollection`. Use whichever matches how the host is built; the builder overloads forward to the service collection ones.
@@ -20,8 +24,8 @@ Both methods have overloads for `IHostApplicationBuilder`, `IHostBuilder`, and `
 ::: code-group
 
 ```csharp [IHostApplicationBuilder.cs]
-using AlmightyShogun.Hosting.Utils;
 using Microsoft.Extensions.Hosting;
+using AlmightyShogun.Hosting.ConsoleLifetime;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
@@ -33,8 +37,8 @@ builder.ConfigureHostOptions(
 ```
 
 ```csharp [IHostBuilder.cs]
-using AlmightyShogun.Hosting.Utils;
 using Microsoft.Extensions.Hosting;
+using AlmightyShogun.Hosting.ConsoleLifetime;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseCustomConsoleLifetime()
@@ -46,8 +50,8 @@ IHost host = Host.CreateDefaultBuilder(args)
 ```
 
 ```csharp [IServiceCollection.cs]
-using AlmightyShogun.Hosting.Utils;
 using Microsoft.Extensions.Hosting;
+using AlmightyShogun.Hosting.ConsoleLifetime;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services
