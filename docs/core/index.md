@@ -1,4 +1,4 @@
-# Utils
+# Core
 
 Provides the shared building blocks used by the other packages in this repository and by applications that want the same helpers without taking a dependency on a more specific package. The package covers assembly scanning for dependency-injection registration, strongly typed configuration binding, JSON deserialization helpers, and small console utilities.
 
@@ -16,7 +16,7 @@ The APIs are intentionally narrow and are most useful in startup code, worker se
 ::: code-group
 
 ```csharp [Program.cs]
-using AlmightyShogun.Utils;
+using AlmightyShogun.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 ConsoleUtils.Title("Importer");

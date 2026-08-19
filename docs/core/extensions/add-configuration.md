@@ -26,7 +26,7 @@ Resolve the result through `IOptions<T>` as usual. Set `validateDataAnnotations`
 ::: code-group
 
 ```csharp [Program.cs]
-using AlmightyShogun.Utils;
+using AlmightyShogun.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.AddConfiguration<MailSettings>(

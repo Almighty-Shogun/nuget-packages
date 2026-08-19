@@ -5,7 +5,7 @@ Finds concrete implementations across assemblies by reflection, which is what th
 ## Usage
 
 ```csharp
-using AlmightyShogun.Utils;
+using AlmightyShogun.Core;
 
 IEnumerable<Type> steps = TypeDiscovery.FindAssignableTypes<IImportStep>();
 ```
@@ -18,7 +18,7 @@ Three overloads cover the usual cases: no argument scans the calling assembly, a
 
 ```csharp
 using System.Reflection;
-using AlmightyShogun.Utils;
+using AlmightyShogun.Core;
 
 IEnumerable<Type> local = TypeDiscovery.FindAssignableTypes<IImportStep>();
 

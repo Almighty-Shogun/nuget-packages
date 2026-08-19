@@ -5,7 +5,7 @@ Console primitives for a command-line application: naming the window, prompting 
 ## Usage
 
 ```csharp
-using AlmightyShogun.Utils;
+using AlmightyShogun.Core;
 
 ConsoleUtils.Title("Importer");
 ConsoleUtils.PreventCancellation();
@@ -23,7 +23,7 @@ Sets the console window title. A thin wrapper over `Console.Title`, provided so 
 Setting the title is not supported on every platform and terminal. Where it is unsupported the value is ignored rather than throwing.
 
 ```csharp
-using AlmightyShogun.Utils;
+using AlmightyShogun.Core;
 
 ConsoleUtils.Title("Importer");
 ```
@@ -41,7 +41,7 @@ Erases the line above the cursor and parks the cursor at its start, so a prompt 
 Does nothing when output is redirected or the cursor is already at the top. A host that refuses cursor movement even when output is not reported as redirected fails silently too, because erasing a line is cosmetic and never worth taking down a process for.
 
 ```csharp
-using AlmightyShogun.Utils;
+using AlmightyShogun.Core;
 
 Console.WriteLine("Connecting...");
 ConsoleUtils.RemoveLastLine();
@@ -61,7 +61,7 @@ Prompts on the console and waits for an answer, repeating the prompt until one i
 Passing no `defaultValue` makes the question mandatory: an empty line re-asks rather than returning, and the loop only ends once something is typed. The return value is never null and never empty.
 
 ```csharp
-using AlmightyShogun.Utils;
+using AlmightyShogun.Core;
 
 string environment = await ConsoleUtils.AskQuestionAsync(
     "What is the environment?",
@@ -90,7 +90,7 @@ Stops `Ctrl+C` from terminating the process, so a console application can handle
 Safe to call from any thread and any number of times; only the first call attaches a handler, so calling this from several entry points does not stack them. There is no matching method to restore the default behavior, so once cancellation is prevented it stays prevented until the process exits.
 
 ```csharp
-using AlmightyShogun.Utils;
+using AlmightyShogun.Core;
 
 ConsoleUtils.PreventCancellation();
 ```
