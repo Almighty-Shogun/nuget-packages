@@ -6,13 +6,13 @@ import { aspNetMaintenance } from './asp-net-maintenance'
 import { aspNetUtils } from './asp-net-utils'
 import { aspNetValidation } from './asp-net-validation'
 import { consoleCommands } from './console-commands'
+import { core } from './core'
 import { efCoreUtils } from './ef-core-utils'
 import { hangfireUtils } from './hangfire-utils'
 import { hostingUtils } from './hosting-utils'
 import { logging } from './logging'
 import { remoteCommands } from './remote-commands'
 import { resendUtils } from './resend-utils'
-import { utils } from './utils'
 
 export const nav: DefaultTheme.NavItem[] = [
     {
@@ -56,9 +56,9 @@ export const nav: DefaultTheme.NavItem[] = [
         ]
     },
     {
-        text: 'Utils',
-        link: '/utils/',
-        activeMatch: '^/utils/',
+        text: 'Core',
+        link: '/core/',
+        activeMatch: '^/core/',
     }
 ];
 
@@ -70,11 +70,11 @@ export const sidebar = {
     "/asp-net-utils/": aspNetUtils,
     "/asp-net-validation/": aspNetValidation,
     "/console-commands/": consoleCommands,
+    "/core/": core,
     "/ef-core-utils/": efCoreUtils,
     "/hangfire-utils/": hangfireUtils,
     "/hosting-utils/": hostingUtils,
     "/logging/": logging,
     "/remote-commands/": remoteCommands,
     "/resend-utils/": resendUtils,
-    "/utils/": utils,
 };
