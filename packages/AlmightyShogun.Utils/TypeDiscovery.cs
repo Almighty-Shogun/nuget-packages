@@ -1,40 +1,62 @@
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace AlmightyShogun.Utils;
 
 /// <summary>
-/// Provides the console and reflection primitives the other helpers in this package build on: setting the window title,
-/// suppressing interactive cancellation, and discovering implementation types across assemblies. Every member is static and
-/// the type is never registered in a container.
+/// Finds concrete implementations across assemblies by reflection, which is what the registration helpers in this package
+/// are built on. It is a raw primitive with no dependency-injection semantics: nothing here reads
+/// <see cref="SkipAutoRegistrationAttribute"/> or decides a lifetime.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>1.0.0</since>
-public static class ApplicationUtils
+public static class TypeDiscovery
 {
     /// <summary>
-    /// Tracks whether the cancellation handler has already been attached, so that
-    /// <see cref="PreventCancellation"/> stays idempotent instead of stacking one handler per call.
+    /// Retrieves the concrete types in the calling assembly that inherit from or implement <typeparamref name="T"/>.
+    /// Use it from the assembly that owns the implementations; scanning a different one needs an explicit overload.
     /// </summary>
+    ///
+    /// <typeparam name="T">
+    /// The base type or interface to match. Assignability is used, so an indirect subclass or an interface implemented by a
+    /// base class matches just as well as a direct one.
+    /// </typeparam>
+    ///
+    /// <returns>
+    /// The matching concrete types in the caller's own assembly, lazily. Empty when the assembly declares none.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// The assembly is resolved from the call stack, so this reports whichever assembly contains the code that called it,
+    /// not the one that started the process.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static bool _cancellationPrevented;
+    public static IEnumerable<Type> FindAssignableTypes<T>() => FindAssignableTypes<T>(Assembly.GetCallingAssembly());
 
     /// <summary>
-    /// Sets the console window title. Behavior is platform and terminal dependent: a terminal that does not support titles
-    /// discards the value rather than reporting an error, so this is presentation only and never worth branching on.
+    /// Retrieves the concrete types in one assembly that inherit from or implement <typeparamref name="T"/>. Reach for it
+    /// when the implementations live somewhere other than the calling assembly, such as a separate contracts project.
     /// </summary>
     ///
-    /// <param name="title">
-    /// The text to show as the window title. Passed through unchanged, so any truncation or escaping is the terminal's.
+    /// <typeparam name="T">
+    /// The base type or interface to match. Assignability is used, so an indirect subclass or an interface implemented by a
+    /// base class matches just as well as a direct one.
+    /// </typeparam>
+    /// <param name="assembly">
+    /// The assembly to scan. Passed through unchanged, so an assembly whose types cannot all be loaded still contributes
+    /// the ones that did.
     /// </param>
     ///
+    /// <returns>
+    /// The matching concrete types in that assembly, lazily. Empty when it declares none.
+    /// </returns>
+    ///
     /// <author>Almighty-Shogun</author>
-    /// <since>1.0.0</since>
-    public static void Title(string title) => Console.Title = title;
-
+    /// <since>Unreleased</since>
+    public static IEnumerable<Type> FindAssignableTypes<T>(Assembly assembly) => FindAssignableTypes<T>([assembly]);
+    
     /// <summary>
     /// Retrieves the concrete types in the specified assemblies that inherit from or implement <typeparamref name="T"/>.
     /// Interfaces and abstract classes are excluded, so every returned type can be instantiated.
@@ -45,8 +67,8 @@ public static class ApplicationUtils
     /// base class matches just as well as a direct one.
     /// </typeparam>
     /// <param name="assemblies">
-    /// The assemblies to scan. If none are provided the calling assembly is used, which is why this method must not be
-    /// inlined into its caller.
+    /// The assemblies to scan, in the order they should be searched. An empty array yields nothing rather than falling
+    /// back to the calling assembly; the parameterless overload is what does that.
     /// </param>
     ///
     /// <returns>
@@ -62,16 +84,9 @@ public static class ApplicationUtils
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    public static IEnumerable<Type> GetOnInherit<T>(params Assembly[] assemblies)
-    {
-        if (assemblies.Length == 0)
-            assemblies = [Assembly.GetCallingAssembly()];
-
-        return assemblies
-            .SelectMany(SafeGetTypes)
-            .Where(t => typeof(T).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false });
-    }
+    public static IEnumerable<Type> FindAssignableTypes<T>(Assembly[] assemblies) => assemblies
+        .SelectMany(SafeGetTypes)
+        .Where(t => typeof(T).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false });
 
     /// <summary>
     /// Reads the types defined in an assembly, keeping the ones that loaded when others could not.
@@ -101,31 +116,5 @@ public static class ApplicationUtils
         {
             return exception.Types.Where(type => type is not null)!;
         }
-    }
-
-    /// <summary>
-    /// Stops <c>Ctrl+C</c> from terminating the process, so a long-running console application can decide for itself when to
-    /// shut down. Calling it more than once has no additional effect.
-    /// </summary>
-    ///
-    /// <remarks>
-    /// There is no counterpart that restores the default. Once suppressed, cancellation stays suppressed for the life of the
-    /// process, and the application must expose some other way to stop. A hosted application should prefer
-    /// <c>UseCustomConsoleLifetime</c> from <c>AlmightyShogun.Hosting.Utils</c>, which suppresses the same key press but still
-    /// shuts down cleanly on <c>SIGTERM</c>.
-    /// </remarks>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>1.1.0</since>
-    public static void PreventCancellation()
-    {
-        if (_cancellationPrevented) return;
-
-        _cancellationPrevented = true;
-
-        Console.CancelKeyPress += (s, e) =>
-        {
-            e.Cancel = true;
-        };
     }
 }
