@@ -7,7 +7,7 @@ import { aspNetUtils } from './asp-net-utils'
 import { aspNetValidation } from './asp-net-validation'
 import { consoleCommands } from './console-commands'
 import { core } from './core'
-import { efCoreUtils } from './ef-core-utils'
+import { efCoreModelBuilding } from './ef-core-model-building'
 import { hangfireUtils } from './hangfire-utils'
 import { hostingConsoleLifetime } from './hosting-console-lifetime'
 import { remoteCommands } from './remote-commands'
@@ -49,9 +49,9 @@ export const nav: DefaultTheme.NavItem[] = [
     },
     {
         text: 'Data',
-        activeMatch: '^/(ef-core-utils|resend-utils)/',
+        activeMatch: '^/(ef-core-model-building|resend-utils)/',
         items: [
-            { text: 'EF Core Utils', activeMatch: '^/ef-core-utils/', link: '/ef-core-utils/' },
+            { text: 'EF Core Model Building', activeMatch: '^/ef-core-model-building/', link: '/ef-core-model-building/' },
             { text: 'Resend Utils', activeMatch: '^/resend-utils/', link: '/resend-utils/' }
         ]
     },
@@ -71,7 +71,7 @@ export const sidebar = {
     "/asp-net-validation/": aspNetValidation,
     "/console-commands/": consoleCommands,
     "/core/": core,
-    "/ef-core-utils/": efCoreUtils,
+    "/ef-core-model-building/": efCoreModelBuilding,
     "/hangfire-utils/": hangfireUtils,
     "/hosting-console-lifetime/": hostingConsoleLifetime,
     "/remote-commands/": remoteCommands,
