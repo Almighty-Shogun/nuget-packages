@@ -1,4 +1,4 @@
-# 🚀 `AlmightyShogun.EntityFrameworkCore.Utils`
+# 🚀 `AlmightyShogun.EntityFrameworkCore.ModelBuilding`
 
 A C# library that adds Entity Framework Core model-building helpers for relationships, indexes, owned types, enum storage, and eager loading.
 
@@ -8,5 +8,5 @@ A C# library that adds Entity Framework Core model-building helpers for relation
 ## 📦 Building
 
 ```sh
-dotnet build packages/AlmightyShogun.EntityFrameworkCore.Utils/AlmightyShogun.EntityFrameworkCore.Utils.csproj
+dotnet build packages/AlmightyShogun.EntityFrameworkCore.ModelBuilding/AlmightyShogun.EntityFrameworkCore.ModelBuilding.csproj
 ```

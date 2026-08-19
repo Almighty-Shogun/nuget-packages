@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Core", "pack
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Hosting.ConsoleLifetime", "packages\AlmightyShogun.Hosting.ConsoleLifetime\AlmightyShogun.Hosting.ConsoleLifetime.csproj", "{DA5B39A2-ED24-4BE7-8549-13644820F71A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.EntityFrameworkCore.Utils", "packages\AlmightyShogun.EntityFrameworkCore.Utils\AlmightyShogun.EntityFrameworkCore.Utils.csproj", "{CBEF0305-01AA-40E1-AEC9-60B45491A8CD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.EntityFrameworkCore.ModelBuilding", "packages\AlmightyShogun.EntityFrameworkCore.ModelBuilding\AlmightyShogun.EntityFrameworkCore.ModelBuilding.csproj", "{CBEF0305-01AA-40E1-AEC9-60B45491A8CD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Hangfire.Utils", "packages\AlmightyShogun.Hangfire.Utils\AlmightyShogun.Hangfire.Utils.csproj", "{AC325276-78F1-47FA-9101-F952865FA323}"
 EndProject
