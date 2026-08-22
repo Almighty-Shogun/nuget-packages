@@ -1,9 +1,8 @@
 ---
 params:
-    - name: compatibilityLevel
-      description: Hangfire data compatibility level used when configuring storage and serialization. Pass a different level only to align with an existing Hangfire storage schema.
-      type: CompatibilityLevel
-      default: CompatibilityLevel.Version_180
+    - name: configure
+      description: Selects the storage provider and data compatibility level. Hangfire throws when either is left unset by the final configuration.
+      type: 'Action<IGlobalConfiguration>'
 
     - name: addServer
       description: Whether this application also runs a background processing server. Set it to `false` on a client that only enqueues work and leaves processing to another process.
@@ -15,16 +14,38 @@ returns: The `IServiceCollection` instance with Hangfire configured.
 
 # AddCustomHangfire
 
-Registers Hangfire with the package's defaults: simple assembly-name serialization, the recommended serializer settings, in-memory storage, and a background processing server. Call it before [`RegisterRecurringJobs`](./register-recurring-jobs), which needs the recurring job manager this call provides.
+Registers Hangfire with the package's serializer defaults and a background processing server. Called without a delegate it uses in-memory storage and data compatibility level `Version_180`; pass a delegate to select another storage provider and set the compatibility level yourself. Call it before [`RegisterRecurringJobs`](./register-recurring-jobs), which needs the recurring job manager this call provides.
 
 ## Usage
 
 ::: code-group
 
-```csharp [Default.cs]
+```csharp [InMemory.cs]
 using AlmightyShogun.Hangfire.RecurringJobs;
 
 builder.Services.AddCustomHangfire();
+```
+
+```csharp [SqlServer.cs]
+using Hangfire;
+using AlmightyShogun.Hangfire.RecurringJobs;
+
+string connection = builder.Configuration.GetConnectionString("Hangfire");
+
+builder.Services.AddCustomHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSqlServerStorage(connection));
+```
+
+```csharp [SharedStore.cs]
+using Hangfire;
+using AlmightyShogun.Hangfire.RecurringJobs;
+
+string connection = builder.Configuration.GetConnectionString("Hangfire");
+
+builder.Services.AddCustomHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+    .UseSqlServerStorage(connection));
 ```
 
 ```csharp [ClientOnly.cs]
@@ -36,7 +57,7 @@ builder.Services.AddCustomHangfire(addServer: false);
 :::
 
 ::: warning
-Storage is in-memory, so job state is lost on restart and every replica keeps its own store. An application running more than one replica runs each recurring job once per replica.
+In-memory storage loses job state on restart and gives every replica its own store, so an application running more than one replica runs each recurring job once per replica. Pass a delegate selecting a durable provider to avoid both.
 :::
 
 <FrontmatterDocs/>
@@ -45,7 +66,11 @@ Storage is in-memory, so job state is lost on restart and every replica keeps it
 
 ```csharp
 public IServiceCollection AddCustomHangfire(
-    CompatibilityLevel compatibilityLevel = CompatibilityLevel.Version_180,
+    bool addServer = true
+);
+
+public IServiceCollection AddCustomHangfire(
+    Action<IGlobalConfiguration> configure,
     bool addServer = true
 );
 ```

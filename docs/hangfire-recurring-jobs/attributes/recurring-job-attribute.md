@@ -19,14 +19,14 @@ params:
       default: 'null'
 
     - name: Enabled
-      description: Whether the job is scheduled at all. Set it to `false` to park a job without deleting the class; its cron expression and time zone are still validated.
+      description: Whether the job is scheduled at all. Leaving it alone defers to the configuration section's `EnabledByDefault`, while stating either way ignores that. A parked job is still validated and still claims its job id.
       type: bool
       default: 'true'
 ---
 
 # RecurringJobAttribute
 
-Marks a class as a recurring Hangfire job. [`RegisterRecurringJobs`](../extensions/register-recurring-jobs) discovers [`RecurringJobBase`](../types/recurring-job-base) types carrying it and schedules each one against its [`RunAsync`](../types/recurring-job-base#runasync) method. It does nothing on a class outside that hierarchy, since the scan never looks at one.
+Marks a class as a recurring Hangfire job. [`RegisterRecurringJobs`](../extensions/register-recurring-jobs) discovers [`IRecurringJob`](../types/recurring-job) implementations carrying it and schedules each one against its [`RunAsync`](../types/recurring-job#runasync) method. It does nothing on a class that does not implement the interface, since the scan never looks at one.
 
 ## Usage
 
@@ -34,9 +34,9 @@ Marks a class as a recurring Hangfire job. [`RegisterRecurringJobs`](../extensio
 using AlmightyShogun.Hangfire.RecurringJobs;
 
 [RecurringJob("cleanup-expired-sessions", "0 */6 * * *")]
-public sealed class CleanupExpiredSessionsJob : RecurringJobBase
+public sealed class CleanupExpiredSessionsJob : IRecurringJob
 {
-    public override Task RunAsync(CancellationToken cancellationToken)
+    public Task RunAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }
