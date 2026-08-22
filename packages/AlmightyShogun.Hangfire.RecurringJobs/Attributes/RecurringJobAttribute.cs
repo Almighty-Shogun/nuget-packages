@@ -2,7 +2,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 
 /// <summary>
 /// Marks a recurring Hangfire job class and defines how it is scheduled. It has no effect on a class that does not
-/// inherit <see cref="RecurringJobBase"/>, since the scan only looks at that hierarchy.
+/// implement <see cref="IRecurringJob"/>, since the scan only looks for that contract.
 /// </summary>
 ///
 /// <param name="jobId">
@@ -14,7 +14,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.2.0</since>
-[AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public sealed class RecurringJobAttribute(string jobId, string cronExpression) : Attribute
 {
     /// <summary>
@@ -59,10 +59,31 @@ public sealed class RecurringJobAttribute(string jobId, string cronExpression) :
 
     /// <summary>
     /// Gets or sets whether the job is scheduled at all. Set it to <c>false</c> to park a job without deleting the class.
-    /// A parked job is still validated, so it cannot hide a broken cron expression until someone switches it back on.
+    /// A parked job is still validated and still claims its job id, so it cannot hide a broken cron expression or a
+    /// collision until someone switches it back on.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Leaving it alone is not the same as setting it to <c>true</c>: an untouched job follows the configuration section's
+    /// <see cref="RecurringJobSettings.EnabledByDefault"/>, while a job that states either way ignores it. The distinction
+    /// is carried by <see cref="DeclaredEnabled"/> because a nullable type cannot be an attribute argument, so this has to
+    /// present as <see cref="bool"/> while recording whether it was ever assigned. A per-job override outranks both.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public bool Enabled
+    {
+        get => DeclaredEnabled ?? true;
+        set => DeclaredEnabled = value;
+    }
+
+    /// <summary>
+    /// Gets what the class actually declared, with <c>null</c> meaning the job never mentioned <see cref="Enabled"/> and so
+    /// defers to configuration. Written only by that setter, which is why it is private to set rather than assigned anywhere.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public bool Enabled { get; set; } = true;
+    internal bool? DeclaredEnabled { get; private set; }
 }

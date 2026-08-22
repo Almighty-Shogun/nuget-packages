@@ -1,10 +1,11 @@
 namespace AlmightyShogun.Hangfire.RecurringJobs;
 
 /// <summary>
-/// Describes one recurring job the attribute scan accepted, which is the same value the scheduler hands to Hangfire.
+/// Describes one recurring job as it was actually scheduled, which is the attribute's arguments with any configuration
+/// override already applied rather than what the class alone declares.
 /// </summary>
 ///
-/// <param name="JobId">The stable Hangfire recurring job id, unique across the application.</param>
+/// <param name="JobId">The stable Hangfire recurring job id, unique across the application and never overridable.</param>
 /// <param name="CronExpression">The cron expression the job is scheduled with, validated during discovery.</param>
 /// <param name="JobType">The class implementing the job, resolved from a fresh scope on every run.</param>
 /// <param name="TimeZone">The time zone the cron expression is evaluated in, or <c>null</c> for UTC.</param>
