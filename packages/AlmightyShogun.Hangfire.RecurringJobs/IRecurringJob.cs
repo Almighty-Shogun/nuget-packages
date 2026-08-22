@@ -1,7 +1,7 @@
 namespace AlmightyShogun.Hangfire.RecurringJobs;
 
 /// <summary>
-/// Base class for a recurring Hangfire job. Inheriting it is not enough on its own: the class is only scheduled when it
+/// Contract for a recurring Hangfire job. Implementing it is not enough on its own: the class is only scheduled when it
 /// also carries <see cref="RecurringJobAttribute"/> and its assembly is passed to one of the registration overloads.
 /// </summary>
 ///
@@ -13,10 +13,11 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public abstract class RecurringJobBase
+public interface IRecurringJob
 {
     /// <summary>
-    /// Executes the recurring Hangfire job.
+    /// Executes the recurring Hangfire job. Implement it publicly rather than explicitly, since Hangfire invokes the method
+    /// by reflection and an explicit implementation is private.
     /// </summary>
     ///
     /// <param name="cancellationToken">
@@ -28,5 +29,5 @@ public abstract class RecurringJobBase
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public abstract Task RunAsync(CancellationToken cancellationToken);
+    Task RunAsync(CancellationToken cancellationToken);
 }

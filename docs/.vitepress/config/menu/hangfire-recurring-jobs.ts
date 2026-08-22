@@ -5,7 +5,15 @@ export const hangfireRecurringJobs: DefaultTheme.SidebarItem[] = [
         text: 'Hangfire Recurring Jobs',
         items: [
             { text: 'Introduction', link: '/hangfire-recurring-jobs/' },
-            { text: 'Installation', link: '/hangfire-recurring-jobs/installation' }
+            { text: 'Installation', link: '/hangfire-recurring-jobs/installation' },
+            { text: 'Configuration', link: '/hangfire-recurring-jobs/configuration' }
+        ]
+    },
+    {
+        text: 'Configuration',
+        collapsed: false,
+        items: [
+            { text: 'RecurringJobSettings', link: '/hangfire-recurring-jobs/configuration/recurring-job-settings' }
         ]
     },
     {
@@ -34,7 +42,7 @@ export const hangfireRecurringJobs: DefaultTheme.SidebarItem[] = [
         text: 'Types',
         collapsed: false,
         items: [
-            { text: 'RecurringJobBase', link: '/hangfire-recurring-jobs/types/recurring-job-base' }
+            { text: 'RecurringJob', link: '/hangfire-recurring-jobs/types/recurring-job' }
         ]
     },
     {

@@ -1,13 +1,13 @@
 ---
 fields:
     - name: JobId
-      description: Identifier the job is registered under, from [`RecurringJobAttribute`](../attributes/recurring-job-attribute).
+      description: Identifier the job is registered under, taken from its `RecurringJobAttribute` and unique across the application.
       type: string
     - name: CronExpression
       description: The schedule, validated when the host starts rather than on first run.
       type: string
     - name: JobType
-      description: The discovered [`RecurringJobBase`](../types/recurring-job-base) implementation.
+      description: The discovered `IRecurringJob` implementation, resolved from a fresh scope on every run.
       type: Type
     - name: TimeZone
       description: Time zone identifier the schedule is evaluated in. Null means UTC.

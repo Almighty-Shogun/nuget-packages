@@ -15,8 +15,9 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 public interface IRecurringJobRegistry
 {
     /// <summary>
-    /// Gets the jobs the attribute scan accepted, which is what was handed to Hangfire rather than what a fresh scan would
-    /// find. Jobs whose attribute sets <c>Enabled</c> to <c>false</c> are absent, and the order is discovery order.
+    /// Gets the jobs that were handed to Hangfire, rather than what a fresh scan would find. A job the attribute, the
+    /// configuration section, or <see cref="RecurringJobSettings.EnabledByDefault"/> left disabled is absent even though it
+    /// was discovered and validated, so this reports what runs here rather than what the assemblies declare.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

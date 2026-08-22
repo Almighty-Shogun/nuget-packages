@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Collections.Immutable;
 
 namespace AlmightyShogun.Hangfire.RecurringJobs;
 
@@ -7,8 +8,11 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// inside the registration call.
 /// </summary>
 ///
-/// <param name="Assemblies">The assemblies to scan for recurring job classes.</param>
+/// <param name="Assemblies">
+/// The assemblies to scan for recurring job classes. Immutable because the scan runs when the host starts rather than when
+/// this is constructed, which would otherwise leave the caller's array editable in between.
+/// </param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-internal sealed record RecurringJobSources(Assembly[] Assemblies);
+internal sealed record RecurringJobSources(ImmutableArray<Assembly> Assemblies);

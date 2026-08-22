@@ -6,7 +6,8 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 ///
 /// <remarks>
 /// These are ordinary cron strings rather than helper calls, so any other expression Cronos parses can be written out by
-/// hand instead. All of them are evaluated in UTC unless the job sets <see cref="RecurringJobAttribute.TimeZone"/>.
+/// hand instead. All of them are evaluated in UTC unless the job sets <see cref="RecurringJobAttribute.TimeZone"/> or the
+/// configuration section overrides it.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

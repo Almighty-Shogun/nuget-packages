@@ -10,8 +10,8 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 ///
 /// <param name="recurringJobManager">The Hangfire manager used to add or update recurring jobs.</param>
 /// <param name="registry">
-/// The singleton holding the scan result. Resolving it is what runs the scan, so an invalid attribute fails here rather
-/// than at the first cron tick.
+/// The singleton holding the scan result. Resolving it is what runs the scan, so a bad attribute argument or a bad override
+/// fails here rather than at the first cron tick.
 /// </param>
 ///
 /// <remarks>

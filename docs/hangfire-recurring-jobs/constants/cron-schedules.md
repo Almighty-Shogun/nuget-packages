@@ -8,9 +8,9 @@ Cron expressions for the common schedules, so a recurring job can avoid a raw st
 using AlmightyShogun.Hangfire.RecurringJobs;
 
 [RecurringJob("nightly-cleanup", CronSchedules.Daily, "Europe/Amsterdam")]
-public sealed class NightlyCleanupJob : RecurringJobBase
+public sealed class NightlyCleanupJob : IRecurringJob
 {
-    public override Task RunAsync(CancellationToken cancellationToken)
+    public Task RunAsync(CancellationToken cancellationToken)
         => Task.CompletedTask;
 }
 ```

@@ -2,11 +2,13 @@ using Cronos;
 using Hangfire.Common;
 using System.Reflection;
 using AlmightyShogun.Core;
+using System.Collections.Immutable;
 
 namespace AlmightyShogun.Hangfire.RecurringJobs;
 
 /// <summary>
-/// Discovers recurring job types and turns them into scheduling metadata.
+/// Discovers recurring job types, merges the configuration section over what each one declares, and turns the result into
+/// scheduling metadata.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -14,52 +16,66 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 internal static class RecurringJobDiscovery
 {
     /// <summary>
-    /// Builds the recurring job metadata for every job type declared in the provided assemblies.
+    /// Builds the scheduling metadata for every job type in the provided assemblies, resolving each value from the override
+    /// first and the attribute second, and dropping the ones that end up disabled.
     /// </summary>
     ///
     /// <param name="assemblies">
-    /// The assemblies to scan. A <see cref="RecurringJobBase"/> subclass without the attribute is passed over silently, since
-    /// an abstract or helper base is a legitimate reason to have one.
+    /// The assemblies to scan. An <see cref="IRecurringJob"/> implementation without the attribute is passed over silently,
+    /// since a job invoked directly by other code is a legitimate reason to implement it.
+    /// </param>
+    /// <param name="settings">
+    /// The bound configuration section, applied on top of what each attribute declares. Pass the defaults when the
+    /// application has no section, which leaves every job exactly as its attribute states it.
     /// </param>
     ///
     /// <returns>The recurring jobs to schedule, in the order the scan found them.</returns>
     ///
     /// <exception cref="InvalidOperationException">
-    /// A job declares an invalid attribute argument, or two jobs share a job id.
+    /// A job declares or is overridden with an invalid argument, two jobs share a job id, or an override names a job id the
+    /// scan did not find. A disabled job is checked and claims its id like any other, so a collision cannot lie dormant
+    /// until someone enables it.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>3.0.0</since>
-    internal static IReadOnlyList<RecurringJobInfo> GetRecurringJobs(Assembly[] assemblies)
+    internal static IReadOnlyList<RecurringJobInfo> GetRecurringJobs(ImmutableArray<Assembly> assemblies, RecurringJobSettings settings)
     {
         List<RecurringJobInfo> jobs = [];
         Dictionary<string, Type> seenJobIds = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, RecurringJobOverride> overrides = new(settings.Jobs, StringComparer.OrdinalIgnoreCase);
 
-        foreach (Type type in TypeDiscovery.FindAssignableTypes<RecurringJobBase>(assemblies))
+        foreach (Type type in TypeDiscovery.FindAssignableTypes<IRecurringJob>([.. assemblies]))
         {
             var attribute = type.GetCustomAttribute<RecurringJobAttribute>();
 
             if (attribute is null) continue;
 
-            Validate(type, attribute);
+            RecurringJobOverride? jobOverride = overrides.GetValueOrDefault(attribute.JobId);
 
-            if (!attribute.Enabled) continue;
+            RecurringJobInfo job = new(
+                attribute.JobId,
+                jobOverride?.CronExpression ?? attribute.CronExpression,
+                type,
+                jobOverride?.TimeZone ?? attribute.TimeZone,
+                jobOverride?.Queue ?? attribute.Queue
+            );
 
-            if (seenJobIds.TryGetValue(attribute.JobId, out Type? existing))
+            Validate(type, job);
+
+            if (seenJobIds.TryGetValue(job.JobId, out Type? existing))
                 throw new InvalidOperationException(
-                    $"Recurring job id '{attribute.JobId}' is declared by both {existing.FullName} and {type.FullName}."
+                    $"Recurring job id '{job.JobId}' is declared by both {existing.FullName} and {type.FullName}."
                 );
 
-            seenJobIds[attribute.JobId] = type;
+            seenJobIds[job.JobId] = type;
 
-            jobs.Add(new RecurringJobInfo(
-                attribute.JobId,
-                attribute.CronExpression,
-                type,
-                attribute.TimeZone,
-                attribute.Queue
-            ));
+            if (jobOverride?.Enabled ?? attribute.DeclaredEnabled ?? settings.EnabledByDefault)
+                jobs.Add(job);
         }
+
+        foreach (string jobId in overrides.Keys.Where(jobId => !seenJobIds.ContainsKey(jobId)))
+            throw new InvalidOperationException($"The RecurringJobs configuration overrides '{jobId}', which no discovered job declares.");
 
         return jobs;
     }
@@ -85,55 +101,55 @@ internal static class RecurringJobDiscovery
     }
 
     /// <summary>
-    /// Checks the attribute arguments up front, so a mistake stops the host with a message naming the offending type
-    /// rather than surfacing as a job that silently never fires.
+    /// Checks the merged arguments up front, so a mistake stops the host with a message naming the offending type rather
+    /// than surfacing as a job that silently never fires.
     /// </summary>
     ///
     /// <param name="type">The job type being validated.</param>
-    /// <param name="attribute">The attribute declared on it.</param>
+    /// <param name="job">The merged values, so an override is held to the same standard as a declared argument.</param>
     ///
-    /// <exception cref="InvalidOperationException">An attribute argument is not usable.</exception>
+    /// <exception cref="InvalidOperationException">A merged value is not usable.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static void Validate(Type type, RecurringJobAttribute attribute)
+    private static void Validate(Type type, RecurringJobInfo job)
     {
-        if (string.IsNullOrWhiteSpace(attribute.JobId))
+        if (string.IsNullOrWhiteSpace(job.JobId))
             throw new InvalidOperationException($"{type.FullName} declares an empty recurring job id.");
 
-        if (string.IsNullOrWhiteSpace(attribute.CronExpression))
-            throw new InvalidOperationException($"{type.FullName} declares an empty cron expression.");
+        if (string.IsNullOrWhiteSpace(job.CronExpression))
+            throw new InvalidOperationException($"{type.FullName} resolves to an empty cron expression.");
 
         try
         {
-            CronExpression.Parse(attribute.CronExpression);
+            CronExpression.Parse(job.CronExpression);
         }
         catch (CronFormatException exception)
         {
             throw new InvalidOperationException(
-                $"{type.FullName} declares the cron expression '{attribute.CronExpression}', which is not valid: {exception.Message}",
+                $"{type.FullName} resolves to the cron expression '{job.CronExpression}', which is not valid: {exception.Message}",
                 exception
             );
         }
 
-        if (attribute.TimeZone is null) return;
+        if (job.TimeZone is null) return;
 
         try
         {
-            TimeZoneInfo.FindSystemTimeZoneById(attribute.TimeZone);
+            TimeZoneInfo.FindSystemTimeZoneById(job.TimeZone);
         }
         catch (Exception exception) when (exception is TimeZoneNotFoundException or InvalidTimeZoneException)
         {
             throw new InvalidOperationException(
-                $"{type.FullName} declares the time zone '{attribute.TimeZone}', which this system does not recognise.",
+                $"{type.FullName} resolves to the time zone '{job.TimeZone}', which this system does not recognise.",
                 exception
             );
         }
     }
 
     /// <summary>
-    /// Finds the override Hangfire invokes, rather than the abstract declaration, so the serialized job records the concrete
-    /// type's method.
+    /// Finds the implementation Hangfire invokes, rather than the interface declaration, so the serialized job records the
+    /// concrete type's method.
     /// </summary>
     ///
     /// <param name="type">The job type.</param>
@@ -141,15 +157,15 @@ internal static class RecurringJobDiscovery
     /// <returns>The method Hangfire should invoke.</returns>
     ///
     /// <exception cref="InvalidOperationException">
-    /// The type exposes no matching run method, which a concrete subclass cannot normally manage since the base class
-    /// declares one as abstract.
+    /// The type exposes no public matching run method, which happens when the interface is implemented explicitly, since an
+    /// explicit implementation is private and Hangfire cannot invoke it.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private static MethodInfo ResolveRunMethod(Type type)
     {
-        const string runAsync = nameof(RecurringJobBase.RunAsync);
+        const string runAsync = nameof(IRecurringJob.RunAsync);
 
         MethodInfo? method = type.GetMethod(
             runAsync,
@@ -159,6 +175,8 @@ internal static class RecurringJobDiscovery
             null
         );
 
-        return method ?? throw new InvalidOperationException($"{type.FullName} does not expose a public {runAsync} method.");
+        return method ?? throw new InvalidOperationException(
+            $"{type.FullName} does not expose a public {runAsync} method. Implement {nameof(IRecurringJob)} publicly, not explicitly."
+        );
     }
 }
