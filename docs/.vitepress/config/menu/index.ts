@@ -8,7 +8,7 @@ import { aspNetValidation } from './asp-net-validation'
 import { consoleCommands } from './console-commands'
 import { core } from './core'
 import { efCoreModelBuilding } from './ef-core-model-building'
-import { hangfireUtils } from './hangfire-utils'
+import { hangfireRecurringJobs } from './hangfire-recurring-jobs'
 import { hostingConsoleLifetime } from './hosting-console-lifetime'
 import { remoteCommands } from './remote-commands'
 import { resendUtils } from './resend-utils'
@@ -38,10 +38,10 @@ export const nav: DefaultTheme.NavItem[] = [
     },
     {
         text: 'Operations',
-        activeMatch: '^/(console-commands|hangfire-utils|hosting-console-lifetime|remote-commands|serilog)/',
+        activeMatch: '^/(console-commands|hangfire-recurring-jobs|hosting-console-lifetime|remote-commands|serilog)/',
         items: [
             { text: 'Console Commands', activeMatch: '^/console-commands/', link: '/console-commands/' },
-            { text: 'Hangfire Utils', activeMatch: '^/hangfire-utils/', link: '/hangfire-utils/' },
+            { text: 'Hangfire Recurring Jobs', activeMatch: '^/hangfire-recurring-jobs/', link: '/hangfire-recurring-jobs/' },
             { text: 'Hosting Console Lifetime', activeMatch: '^/hosting-console-lifetime/', link: '/hosting-console-lifetime/' },
             { text: 'Remote Commands', activeMatch: '^/remote-commands/', link: '/remote-commands/' },
             { text: 'Serilog', activeMatch: '^/serilog/', link: '/serilog/' }
@@ -72,7 +72,7 @@ export const sidebar = {
     "/console-commands/": consoleCommands,
     "/core/": core,
     "/ef-core-model-building/": efCoreModelBuilding,
-    "/hangfire-utils/": hangfireUtils,
+    "/hangfire-recurring-jobs/": hangfireRecurringJobs,
     "/hosting-console-lifetime/": hostingConsoleLifetime,
     "/remote-commands/": remoteCommands,
     "/resend-utils/": resendUtils,
