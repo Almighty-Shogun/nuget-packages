@@ -6,8 +6,8 @@
         <TargetFramework>net10.0</TargetFramework>
 
         <Authors>Almighty-Shogun</Authors>
-        <PackageId>AlmightyShogun.Hangfire.Utils</PackageId>
-        <RootNamespace>AlmightyShogun.Hangfire.Utils</RootNamespace>
+        <PackageId>AlmightyShogun.Hangfire.RecurringJobs</PackageId>
+        <RootNamespace>AlmightyShogun.Hangfire.RecurringJobs</RootNamespace>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
         <PackageIcon>icon.png</PackageIcon>
@@ -16,8 +16,8 @@
         <Description>A C# library that adds attribute-based recurring job registration for Hangfire.</Description>
 
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.Hangfire.Utils</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.Hangfire.Utils</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.Hangfire.RecurringJobs</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,13 +26,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Hangfire" Version="1.8.24"/>
-        <PackageReference Include="Hangfire.InMemory" Version="1.0.0"/>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.4"/>
+        <PackageReference Include="Cronos"/>
+        <PackageReference Include="Hangfire"/>
+        <PackageReference Include="Hangfire.InMemory"/>
+        <PackageReference Include="Newtonsoft.Json"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AlmightyShogun.Utils\AlmightyShogun.Utils.csproj"/>
+        <ProjectReference Include="..\AlmightyShogun.Core\AlmightyShogun.Core.csproj"/>
     </ItemGroup>
 
 </Project>

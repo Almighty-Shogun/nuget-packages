@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Hosting.Cons
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.EntityFrameworkCore.ModelBuilding", "packages\AlmightyShogun.EntityFrameworkCore.ModelBuilding\AlmightyShogun.EntityFrameworkCore.ModelBuilding.csproj", "{CBEF0305-01AA-40E1-AEC9-60B45491A8CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Hangfire.Utils", "packages\AlmightyShogun.Hangfire.Utils\AlmightyShogun.Hangfire.Utils.csproj", "{AC325276-78F1-47FA-9101-F952865FA323}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Hangfire.RecurringJobs", "packages\AlmightyShogun.Hangfire.RecurringJobs\AlmightyShogun.Hangfire.RecurringJobs.csproj", "{AC325276-78F1-47FA-9101-F952865FA323}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Utils", "packages\AlmightyShogun.AspNet.Utils\AlmightyShogun.AspNet.Utils.csproj", "{538FD222-34DF-46E5-ADD8-5606E7F2C86D}"
 EndProject
