@@ -21,7 +21,7 @@ Adopting it is a set of independent registrations followed by one middleware cal
 ::: code-group
 
 ```csharp [Program.cs]
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 builder.Services
     .AddHttpErrorResponseWriter()
@@ -43,7 +43,7 @@ public sealed class OrderNotFoundException(int orderId)
 
 ```csharp [OrderExceptionMapper.cs]
 using Microsoft.AspNetCore.Http;
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 public sealed class OrderExceptionMapper : IExceptionMapper
 {

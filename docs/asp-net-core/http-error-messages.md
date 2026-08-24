@@ -1,14 +1,13 @@
 # HTTP Error Messages
 
-Every status code the standardized error body can carry resolves its description from an `http-error.json` file, one per language the application serves, where the key is the status code itself. `AlmightyShogun.AspNet.Validation` reads one further key from the same file, `invalid-body`, for a request whose body could not be parsed at all.
+Every status code the standardized error body can carry resolves its description from an `http-error.json` file, one per language the application serves, keyed by the status code itself. A status with no entry in the winning language falls back to the key, so a client sees `404` as the description rather than a sentence.
 
-A status with no entry in the winning language falls back to the key, so a client sees `404` as the description rather than a sentence. Place each file in the matching language directory alongside the rest of your [message files](/asp-net-localization/localization).
+Place each file in the matching language directory alongside the rest of your [message files](/asp-net-localization/localization).
 
 ::: code-group
 
-```json [messages/en/http-error.json]
+```json [en.json]
 {
-    "invalid-body": "The request body is missing or invalid.",
     "400": "The request is invalid.",
     "401": "Authentication is required.",
     "402": "Payment is required.",
@@ -52,9 +51,8 @@ A status with no entry in the winning language falls back to the key, so a clien
 }
 ```
 
-```json [messages/nl/http-error.json]
+```json [nl.json]
 {
-    "invalid-body": "De aanvraagbody ontbreekt of is ongeldig.",
     "400": "De aanvraag is ongeldig.",
     "401": "Authenticatie is vereist.",
     "402": "Betaling is vereist.",
@@ -98,9 +96,8 @@ A status with no entry in the winning language falls back to the key, so a clien
 }
 ```
 
-```json [messages/fr/http-error.json]
+```json [fr.json]
 {
-    "invalid-body": "Le corps de la requête est manquant ou invalide.",
     "400": "La requête est invalide.",
     "401": "Une authentification est requise.",
     "402": "Un paiement est requis.",

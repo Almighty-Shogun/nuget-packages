@@ -15,7 +15,7 @@ The second is what turns a bare `return NotFound();` into a full error body with
 ::: code-group
 
 ```csharp [Program.cs]
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 WebApplication app = builder.Build();
 
@@ -51,7 +51,7 @@ The empty `NotFound()` above returns:
 Call it early, before routing and before endpoints, so it wraps the rest of the pipeline. An exception thrown by middleware registered *before* this call is not handled by it.
 
 ```csharp
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 WebApplication app = builder.Build();
 

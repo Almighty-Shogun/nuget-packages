@@ -12,7 +12,7 @@ Returns `null` when the connection has no address, which happens on an in-memory
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 [ApiController]
 [Route("audit")]

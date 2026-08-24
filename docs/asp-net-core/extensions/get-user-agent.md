@@ -12,7 +12,7 @@ Parsing runs on each call, so store the result rather than calling it repeatedly
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 [ApiController]
 [Route("analytics")]

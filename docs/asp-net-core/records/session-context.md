@@ -25,7 +25,7 @@ For an application behind a proxy, configure forwarded headers with [`AddCloudfl
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 [ApiController]
 [Route("sessions")]

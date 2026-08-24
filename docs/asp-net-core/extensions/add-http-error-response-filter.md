@@ -11,7 +11,7 @@ Registers the MVC filter that fills in a standardized body for an error result c
 ::: code-group
 
 ```csharp [Program.cs]
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 builder.Services.AddHttpErrorResponseFilter();
 ```

@@ -6,7 +6,7 @@ Deletes one or more cookies by name, emitting an expired `Set-Cookie` for each. 
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 [ApiController]
 [Route("sessions")]

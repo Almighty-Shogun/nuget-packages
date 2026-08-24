@@ -32,7 +32,7 @@ Construct one directly only when returning it through [`HttpErrorResult`](../uti
 
 ```csharp
 using Microsoft.AspNetCore.Http;
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 HttpErrorResponse response = new()
 {

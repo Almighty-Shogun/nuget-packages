@@ -25,7 +25,7 @@ What one exception becomes on the wire, returned by [`IExceptionMapper`](../exce
 
 ```csharp
 using Microsoft.AspNetCore.Http;
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 ErrorMapping mapping = new(
     StatusCodes.Status423Locked,

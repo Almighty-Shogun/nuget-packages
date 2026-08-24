@@ -1,9 +1,9 @@
 # Installation
 
-Install `AlmightyShogun.AspNet.Utils` in the ASP.NET Core application, or in a package that builds on it. The package targets `net10.0` and references the ASP.NET Core shared framework. Every other package in this repository that returns an error response depends on it, so it is usually already present transitively.
+Install `AlmightyShogun.AspNet.Core` in the ASP.NET Core application, or in a package that builds on it. The package targets `net10.0` and references the ASP.NET Core shared framework. Every other package in this repository that returns an error response depends on it, so it is usually already present transitively.
 
 ```sh
-dotnet add package AlmightyShogun.AspNet.Utils
+dotnet add package AlmightyShogun.AspNet.Core
 ```
 
 ## Dependencies
@@ -29,7 +29,7 @@ Error bodies carry a localized description, so [`AddMessageLocalization`](/asp-n
 :::
 
 ```csharp
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 using AlmightyShogun.AspNet.Localization;
 
 builder.Services

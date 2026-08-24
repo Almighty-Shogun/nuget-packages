@@ -10,7 +10,7 @@ Reads the current request's [`SessionContext`](../records/session-context) from 
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 [ApiController]
 [Route("sessions")]

@@ -8,7 +8,7 @@ Use it in a controller or filter that needs to return the standard error body as
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 [ApiController]
 [Route("orders")]

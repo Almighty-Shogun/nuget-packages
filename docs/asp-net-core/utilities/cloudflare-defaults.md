@@ -6,7 +6,7 @@ Holds the published Cloudflare edge network ranges and the default client IP hea
 
 ```csharp
 using System.Net;
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 bool fromCloudflare = CloudflareDefaults.Networks
     .Any(network => network.Contains(remoteAddress));

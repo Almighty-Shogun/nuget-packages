@@ -31,7 +31,7 @@ This method **only configures options**. Nothing happens until the middleware ru
 ::: code-group
 
 ```csharp [Program.cs]
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 builder.Services.AddCloudflareHeaders();
 
@@ -43,7 +43,7 @@ app.UseHttpErrorResponses();
 
 ```csharp [BehindLoadBalancer.cs]
 using System.Net;
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 builder.Services.AddCloudflareHeaders(
     additionalNetworks: [IPNetwork.Parse("10.0.0.0/8")]

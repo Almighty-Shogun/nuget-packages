@@ -30,7 +30,7 @@ An absent or unparseable header yields `Unknown` for all three string values and
 
 ```csharp [AnalyticsController.cs]
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 [ApiController]
 [Route("analytics")]
@@ -57,7 +57,7 @@ public sealed class AnalyticsController : ControllerBase
 ```
 
 ```csharp [Parse.cs]
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 UserAgent userAgent = UserAgent.Parse(storedHeaderValue);
 ```

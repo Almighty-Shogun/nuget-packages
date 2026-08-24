@@ -25,7 +25,7 @@ Because the policy allows credentials, the `*` wildcard cannot be used &mdash; b
 ::: code-group
 
 ```csharp [Program.cs]
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 builder.Services.AddCorsPolicy("frontend", builder.Configuration);
 

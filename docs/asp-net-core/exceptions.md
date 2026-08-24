@@ -19,7 +19,7 @@ public sealed class AccountLockedException(
 
 ```csharp [AppExceptionMapper.cs]
 using Microsoft.AspNetCore.Http;
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 public sealed class AppExceptionMapper : IExceptionMapper
 {
@@ -39,7 +39,7 @@ public sealed class AppExceptionMapper : IExceptionMapper
 
 ```csharp [AppExceptionHandler.cs]
 using Microsoft.AspNetCore.Http;
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 using Microsoft.AspNetCore.Diagnostics;
 
 public sealed class AppExceptionHandler(

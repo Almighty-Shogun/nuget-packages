@@ -9,7 +9,7 @@ Registers the two exception handlers this package owns, in the order they have t
 ## Usage
 
 ```csharp
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 builder.Services
     .AddMessageLocalization(builder.Configuration)

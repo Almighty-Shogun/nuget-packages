@@ -11,7 +11,7 @@ Every package that returns an error response depends on this, including the exce
 ## Usage
 
 ```csharp
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 builder.Services.AddHttpErrorResponseWriter();
 ```

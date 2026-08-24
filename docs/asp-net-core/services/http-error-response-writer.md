@@ -6,7 +6,7 @@ Writes the standardized error response body and sets the status code, so every f
 
 ```csharp
 using Microsoft.AspNetCore.Http;
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 
 public sealed class QuotaMiddleware(RequestDelegate next)
 {
