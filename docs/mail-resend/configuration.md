@@ -105,7 +105,7 @@ public sealed class EmailLinkResolver(IOptions<EmailSettings> options)
     private readonly EmailSettings _settings = options.Value;
 
     public string DashboardUrl => _settings.Links["Dashboard"];
-    
+
     public string FooterText => _settings.Template.FooterLinkText;
 }
 ```

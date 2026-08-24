@@ -31,7 +31,7 @@ MailSendResult result = await mailService.SendAsync(
                 "invoice.pdf",
                 pdfBytes,
                 "application/pdf"
-            ) 
+            )
         ]
     },
     cancellationToken

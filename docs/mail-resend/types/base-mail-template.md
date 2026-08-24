@@ -45,8 +45,8 @@ Override `AdditionalValues` to add template fields without changing the package 
 
 ```csharp
 protected override IReadOnlyDictionary<string, string> AdditionalValues
-    => new Dictionary<string, string> 
-    { 
+    => new Dictionary<string, string>
+    {
         ["SupportEmail"] = "support@example.com"
     };
 ```

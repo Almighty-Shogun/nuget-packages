@@ -171,7 +171,7 @@ public sealed class MailPreviewEndpoint(IResendMailService mailService)
     )
     {
         WelcomeMail mail = new WelcomeMailTemplate("Shogun");
-        
+
         MailPreview preview = await mailService
             .PreviewAsync(mail, cancellationToken);
 
