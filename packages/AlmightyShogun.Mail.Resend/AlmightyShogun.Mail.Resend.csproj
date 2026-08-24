@@ -6,8 +6,8 @@
         <TargetFramework>net10.0</TargetFramework>
 
         <Authors>Almighty-Shogun</Authors>
-        <PackageId>AlmightyShogun.Resend.Utils</PackageId>
-        <RootNamespace>AlmightyShogun.Resend.Utils</RootNamespace>
+        <PackageId>AlmightyShogun.Mail.Resend</PackageId>
+        <RootNamespace>AlmightyShogun.Mail.Resend</RootNamespace>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
         <PackageIcon>icon.png</PackageIcon>
@@ -16,8 +16,8 @@
         <Description>A C# library that sends branded templated emails through Resend.</Description>
 
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.Resend.Utils</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.Resend.Utils</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.Mail.Resend</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,12 +26,16 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Resend" Version="0.6.0"/>
+        <PackageReference Include="Resend"/>
+        <PackageReference Include="Microsoft.Extensions.Http"/>
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
+        <PackageReference Include="Microsoft.Extensions.Options"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AlmightyShogun.Logging\AlmightyShogun.Logging.csproj"/>
-        <ProjectReference Include="..\AlmightyShogun.Utils\AlmightyShogun.Utils.csproj"/>
+        <ProjectReference Include="..\AlmightyShogun.Core\AlmightyShogun.Core.csproj"/>
     </ItemGroup>
 
 </Project>

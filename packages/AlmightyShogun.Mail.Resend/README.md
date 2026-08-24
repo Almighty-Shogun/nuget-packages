@@ -1,4 +1,4 @@
-# 🚀 `AlmightyShogun.Resend.Utils`
+# 🚀 `AlmightyShogun.Mail.Resend`
 
 A C# library that sends branded templated emails through Resend.
 
@@ -8,5 +8,5 @@ A C# library that sends branded templated emails through Resend.
 ## 📦 Building
 
 ```sh
-dotnet build packages/AlmightyShogun.Resend.Utils/AlmightyShogun.Resend.Utils.csproj
+dotnet build packages/AlmightyShogun.Mail.Resend/AlmightyShogun.Mail.Resend.csproj
 ```
