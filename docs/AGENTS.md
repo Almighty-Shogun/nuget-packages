@@ -366,7 +366,7 @@ Rules:
 - Nullable does not automatically mean optional. Document the actual method default to show optional parameters.
 - Write generic types literally and quote the YAML scalar: `type: 'IReadOnlyList<string>'`, `type: 'Expression<Func<TEntity, object?>>'`. Never use HTML entities such as `&lt;` and `&gt;`. The renderer interpolates `type` as text, so an entity is displayed to the reader as the literal characters `&lt;`.
 - Keep generic type commas, for example `Dictionary<TKey, TValue>`.
-- Inline backticks in descriptions are expected and rendered through the shared `renderInlineCode` utility.
+- Inline backticks and markdown links in descriptions are rendered through the shared `renderInlineCode` utility. Link an API from a description the same way prose does: a relative link within the package, an absolute docs-root link across packages. Nothing else is markdown there. Emphasis, lists, and raw HTML are escaped and shown to the reader literally.
 - Quote any `description` containing a colon followed by a space. YAML reads `deliberately: locking` as a mapping and the build fails on the whole page.
 - A record page uses `fields`, never `params`. The two render identically apart from the heading, so `params` on a record silently labels its fields "Parameters".
 
@@ -546,6 +546,7 @@ After documentation changes:
    - `## ParameterName` sections duplicating frontmatter;
    - old type names and namespaces;
    - broken or stale slugs;
+   - frontmatter links that do not resolve, including a `link:` on the home page's features, since VitePress dead-link checking only inspects markdown bodies and reports a build as clean with those broken;
    - duplicate class/interface pages for the same DI surface;
    - `classes` or `interfaces` groups introduced where `services` should be used;
    - attribute sidebar labels that still include the `Attribute` suffix;
