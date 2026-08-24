@@ -1,63 +1,97 @@
 # Exceptions
 
-The package defines no exceptions of its own. It defines `IAppException`, the contract every exception across this repository implements to become a standardized error response, and the one application code implements to fail a request deliberately. An exception implementing it is recognized only once [`AddExceptionHandling`](./extensions/add-exception-handling) and [`UseHttpErrorResponses`](./extensions/use-http-error-responses) are both in place.
+The package defines no exceptions of its own, and no handler for yours. It defines `IExceptionMapper`, which decides which exceptions you answer and what each one becomes on the wire, and [`ErrorMapping`](./records/error-mapping), the answer itself. Writing the handler that pairs them is yours to do, as it is for every package in this repository.
 
-## IAppException
+## IExceptionMapper
 
-Marks an exception that carries everything needed to produce a standardized error response. [`AppExceptionHandler`](./handlers/app-exception-handler) recognizes it before any other handler, so the response uses the status code and error code the exception names rather than falling through to a `500`.
+Turns one exception into the status code, error code, and message it should produce. The exception stays plain and carries only its own data, so a domain type never names an HTTP status or a message file key.
 
 ::: code-group
 
-```csharp [InvalidCredentialsException.cs]
-using Microsoft.AspNetCore.Http;
-using AlmightyShogun.AspNet.Utils;
-
-public sealed class InvalidCredentialsException : Exception, IAppException
+```csharp [AccountLockedException.cs]
+public sealed class AccountLockedException(
+    DateTimeOffset lockoutEnd
+) : Exception
 {
-    public int StatusCode => StatusCodes.Status401Unauthorized;
-    public string Code => "invalid_credentials";
-    public string MessageKey => "auth.failed";
-    public object?[] MessageParameters => [];
+    public DateTimeOffset LockoutEnd { get; } = lockoutEnd;
 }
 ```
 
-```csharp [AccountService.cs]
-public sealed class AccountService
-{
-    public async Task<Account> AuthenticateAsync(string email, string password)
-    {
-        Account? account = await FindAsync(email);
+```csharp [AppExceptionMapper.cs]
+using Microsoft.AspNetCore.Http;
+using AlmightyShogun.AspNet.Utils;
 
-        if (account is null || !Verify(account, password))
+public sealed class AppExceptionMapper : IExceptionMapper
+{
+    public ErrorMapping? Map(Exception exception) => exception switch
+    {
+        AccountLockedException lockedOut => new ErrorMapping(
+            StatusCodes.Status423Locked,
+            "account_locked_out",
+            "auth.locked-out",
+            [lockedOut.LockoutEnd]
+        ),
+
+        _ => null
+    };
+}
+```
+
+```csharp [AppExceptionHandler.cs]
+using Microsoft.AspNetCore.Http;
+using AlmightyShogun.AspNet.Utils;
+using Microsoft.AspNetCore.Diagnostics;
+
+public sealed class AppExceptionHandler(
+    AppExceptionMapper exceptionMapper,
+    IMessageResolver messageResolver,
+    IHttpErrorResponseWriter responseWriter
+) : IExceptionHandler
+{
+    public async ValueTask<bool> TryHandleAsync(
+        HttpContext httpContext,
+        Exception exception,
+        CancellationToken cancellationToken)
+    {
+        if (httpContext.Response.HasStarted
+            || exceptionMapper.Map(exception) is not { } mapping)
         {
-            throw new InvalidCredentialsException();
+            return false;
         }
 
-        return account;
+        await responseWriter.WriteAsync(
+            httpContext,
+            mapping.StatusCode,
+            mapping.Code,
+            messageResolver.Resolve(
+                mapping.MessageKey,
+                mapping.MessageParameters
+            ),
+            cancellationToken
+        );
+
+        return true;
     }
 }
 ```
 
 :::
 
-### Members
+::: warning
+Register your handler before [`AddExceptionHandling`](./extensions/add-exception-handling). Handlers run in registration order and the fallback there answers every exception, so a handler registered after it never runs.
+:::
 
-`StatusCode` is the HTTP status to return. It also decides the log level: `500` and above are logged with the exception, anything lower without it.
+### Map
 
-`Code` is the stable machine-readable identifier clients branch on. Treat it as public API: renaming it breaks consumers even though nothing fails to compile.
+Called on the exception path of a failing request with whatever was thrown. Return an [`ErrorMapping`](./records/error-mapping) to answer, or `null` to decline, which is what lets the handler return `false` and pass the exception to the ones behind it.
 
-`MessageKey` is resolved through [`MessageResolver`](./services/message-resolver) to produce `errorDescription`, so the description follows the request's language. A key no message file defines is returned verbatim.
-
-`MessageParameters` are the values formatted into the resolved template by position, as `{0}` and onwards. Return an empty array when the message takes none.
+A mapper is normally registered as a singleton and runs on a failing request, so it has to be thread-safe. Keep it a pattern match; it is the wrong place to read configuration or touch a database.
 
 ### Type signature
 
 ```csharp
-public interface IAppException
+public interface IExceptionMapper
 {
-    int StatusCode { get; }
-    string Code { get; }
-    string MessageKey { get; }
-    object?[] MessageParameters { get; }
+    ErrorMapping? Map(Exception exception);
 }
 ```

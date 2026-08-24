@@ -5,7 +5,8 @@ namespace AlmightyShogun.AspNet.Utils;
 
 /// <summary>
 /// Reads the caller's identity off the current request: the address it connected from, the client it used, and the
-/// session context those two are captured into. Every value comes from the live request, so none of it is cached.
+/// session context those two are captured into. Every value is read from the live request on each call, the one
+/// exception being a session context that something has already seeded into <see cref="HttpContext.Items"/>.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -30,22 +31,31 @@ public static class HttpContextExtensions
         /// </summary>
         ///
         /// <returns>
-        /// The context stored by <c>AddSessionContextFilter</c>, or a freshly built one when the filter is not
-        /// registered or the request never reached an action, as on a middleware short-circuit.
+        /// The context seeded under <see cref="SessionContext.ItemKey"/> when there is one, otherwise a context built
+        /// from the live request.
         /// </returns>
         ///
         /// <remarks>
-        /// The fallback is not written back to <see cref="HttpContext.Items"/>, so without the filter every call parses
-        /// the request again. Register the filter when more than one caller per request needs the context.
+        /// A built context is not written back to <see cref="HttpContext.Items"/>, so each call reads the request
+        /// again. Seed the entry to pin the values, as a test does when there is no real connection behind them.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.2.2</since>
         public SessionContext GetSessionContext()
-            => httpContext.Items.TryGetValue(SessionContext.ItemKey, out object? sessionContext)
-               && sessionContext is SessionContext typedSessionContext
-                ? typedSessionContext
-                : httpContext.CreateSessionContext();
+        {
+            if (httpContext.Items.TryGetValue(SessionContext.ItemKey, out object? value) && value is SessionContext sessionContext)
+                return sessionContext;
+
+            SessionContext created = new(
+                httpContext.GetIpAddress(),
+                httpContext.Request.Headers.UserAgent.ToString()
+            );
+
+            httpContext.Items[SessionContext.ItemKey] = created;
+
+            return created;
+        }
 
         /// <summary>
         /// Gets the client address for the current request, normalized so an IPv4 address tunneled as IPv4-mapped IPv6
@@ -71,22 +81,6 @@ public static class HttpContextExtensions
 
             return ipAddress.ToString();
         }
-
-        /// <summary>
-        /// Captures the address and raw User-Agent header into a <see cref="SessionContext"/>, without parsing either.
-        /// </summary>
-        ///
-        /// <returns>
-        /// A context holding the current address and header value. Both may be blank, since a missing header stringifies
-        /// to an empty value rather than to <c>null</c>.
-        /// </returns>
-        ///
-        /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
-        internal SessionContext CreateSessionContext() => new(
-            httpContext.GetIpAddress(),
-            httpContext.Request.Headers.UserAgent.ToString()
-        );
 
         /// <summary>
         /// Parses the current request's User-Agent header into a simplified <see cref="UserAgent"/> value.

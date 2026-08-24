@@ -1,20 +1,19 @@
-# AspNet Utils
+# AspNet Core
 
-Provides the shared ASP.NET Core layer the other web packages build on: one standardized error response shape, localized messages resolved from JSON files, request metadata capture, CORS setup, and forwarded-header configuration for a Cloudflare-proxied application.
+Provides the shared ASP.NET Core layer the other web packages build on: one standardized error response shape, exception mapping, request metadata capture, CORS setup, and forwarded-header configuration for a Cloudflare-proxied application.
 
 Every error body produced by this repository is written in exactly one place, [`HttpErrorResponseWriter`](./services/http-error-response-writer), so the shape stays consistent and can be changed once.
 
-Adopting it is a set of independent registrations followed by two middleware calls, so an application can take message localization without the exception handlers, or the reverse. Everything beyond that is a helper reached from `HttpContext`, `HttpRequest`, or `HttpResponse`.
+Adopting it is a set of independent registrations followed by one middleware call, so an application can take the error response shape without the exception handlers, or the reverse. Everything beyond that is a helper reached from `HttpContext`, `HttpRequest`, or `HttpResponse`.
 
 ## Categories
 
-- [Configuration](./configuration) &mdash; the optional `HttpErrors`, `Localization`, and `AllowedOrigins` sections.
-- [Localization](./localization) &mdash; how message files are laid out, resolved, and negotiated per request.
-- [Exceptions](./exceptions) &mdash; the `IAppException` contract every exception in this repository implements.
+- [Configuration](./configuration) &mdash; the optional `AllowedOrigins` section.
+- [Exceptions](./exceptions) &mdash; the `IExceptionMapper` standard your own handler is built on.
+- [HTTP Error Messages](./http-error-messages) &mdash; the `http-error.json` files every status description is resolved from.
 - [Extensions](./extensions/add-exception-handling) &mdash; registration, middleware, and request helpers.
-- [Handlers](./handlers/app-exception-handler) &mdash; the exception handlers that turn a thrown exception into the standard error body.
-- [Services](./services/message-resolver) &mdash; message resolution, language negotiation, and error response writing.
-- [Utilities](./utilities/cloudflare) &mdash; the Cloudflare edge ranges and the MVC error result helper.
+- [Services](./services/http-error-response-writer) &mdash; error response writing.
+- [Utilities](./utilities/cloudflare-defaults) &mdash; the Cloudflare edge ranges and the MVC error result helper.
 - [Records](./records/http-error-response) &mdash; the response body, session context, and parsed User-Agent.
 
 ## Quick Example
@@ -25,37 +24,39 @@ Adopting it is a set of independent registrations followed by two middleware cal
 using AlmightyShogun.AspNet.Utils;
 
 builder.Services
-    .AddMessageLocalization(builder.Configuration)
-    .AddHttpErrorResponseWriter(builder.Configuration)
+    .AddHttpErrorResponseWriter()
     .AddExceptionHandling()
-    .AddHttpErrorResponseFilter()
-    .AddSessionContextFilter();
+    .AddHttpErrorResponseFilter();
 
 WebApplication app = builder.Build();
 
 app.UseHttpErrorResponses();
 ```
 
-```csharp [SessionsController.cs]
-using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Utils;
-
-[ApiController]
-[Route("sessions")]
-public sealed class SessionsController(
-    IMessageResolver messageResolver
-) : ControllerBase
+```csharp [OrderNotFoundException.cs]
+public sealed class OrderNotFoundException(int orderId)
+    : Exception($"Order {orderId} was not found.")
 {
-    [HttpGet]
-    public IActionResult Get() 
-        => Ok(messageResolver.Resolve("auth.failed"));
+    public int OrderId { get; } = orderId;
 }
 ```
 
-```json [messages/en/auth.json]
+```csharp [OrderExceptionMapper.cs]
+using Microsoft.AspNetCore.Http;
+using AlmightyShogun.AspNet.Utils;
+
+public sealed class OrderExceptionMapper : IExceptionMapper
 {
-    "failed": "Authentication failed",
-    "expired": "Your session expired at {0}"
+    public ErrorMapping? Map(Exception exception) => exception switch
+    {
+        OrderNotFoundException notFound => new ErrorMapping(
+            StatusCodes.Status404NotFound,
+            "order_not_found",
+            "orders.not-found",
+            [notFound.OrderId]
+        ),
+        _ => null
+    };
 }
 ```
 

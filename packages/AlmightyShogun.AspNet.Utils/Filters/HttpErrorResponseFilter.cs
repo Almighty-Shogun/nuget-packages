@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
+using AlmightyShogun.AspNet.Localization;
 
 namespace AlmightyShogun.AspNet.Utils;
 
 /// <summary>
 /// Replaces an MVC error result that carries a status code but nobody with the standardized error response, so a bare
-/// <c>NotFound()</c> returns the same shape as an error raised through <see cref="IAppException"/>.
+/// <c>NotFound()</c> returns the same shape as an exception answered through <see cref="IExceptionMapper"/>.
 /// </summary>
 ///
 /// <param name="messageResolver">The resolver that turns the <c>http-error.{status}</c> key into a localized description.</param>
@@ -78,8 +79,7 @@ internal sealed class HttpErrorResponseFilter(IMessageResolver messageResolver) 
         int resolvedStatusCode = result switch
         {
             StatusCodeResult { StatusCode: var resultStatusCode } when IsErrorStatusCode(resultStatusCode) => resultStatusCode,
-            ObjectResult { Value: null, StatusCode: { } objectStatusCode } when IsErrorStatusCode(objectStatusCode) =>
-                objectStatusCode,
+            ObjectResult { Value: null, StatusCode: { } objectStatusCode } when IsErrorStatusCode(objectStatusCode) => objectStatusCode,
             _ => 0
         };
 
@@ -89,16 +89,17 @@ internal sealed class HttpErrorResponseFilter(IMessageResolver messageResolver) 
     }
 
     /// <summary>
-    /// Decides whether a status code is one this filter should produce a body for.
+    /// Narrows the status codes worth a body to the two error classes, so a redirect or a success never gains one.
     /// </summary>
     ///
     /// <param name="statusCode">The status code the result would be sent with.</param>
     ///
     /// <returns>
-    /// <c>true</c> from <c>400</c> upwards, which covers both client and server faults; otherwise <c>false</c>.
+    /// <c>true</c> for <c>400</c> through <c>599</c>, which covers both client and server faults; otherwise
+    /// <c>false</c>, which includes a nonstandard status above the error range.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static bool IsErrorStatusCode(int statusCode) => statusCode >= StatusCodes.Status400BadRequest;
+    private static bool IsErrorStatusCode(int statusCode) => statusCode is >= StatusCodes.Status400BadRequest and <= 599;
 }

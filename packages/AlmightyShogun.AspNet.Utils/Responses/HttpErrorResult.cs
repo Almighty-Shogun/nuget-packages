@@ -4,7 +4,7 @@ namespace AlmightyShogun.AspNet.Utils;
 
 /// <summary>
 /// Wraps the standardized error body in an MVC result, for a controller that wants to return an error directly rather
-/// than throw an <see cref="IAppException"/> and let the handler chain produce it.
+/// than throw a mapped exception and let the handler chain produce it.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -22,7 +22,7 @@ public static class HttpErrorResult
     ///
     /// <returns>
     /// An <see cref="ObjectResult"/> holding the body, serialized by the application's configured formatters rather
-    /// than by the package writer, so this path ignores <see cref="HttpErrorSettings.UseProblemDetails"/>.
+    /// than by the package writer, so its content type follows MVC's negotiation instead of being fixed.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>

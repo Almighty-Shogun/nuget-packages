@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Diagnostics;
+using AlmightyShogun.AspNet.Localization;
 
 namespace AlmightyShogun.AspNet.Utils;
 
@@ -21,7 +22,7 @@ namespace AlmightyShogun.AspNet.Utils;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public sealed class UnhandledExceptionHandler(
+internal sealed class UnhandledExceptionHandler(
     IMessageResolver messageResolver,
     IHttpErrorResponseWriter responseWriter
 ) : IExceptionHandler

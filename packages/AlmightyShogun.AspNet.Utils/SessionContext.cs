@@ -1,8 +1,9 @@
 namespace AlmightyShogun.AspNet.Utils;
 
 /// <summary>
-/// The caller identity captured once per request: where it connected from and what client it claims to be. Both values
-/// are a snapshot, so a context outlives the request it came from and can be handed to a background job or audit record.
+/// The caller identity behind one request: where it connected from and what client it claims to be. Both values are a
+/// snapshot taken when the context is built, so it outlives the request it came from and can be handed to a background
+/// job or an audit record.
 /// </summary>
 ///
 /// <param name="IpAddress">
@@ -19,8 +20,8 @@ namespace AlmightyShogun.AspNet.Utils;
 public sealed record SessionContext(string? IpAddress, string? UserAgent)
 {
     /// <summary>
-    /// The <c>HttpContext.Items</c> key the per-request context is stored under. Exposed so a consumer can read or seed
-    /// the entry directly, for a test that needs a fixed address without a real connection behind it.
+    /// The <c>HttpContext.Items</c> key a context is read from. Exposed so a consumer can seed the entry directly, for
+    /// a test that needs a fixed address without a real connection behind it, or to capture it once per request.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

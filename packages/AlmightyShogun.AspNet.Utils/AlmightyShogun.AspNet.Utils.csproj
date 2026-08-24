@@ -13,7 +13,7 @@
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Description>A C# library that adds standardized HTTP error responses, localized messages, exception handling, and request helpers to ASP.NET Core.</Description>
+        <Description>A C# library that adds standardized HTTP error responses, exception handling, and request helpers to ASP.NET Core.</Description>
 
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages</RepositoryUrl>
@@ -26,15 +26,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AlmightyShogun.Utils\AlmightyShogun.Utils.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="UAParser"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AlmightyShogun.AspNet.Localization\AlmightyShogun.AspNet.Localization.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Http;
 namespace AlmightyShogun.AspNet.Utils;
 
 /// <summary>
-/// Writes response headers and cookies. Everything here goes through the response headers, so nothing takes effect once
-/// the response has started.
+/// Deletes response cookies. Deletion travels as a <c>Set-Cookie</c> header, so nothing here takes effect once the
+/// response has started.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.Utils;
 public static class HttpResponseExtensions
 {
     /// <summary>
-    /// Provides the header and cookie helpers as extensions on the response.
+    /// Provides the cookie helpers as extensions on the response.
     /// </summary>
     ///
     /// <param name="httpResponse">
@@ -44,43 +44,6 @@ public static class HttpResponseExtensions
         {
             foreach (string cookieName in cookieNames.Where(cookieName => !string.IsNullOrWhiteSpace(cookieName)))
                 httpResponse.Cookies.Delete(cookieName);
-        }
-
-        /// <summary>
-        /// Gets the response <c>Content-Language</c> header as it currently stands.
-        /// </summary>
-        ///
-        /// <returns>
-        /// The header value, or <c>null</c> when it has not been set. Multiple languages come back joined by commas
-        /// rather than as separate values.
-        /// </returns>
-        ///
-        /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
-        public string? GetContentLanguage()
-        {
-            var language = httpResponse.Headers.ContentLanguage.ToString();
-
-            return string.IsNullOrWhiteSpace(language) ? null : language;
-        }
-
-        /// <summary>
-        /// Sets the response <c>Content-Language</c> header, replacing any language already set.
-        /// </summary>
-        ///
-        /// <param name="language">The language tag to report the body as being written in.</param>
-        ///
-        /// <remarks>
-        /// Does nothing once the response has started, rather than throwing as a direct header assignment would. Call it
-        /// from an <c>OnStarting</c> callback when the language is only known after the body has been produced.
-        /// </remarks>
-        ///
-        /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
-        public void SetContentLanguage(string language)
-        {
-            if (!httpResponse.HasStarted)
-                httpResponse.Headers.ContentLanguage = language;
         }
     }
 }

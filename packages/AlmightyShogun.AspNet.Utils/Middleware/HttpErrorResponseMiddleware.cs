@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using AlmightyShogun.AspNet.Localization;
 
 namespace AlmightyShogun.AspNet.Utils;
 
@@ -8,22 +9,18 @@ namespace AlmightyShogun.AspNet.Utils;
 /// </summary>
 ///
 /// <param name="next">The rest of the pipeline, run to completion before the response is inspected.</param>
-/// <param name="messageResolver">The resolver that turns the <c>http-error.{status}</c> key into a localized description.</param>
 /// <param name="responseWriter">The writer that produces the body, matching every other error the application returns.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-internal sealed class HttpErrorResponseMiddleware(
-    RequestDelegate next,
-    IMessageResolver messageResolver,
-    IHttpErrorResponseWriter responseWriter
-)
+internal sealed class HttpErrorResponseMiddleware(RequestDelegate next, IHttpErrorResponseWriter responseWriter)
 {
     /// <summary>
     /// Runs the pipeline, then writes the error body if what came back was an empty error.
     /// </summary>
     ///
     /// <param name="context">The context whose response is inspected and, when it qualifies, written to.</param>
+    /// <param name="messageResolver">The resolver that turns the <c>http-error.{status}</c> key into a localized description.</param>
     ///
     /// <returns>A task that completes once the pipeline has run and any error body has been written.</returns>
     ///
@@ -34,7 +31,7 @@ internal sealed class HttpErrorResponseMiddleware(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context, IMessageResolver messageResolver)
     {
         await next(context);
 
@@ -52,7 +49,8 @@ internal sealed class HttpErrorResponseMiddleware(
     }
 
     /// <summary>
-    /// Determines whether the middleware should write a standardized error body.
+    /// Decides whether the response left by the pipeline is an error nobody filled in, which is the only case worth
+    /// writing over.
     /// </summary>
     ///
     /// <param name="response">The response as the pipeline left it.</param>

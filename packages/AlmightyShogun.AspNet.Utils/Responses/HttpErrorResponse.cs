@@ -6,8 +6,7 @@ namespace AlmightyShogun.AspNet.Utils;
 /// </summary>
 ///
 /// <remarks>
-/// Serialized with the application's own JSON options, so property casing follows whatever the host configured. Reach
-/// for <see cref="HttpProblemDetails"/> instead by enabling <see cref="HttpErrorSettings.UseProblemDetails"/>.
+/// Serialized with the application's own JSON options, so property casing follows whatever the host configured.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -25,7 +24,7 @@ public record HttpErrorResponse
 
     /// <summary>
     /// Gets the machine-readable identifier to branch on, such as <c>not_found</c> or a code an
-    /// <see cref="IAppException"/> supplied. This is the field a client should switch on, never the description.
+    /// <see cref="ErrorMapping"/> supplied. This is the field a client should switch on, never the description.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
