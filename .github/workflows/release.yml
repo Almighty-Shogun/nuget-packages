@@ -41,7 +41,7 @@ jobs:
                     dotnet build AlmightyShogun.ConsoleCommands/AlmightyShogun.ConsoleCommands.csproj --configuration Release
                     dotnet build AlmightyShogun.Hangfire.RecurringJobs/AlmightyShogun.Hangfire.RecurringJobs.csproj --configuration Release
                     dotnet build AlmightyShogun.RemoteCommands/AlmightyShogun.RemoteCommands.csproj --configuration Release
-                    dotnet build AlmightyShogun.Resend.Utils/AlmightyShogun.Resend.Utils.csproj --configuration Release
+                    dotnet build AlmightyShogun.Mail.Resend/AlmightyShogun.Mail.Resend.csproj --configuration Release
                     dotnet build AlmightyShogun.AspNet.CredentialAuth/AlmightyShogun.AspNet.CredentialAuth.csproj --configuration Release
 
             -   name: 📦️ Pack packages
@@ -59,7 +59,7 @@ jobs:
                     dotnet pack AlmightyShogun.ConsoleCommands/AlmightyShogun.ConsoleCommands.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.Hangfire.RecurringJobs/AlmightyShogun.Hangfire.RecurringJobs.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.RemoteCommands/AlmightyShogun.RemoteCommands.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
-                    dotnet pack AlmightyShogun.Resend.Utils/AlmightyShogun.Resend.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.Mail.Resend/AlmightyShogun.Mail.Resend.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.AspNet.CredentialAuth/AlmightyShogun.AspNet.CredentialAuth.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
 
             -   name: 🚀 Publish packages
