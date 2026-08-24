@@ -6,8 +6,8 @@
         <TargetFramework>net10.0</TargetFramework>
 
         <Authors>Almighty-Shogun</Authors>
-        <PackageId>AlmightyShogun.AspNet.Utils</PackageId>
-        <RootNamespace>AlmightyShogun.AspNet.Utils</RootNamespace>
+        <PackageId>AlmightyShogun.AspNet.Core</PackageId>
+        <RootNamespace>AlmightyShogun.AspNet.Core</RootNamespace>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
         <PackageIcon>icon.png</PackageIcon>
@@ -17,7 +17,7 @@
 
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.AspNet.Utils</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.AspNet.Core</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>

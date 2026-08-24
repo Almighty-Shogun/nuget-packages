@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// The published Cloudflare edge ranges and client-address header, exposed as data so an application can build its own

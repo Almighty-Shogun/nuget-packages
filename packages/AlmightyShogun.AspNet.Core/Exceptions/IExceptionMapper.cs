@@ -1,4 +1,4 @@
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// Decides which exceptions a package or an application answers, and how. This package defines the shape and nothing

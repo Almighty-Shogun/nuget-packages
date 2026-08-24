@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using AlmightyShogun.AspNet.Localization;
 
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// Replaces an MVC error result that carries a status code but nobody with the standardized error response, so a bare

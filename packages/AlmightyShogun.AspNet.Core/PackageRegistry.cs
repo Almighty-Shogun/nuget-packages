@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// The package's startup surface: each helper registers one feature, and none of them registers another's dependencies,

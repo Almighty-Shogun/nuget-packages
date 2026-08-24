@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Diagnostics;
 using AlmightyShogun.AspNet.Localization;
 
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// Maps common framework exceptions to their correct status code instead of letting them all become <c>500</c>: a

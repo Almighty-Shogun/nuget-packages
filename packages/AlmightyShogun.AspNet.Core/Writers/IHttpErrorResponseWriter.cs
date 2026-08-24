@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// Writes the standardized error response body. This is the single place the error shape is produced, so a consumer can

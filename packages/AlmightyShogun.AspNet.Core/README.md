@@ -1,4 +1,4 @@
-# 🚀 `AlmightyShogun.AspNet.Utils`
+# 🚀 `AlmightyShogun.AspNet.Core`
 
 A C# library that adds standardized HTTP error responses, exception handling, and request helpers to ASP.NET Core.
 
@@ -8,5 +8,5 @@ A C# library that adds standardized HTTP error responses, exception handling, an
 ## 📦 Building
 
 ```sh
-dotnet build packages/AlmightyShogun.AspNet.Utils/AlmightyShogun.AspNet.Utils.csproj
+dotnet build packages/AlmightyShogun.AspNet.Core/AlmightyShogun.AspNet.Core.csproj
 ```

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.Localization;
 
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// Fills in the standardized body for an error status that reached the client with no content, covering the responses

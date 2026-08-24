@@ -1,4 +1,4 @@
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// The caller identity behind one request: where it connected from and what client it claims to be. Both values are a

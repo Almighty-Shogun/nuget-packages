@@ -1,4 +1,4 @@
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// The error body every failure in the application serializes to, so a client can parse one shape regardless of whether

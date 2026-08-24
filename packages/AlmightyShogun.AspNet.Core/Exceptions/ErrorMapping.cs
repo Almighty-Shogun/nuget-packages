@@ -1,6 +1,6 @@
 using AlmightyShogun.AspNet.Localization;
 
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// What one exception should become on the wire, produced by an <see cref="IExceptionMapper"/> and consumed by the

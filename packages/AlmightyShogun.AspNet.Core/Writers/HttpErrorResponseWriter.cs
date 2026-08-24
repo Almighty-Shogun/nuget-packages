@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// Serializes the standardized error body to JSON and sets the status alongside it, so the two can never disagree

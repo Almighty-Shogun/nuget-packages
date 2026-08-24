@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.EntityFramew
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Hangfire.RecurringJobs", "packages\AlmightyShogun.Hangfire.RecurringJobs\AlmightyShogun.Hangfire.RecurringJobs.csproj", "{AC325276-78F1-47FA-9101-F952865FA323}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Utils", "packages\AlmightyShogun.AspNet.Utils\AlmightyShogun.AspNet.Utils.csproj", "{538FD222-34DF-46E5-ADD8-5606E7F2C86D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Core", "packages\AlmightyShogun.AspNet.Core\AlmightyShogun.AspNet.Core.csproj", "{538FD222-34DF-46E5-ADD8-5606E7F2C86D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Localization", "packages\AlmightyShogun.AspNet.Localization\AlmightyShogun.AspNet.Localization.csproj", "{487F3E2B-F1A8-414C-BB08-55D5429267E4}"
 EndProject

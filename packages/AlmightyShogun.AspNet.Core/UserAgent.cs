@@ -1,6 +1,6 @@
 using UAParser;
 
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// The parts of a User-Agent header worth recording: browser, operating system, device, and whether the caller is a

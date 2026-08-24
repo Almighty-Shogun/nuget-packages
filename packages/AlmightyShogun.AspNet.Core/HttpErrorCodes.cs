@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// Maps a status code to the snake-case identifier clients branch on, covering every error status the framework names

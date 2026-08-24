@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// Deletes response cookies. Deletion travels as a <c>Set-Cookie</c> header, so nothing here takes effect once the

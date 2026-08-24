@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Diagnostics;
 using AlmightyShogun.AspNet.Localization;
 
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// Writes the standardized <c>500</c> body for any exception the earlier handlers did not recognize. Registered last,
