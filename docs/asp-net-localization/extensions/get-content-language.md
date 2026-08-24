@@ -6,13 +6,14 @@ returns: The response `Content-Language` header when set; otherwise `null`.
 
 Reads the response `Content-Language` header, returning `null` when it is absent or blank.
 
-The header is set automatically by the middleware from [`UseMessageLocalization`](./use-message-localization), using the language message resolution negotiated for the request. Multiple languages come back joined by commas rather than as separate values.
+The middleware from [`UseMessageLocalization`](./use-message-localization) sets this header from the language message resolution settled on for the request. Multiple languages come back joined by commas rather than as separate values.
 
 ## Usage
 
 ```csharp
 using Microsoft.AspNetCore.Http;
-using AlmightyShogun.AspNet.Utils;
+using Microsoft.Extensions.Logging;
+using AlmightyShogun.AspNet.Localization;
 
 public sealed class LanguageAuditMiddleware(RequestDelegate next)
 {

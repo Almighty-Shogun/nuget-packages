@@ -26,8 +26,6 @@ The standardized error body returned by every package in this repository. `Error
 }
 ```
 
-Property names are camel-cased by the default ASP.NET Core serializer, so `ErrorDescription` appears as `errorDescription` on the wire.
-
 ## Usage
 
 Construct one directly only when returning it through [`HttpErrorResult`](../utilities/http-error-result). Everywhere else, [`IHttpErrorResponseWriter`](../services/http-error-response-writer) builds it.
@@ -43,5 +41,9 @@ HttpErrorResponse response = new()
     ErrorDescription = messageResolver.Resolve("orders.already-shipped")
 };
 ```
+
+::: tip
+Property names are camel-cased by the default ASP.NET Core serializer, so `ErrorDescription` appears as `errorDescription` on the wire.
+:::
 
 <FrontmatterDocs/>

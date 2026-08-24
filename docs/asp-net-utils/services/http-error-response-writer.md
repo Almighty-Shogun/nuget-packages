@@ -1,6 +1,6 @@
 # HttpErrorResponseWriter
 
-Writes the standardized error response body and sets the status code, choosing the package shape or RFC 9457 problem details according to `UseProblemDetails`, so a caller never has to know which one the application returns. Application code depends on `IHttpErrorResponseWriter`. A response that has already started is left untouched rather than throwing, which is what makes it safe to call from an exception handler.
+Writes the standardized error response body and sets the status code, so every failure reaches the client as one shape no matter which layer produced it. Application code depends on `IHttpErrorResponseWriter`. A response that has already started is left untouched rather than throwing, which is what makes it safe to call from an exception handler.
 
 ## Usage
 

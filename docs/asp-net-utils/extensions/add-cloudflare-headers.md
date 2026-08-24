@@ -54,7 +54,7 @@ builder.Services.AddCloudflareHeaders(
 
 ## Trusted networks
 
-Trust is restricted to [Cloudflare's published ranges](../utilities/cloudflare), so `X-Forwarded-For` is honored from the edge and ignored from anywhere else. ASP.NET Core's forwarded-headers middleware trusts nothing by default, because an application that trusts the header from any source lets a client claim any IP address it likes.
+Trust is restricted to [Cloudflare's published ranges](../utilities/cloudflare-defaults), so `X-Forwarded-For` is honored from the edge and ignored from anywhere else. ASP.NET Core's forwarded-headers middleware trusts nothing by default, because an application that trusts the header from any source lets a client claim any IP address it likes.
 
 Existing `KnownIPNetworks` and `KnownProxies` entries are cleared, so the trusted set is exactly what this method configures plus `additionalNetworks`.
 
@@ -64,7 +64,7 @@ Existing `KnownIPNetworks` and `KnownProxies` entries are cleared, so the truste
 
 ```csharp
 public IServiceCollection AddCloudflareHeaders(
-    string clientIpHeader = Cloudflare.ClientIpHeader,
+    string clientIpHeader = CloudflareDefaults.ClientIpHeader,
     IEnumerable<IPNetwork>? additionalNetworks = null,
     int? forwardLimit = null
 );

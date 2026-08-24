@@ -18,27 +18,27 @@ dotnet add package AlmightyShogun.AspNet.Utils
 
 ### Project references
 
-- `AlmightyShogun.Utils` &mdash; supplies the configuration binding helper both settings sections are bound through, so a missing or malformed value fails at startup.
+- `AlmightyShogun.AspNet.Localization` &mdash; resolves the localized description on every error body, so it arrives transitively and its `Localization` section applies here too.
 
 ## Startup Registration
 
-Each concern is registered on its own, so an application takes only what it needs. [`AddMessageLocalization`](./extensions/add-message-localization) and [`AddHttpErrorResponseWriter`](./extensions/add-http-error-response-writer) are the two everything else depends on. [`UseHttpErrorResponses`](./extensions/use-http-error-responses) adds the middleware that runs the handler chain and fills in empty error responses; [`UseMessageLocalization`](./extensions/use-message-localization) sets `Content-Language`.
+Each concern is registered on its own, so an application takes only what it needs. [`AddHttpErrorResponseWriter`](./extensions/add-http-error-response-writer) is the one everything else here depends on, and [`UseHttpErrorResponses`](./extensions/use-http-error-responses) adds the middleware that runs the handler chain and fills in empty error responses.
 
 ::: warning
-Call [`UseMessageLocalization`](./extensions/use-message-localization) before [`UseHttpErrorResponses`](./extensions/use-http-error-responses), so the header is set on error responses too.
+Error bodies carry a localized description, so [`AddMessageLocalization`](/asp-net-localization/extensions/add-message-localization) is required alongside these calls. It lives in `AlmightyShogun.AspNet.Localization` and is not registered here.
 :::
 
 ```csharp
 using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Localization;
 
 builder.Services
     .AddMessageLocalization(builder.Configuration)
-    .AddHttpErrorResponseWriter(builder.Configuration)
+    .AddHttpErrorResponseWriter()
     .AddExceptionHandling()
     .AddHttpErrorResponseFilter();
 
 WebApplication app = builder.Build();
 
-app.UseMessageLocalization();
 app.UseHttpErrorResponses();
 ```

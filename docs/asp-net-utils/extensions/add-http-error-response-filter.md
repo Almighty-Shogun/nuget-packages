@@ -41,7 +41,7 @@ The empty `NotFound()` above returns:
 ```
 
 ::: warning
-Requires [`AddMessageLocalization`](./add-message-localization) and [`AddHttpErrorResponseWriter`](./add-http-error-response-writer). It applies to MVC results only; a minimal API endpoint returning `Results.NotFound()` is unaffected.
+Requires [`AddMessageLocalization`](/asp-net-localization/extensions/add-message-localization) and [`AddHttpErrorResponseWriter`](./add-http-error-response-writer). It applies to MVC results only; a minimal API endpoint returning `Results.NotFound()` is unaffected.
 :::
 
 <FrontmatterDocs/>

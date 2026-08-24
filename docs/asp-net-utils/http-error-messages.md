@@ -1,38 +1,12 @@
-# Localization
+# HTTP Error Messages
 
-ASP.NET Utils supports localized messages through language-specific JSON files under `messages/{language}`. A language directory can contain one file or several files; when that language is requested, the resolver loads every `.json` file in that directory and flattens them into message keys. Files are read once and cached for the life of the process unless `AutomaticReload` is on.
+Every status code the standardized error body can carry resolves its description from an `http-error.json` file, one per language the application serves, where the key is the status code itself. `AlmightyShogun.AspNet.Validation` reads one further key from the same file, `invalid-body`, for a request whose body could not be parsed at all.
 
-## Language negotiation
-
-`Accept-Language` is a ranked list, and all of it is honoured. Every accepted language is tried in the client's preference order, each one immediately followed by its neutral form, with `DefaultLanguage` from the [`Localization`](./configuration) section last. The first language that has the key wins.
-
-For `Accept-Language: nl-BE,fr;q=0.9` with `DefaultLanguage` of `en`, the resolver tries:
-
-```text
-nl-BE  ->  nl  ->  fr  ->  en
-```
-
-So an application with `messages/nl/` but no `messages/nl-BE/` serves Dutch, and an application with neither still serves French before falling back to English, because the client said it would accept French.
-
-A neutral form sits directly behind its own tag rather than after every accepted language, because `nl` is a closer match for a client asking for `nl-BE` than an `fr` the client ranked lower. Quality values decide the order between different languages: `nl-BE;q=0.2,fr;q=0.9` tries `fr` first.
-
-Candidates appear once each, so a header that repeats a language, or names both `nl` and `nl-BE`, does not read the same directory twice.
-
-When no candidate has the key, the resolver returns the message key itself so a caller still receives a stable value rather than an empty string, and logs a warning naming the key.
-
-::: warning
-An entry that is not a well-formed language tag is dropped, as is the `*` wildcard, which names no directory. Each value is combined into a filesystem path when message files are resolved, so anything containing a path separator or `..` is refused rather than followed.
-:::
-
-## HTTP Error Messages
-
-Standardized HTTP error responses require an `http-error.json` file for every language the application should support. Place each file in the matching language directory, for example `messages/en/http-error.json` or `messages/nl/http-error.json`.
-
-Copy each example below into `http-error.json` in the matching language directory. The code-group labels show the language example, not the file name to use.
+A status with no entry in the winning language falls back to the key, so a client sees `404` as the description rather than a sentence. Place each file in the matching language directory alongside the rest of your [message files](/asp-net-localization/localization).
 
 ::: code-group
 
-```json [en.json]
+```json [messages/en/http-error.json]
 {
     "invalid-body": "The request body is missing or invalid.",
     "400": "The request is invalid.",
@@ -78,7 +52,7 @@ Copy each example below into `http-error.json` in the matching language director
 }
 ```
 
-```json [nl.json]
+```json [messages/nl/http-error.json]
 {
     "invalid-body": "De aanvraagbody ontbreekt of is ongeldig.",
     "400": "De aanvraag is ongeldig.",
@@ -124,7 +98,7 @@ Copy each example below into `http-error.json` in the matching language director
 }
 ```
 
-```json [fr.json]
+```json [messages/fr/http-error.json]
 {
     "invalid-body": "Le corps de la requête est manquant ou invalide.",
     "400": "La requête est invalide.",

@@ -47,7 +47,7 @@ public sealed class SessionsController : ControllerBase
 
 ## ItemKey
 
-The `HttpContext.Items` key the context is stored under by the session context filter. Useful when writing middleware that needs to read or replace the stored value.
+The `HttpContext.Items` key a context is read from. Seed it to pin the values for a request, from middleware that captures them once or from a test with no real connection behind it.
 
 ### Type signature
 

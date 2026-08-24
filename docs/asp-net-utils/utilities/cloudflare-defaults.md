@@ -1,4 +1,4 @@
-# Cloudflare
+# CloudflareDefaults
 
 Holds the published Cloudflare edge network ranges and the default client IP header, used by [`AddCloudflareHeaders`](../extensions/add-cloudflare-headers). Read `Networks` when an application needs the same list for its own checks, for example a firewall rule or a health endpoint that should only answer the edge. Both members are data only: nothing here configures the pipeline on its own.
 
@@ -8,7 +8,7 @@ Holds the published Cloudflare edge network ranges and the default client IP hea
 using System.Net;
 using AlmightyShogun.AspNet.Utils;
 
-bool fromCloudflare = Cloudflare.Networks
+bool fromCloudflare = CloudflareDefaults.Networks
     .Any(network => network.Contains(remoteAddress));
 ```
 

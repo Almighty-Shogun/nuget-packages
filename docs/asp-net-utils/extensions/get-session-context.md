@@ -1,12 +1,10 @@
 ---
-returns: The stored `SessionContext`, or one built from the connection address and User-Agent header when none is stored.
+returns: The seeded `SessionContext`, or one built from the connection address and User-Agent header when none is stored.
 ---
 
 # GetSessionContext
 
-Reads the current request's [`SessionContext`](../records/session-context) from `HttpContext.Items`.
-
-When [`AddSessionContextFilter`](./add-session-context-filter) is registered, this returns the value the filter captured. Otherwise it builds one from the connection address and the User-Agent header, so it always returns a usable value and never throws.
+Reads the current request's [`SessionContext`](../records/session-context) from `HttpContext.Items`, falling back to building one from the connection address and the User-Agent header. It always returns a usable value and never throws. A built context is not stored, so each call reads the request again.
 
 ## Usage
 

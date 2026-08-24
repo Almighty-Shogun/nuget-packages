@@ -71,9 +71,7 @@ Parses a raw header value. The underlying parser is created once for the process
 ### Type signature
 
 ```csharp
-public static UserAgent Parse(
-    string userAgent
-);
+public static UserAgent Parse(string userAgent);
 ```
 
 <FrontmatterDocs/>
