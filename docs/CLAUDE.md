@@ -381,7 +381,7 @@ Use this order:
 
 Clear description of the service, what it resolves or controls, and where the package uses it.
 
-Application code should depend on `IAppHostResolver`. Explain how it is registered and what configuration or package behavior it relies on.
+Application code should depend on `IAppHostResolver`. Explain what configuration or package behavior it relies on.
 
 ## Usage
 
@@ -420,6 +420,7 @@ Rules:
 
 - Use `# ServiceName` without the leading `I`, even when the exported API is an interface.
 - Use the real interface type in examples and type signatures.
+- Do not say how the service is registered, its lifetime included. That belongs on the `extensions/` page for the registration method, which the sidebar already links.
 - Put each method directly under `## MethodName`; do not add an extra `## Methods` wrapper.
 - Put each method signature under `### Type signature`.
 - Keep service pages concise but complete. Split only when a service is too large to scan comfortably.
