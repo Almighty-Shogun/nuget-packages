@@ -1,4 +1,3 @@
-using AlmightyShogun.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Builder;
 using IPNetwork = System.Net.IPNetwork;
@@ -33,24 +32,6 @@ public static class PackageRegistry
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Registers MVC controller services and adds the session context filter globally, so every action can read the
-        /// request IP address and User-Agent through <see cref="HttpContextExtensions"/>.
-        /// </summary>
-        ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with the session context filter configured.</returns>
-        ///
-        /// <remarks>
-        /// Configures <c>MvcOptions</c> rather than calling <c>AddControllers</c>, so it composes with however the
-        /// application sets MVC up and can be called before or after it. The filter only runs for actions, so a request
-        /// short-circuited earlier still has no stored context.
-        /// </remarks>
-        ///
-        /// <author>Almighty-Shogun</author>
-        /// <since>2.2.1</since>
-        public IServiceCollection AddSessionContextFilter() => serviceCollection
-            .Configure<MvcOptions>(options => options.Filters.Add<SessionContextFilter>());
-
-        /// <summary>
         /// Registers a named CORS policy using origins from the optional <c>AllowedOrigins</c> configuration section.
         /// </summary>
         ///
@@ -82,11 +63,9 @@ public static class PackageRegistry
             string[] allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
 
             if (allowedOrigins.Contains("*"))
-            {
                 throw new InvalidOperationException(
                     "AllowedOrigins contains the '*' wildcard, which browsers reject when credentials are allowed."
                 );
-            }
 
             options.AddPolicy(name, policy => policy
                 .WithOrigins(allowedOrigins)
@@ -124,7 +103,7 @@ public static class PackageRegistry
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
         public IServiceCollection AddCloudflareHeaders(
-            string clientIpHeader = Cloudflare.ClientIpHeader,
+            string clientIpHeader = CloudflareDefaults.ClientIpHeader,
             IEnumerable<IPNetwork>? additionalNetworks = null,
             int? forwardLimit = null
         ) => serviceCollection.Configure<ForwardedHeadersOptions>(options =>
@@ -136,71 +115,44 @@ public static class PackageRegistry
             options.KnownIPNetworks.Clear();
             options.KnownProxies.Clear();
 
-            foreach (IPNetwork network in Cloudflare.Networks.Concat(additionalNetworks ?? []))
+            foreach (IPNetwork network in CloudflareDefaults.Networks.Concat(additionalNetworks ?? []))
                 options.KnownIPNetworks.Add(network);
         });
 
         /// <summary>
-        /// Registers the standardized error response writer and the <c>HttpErrors</c> settings it reads.
+        /// Registers the standardized error response writer, which every other helper here produces its body through.
         /// </summary>
-        ///
-        /// <param name="configuration">
-        /// The configuration read for the optional <c>HttpErrors</c> section. Every setting has a default, so an absent
-        /// section is valid and leaves the package shape and logging behavior in place.
-        /// </param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the response writer registered.</returns>
         ///
-        /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
-        public IServiceCollection AddHttpErrorResponseWriter(IConfiguration configuration) => serviceCollection
-            .AddConfiguration<HttpErrorSettings>(configuration.GetSection("HttpErrors"))
-            .AddSingleton<IHttpErrorResponseWriter, HttpErrorResponseWriter>();
-
-        /// <summary>
-        /// Registers message resolution: the language provider that negotiates a language from the request, the store
-        /// that reads the message files, and the resolver that turns a message key into localized text.
-        /// </summary>
-        ///
-        /// <param name="configuration">
-        /// The configuration read for the optional <c>Localization</c> section. Every setting has a default, so an
-        /// absent section resolves messages in English with reloading off.
-        /// </param>
-        ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with message localization registered.</returns>
-        ///
         /// <remarks>
-        /// Each of the three is registered unconditionally, so a custom <see cref="ILanguageProvider"/> must be
-        /// substituted after this call rather than before it. Also registers the HTTP context accessor, which the
-        /// default provider needs to read the request.
+        /// Takes no configuration: the body shape is fixed, so there is nothing to bind. Register it once, before the
+        /// handlers, filter, or middleware that resolve it.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
-        public IServiceCollection AddMessageLocalization(IConfiguration configuration) => serviceCollection
-            .AddConfiguration<LocalizationSettings>(configuration.GetSection("Localization"))
-            .AddHttpContextAccessor()
-            .AddSingleton<ILanguageProvider, LanguageProvider>()
-            .AddSingleton<IMessageStore, JsonMessageStore>()
-            .AddSingleton<IMessageResolver, JsonMessageResolver>();
+        public IServiceCollection AddHttpErrorResponseWriter() => serviceCollection
+            .AddSingleton<IHttpErrorResponseWriter, HttpErrorResponseWriter>();
 
         /// <summary>
-        /// Registers the exception handlers in the order they must run: application exceptions first, then the framework
-        /// exceptions that map to their own status code, then the fallback that turns anything else into a <c>500</c>.
+        /// Registers the two exception handlers this package owns, in the order they must run: the framework exceptions
+        /// that map to their own status code, then the fallback that turns anything else into a <c>500</c>.
         /// </summary>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the exception handlers registered.</returns>
         ///
         /// <remarks>
-        /// Requires <see cref="AddMessageLocalization"/> and <see cref="AddHttpErrorResponseWriter"/>, which this method
-        /// does not register, and <c>UseHttpErrorResponses</c> to run the chain. Order is the reason these are registered
-        /// together: the fallback handles every exception, so anything registered after it never runs.
+        /// Requires <c>AddMessageLocalization</c> and <see cref="AddHttpErrorResponseWriter"/>, which this method
+        /// does not register, and <c>UseHttpErrorResponses</c> to run the chain. It answers nothing an application threw
+        /// deliberately: register your own handler ahead of this call, built on <see cref="IExceptionMapper"/>, or every
+        /// domain exception becomes a <c>500</c>. Order is the reason these two are registered together: the fallback
+        /// handles every exception, so anything registered after it never runs.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
         public IServiceCollection AddExceptionHandling() => serviceCollection
-            .AddExceptionHandler<AppExceptionHandler>()
             .AddExceptionHandler<FrameworkExceptionHandler>()
             .AddExceptionHandler<UnhandledExceptionHandler>();
 
@@ -212,7 +164,7 @@ public static class PackageRegistry
         /// <returns>The <see cref="IServiceCollection"/> instance with the error response filter registered.</returns>
         ///
         /// <remarks>
-        /// Requires <see cref="AddMessageLocalization"/> and <see cref="AddHttpErrorResponseWriter"/>, neither of which
+        /// Requires <c>AddMessageLocalization</c> and <see cref="AddHttpErrorResponseWriter"/>, neither of which
         /// this registers. It covers only results MVC produces; an error raised below MVC is left to
         /// <c>UseHttpErrorResponses</c>, which is why the two are normally used together.
         /// </remarks>
@@ -256,20 +208,5 @@ public static class PackageRegistry
         public IApplicationBuilder UseHttpErrorResponses() => applicationBuilder
             .UseExceptionHandler(new ExceptionHandlerOptions { ExceptionHandler = _ => Task.CompletedTask })
             .UseMiddleware<HttpErrorResponseMiddleware>();
-
-        /// <summary>
-        /// Adds the middleware that writes the <c>Content-Language</c> header from the negotiated message language.
-        /// </summary>
-        ///
-        /// <returns>The <see cref="IApplicationBuilder"/> instance with the message localization middleware configured.</returns>
-        ///
-        /// <remarks>
-        /// The header is set from a response callback, so this only needs to run before anything that writes a body.
-        /// Requires <see cref="AddMessageLocalization"/>, which it does not register.
-        /// </remarks>
-        ///
-        /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
-        public IApplicationBuilder UseMessageLocalization() => applicationBuilder.UseMiddleware<ContentLanguageMiddleware>();
     }
 }

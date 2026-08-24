@@ -1,4 +1,4 @@
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
 /// Turns a message key into text in the language the caller asked for. Resolution never fails: an unresolvable key is
@@ -20,8 +20,8 @@ public interface IMessageResolver
     /// </param>
     ///
     /// <returns>
-    /// The message in the first language of the fallback chain that defines the key, or the key itself when no language
-    /// does. A returned key is the signal that a message file is missing an entry.
+    /// The message as the negotiated language defines it, or the key itself when that language does not. A returned key
+    /// signals a message file missing an entry, since the key is not tried against any other language.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
@@ -32,13 +32,13 @@ public interface IMessageResolver
     /// Resolves a message and substitutes the supplied values into its placeholders.
     /// </summary>
     ///
-    /// <param name="key">The dot-separated key, resolved through the same fallback chain as <see cref="Resolve(string)"/>.</param>
+    /// <param name="key">The dot-separated key, resolved in the same negotiated language as <see cref="Resolve(string)"/>.</param>
     /// <param name="parameters">
     /// The values substituted by position, as <c>{0}</c> and onwards. A count that does not match the template leaves
     /// the template unformatted rather than throwing, so a placeholder can survive into the response.
     /// </param>
     ///
-    /// <returns>The formatted message, or the key itself when no language in the chain defines it.</returns>
+    /// <returns>The formatted message, or the key itself when the negotiated language does not define it.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

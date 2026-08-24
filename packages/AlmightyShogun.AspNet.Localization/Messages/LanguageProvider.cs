@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
 /// Resolves the message language from the request <c>Accept-Language</c> header, falling back to the configured default

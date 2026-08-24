@@ -12,8 +12,8 @@ namespace AlmightyShogun.AspNet.Utils;
 public interface IHttpErrorResponseWriter
 {
     /// <summary>
-    /// Writes the error body and sets the status code, choosing the package shape or RFC 9457 problem details according
-    /// to configuration, so a caller never has to know which one the application returns.
+    /// Writes the error body and sets the status code, so every failure in the application reaches the client as the
+    /// same shape no matter which layer produced it.
     /// </summary>
     ///
     /// <param name="context">The context whose response is written to. Left untouched once the response has started.</param>

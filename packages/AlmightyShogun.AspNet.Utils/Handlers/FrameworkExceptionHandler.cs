@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Diagnostics;
+using AlmightyShogun.AspNet.Localization;
 
 namespace AlmightyShogun.AspNet.Utils;
 
@@ -8,12 +9,6 @@ namespace AlmightyShogun.AspNet.Utils;
 /// Maps common framework exceptions to their correct status code instead of letting them all become <c>500</c>: a
 /// malformed request body becomes the <c>400</c> it is, and a client that hangs up mid-request is not a server fault.
 /// </summary>
-///
-/// <remarks>
-/// A client disconnect is answered with the non-standard <c>499</c> and no body, since there is no longer a client to
-/// read one; the status exists only so the access log can tell an abort apart from a success. Registered between the
-/// application and fallback handlers, and declines anything it has no specific mapping for.
-/// </remarks>
 ///
 /// <param name="messageResolver">The resolver that turns the <c>http-error.{status}</c> key into a localized description.</param>
 /// <param name="responseWriter">
@@ -24,9 +19,15 @@ namespace AlmightyShogun.AspNet.Utils;
 /// this handler declines falls through to the framework's own logging.
 /// </param>
 ///
+/// <remarks>
+/// A client disconnect is answered with the non-standard <c>499</c> and no body, since there is no longer a client to
+/// read one; the status exists only so the access log can tell an abort apart from a success. Registered between the
+/// application and fallback handlers, and declines anything it has no specific mapping for.
+/// </remarks>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public sealed class FrameworkExceptionHandler(
+internal sealed class FrameworkExceptionHandler(
     IMessageResolver messageResolver,
     IHttpErrorResponseWriter responseWriter,
     ILogger<FrameworkExceptionHandler> logger
@@ -38,7 +39,7 @@ public sealed class FrameworkExceptionHandler(
         if (exception is OperationCanceledException && httpContext.RequestAborted.IsCancellationRequested)
         {
             if (logger.IsEnabled(LogLevel.Information))
-                logger.LogInformation("Request {Path} was aborted by the client", httpContext.Request.Path);
+                logger.LogInformation("Request {Path} was aborted", httpContext.Request.Path);
 
             if (!httpContext.Response.HasStarted)
                 httpContext.Response.StatusCode = 499;

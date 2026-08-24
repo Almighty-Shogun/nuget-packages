@@ -1,8 +1,9 @@
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
 /// Provides the language used for HTTP message resolution. The default implementation reads the request
 /// <c>Accept-Language</c> header; register a replacement to negotiate from a cookie, a route value, or a user profile.
+/// A returned tag becomes a directory name, so one carrying anything but letters, digits, and hyphens resolves nothing.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

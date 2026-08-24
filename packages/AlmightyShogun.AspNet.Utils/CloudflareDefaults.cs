@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.Utils;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public static class Cloudflare
+public static class CloudflareDefaults
 {
     /// <summary>
     /// The header Cloudflare puts the originating client address in. Trusted as the forwarded-for header by

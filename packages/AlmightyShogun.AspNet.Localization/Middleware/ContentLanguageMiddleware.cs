@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
 /// Reports which language the response was actually served in, by setting <c>Content-Language</c> from the language the
@@ -27,7 +27,9 @@ internal sealed class ContentLanguageMiddleware(RequestDelegate next)
     ///
     /// <remarks>
     /// The language is resolved in an <c>OnStarting</c> callback rather than up front, because the negotiated language
-    /// is only settled once something has actually been resolved during the request.
+    /// is only settled once something has actually been resolved during the request. A header the application set
+    /// itself is left alone: the callback runs after the request has finished, so overwriting would silently defeat
+    /// every deliberate <c>TrySetContentLanguage</c> call in the pipeline.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -38,7 +40,8 @@ internal sealed class ContentLanguageMiddleware(RequestDelegate next)
         {
             (HttpContext httpContext, IMessageResolver resolver) = ((HttpContext, IMessageResolver))state;
 
-            httpContext.Response.SetContentLanguage(resolver.ResolveLanguage());
+            if (httpContext.Response.GetContentLanguage() is null)
+                httpContext.Response.TrySetContentLanguage(resolver.ResolveLanguage());
 
             return Task.CompletedTask;
         }, (context, messageResolver));

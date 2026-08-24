@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Hangfire.Rec
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Utils", "packages\AlmightyShogun.AspNet.Utils\AlmightyShogun.AspNet.Utils.csproj", "{538FD222-34DF-46E5-ADD8-5606E7F2C86D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Localization", "packages\AlmightyShogun.AspNet.Localization\AlmightyShogun.AspNet.Localization.csproj", "{487F3E2B-F1A8-414C-BB08-55D5429267E4}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.JwtAuth", "packages\AlmightyShogun.AspNet.JwtAuth\AlmightyShogun.AspNet.JwtAuth.csproj", "{064FE957-8883-4422-849A-A75BDD8505EC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Mail.Resend", "packages\AlmightyShogun.Mail.Resend\AlmightyShogun.Mail.Resend.csproj", "{1DE8EC13-7875-4841-9E05-A6B027C1266D}"
@@ -63,6 +65,10 @@ Global
 		{538FD222-34DF-46E5-ADD8-5606E7F2C86D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{538FD222-34DF-46E5-ADD8-5606E7F2C86D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{538FD222-34DF-46E5-ADD8-5606E7F2C86D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{487F3E2B-F1A8-414C-BB08-55D5429267E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{487F3E2B-F1A8-414C-BB08-55D5429267E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{487F3E2B-F1A8-414C-BB08-55D5429267E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{487F3E2B-F1A8-414C-BB08-55D5429267E4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{064FE957-8883-4422-849A-A75BDD8505EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{064FE957-8883-4422-849A-A75BDD8505EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{064FE957-8883-4422-849A-A75BDD8505EC}.Release|Any CPU.ActiveCfg = Release|Any CPU

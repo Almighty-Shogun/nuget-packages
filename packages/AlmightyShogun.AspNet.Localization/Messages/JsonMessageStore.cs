@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 
-namespace AlmightyShogun.AspNet.Utils;
+namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
 /// Loads the JSON message files for a language, flattens them to dot-separated keys, and caches the result for the life
@@ -13,8 +14,8 @@ namespace AlmightyShogun.AspNet.Utils;
 ///
 /// <param name="localizationOptions">The settings deciding whether the message directories are watched for changes.</param>
 /// <param name="logger">
-/// The logger an unreadable or malformed message file is reported on. Such a file is skipped rather than fatal, so this
-/// warning is the only sign its messages are absent.
+/// The logger a skipped message file and a rejected language tag are reported on. Neither is fatal, so these warnings
+/// are the only sign that messages are missing.
 /// </param>
 /// <param name="webHostEnvironment">
 /// The environment supplying the content root, which is searched ahead of the other roots. Optional so the store can be
@@ -22,8 +23,10 @@ namespace AlmightyShogun.AspNet.Utils;
 /// </param>
 ///
 /// <remarks>
-/// A language whose directory does not exist is deliberately not cached. Its absence may simply mean the deployment has
-/// not written it yet, and caching an empty result would make that permanent for the rest of the process.
+/// Every lookup is cached, a language with no directory included, so an <c>Accept-Language</c> header naming languages
+/// the deployment does not have cannot make each request re-walk the filesystem. That means a directory added while the
+/// process runs is picked up only with <c>AutomaticReload</c> on, which is the same rule already governing file edits.
+/// A tag that is not well-formed is rejected outright, since the value is used as a directory name.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -44,12 +47,24 @@ internal sealed class JsonMessageStore(
 
     /// <summary>
     /// The flattened messages per language, keyed case-insensitively so <c>NL-be</c> and <c>nl-BE</c> share an entry.
-    /// Concurrent because resolution happens on request threads with no lock around the lookup.
+    /// Concurrent because resolution happens on request threads with no lock around the lookup. Each entry carries the
+    /// generation its files were read under, which is what makes a load that overlapped a file change detectable
+    /// instead of silently authoritative.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private readonly ConcurrentDictionary<string, IReadOnlyDictionary<string, string>> _messages = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, CachedMessages> _messages = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// The generation the cache is currently valid for, incremented by every watcher event. An entry stamped with an
+    /// earlier generation is ignored and reloaded rather than evicted, so invalidation costs one interlocked increment
+    /// and never has to race the readers it invalidates.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private long _cacheVersion;
 
     /// <summary>
     /// One watcher per search root that exists, held only to keep them alive and to dispose them later. Empty when
@@ -70,8 +85,9 @@ internal sealed class JsonMessageStore(
     private readonly Lock _watcherGate = new();
 
     /// <summary>
-    /// Whether setup has already run. Checked before taking the lock so the common path costs a field read, and again
-    /// inside it because the first check is not synchronized.
+    /// Whether setup has already run, or the store has been disposed. Checked before taking the lock so the common path
+    /// costs a field read, and again inside it because the first check is not synchronized. Disposal sets it too, so a
+    /// lookup arriving during shutdown cannot create watchers that nothing will dispose.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -81,23 +97,40 @@ internal sealed class JsonMessageStore(
     /// <inheritdoc />
     public IReadOnlyDictionary<string, string> GetMessages(string language)
     {
+        if (!LanguageTag.IsValid(language))
+        {
+            logger.LogWarning("Ignored malformed language tag {Language}", language);
+
+            return ReadOnlyDictionary<string, string>.Empty;
+        }
+
         StartWatchingIfEnabled();
 
-        if (_messages.TryGetValue(language, out IReadOnlyDictionary<string, string>? cached))
-            return cached;
+        long version = Volatile.Read(ref _cacheVersion);
 
-        (IReadOnlyDictionary<string, string> messages, bool directoryExisted) = LoadMessages(language);
+        if (_messages.TryGetValue(language, out CachedMessages? cached) && cached.Version == version)
+            return cached.Messages;
 
-        return directoryExisted ? _messages.GetOrAdd(language, messages) : messages;
+        IReadOnlyDictionary<string, string> messages = LoadMessages(language);
+
+        if (Volatile.Read(ref _cacheVersion) == version)
+            _messages[language] = new CachedMessages(version, messages);
+
+        return messages;
     }
 
     /// <inheritdoc />
     public void Dispose()
     {
-        foreach (FileSystemWatcher watcher in _watchers)
-            watcher.Dispose();
+        lock (_watcherGate)
+        {
+            _watching = true;
 
-        _watchers.Clear();
+            foreach (FileSystemWatcher watcher in _watchers)
+                watcher.Dispose();
+
+            _watchers.Clear();
+        }
     }
 
     /// <summary>
@@ -107,21 +140,20 @@ internal sealed class JsonMessageStore(
     /// <param name="language">The exact language tag, used as the directory name under each search root.</param>
     ///
     /// <returns>
-    /// The merged messages from every search root, and whether any root actually held a directory for the language. The
-    /// flag is what the caller uses to decide against caching a result that only looks empty.
+    /// The merged messages from every search root, empty when no root holds a directory for the language.
     /// </returns>
     ///
     /// <remarks>
-    /// Roots are merged in search order and files within a root in name order, with later entries overwriting earlier
-    /// ones. A later root therefore overrides the content root, which is what lets a deployment patch a single key.
+    /// The first root to define a key keeps it, so the content root wins over the output and working directories rather
+    /// than the other way round: the application's own files should not be displaceable by whatever directory the
+    /// process happens to have been started from. Within one root, files are read in name order and later files do
+    /// overwrite earlier ones, which only matters when two files in the same directory define the same key.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private (IReadOnlyDictionary<string, string> Messages, bool DirectoryExisted) LoadMessages(string language)
+    private IReadOnlyDictionary<string, string> LoadMessages(string language)
     {
-        var directoryExisted = false;
-
         Dictionary<string, string> messages = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string root in GetSearchRoots())
@@ -130,15 +162,18 @@ internal sealed class JsonMessageStore(
 
             if (!Directory.Exists(directory)) continue;
 
-            directoryExisted = true;
+            Dictionary<string, string> fromRoot = new(StringComparer.OrdinalIgnoreCase);
 
             IEnumerable<string> localizationFiles = Directory.EnumerateFiles(directory, "*.json");
 
             foreach (string filePath in localizationFiles.Order(StringComparer.OrdinalIgnoreCase))
-                LoadFile(filePath, messages);
+                LoadFile(filePath, fromRoot);
+
+            foreach ((string key, string message) in fromRoot)
+                messages.TryAdd(key, message);
         }
 
-        return (messages, directoryExisted);
+        return messages;
     }
 
     /// <summary>
@@ -190,6 +225,26 @@ internal sealed class JsonMessageStore(
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private IEnumerable<string> GetSearchRoots()
+    {
+        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string root in EnumerateRoots())
+            if (seen.Add(Path.TrimEndingDirectorySeparator(Path.GetFullPath(root))))
+                yield return root;
+    }
+
+    /// <summary>
+    /// Yields the candidate roots in trust order, before duplicates between them are removed.
+    /// </summary>
+    ///
+    /// <returns>
+    /// The content root first, then the output directory, then the working directory. Outside a web host the first is
+    /// absent, which is what the optional environment allows for.
+    /// </returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private IEnumerable<string> EnumerateRoots()
     {
         if (webHostEnvironment?.ContentRootPath is not null)
             yield return webHostEnvironment.ContentRootPath;
@@ -243,18 +298,23 @@ internal sealed class JsonMessageStore(
     }
 
     /// <summary>
-    /// Clears the cache so the next resolution reloads from disk.
+    /// Retires every cached language so the next resolution reloads from disk.
     /// </summary>
     ///
     /// <param name="sender">The watcher that raised the event. Unused: every root invalidates the whole cache.</param>
     /// <param name="eventArgs">
     /// What changed. Unused for the same reason, and because an editor saving a file commonly raises several events for
-    /// one edit, which clearing everything absorbs without needing to be debounced.
+    /// one edit, which retiring everything absorbs without needing to be debounced.
     /// </param>
+    ///
+    /// <remarks>
+    /// The generation is bumped rather than the entries removed. A load already in flight was started under the old
+    /// generation and will refuse to store its result, so a reader cannot publish a snapshot taken before this fired.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private void OnMessageFileChanged(object sender, FileSystemEventArgs eventArgs) => _messages.Clear();
+    private void OnMessageFileChanged(object sender, FileSystemEventArgs eventArgs) => Interlocked.Increment(ref _cacheVersion);
 
     /// <summary>
     /// Flattens one parsed message file, prefixing every key with the file name.

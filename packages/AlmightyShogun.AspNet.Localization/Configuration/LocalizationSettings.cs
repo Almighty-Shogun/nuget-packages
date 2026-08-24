@@ -1,4 +1,6 @@
-namespace AlmightyShogun.AspNet.Utils;
+using System.ComponentModel.DataAnnotations;
+
+namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
 /// Configures how localized HTTP messages are resolved. Bound from the optional <c>Localization</c> configuration section;
@@ -10,13 +12,19 @@ namespace AlmightyShogun.AspNet.Utils;
 public sealed record LocalizationSettings
 {
     /// <summary>
-    /// Gets the language used when the request asks for none, and tried last when a key is missing from every language
-    /// the caller did ask for. Set it to a language that actually has message files: it is the end of the fallback
-    /// chain, so a key missing here is returned to the client verbatim.
+    /// Gets the language used when the request asks for none, and tried last when nothing the caller did ask for has
+    /// any messages at all. Set it to a language that actually has message files: it ends the fallback chain, so a key
+    /// missing from whichever language wins is returned to the client verbatim.
     /// </summary>
+    ///
+    /// <remarks>
+    /// Validated at startup against the same shape the message store accepts, so a malformed value fails the host
+    /// rather than resolving no messages for the life of the process.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
+    [RegularExpression(LanguageTag.Pattern, ErrorMessage = "DefaultLanguage must be a language tag such as 'en' or 'nl-BE'.")]
     public string DefaultLanguage { get; init; } = "en";
 
     /// <summary>

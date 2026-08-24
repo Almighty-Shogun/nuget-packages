@@ -47,7 +47,8 @@ public sealed record UserAgent(string Browser, string Os, string Device, bool Is
     private static readonly Parser Parser = Parser.GetDefault();
 
     /// <summary>
-    /// Parses a raw User-Agent header into its recognized parts.
+    /// Turns a raw header into the four recorded parts, falling back to placeholders rather than failing on a header it
+    /// cannot read.
     /// </summary>
     ///
     /// <param name="userAgent">
