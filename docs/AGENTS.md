@@ -40,7 +40,6 @@ docs/{package}/
   index.md
   installation.md
   configuration.md
-  configuration/{configuration-name}.md
   attributes/{attribute-name}.md
   validation-rules/{rule-family}.md
   constants/{constant-name}.md
@@ -52,7 +51,7 @@ docs/{package}/
   types/{type-name}.md
 ```
 
-Use meaningful categories such as `attributes`, `configuration`, `constants`, `extensions`, `handlers`, `records`, `services`, `types`, `utilities`, and package-specific categories such as `validation-rules`. Put an `IExceptionHandler` implementation under `handlers`, not `types`. Do not introduce separate `classes` and `interfaces` groups for new or migrated documentation unless the user explicitly asks for that structure.
+Use meaningful categories such as `attributes`, `constants`, `extensions`, `handlers`, `records`, `services`, `types`, `utilities`, and package-specific categories such as `validation-rules`. `configuration` is not a category: a package's configuration is one page, never a directory. Put an `IExceptionHandler` implementation under `handlers`, not `types`. Do not introduce separate `classes` and `interfaces` groups for new or migrated documentation unless the user explicitly asks for that structure.
 
 Service pages document consumer-facing DI contracts and the behavior of the registered implementation in one place. The route and page title use the service name without the interface prefix, for example `IAppHostResolver` is documented at `services/app-host-resolver.md` with `# AppHostResolver`. Examples and type signatures still use `IAppHostResolver`.
 
@@ -126,7 +125,8 @@ The `docs/asp-net-validation/fluent-validation.md` page documents `ValidatableRe
 - Every package must be available from the top navigation package dropdown.
 - Every API page must be reachable from its package sidebar.
 - Introduction, installation, and package-level configuration links stay in the first non-collapsible group.
-- Sidebar groups use this order when present: package pages, `Configuration`, `Extensions`, package-specific groups such as `Validation Rules`, `Attributes`, `Handlers`, `Services`, `Utilities`, `Types`, `Records`, `Constants`.
+- Sidebar groups use this order when present: package pages, `Extensions`, package-specific groups such as `Validation Rules`, `Attributes`, `Handlers`, `Services`, `Utilities`, `Types`, `Records`, `Constants`.
+- `Configuration` is a package page in the first group. There is no collapsible `Configuration` category group, because no package has more than one configuration page.
 - Package-specific guide pages, such as Logging's `Formatter`, stay in the first group after `Configuration`.
 - Category and API groups use `collapsed: false` so they are collapsible and initially open.
 - Use human-readable labels and slugified links.
@@ -159,9 +159,9 @@ Hard limits. A page that exceeds one is wrong, not a judgement call.
 | Page | Sections, in this order |
 |---|---|
 | `index.md` | `Categories`, `Quick Example` |
-| `configuration.md` | the JSON shape, then at most one cross-cutting section, then `<FrontmatterDocs/>` |
+| `configuration.md` | the JSON shape, then at most one cross-cutting section, then `<FrontmatterDocs/>`, then `Usage` |
 | `installation.md` | `Dependencies`, then `Startup Registration` **or** `Usage`, then at most one install-specific section |
-| `extensions/*.md`, `configuration/*.md` | `Usage`, `Type signature`. An extension page may add one behavior section between them. |
+| `extensions/*.md` | `Usage`, `Type signature`. An extension page may add one behavior section between them. |
 | `services/*.md`, `types/*.md`, `utilities/*.md`, `handlers/*.md`, `records/*.md`, `attributes/*.md`, `constants/*.md` | `Usage`, then one `##` per public member |
 | `validation-rules/*.md` | one `##` per rule |
 | package guide pages | free, but every other rule still applies |
@@ -271,19 +271,17 @@ The Logging package is the only package that does not use this required-configur
 
 When a package binds configuration from `appsettings.json`:
 
-- Add `docs/{package}/configuration.md`.
-- Show the complete JSON shape.
-- Add each configuration record under `docs/{package}/configuration/{configuration-name}.md`.
-- Link the package introduction directly to the configuration type category, for example `./configuration/auth-settings`; do not add separate “Configuration” and “Configuration types” categories.
-- **`fields` lives on `configuration.md`, never on a configuration type page.** The package-level page owns the JSON shape and the key documentation together, which is the one place a reader looks to find out what a key does and what it defaults to.
+- Add `docs/{package}/configuration.md`. It is the only configuration page a package has.
+- **There is no `configuration/` directory.** A configuration record is documented as a group on `configuration.md`, never on its own page. A reader who wants to know what a key does, what it defaults to, and how to read it back must never have to open a second page to find out.
+- Show the complete JSON shape directly under the description, before anything else on the page. It is what a reader came for, and everything below it explains the keys they can now see.
+- **One `fields` group per configuration record, named after the record.** A group is a `name`, a `description`, and its own nested `fields`. `Fields.vue` renders each group as `## GroupName`, the description, then `### Fields` and the group's entries, so the page needs no hand-written headings. A package binding a single record still uses one group, so the reader sees which type owns the keys.
+- Close the page with a `## Usage` section below `<FrontmatterDocs/>`, showing how to read the bound settings through `IOptions<T>`. This is the only place `configuration.md` puts prose after the rendered fields, and it is where the old per-record pages' examples belong.
+- Link the package introduction to `./configuration`; do not add separate “Configuration” and “Configuration types” categories.
 - **Only an `extensions/` page says how something is registered.** A service, type, handler, or record page never carries "registered by `AddX`". The reader is on that page to use the type, and the sidebar already links the registration method.
-- **A configuration type page carries no `fields` and no `<FrontmatterDocs/>`.** It is a short description plus a `## Usage` section showing how to read the bound settings through `IOptions<T>`, and nothing else. Duplicating the key table there creates a second copy that drifts.
 - Include every configuration field with `name`, `description`, `type`, and `default` when a real default exists.
-- Do not repeat the JSON block on a configuration type page, and do not point at the configuration page either. Generic cross-reference lines such as "The keys, their types, and their defaults are documented on the configuration page" or "See ConfigName for field descriptions and defaults" carry no information: the sidebar already links the pages, and the reader can see the page exists. Say what the type is and how to read it, and stop.
+- Document a nested record as its own group, and include the property that holds it as a field on the parent group, so the JSON nesting and the field list agree.
 - On `configuration.md`, say in the description that the section is optional when it is. Use the page's single callout for that only when there is nothing more important to warn about; a real trap always outranks it.
-- **When a package binds more than one configuration type, or more than one section, group the `fields` frontmatter per type.** A group is a `name`, a `description`, and its own nested `fields`. `Fields.vue` renders each group as `## GroupName`, the description, then `### Fields` and the group's entries, so the page needs no hand-written headings. Name a group after the type it binds, or after the section when the section binds no record.
 - Do not flatten a nested section into prefixed key names such as `Template:IgnoreText` or `Lockout:Enabled`. Use a group per type instead: the reader sees which record owns which key, and the JSON block above already shows the nesting.
-- A nested configuration type does not get its own `configuration/` page. It is a group on `configuration.md`, and anything a caller needs about reading it belongs on the owning type's page.
 - `configuration.md` carries no `##` section per key. A per-key section duplicates what the frontmatter already renders, which is the same mistake as a manual `## Parameters`.
 
 Example:
@@ -296,7 +294,7 @@ fields:
       default: 'null'
 ```
 
-Grouped example, for a section that binds more than one type:
+Grouped example, one group per bound record:
 
 ```yaml
 fields:
@@ -568,7 +566,8 @@ After documentation changes:
    - an `IExceptionHandler` documented under `types/` instead of `handlers/`;
    - a static helper class documented under `types/` instead of `utilities/`;
    - introduction or installation pages carrying behavior, configuration, or operational detail that a dedicated page already owns;
-   - configuration type pages that still carry `fields` or `<FrontmatterDocs/>` instead of just an `IOptions<T>` usage example;
+   - a `configuration/` directory, or any configuration record documented on its own page instead of as a group on `configuration.md`;
+   - a `configuration.md` whose fields are not grouped per record, or that has no `## Usage` section below `<FrontmatterDocs/>`;
    - `## Startup Registration` or `## Usage` on an installation page whose description restates the code, or whose ordering constraint sits after the code block instead of in a callout above it;
    - cross-reference lines pointing at another page for fields, defaults, or the JSON shape;
    - a section sitting above `## Usage`;
