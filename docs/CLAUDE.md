@@ -523,7 +523,7 @@ public ModelBuilder ApplyAutoInclude<TEntity>(
 
 - The DI contract is `IResendMailService`.
 - Mail examples commonly need separate template and caller files; use code groups.
-- Document the required `mail` template files on installation.
+- Document the required `mail` template files on the `AddResendEmail` page, which is what throws when they are missing. The installation page does not carry them.
 
 ### Remote Commands
 
