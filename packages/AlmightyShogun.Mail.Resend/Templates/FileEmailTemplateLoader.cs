@@ -21,24 +21,37 @@ internal sealed class FileEmailTemplateLoader : IEmailTemplateLoader
     internal static readonly string TemplatesDirectory = Path.Combine(AppContext.BaseDirectory, "mail");
 
     /// <summary>
-    /// The cached template reads. The task itself is cached, so concurrent first-time loads share one read rather than racing
-    /// to perform the same file access. Nothing evicts an entry, so an edited template needs a restart to take effect.
+    /// The completed template reads. Only a finished read is stored, never the task producing it, so a failure or a
+    /// cancellation leaves nothing behind and the next send retries the file instead of replaying the first outcome.
     /// </summary>
+    ///
+    /// <remarks>
+    /// Caching the task would let concurrent first-time loads share one read, at the cost of caching a faulted or cancelled
+    /// one forever: a template deleted after startup would then fail every later send, and one cancelled send would poison
+    /// the entry for every other caller. Racing to read the same small file twice is the cheaper mistake.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private readonly ConcurrentDictionary<string, Task<string>> _templates = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, string> _templates = new(StringComparer.Ordinal);
 
     /// <inheritdoc />
-    public Task<string> LoadAsync(string templateName, CancellationToken cancellationToken = default)
-        => _templates.GetOrAdd(templateName, name => ReadAsync(name, cancellationToken));
+    public async Task<string> LoadAsync(string templateName, CancellationToken cancellationToken = default)
+    {
+        if (_templates.TryGetValue(templateName, out string? cached))
+            return cached;
+
+        string template = await ReadAsync(templateName, cancellationToken);
+
+        return _templates.GetOrAdd(templateName, template);
+    }
 
     /// <summary>
     /// Reads one template from disk, refusing a name that would climb out of the templates directory.
     /// </summary>
     ///
     /// <param name="templateName">The file name to read, combined with the templates directory and then checked.</param>
-    /// <param name="cancellationToken">The token cancelling this read, which is the one baked into the cached task.</param>
+    /// <param name="cancellationToken">The token cancelling this read alone, since nothing is cached until it completes.</param>
     ///
     /// <returns>The template contents.</returns>
     ///
