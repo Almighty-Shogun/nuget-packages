@@ -1,10 +1,10 @@
 import type { DefaultTheme } from 'vitepress'
 import { guide } from './guide'
+import { aspNetCore } from './asp-net-core'
 import { aspNetCredentialAuth } from './asp-net-credential-auth'
 import { aspNetJwtAuth } from './asp-net-jwt-auth'
 import { aspNetLocalization } from './asp-net-localization'
 import { aspNetMaintenance } from './asp-net-maintenance'
-import { aspNetUtils } from './asp-net-utils'
 import { aspNetValidation } from './asp-net-validation'
 import { consoleCommands } from './console-commands'
 import { core } from './core'
@@ -23,12 +23,12 @@ export const nav: DefaultTheme.NavItem[] = [
     },
     {
         text: 'ASP.NET',
-        activeMatch: '^/(asp-net-credential-auth|asp-net-jwt-auth|asp-net-localization|asp-net-maintenance|asp-net-utils|asp-net-validation)/',
+        activeMatch: '^/(asp-net-core|asp-net-credential-auth|asp-net-jwt-auth|asp-net-localization|asp-net-maintenance|asp-net-validation)/',
         items: [
+            { text: 'Core', activeMatch: '^/asp-net-core/', link: '/asp-net-core/' },
             { text: 'JWT Auth', activeMatch: '^/asp-net-jwt-auth/', link: '/asp-net-jwt-auth/' },
             { text: 'Localization', activeMatch: '^/asp-net-localization/', link: '/asp-net-localization/' },
             { text: 'Maintenance', activeMatch: '^/asp-net-maintenance/', link: '/asp-net-maintenance/' },
-            { text: 'Utils', activeMatch: '^/asp-net-utils/', link: '/asp-net-utils/' },
             { text: 'Validation', activeMatch: '^/asp-net-validation/', link: '/asp-net-validation/' },
             {
                 text: 'Login Systems',
@@ -66,11 +66,11 @@ export const nav: DefaultTheme.NavItem[] = [
 
 export const sidebar = {
     "/guide/": guide,
+    "/asp-net-core/": aspNetCore,
     "/asp-net-credential-auth/": aspNetCredentialAuth,
     "/asp-net-jwt-auth/": aspNetJwtAuth,
     "/asp-net-localization/": aspNetLocalization,
     "/asp-net-maintenance/": aspNetMaintenance,
-    "/asp-net-utils/": aspNetUtils,
     "/asp-net-validation/": aspNetValidation,
     "/console-commands/": consoleCommands,
     "/core/": core,
