@@ -10,8 +10,8 @@ import { core } from './core'
 import { efCoreModelBuilding } from './ef-core-model-building'
 import { hangfireRecurringJobs } from './hangfire-recurring-jobs'
 import { hostingConsoleLifetime } from './hosting-console-lifetime'
+import { mailResend } from './mail-resend'
 import { remoteCommands } from './remote-commands'
-import { resendUtils } from './resend-utils'
 import { serilog } from './serilog'
 
 export const nav: DefaultTheme.NavItem[] = [
@@ -49,10 +49,10 @@ export const nav: DefaultTheme.NavItem[] = [
     },
     {
         text: 'Data',
-        activeMatch: '^/(ef-core-model-building|resend-utils)/',
+        activeMatch: '^/(ef-core-model-building|mail-resend)/',
         items: [
             { text: 'EF Core Model Building', activeMatch: '^/ef-core-model-building/', link: '/ef-core-model-building/' },
-            { text: 'Resend Utils', activeMatch: '^/resend-utils/', link: '/resend-utils/' }
+            { text: 'Mail Resend', activeMatch: '^/mail-resend/', link: '/mail-resend/' }
         ]
     },
     {
@@ -74,7 +74,7 @@ export const sidebar = {
     "/ef-core-model-building/": efCoreModelBuilding,
     "/hangfire-recurring-jobs/": hangfireRecurringJobs,
     "/hosting-console-lifetime/": hostingConsoleLifetime,
+    "/mail-resend/": mailResend,
     "/remote-commands/": remoteCommands,
-    "/resend-utils/": resendUtils,
     "/serilog/": serilog,
 };

@@ -31,7 +31,7 @@ Package slugs use lowercase kebab case:
 
 - `AlmightyShogun.AspNet.JwtAuth` becomes `asp-net-jwt-auth`
 - `AlmightyShogun.EntityFrameworkCore.ModelBuilding` becomes `ef-core-model-building`
-- `AlmightyShogun.Resend.Utils` becomes `resend-utils`
+- `AlmightyShogun.Mail.Resend` becomes `mail-resend`
 
 Each package normally contains:
 
@@ -519,7 +519,7 @@ public ModelBuilder ApplyAutoInclude<TEntity>(
 - Document formatter colors in a table.
 - Installation startup registration uses a code group for `[IServiceCollection.cs]` and `[IHostBuilder.cs]`.
 
-### Resend Utils
+### Mail Resend
 
 - The DI contract is `IResendMailService`.
 - Mail examples commonly need separate template and caller files; use code groups.
