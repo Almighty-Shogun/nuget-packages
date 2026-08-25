@@ -8,7 +8,10 @@ namespace AlmightyShogun.AspNet.JwtAuth;
 /// Authorizes requests by ensuring the current token audience matches the resolved request app.
 /// </summary>
 ///
-/// <param name="appHostResolver">The resolver used to determine the current request app.</param>
+/// <param name="appHostResolver">
+/// The resolver deciding which application the current request belongs to, so this handler compares the token's audience
+/// against the host rather than against a fixed value.
+/// </param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
@@ -27,13 +30,16 @@ internal sealed class AppAudienceAuthorizationHandler(IAppHostResolver appHostRe
     }
 
     /// <summary>
-    /// Checks whether the authenticated principal contains the expected audience claim.
+    /// Reports whether the principal carries the audience the request host resolved to, which is what stops a token minted
+    /// for one application being replayed against another.
     /// </summary>
     ///
-    /// <param name="principal">The authenticated principal to inspect.</param>
-    /// <param name="app">The expected app audience value.</param>
+    /// <param name="principal">The authenticated caller, whose audience claims are being checked.</param>
+    /// <param name="app">The audience the request host resolved to, compared case-insensitively.</param>
     ///
-    /// <returns><c>true</c> when the expected audience exists; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    /// <c>true</c> when the principal carries that audience. A token may carry several, so one match is enough.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -42,10 +48,11 @@ internal sealed class AppAudienceAuthorizationHandler(IAppHostResolver appHostRe
         .Any(claim => string.Equals(claim.Value, app, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
-    /// Determines whether a claim represents a JWT audience value.
+    /// Reports whether a claim is an audience, accepting both the short JWT name and the long URI form, because which one
+    /// appears depends on whether inbound claim mapping was left on.
     /// </summary>
     ///
-    /// <param name="claim">The claim to inspect.</param>
+    /// <param name="claim">One claim from the principal.</param>
     ///
     /// <returns><c>true</c> when the claim type is a supported audience claim type; otherwise, <c>false</c>.</returns>
     ///

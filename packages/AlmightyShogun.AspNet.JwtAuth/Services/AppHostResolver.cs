@@ -1,5 +1,5 @@
+using System.Net;
 using Microsoft.AspNetCore.Http;
-using AlmightyShogun.AspNet.Utils;
 using Microsoft.Extensions.Options;
 
 namespace AlmightyShogun.AspNet.JwtAuth;
@@ -16,11 +16,10 @@ namespace AlmightyShogun.AspNet.JwtAuth;
 internal sealed class AppHostResolver(IOptions<AuthSettings> authSettings, IHttpContextAccessor httpContextAccessor) : IAppHostResolver
 {
     private static readonly object _resolvedAppKey = new();
-
     private readonly AuthSettings _authSettings = authSettings.Value;
 
     private readonly Dictionary<string, string> _hosts = authSettings.Value.Hosts
-        .ToDictionary(pair => pair.Key.ToLowerInvariant(), pair => pair.Value, StringComparer.OrdinalIgnoreCase);
+        .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase);
 
     /// <inheritdoc />
     public bool TryResolve(out string? app)
@@ -53,7 +52,8 @@ internal sealed class AppHostResolver(IOptions<AuthSettings> authSettings, IHttp
 
     /// <inheritdoc />
     public string? Resolve() => TryResolve(out string? app)
-        ? app : throw new HttpErrorException(StatusCodes.Status403Forbidden);
+        ? app
+        : throw new UnknownAppException(httpContextAccessor.HttpContext?.Request.Host.Host);
 
     /// <inheritdoc />
     public bool TryResolveAppFromHost(string? host, out string app)
@@ -61,18 +61,16 @@ internal sealed class AppHostResolver(IOptions<AuthSettings> authSettings, IHttp
         app = string.Empty;
 
         if (string.IsNullOrWhiteSpace(host))
-        {
             return false;
-        }
 
-        string normalizedHost = host.ToLowerInvariant();
-
-        if (_hosts.TryGetValue(normalizedHost, out app!))
+        if (_hosts.TryGetValue(host, out string? mappedApp))
         {
+            app = mappedApp;
+
             return true;
         }
 
-        if (!IsLocalhost(normalizedHost) || string.IsNullOrWhiteSpace(_authSettings.LocalhostApp))
+        if (!IsLocalhost(host) || string.IsNullOrWhiteSpace(_authSettings.LocalhostApp))
             return false;
 
         app = _authSettings.LocalhostApp;
@@ -82,7 +80,8 @@ internal sealed class AppHostResolver(IOptions<AuthSettings> authSettings, IHttp
 
     /// <inheritdoc />
     public string ResolveAppFromHost(string? host) => TryResolveAppFromHost(host, out string app)
-        ? app : throw new HttpErrorException(StatusCodes.Status403Forbidden);
+        ? app
+        : throw new UnknownAppException(host);
 
     /// <summary>
     /// Determines whether a normalized host value represents localhost.
@@ -94,9 +93,7 @@ internal sealed class AppHostResolver(IOptions<AuthSettings> authSettings, IHttp
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static bool IsLocalhost(string host) => host switch
-    {
-        "localhost" or "127.0.0.1" or "::1" => true,
-        _ => false
-    };
+    private static bool IsLocalhost(string host)
+        => host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+           || (IPAddress.TryParse(host, out IPAddress? address) && IPAddress.IsLoopback(address));
 }

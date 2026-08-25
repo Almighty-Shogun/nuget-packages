@@ -1,9 +1,8 @@
-using AlmightyShogun.AspNet.Utils;
-
 namespace AlmightyShogun.AspNet.JwtAuth;
 
 /// <summary>
-/// Resolves the application audience name associated with an incoming request host.
+/// Resolves which configured application a request belongs to, from its host. Every token carries an audience and it is
+/// always validated, so this is what decides whether a request is even eligible to be authenticated.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -11,35 +10,45 @@ namespace AlmightyShogun.AspNet.JwtAuth;
 public interface IAppHostResolver
 {
     /// <summary>
-    /// Attempts to resolve the authentication app for the current request.
+    /// Resolves the app for the current request without throwing, for code that wants to decide for itself what an
+    /// unknown host means. The result is cached on the request, so repeated calls cost one lookup.
     /// </summary>
     ///
-    /// <param name="app">The resolved app, or <c>null</c> when app scoping is disabled.</param>
+    /// <param name="app">
+    /// The resolved app, or <c>null</c> when scoping is off. A <c>null</c> app with a <c>true</c> result means scoping is
+    /// disabled rather than that resolution failed.
+    /// </param>
     ///
-    /// <returns><c>true</c> when app scoping is disabled or the current request maps to a configured app; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    /// <c>true</c> when scoping is off or the host maps to a configured app; <c>false</c> when scoping is on and it does
+    /// not, which includes there being no request in flight at all.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     bool TryResolve(out string? app);
 
     /// <summary>
-    /// Resolves the authentication app for the current request.
+    /// Resolves the app for the current request, refusing rather than guessing when the host is unknown.
     /// </summary>
     ///
-    /// <exception cref="HttpErrorException">Thrown with status code <c>403</c> when app scoping is active and the current request cannot be resolved.</exception>
+    /// <returns>The resolved app, or <c>null</c> when scoping is off and there is nothing to resolve.</returns>
     ///
-    /// <returns>The resolved app, or <c>null</c> when app scoping is disabled.</returns>
+    /// <exception cref="UnknownAppException">
+    /// Scoping is active and the request host maps to no configured application, so the request cannot be attributed.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     string? Resolve();
 
     /// <summary>
-    /// Attempts to resolve an application name from the provided host.
+    /// Resolves a host supplied by the caller rather than the current request, for code resolving a host it already
+    /// holds, such as a background job acting on behalf of a tenant.
     /// </summary>
     ///
-    /// <param name="host">The request host name to resolve.</param>
-    /// <param name="app">The resolved application audience name when the host is known; otherwise an empty string.</param>
+    /// <param name="host">The host to resolve, matched case-insensitively and falling back to the localhost app.</param>
+    /// <param name="app">The audience when the host is known; otherwise an empty string rather than <c>null</c>.</param>
     ///
     /// <returns><c>true</c> when the host maps to an application audience name; otherwise <c>false</c>.</returns>
     ///
@@ -48,14 +57,16 @@ public interface IAppHostResolver
     bool TryResolveAppFromHost(string? host, out string app);
 
     /// <summary>
-    /// Resolves an application name from the provided host or throws when the host is unknown.
+    /// Resolves a caller-supplied host, refusing rather than guessing when it is unknown.
     /// </summary>
     ///
-    /// <param name="host">The request host name to resolve.</param>
+    /// <param name="host">The host to resolve, matched case-insensitively and falling back to the localhost app.</param>
     ///
-    /// <exception cref="HttpErrorException">Thrown with status code <c>403</c> when the host is missing or does not map to a configured application.</exception>
+    /// <returns>The audience the host maps to.</returns>
     ///
-    /// <returns>The application audience name associated with the host.</returns>
+    /// <exception cref="UnknownAppException">
+    /// The host is blank, or maps to no configured application and is not a localhost value, carrying the host it failed on.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>

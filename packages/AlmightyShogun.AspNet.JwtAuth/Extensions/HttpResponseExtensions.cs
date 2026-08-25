@@ -29,14 +29,15 @@ public static class HttpResponseExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.3.0</since>
-        public void SetRefreshTokenCookie(string token, int days) => httpResponse.Cookies.Append(CookieNames.RefreshToken, token, new CookieOptions
-        {
-            Path = "/",
-            HttpOnly = true,
-            SameSite = SameSiteMode.Lax,
-            Expires = DateTimeOffset.UtcNow.AddDays(days),
-            Secure = httpResponse.HttpContext.Request.IsHttps
-        });
+        public void SetRefreshTokenCookie(string token, int days)
+            => httpResponse.Cookies.Append(CookieNames.RefreshToken, token, new CookieOptions
+            {
+                Path = "/",
+                HttpOnly = true,
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTimeOffset.UtcNow.AddDays(days),
+                Secure = httpResponse.HttpContext.Request.IsHttps
+            });
 
         /// <summary>
         /// Deletes the default authentication cookies used by the package.
@@ -44,14 +45,11 @@ public static class HttpResponseExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.3.0</since>
-        public void DeleteAuthCookies()
+        public void DeleteAuthCookies() => httpResponse.Cookies.Delete(CookieNames.RefreshToken, new CookieOptions
         {
-            httpResponse.Cookies.Delete(CookieNames.RefreshToken, new CookieOptions
-            {
-                Path = "/",
-                SameSite = SameSiteMode.Lax,
-                Secure = httpResponse.HttpContext.Request.IsHttps
-            });
-        }
+            Path = "/",
+            SameSite = SameSiteMode.Lax,
+            Secure = httpResponse.HttpContext.Request.IsHttps
+        });
     }
 }
