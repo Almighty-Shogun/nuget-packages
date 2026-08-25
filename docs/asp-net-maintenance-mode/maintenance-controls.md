@@ -33,7 +33,7 @@ public sealed class MaintenanceController(
         => maintenanceService.EnableAsync(request);
 
     [HttpPost("disable")]
-    public Task DisableAsync() 
+    public Task DisableAsync()
         => maintenanceService.DisableAsync();
 }
 ```

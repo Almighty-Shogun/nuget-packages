@@ -35,7 +35,7 @@ public sealed class DeploymentMaintenance(
 {
     public async Task StartAsync()
     {
-        var request = new MaintenanceRequest 
+        var request = new MaintenanceRequest
         {
             Message = "Upgrading the database. Back shortly.",
             EndsAt = DateTimeOffset.UtcNow.AddMinutes(30),
@@ -43,11 +43,11 @@ public sealed class DeploymentMaintenance(
             AllowedPaths = ["/health"],
             AllowedPathPrefixes = ["/ops"]
         };
-        
+
         await maintenanceService.EnableAsync(request);
     }
 
-    public aysnc Task FinishAsync() 
+    public async Task FinishAsync()
         => await maintenanceService.DisableAsync();
 }
 ```

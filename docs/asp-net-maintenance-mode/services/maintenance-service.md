@@ -91,7 +91,7 @@ public sealed class DeploymentMaintenance(
     IMaintenanceService maintenanceService
 )
 {
-    public Task StartAsync() 
+    public Task StartAsync()
         => maintenanceService.EnableAsync(new MaintenanceRequest
         {
             Message = "Deployment in progress.",
