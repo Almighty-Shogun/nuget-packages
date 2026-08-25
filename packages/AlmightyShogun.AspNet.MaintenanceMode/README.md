@@ -1,4 +1,4 @@
-# 🚀 `AlmightyShogun.AspNet.Maintenance`
+# 🚀 `AlmightyShogun.AspNet.MaintenanceMode`
 
 A C# library that adds file-backed maintenance mode middleware and services to ASP.NET Core.
 
@@ -9,5 +9,5 @@ A C# library that adds file-backed maintenance mode middleware and services to A
 ## 📦 Building
 
 ```sh
-dotnet build packages/AlmightyShogun.AspNet.Maintenance/AlmightyShogun.AspNet.Maintenance.csproj
+dotnet build packages/AlmightyShogun.AspNet.MaintenanceMode/AlmightyShogun.AspNet.MaintenanceMode.csproj
 ```

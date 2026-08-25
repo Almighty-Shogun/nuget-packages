@@ -1,4 +1,4 @@
-namespace AlmightyShogun.AspNet.Maintenance;
+namespace AlmightyShogun.AspNet.MaintenanceMode;
 
 /// <summary>
 /// Represents values used to enable maintenance mode.
@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.Maintenance;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public sealed class MaintenanceRequest
+public sealed record MaintenanceRequest
 {
     /// <summary>
     /// Gets the message to show in maintenance responses.
@@ -22,7 +22,16 @@ public sealed class MaintenanceRequest
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public DateTime? EndsAt { get; init; }
+    public DateTimeOffset? EndsAt { get; init; }
+
+    /// <summary>
+    /// Gets when the maintenance window should start. Leave it unset to begin immediately; set it to schedule a window ahead of time, which
+    /// the middleware then honors without any external scheduler.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public DateTimeOffset? StartsAt { get; init; }
 
     /// <summary>
     /// Gets whether this request should override automatic disabling when the end time has passed.
@@ -55,4 +64,12 @@ public sealed class MaintenanceRequest
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public IReadOnlyList<string>? AllowedPathPrefixes { get; init; }
+
+    /// <summary>
+    /// Gets the IP addresses allowed through while maintenance mode is enabled, so an operator can verify the site before lifting it.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public IReadOnlyList<string>? AllowedIpAddresses { get; init; }
 }

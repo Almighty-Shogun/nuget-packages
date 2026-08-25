@@ -1,7 +1,8 @@
-namespace AlmightyShogun.AspNet.Maintenance;
+namespace AlmightyShogun.AspNet.MaintenanceMode;
 
 /// <summary>
-/// Controls the persisted maintenance mode state.
+/// Opens, closes, and reads the maintenance window. The state outlives the process because it is persisted, so a restart during a window
+/// does not reopen the site.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -9,7 +10,8 @@ namespace AlmightyShogun.AspNet.Maintenance;
 public interface IMaintenanceService
 {
     /// <summary>
-    /// Gets the current maintenance mode state.
+    /// Reads the current window with the configured defaults and the expiry policy already applied, so a caller sees what the middleware
+    /// sees.
     /// </summary>
     ///
     /// <returns>The current maintenance mode state.</returns>
@@ -19,7 +21,7 @@ public interface IMaintenanceService
     Task<MaintenanceState> GetAsync();
 
     /// <summary>
-    /// Checks whether maintenance mode is currently enabled.
+    /// Reports whether requests are being blocked right now, which is narrower than a window existing: a scheduled one is not yet in force.
     /// </summary>
     ///
     /// <returns><c>true</c> when maintenance mode is enabled; otherwise, <c>false</c>.</returns>
@@ -29,10 +31,11 @@ public interface IMaintenanceService
     Task<bool> IsEnabledAsync();
 
     /// <summary>
-    /// Enables maintenance mode using the supplied request values.
+    /// Opens a window, taking any field the request leaves unset from configuration. Called again, it replaces the window rather than
+    /// merging.
     /// </summary>
     ///
-    /// <param name="request">The maintenance values to persist.</param>
+    /// <param name="request">The window to open. Any field it leaves unset is taken from configuration rather than left empty.</param>
     ///
     /// <returns>A task representing the asynchronous enable operation.</returns>
     ///
@@ -41,7 +44,7 @@ public interface IMaintenanceService
     Task EnableAsync(MaintenanceRequest request);
 
     /// <summary>
-    /// Disables maintenance mode and clears the persisted state.
+    /// Closes the window and removes the persisted file, so a restart afterwards comes back with the site open.
     /// </summary>
     ///
     /// <returns>A task representing the asynchronous disable operation.</returns>

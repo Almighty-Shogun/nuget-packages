@@ -6,8 +6,8 @@
         <TargetFramework>net10.0</TargetFramework>
 
         <Authors>Almighty-Shogun</Authors>
-        <PackageId>AlmightyShogun.AspNet.Maintenance</PackageId>
-        <RootNamespace>AlmightyShogun.AspNet.Maintenance</RootNamespace>
+        <PackageId>AlmightyShogun.AspNet.MaintenanceMode</PackageId>
+        <RootNamespace>AlmightyShogun.AspNet.MaintenanceMode</RootNamespace>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
         <PackageIcon>icon.png</PackageIcon>
@@ -16,8 +16,8 @@
         <Description>A C# library that adds file-backed maintenance mode middleware and services to ASP.NET Core.</Description>
 
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.AspNet.Maintenance</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.AspNet.Maintenance</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.AspNet.MaintenanceMode</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>
@@ -30,7 +30,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AlmightyShogun.Utils\AlmightyShogun.Utils.csproj"/>
+        <ProjectReference Include="..\AlmightyShogun.Core\AlmightyShogun.Core.csproj"/>
+        <ProjectReference Include="..\AlmightyShogun.AspNet.Core\AlmightyShogun.AspNet.Core.csproj"/>
+        <ProjectReference Include="..\AlmightyShogun.AspNet.Localization\AlmightyShogun.AspNet.Localization.csproj"/>
     </ItemGroup>
 
 </Project>
