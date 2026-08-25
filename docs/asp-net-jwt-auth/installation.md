@@ -14,27 +14,28 @@ dotnet add package AlmightyShogun.AspNet.JwtAuth
 
 ### Package references
 
-- `Microsoft.AspNetCore.Authentication.JwtBearer` `10.0.10` &mdash; provides JWT bearer authentication middleware and token validation options.
-- `Microsoft.IdentityModel.Tokens` `8.19.2` &mdash; provides token validation parameters and symmetric signing key types used directly by JWT setup.
-- `System.IdentityModel.Tokens.Jwt` `8.19.2` &mdash; provides JWT claim name constants used by app-audience authorization.
+- `Microsoft.AspNetCore.Authentication.JwtBearer` `10.0.11` &mdash; provides JWT bearer authentication middleware and token validation options.
+- `Microsoft.IdentityModel.Tokens` `8.22.0` &mdash; provides token validation parameters and symmetric signing key types used directly by JWT setup.
+- `System.IdentityModel.Tokens.Jwt` `8.22.0` &mdash; provides JWT claim name constants used by app-audience authorization.
 
 ### Project references
 
-- `AlmightyShogun.AspNet.Utils` &mdash; provides [`HttpErrorException`](/asp-net-utils/types/http-error-exception) and the optional standardized HTTP error response pipeline used by JWT Auth failure paths.
-- `AlmightyShogun.Utils` &mdash; provides the configuration binding helper used when registering [`AuthSettings`](./configuration/auth-settings).
+- `AlmightyShogun.Core` &mdash; provides the validated configuration binding helper the `Auth` section is bound with.
+- `AlmightyShogun.AspNet.Core` &mdash; provides the [`IExceptionMapper`](/asp-net-core/exceptions) contract and the standardized HTTP error response pipeline this package's failures are answered through.
+- `AlmightyShogun.AspNet.Localization` &mdash; resolves the message shown for each mapped failure, so a rejected request is explained in the caller's language.
 
 ## Startup Registration
 
 Register the package once while configuring application services. [`AddJwtAuth`](./extensions/add-jwt-auth) configures JWT bearer authentication, authorization services, `IHttpContextAccessor`, host-to-application resolution, app-audience authorization, refresh-token support, and the dynamic permission policy provider.
 
-JWT Auth helpers and host/app resolution can throw [`HttpErrorException`](/asp-net-utils/types/http-error-exception) for authentication and authorization failures. Register ASP.NET Utils error responses before [`AddJwtAuth`](./extensions/add-jwt-auth) and add [`UseHttpErrorResponses`](/asp-net-utils/extensions/use-http-error-responses) to the request pipeline when those failures should be returned as standardized JSON error responses.
+The helpers and host resolution throw the package's own [exceptions](./exceptions), which [`AddJwtAuth`](./extensions/add-jwt-auth) maps to standardized responses. Add [`UseHttpErrorResponses`](/asp-net-core/extensions/use-http-error-responses) to the pipeline for those responses to reach the client as JSON.
 
 ::: warning
 Requires an `Auth` section in application configuration, usually from `appsettings.json`.
 :::
 
 ```csharp
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 using AlmightyShogun.AspNet.JwtAuth;
 
 builder.Services

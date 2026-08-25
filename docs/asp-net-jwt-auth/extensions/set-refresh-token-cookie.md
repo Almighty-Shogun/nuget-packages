@@ -11,9 +11,9 @@ params:
 
 # SetRefreshTokenCookie
 
-Writes the package refresh-token cookie to an `HttpResponse`. The cookie is written as `HttpOnly`, uses `SameSite.Lax`, is scoped to `/`, and uses the current request scheme to decide whether the `Secure` flag should be enabled.
+Writes the refresh-token cookie after issuing or rotating one. It is `HttpOnly` and scoped to `/`, and the `Secure` flag follows the current request scheme.
 
-Use this helper after issuing or rotating a refresh token. The `days` argument should usually come from [`AuthSettings.RefreshTokenDays`](../configuration/auth-settings) so cookie lifetime stays aligned with the configured refresh-token policy.
+Pass [`RefreshTokenDays`](../configuration) as the lifetime so the cookie expires with the token it carries rather than outliving it.
 
 ## Usage
 

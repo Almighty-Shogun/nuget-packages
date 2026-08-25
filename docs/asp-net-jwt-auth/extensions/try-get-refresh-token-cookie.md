@@ -4,18 +4,15 @@ returns: The refresh-token cookie value, or `null` when the cookie is not presen
 
 # TryGetRefreshTokenCookie
 
-Attempts to read the package refresh-token cookie from an `HttpRequest`. The helper uses [`CookieNames.RefreshToken`](../constants/cookie-names), so it checks the same cookie name that [`SetRefreshTokenCookie`](./set-refresh-token-cookie) writes.
+Reads the refresh-token cookie named by [`CookieNames.RefreshToken`](../constants/cookie-names), returning `null` when the request carries none.
 
-Use this when a request may or may not contain a refresh token and the caller needs to decide what should happen next. For flows where the cookie is required, use [`GetRefreshTokenCookie`](./get-refresh-token-cookie) instead so missing cookies fail immediately.
+Use it where a signed-out caller is ordinary rather than exceptional. Where the cookie is required, [`GetRefreshTokenCookie`](./get-refresh-token-cookie) fails immediately instead.
 
 ## Usage
 
 ```csharp
 using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.JwtAuth;
-
-var httpContext = new DefaultHttpContext();
-httpContext.Request.Headers.Cookie = "refreshToken=abc123";
 
 string? refreshToken = httpContext.Request.TryGetRefreshTokenCookie();
 ```

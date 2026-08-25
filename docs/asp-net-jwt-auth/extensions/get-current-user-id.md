@@ -4,9 +4,9 @@ returns: The authenticated user's numeric user id.
 
 # GetCurrentUserId
 
-Reads the current user's id from a `ClaimsPrincipal`. The method checks the package `userId` claim first and then falls back to `ClaimTypes.NameIdentifier`. It is intended for controller, endpoint, and service code that has already received an authenticated principal and needs the application user id as an `int`.
+Reads the caller's public identifier from a `ClaimsPrincipal`, checking the [`userId`](../constants/auth-claim-types) claim first and falling back to `ClaimTypes.NameIdentifier`.
 
-If neither claim exists or the value cannot be parsed as an integer, the method throws [`HttpErrorException`](/asp-net-utils/types/http-error-exception) with status code `401 Unauthorized`. This makes missing identity data fail immediately instead of silently returning a default value.
+If neither claim is present, or the value is not a well-formed identifier, it throws [`MissingUserIdClaimException`](../exceptions) rather than returning a default, which reaches the client as `401`. Use [`TryGetCurrentUserId`](./try-get-current-user-id) where an anonymous caller is expected.
 
 ## Usage
 
@@ -14,12 +14,7 @@ If neither claim exists or the value cannot be parsed as an integer, the method 
 using System.Security.Claims;
 using AlmightyShogun.AspNet.JwtAuth;
 
-var principal = new ClaimsPrincipal(new ClaimsIdentity(
-    [new Claim("userId", "42")],
-    authenticationType: "Bearer"
-));
-
-int userId = principal.GetCurrentUserId();
+Guid identifier = principal.GetCurrentUserId();
 ```
 
 <FrontmatterDocs/>
@@ -27,5 +22,5 @@ int userId = principal.GetCurrentUserId();
 ## Type signature
 
 ```csharp
-public int GetCurrentUserId();
+public Guid GetCurrentUserId();
 ```
