@@ -38,7 +38,7 @@ internal sealed class NamedValidationFieldCondition<TRequest>(
     public bool Matches(TRequest request)
     {
         object? value = _field.GetValue(request);
-        
+
         return values.Any(expectedValue => Equals(value, expectedValue));
     }
 

@@ -58,7 +58,7 @@ internal sealed class EnumValidationRule<TRequest, TProperty>(
         {
             Type underlyingType = Enum.GetUnderlyingType(_enumType);
             object convertedValue = Convert.ChangeType(value, underlyingType, CultureInfo.InvariantCulture);
-            
+
             return Enum.IsDefined(_enumType, convertedValue);
         }
         catch (InvalidCastException)

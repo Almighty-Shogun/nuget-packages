@@ -124,7 +124,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
         }
 
         _rules.Clear();
-        
+
         AddRulesByPriority(rules, ValidationRulePriority.Required);
         AddRulesByPriority(rules, ValidationRulePriority.Normal);
     }

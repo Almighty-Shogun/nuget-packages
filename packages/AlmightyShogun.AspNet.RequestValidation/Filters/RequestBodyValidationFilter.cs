@@ -49,7 +49,7 @@ internal sealed class RequestBodyValidationFilter(
         if (!HasBodyParameter(context.ActionDescriptor) || !HasInvalidBody(context.HttpContext.Request))
         {
             await next();
-            
+
             return;
         }
 

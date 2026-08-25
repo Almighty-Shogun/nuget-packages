@@ -50,7 +50,7 @@ internal readonly record struct ValidationRuleIdentity(string Value)
         if (value is null)
         {
             builder.Append("null");
-            
+
             return true;
         }
 
@@ -60,11 +60,11 @@ internal readonly record struct ValidationRuleIdentity(string Value)
         {
             case string text:
                 AppendLiteral(builder, text);
-            
+
                 return true;
             case Type valueType:
                 AppendLiteral(builder, valueType.AssemblyQualifiedName ?? valueType.FullName ?? valueType.Name);
-                
+
                 return true;
         }
 
@@ -84,18 +84,18 @@ internal readonly record struct ValidationRuleIdentity(string Value)
         {
             case DateTime dateTime:
                 AppendLiteral(builder, dateTime.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture));
-                
+
                 return true;
             case DateTimeOffset dateTimeOffset:
                 AppendLiteral(builder, dateTimeOffset.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture));
-                
+
                 return true;
         }
 
         if (!type.IsValueType && !visited.Add(value))
         {
             builder.Append("<cycle>");
-            
+
             return true;
         }
 

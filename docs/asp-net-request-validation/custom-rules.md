@@ -53,9 +53,9 @@ using System.Collections.Generic;
 public sealed class UserRepository
 {
     private static readonly HashSet<string> Emails
-        = new(StringComparer.OrdinalIgnoreCase) 
-        { 
-            "admin@example.com" 
+        = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "admin@example.com"
         };
 
     public Task<bool> EmailExistsAsync(

@@ -39,7 +39,7 @@ var response = new ValidationErrorResponse
 ```csharp
 public sealed record ValidationErrorResponse : HttpErrorResponse
 {
-    public required IReadOnlyDictionary<string, ValidationRuleError> Errors 
+    public required IReadOnlyDictionary<string, ValidationRuleError> Errors
     {
         get;
         init;

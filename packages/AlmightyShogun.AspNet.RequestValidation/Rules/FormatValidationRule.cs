@@ -122,7 +122,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
         try
         {
             using JsonDocument document = JsonDocument.Parse(value);
-            
+
             return true;
         }
         catch (JsonException)

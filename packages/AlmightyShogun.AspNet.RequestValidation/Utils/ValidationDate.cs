@@ -49,14 +49,14 @@ internal static class ValidationDate
     private static bool TryGetDateFromText(string value, out DateTimeOffset date)
     {
         const DateTimeStyles flags = DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal;
-        
+
         if (DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, flags, out date))
             return true;
 
         if (DateTime.TryParse(value, CultureInfo.InvariantCulture, flags, out DateTime dateTime))
         {
             date = ToDateTimeOffset(dateTime);
-            
+
             return true;
         }
 
@@ -107,14 +107,14 @@ internal static class ValidationDate
     private static bool TryGetExactDateFromText(string value, string format, out DateTimeOffset date)
     {
         const DateTimeStyles flags = DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal;
-        
+
         if (DateTimeOffset.TryParseExact(value, format, CultureInfo.InvariantCulture, flags, out date))
             return true;
 
         if (DateTime.TryParseExact(value, format, CultureInfo.InvariantCulture, flags, out DateTime dateTime))
         {
             date = ToDateTimeOffset(dateTime);
-            
+
             return true;
         }
 

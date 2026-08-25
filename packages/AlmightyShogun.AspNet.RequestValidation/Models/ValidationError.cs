@@ -70,7 +70,7 @@ internal sealed record ValidationError(long Code, string Key, string Error, obje
             if (char.IsLetterOrDigit(character))
             {
                 builder.Append(char.ToLowerInvariant(character));
-                
+
                 continue;
             }
 

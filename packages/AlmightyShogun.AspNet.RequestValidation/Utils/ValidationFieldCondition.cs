@@ -39,7 +39,7 @@ internal sealed class ValidationFieldCondition<TRequest, TCompare>(
     public bool Matches(TRequest request)
     {
         object? value = _field.GetValue(request);
-        
+
         return values.Any(expectedValue => Equals(value, expectedValue));
     }
 

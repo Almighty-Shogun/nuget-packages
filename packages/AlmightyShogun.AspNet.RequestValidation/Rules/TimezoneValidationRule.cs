@@ -26,7 +26,7 @@ internal sealed class TimezoneValidationRule<TRequest, TProperty> : IPropertyVal
         try
         {
             TimeZoneInfo.FindSystemTimeZoneById(text);
-            
+
             return ValueTask.FromResult(ValidationRuleResult.Success());
         }
         catch (TimeZoneNotFoundException)

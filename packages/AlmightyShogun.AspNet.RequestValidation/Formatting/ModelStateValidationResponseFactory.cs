@@ -41,7 +41,7 @@ internal static class ModelStateValidationResponseFactory
         }
 
         var validationResponseFactory = context.HttpContext.RequestServices.GetRequiredService<IValidationResponseFactory>();
-        
+
         ValidationBag errors = ModelStateValidationExtractor.Extract(context.ModelState);
 
         return validationResponseFactory.Create(new ValidationResponseContext(context.HttpContext, StatusCode, errors));

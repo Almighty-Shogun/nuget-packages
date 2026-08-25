@@ -151,7 +151,7 @@ internal static class ValidationFile
             if (value.Contains('/', StringComparison.Ordinal))
             {
                 mimeTypes.Add(value);
-                
+
                 continue;
             }
 

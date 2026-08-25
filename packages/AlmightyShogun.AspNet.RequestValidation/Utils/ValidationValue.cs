@@ -374,7 +374,7 @@ internal static class ValidationValue
         if (!TryGetNumber(value, out _))
         {
             places = 0;
-            
+
             return false;
         }
 
@@ -383,7 +383,7 @@ internal static class ValidationValue
         if (separatorIndex < 0)
         {
             places = 0;
-            
+
             return true;
         }
 
@@ -392,7 +392,7 @@ internal static class ValidationValue
         if (!decimals.All(IsAsciiDigit))
         {
             places = 0;
-            
+
             return false;
         }
 
