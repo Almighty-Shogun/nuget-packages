@@ -1,9 +1,13 @@
+using System.Text;
+using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
 
 namespace AlmightyShogun.AspNet.JwtAuth;
 
 /// <summary>
-/// Represents the authentication configuration used by ASP.NET JWT Auth.
+/// The bound <c>Auth</c> section. Validated while the host starts, so a secret too short to sign with or a configuration
+/// that leaves tokens with no audience stops the application there rather than failing the first request.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -11,7 +15,17 @@ namespace AlmightyShogun.AspNet.JwtAuth;
 public sealed record AuthSettings
 {
     /// <summary>
-    /// Gets the expected issuer value for incoming JWTs.
+    /// The shortest signing key HMAC-SHA256 accepts, in bytes. Anything shorter is refused by the algorithm itself, so
+    /// it is rejected here rather than surfacing as a signing failure on the first request.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal const int MinimumSecretBytes = 32;
+
+    /// <summary>
+    /// Gets the issuer stamped into minted tokens and demanded of incoming ones, which is what stops a token from another
+    /// system being accepted here.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -20,31 +34,64 @@ public sealed record AuthSettings
     public required string Issuer { get; init; }
 
     /// <summary>
-    /// Gets the symmetric signing secret used to validate JWT signatures.
+    /// Gets the symmetric signing secret used to sign and validate JWT signatures. Must be at least 32 bytes, which is
+    /// the minimum key length HMAC-SHA256 accepts; the length is checked in bytes rather than characters, so a secret of
+    /// non-ASCII characters is not as long as it looks.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
     [Required]
+    [MinLength(MinimumSecretBytes)]
     public required string Secret { get; init; }
 
     /// <summary>
-    /// Gets the access token lifetime in hours.
+    /// Gets how long a minted access token stays valid, in minutes. Kept short, because an access token cannot be
+    /// revoked once issued: shortening it is the only thing that limits how long a leaked one is useful.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
     [Range(1, int.MaxValue)]
-    public required int Hours { get; init; }
+    public int AccessTokenMinutes { get; init; } = 60;
 
     /// <summary>
-    /// Gets the refresh token lifetime in days.
+    /// Gets how long a refresh token stays valid, in days. This is also the lifetime of the cookie carrying it, so it
+    /// decides how long a returning user stays signed in without re-entering credentials.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
     [Range(1, int.MaxValue)]
-    public required int RefreshTokenDays { get; init; }
+    public int RefreshTokenDays { get; init; } = 30;
+
+    /// <summary>
+    /// Gets the tolerance applied when checking token expiry, in seconds, which absorbs small clock differences between
+    /// the machine that minted a token and the machine validating it.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    [Range(1, int.MaxValue)]
+    public int ClockSkewSeconds { get; init; } = 30;
+
+    /// <summary>
+    /// Gets the audience used when no host mapping applies. Required when <see cref="Hosts"/> is empty, because audience
+    /// validation is always on.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public string? DefaultApp { get; init; }
+
+    /// <summary>
+    /// Gets the <c>SameSite</c> mode applied to the refresh token cookie. <see cref="SameSiteMode.None"/> requires a
+    /// secure connection, which browsers enforce by rejecting the cookie outright.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public SameSiteMode SameSite { get; init; } = SameSiteMode.Lax;
 
     /// <summary>
     /// Gets the application audience name used when requests arrive from plain localhost in development.
@@ -60,43 +107,99 @@ public sealed record AuthSettings
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
-    public Dictionary<string, string> Hosts { get; init; } = [];
+    public IReadOnlyDictionary<string, string> Hosts { get; init; } = new Dictionary<string, string>();
 
     /// <summary>
-    /// Gets the normalized audience values configured for localhost and host mappings.
+    /// Gets every audience a token may carry: the host mappings, the localhost fallback, and the default app.
     /// </summary>
-    ///
-    /// <remarks>
-    /// The value is used by JWT bearer validation when host-based app scoping is enabled.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    internal IReadOnlyList<string> ValidAudiences
-    {
-        get
-        {
-            HashSet<string> audiences = new(StringComparer.OrdinalIgnoreCase);
+    public IReadOnlyList<string> ValidAudiences => _validAudiences ??= BuildValidAudiences();
 
-            if (!string.IsNullOrWhiteSpace(LocalhostApp))
-                audiences.Add(LocalhostApp);
-
-            foreach (string audience in Hosts.Values.Where(audience => !string.IsNullOrWhiteSpace(audience)))
-            {
-                audiences.Add(audience);
-            }
-
-            return [.. audiences];
-        }
-    }
+    /// <summary>
+    /// The cached audience list. Building it walks the host mapping, and it is read on every token validation.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private IReadOnlyList<string>? _validAudiences;
 
     /// <summary>
     /// Determines whether host-based app scoping is active for authentication and authorization.
     /// </summary>
     ///
-    /// <returns><c>true</c> when host mappings are configured; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    /// <c>true</c> when host mappings exist, which turns on host-based audience checks; <c>false</c> when every token is
+    /// validated against the default app instead.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    internal bool IsScoped() => Hosts.Count > 0;
+    public bool IsScoped() => Hosts.Count > 0;
+
+    /// <summary>
+    /// Builds the signing key, checking the secret in bytes rather than characters, which is what the algorithm actually
+    /// constrains and what <see cref="MinLengthAttribute"/> on a string cannot express.
+    /// </summary>
+    ///
+    /// <returns>The symmetric key both signing and validation use, so the two can never disagree.</returns>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// The secret encodes to fewer than <see cref="MinimumSecretBytes"/> bytes, so HMAC-SHA256 would refuse it.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal SymmetricSecurityKey SigningKey()
+    {
+        byte[] key = Encoding.UTF8.GetBytes(Secret);
+
+        return key.Length >= MinimumSecretBytes
+            ? new SymmetricSecurityKey(key)
+            : throw new InvalidOperationException(
+                $"Auth:Secret must encode to at least {MinimumSecretBytes} bytes for HMAC-SHA256 signing, but is {key.Length}."
+            );
+    }
+
+    /// <summary>
+    /// Collects the distinct configured audiences, refusing a configuration that would leave a token with no audience to
+    /// be validated against.
+    /// </summary>
+    ///
+    /// <returns>
+    /// Every audience a token may legitimately carry, de-duplicated case-insensitively: the host mappings, the localhost
+    /// fallback, and the default app.
+    /// </returns>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// A host is mapped to a blank audience, or no host mapping exists and <see cref="DefaultApp"/> is unset. Audience
+    /// validation is always on, so either would refuse every token at runtime instead of at startup.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private IReadOnlyList<string> BuildValidAudiences()
+    {
+        foreach (KeyValuePair<string, string> host in Hosts.Where(host => string.IsNullOrWhiteSpace(host.Value)))
+            throw new InvalidOperationException($"Auth:Hosts entry '{host.Key}' has no audience value.");
+
+        if (!IsScoped() && string.IsNullOrWhiteSpace(DefaultApp))
+            throw new InvalidOperationException(
+                "Auth:DefaultApp must be set when Auth:Hosts is empty, because every token carries an audience and it is always validated."
+            );
+
+        HashSet<string> audiences = new(StringComparer.OrdinalIgnoreCase);
+
+        if (!string.IsNullOrWhiteSpace(DefaultApp))
+            audiences.Add(DefaultApp);
+
+        if (!string.IsNullOrWhiteSpace(LocalhostApp))
+            audiences.Add(LocalhostApp);
+
+        foreach (string audience in Hosts.Values.Where(audience => !string.IsNullOrWhiteSpace(audience)))
+            audiences.Add(audience);
+
+        return [.. audiences];
+    }
 }

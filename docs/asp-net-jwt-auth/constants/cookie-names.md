@@ -1,22 +1,21 @@
----
-returns: The default cookie name used for refresh tokens.
----
-
 # CookieNames
 
-Contains the public cookie names used by ASP.NET JWT Auth. Use these constants when application code needs to interact with the same cookies as the package helpers instead of duplicating string literals.
+The cookie names this package reads and writes. Use these rather than string literals, so application code and the package helpers can never disagree about which cookie carries what.
 
 ## Usage
 
 ```csharp
 using AlmightyShogun.AspNet.JwtAuth;
 
-string refreshTokenCookie = CookieNames.RefreshToken;
+bool hasRefreshToken = httpContext.Request.Cookies
+    .ContainsKey(CookieNames.RefreshToken);
 ```
 
-<FrontmatterDocs/>
+## RefreshToken
 
-## Type signature
+The cookie carrying the refresh token, written by [`SetRefreshTokenCookie`](../extensions/set-refresh-token-cookie) and read by [`GetRefreshTokenCookie`](../extensions/get-refresh-token-cookie). Written `HttpOnly`, so script on the page cannot read it even though the browser sends it with every request to the origin.
+
+### Type signature
 
 ```csharp
 public const string RefreshToken = "refreshToken";

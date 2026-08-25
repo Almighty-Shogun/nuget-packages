@@ -1,9 +1,8 @@
 using System.Text;
-using AlmightyShogun.Utils;
+using AlmightyShogun.Core;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -21,66 +20,82 @@ public static class PackageRegistry
     /// Provides service-collection extension methods for registering JWT authentication and authorization services.
     /// </summary>
     ///
-    /// <param name="serviceCollection">The service collection used to register the JWT Auth services.</param>
+    /// <param name="serviceCollection">
+    /// The collection every service this package registers lands in. Returned so the call chains with the rest of an
+    /// application's startup.
+    /// </param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Registers the JWT auth package services using the provided configuration root.
+        /// Registers bearer authentication, the permission policy provider, and the app-audience requirement, binding the
+        /// <c>Auth</c> section they all read from.
         /// </summary>
         ///
-        /// <param name="configuration">The application configuration that contains the required <c>Auth</c> section.</param>
+        /// <param name="configuration">
+        /// The application configuration. Read for an <c>Auth</c> section, which is required: without a signing secret
+        /// there is nothing to validate a token against.
+        /// </param>
+        /// <param name="registerExceptionHandler">
+        /// Whether to register the handler that turns this package's exceptions into standardized responses. It needs
+        /// <c>AddHttpErrorResponseWriter</c> and <c>AddMessageLocalization</c> from <c>AlmightyShogun.AspNet.Core</c>, and
+        /// runs ahead of whatever <c>AddExceptionHandling</c> registers. The mapper is registered either way, so a
+        /// replacement handler can still resolve it.
+        /// </param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with authentication configured.</returns>
+        /// <returns>The <see cref="IServiceCollection"/> instance with JWT authentication and authorization registered.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
-        public IServiceCollection AddJwtAuth(IConfiguration configuration)
+        public IServiceCollection AddJwtAuth(IConfiguration configuration, bool registerExceptionHandler = true)
         {
             serviceCollection
                 .AddConfiguration<AuthSettings>(configuration.GetSection("Auth"))
+                .AddSingleton<JwtAuthExceptionMapper>()
                 .AddHttpContextAccessor()
                 .AddAuthorization()
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(configuration);
+                .AddJwtBearer(options => ConfigureJwtBearer(options, configuration));
+
+            if (registerExceptionHandler)
+                serviceCollection.AddExceptionHandler<JwtAuthExceptionHandler>();
 
             return serviceCollection
                 .AddSingleton<IAppHostResolver, AppHostResolver>()
-                .AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>()
-                .RegisterOnInherit<IAuthorizationHandler>(ServiceLifetime.Scoped);
+                .AddSingleton<IAuthTokenGenerator, AuthTokenGenerator>()
+                .ReplaceService<IAuthorizationPolicyProvider, PermissionPolicyProvider>()
+                .AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>()
+                .AddScoped<IAuthorizationHandler, AppAudienceAuthorizationHandler>();
         }
     }
 
     /// <summary>
-    /// Registers JWT bearer authentication configured from the <c>Auth</c> configuration section.
+    /// Applies the bound settings to the bearer options, so issuer, signing key, audience, and lifetime are configured
+    /// from one place rather than independently.
     /// </summary>
     ///
-    /// <param name="builder">The authentication builder used to register the JWT functionality.</param>
-    /// <param name="configuration">The application configuration that contains issuer, secret, lifetime, and host mapping settings.</param>
-    ///
-    /// <returns>The <see cref="AuthenticationBuilder"/> instance with JWT bearer configured.</returns>
+    /// <param name="options">The bearer options being built for the authentication scheme.</param>
+    /// <param name="configuration">The configuration the <c>Auth</c> section is read from.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static AuthenticationBuilder AddJwtBearer(this AuthenticationBuilder builder, IConfiguration configuration)
+    private static void ConfigureJwtBearer(JwtBearerOptions options, IConfiguration configuration)
     {
-        AuthSettings? authSettings = configuration.GetSection("Auth").Get<AuthSettings>();
+        AuthSettings authSettings = configuration.GetSection("Auth").Get<AuthSettings>()
+                                    ?? throw new InvalidOperationException("Missing Auth configuration");
 
-        if (authSettings is null)
-            throw new InvalidOperationException("Missing Auth configuration");
-
-        return builder.AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
+        options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero,
+            ValidateAudience = true,
             ValidateIssuerSigningKey = true,
+            ClockSkew = TimeSpan.FromSeconds(authSettings.ClockSkewSeconds),
             ValidIssuer = authSettings.Issuer,
             ValidAudiences = authSettings.ValidAudiences,
-            ValidateAudience = authSettings.IsScoped(),
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authSettings.Secret))
-        });
+        };
     }
 }

@@ -6,16 +6,19 @@ Use this package when an API should accept JWT access tokens, store refresh toke
 
 ## Categories
 
-- [Configuration](./configuration/auth-settings) &mdash; public configuration shapes bound from application configuration.
+- [Configuration](./configuration) &mdash; the `Auth` section the package binds and validates at startup.
+- [Exceptions](./exceptions) &mdash; what the package throws, and the response each one becomes.
+- [Localization](./localization) &mdash; the message file those responses are worded from.
 - [Extensions](./extensions/add-jwt-auth) &mdash; startup, request, response, and claims-principal extension methods.
-- [Attributes](./attributes/auth-permission-attribute) &mdash; endpoint metadata for permission and refresh-token authorization.
-- [Services](./services/app-host-resolver) &mdash; dependency-injection services and contracts used by authentication.
-- [Constants](./constants/cookie-names) &mdash; shared names used by the cookie helpers.
+- [Attributes](./attributes/auth-permission) &mdash; endpoint metadata for permission and refresh-token authorization.
+- [Services](./services/app-host-resolver) &mdash; host resolution and access token generation.
+- [Records](./records/auth-token) &mdash; the minted token and its expiry.
+- [Constants](./constants/auth-claim-types) &mdash; the claim types, policy naming, and cookie names the package reads and writes.
 
 ## Quick Example
 
 ```csharp
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 using AlmightyShogun.AspNet.JwtAuth;
 
 builder.Services

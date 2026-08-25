@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 namespace AlmightyShogun.AspNet.JwtAuth;
 
 /// <summary>
-/// Applies a permission-based authorization policy to a controller or action.
+/// Requires the authenticated principal to hold a permission claim satisfying the named permission, on a controller, an
+/// action, or a minimal API endpoint.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -14,10 +15,12 @@ public sealed class AuthPermissionAttribute : AuthorizeAttribute
     /// Creates a permission authorization attribute for the provided permission claim value.
     /// </summary>
     ///
-    /// <param name="permission">The permission value that must exist in the authenticated user's permission claims.</param>
+    /// <param name="permission">
+    /// The permission the principal must hold. Becomes a policy named <c>permission:{permission}</c>, which the package's
+    /// policy provider resolves and caches.
+    /// </param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
-    public AuthPermissionAttribute(string permission)
-        => Policy = $"{PermissionPolicyProvider.PolicyPrefix}{permission}";
+    public AuthPermissionAttribute(string permission) => Policy = $"{AuthPolicies.PermissionPrefix}{permission}";
 }
