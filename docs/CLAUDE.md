@@ -71,9 +71,9 @@ Packages that expose a very large set of closely related validation-rule APIs ma
 
 ## Validation Rule Documentation
 
-`AlmightyShogun.AspNet.Validation` uses grouped rule-family pages because validation attributes and fluent rule methods expose a large, repetitive public surface.
+`AlmightyShogun.AspNet.RequestValidation` uses grouped rule-family pages because validation attributes and fluent rule methods expose a large, repetitive public surface.
 
-Validation rule family pages under `docs/asp-net-validation/validation-rules/` use:
+Validation rule family pages under `docs/asp-net-request-validation/validation-rules/` use:
 
 ````md
 # Rule Family
@@ -104,7 +104,7 @@ Rules:
 
 - Document every public validation attribute exactly once on the relevant family page.
 - Document every public fluent validation rule method exactly once on the relevant family page.
-- Document `CustomRule` on `docs/asp-net-validation/custom-rules.md`, not inside a rule family, because it needs implementation guidance for the DI-resolved rule type and optional custom attribute wrapper.
+- Document `CustomRule` on `docs/asp-net-request-validation/custom-rules.md`, not inside a rule family, because it needs implementation guidance for the DI-resolved rule type and optional custom attribute wrapper.
 - Use one `## RuleName` section per validation rule.
 - Do not use shared rule tables or shared `## Type signature` blocks on validation rule family pages.
 - For no-argument attributes, show only the real attribute usage once, for example `[Required]`.
@@ -113,7 +113,7 @@ Rules:
 - If a rule is fluent-only or attribute-only, document the existing public API and call out the missing counterpart as a package parity question before release.
 - Do not add label comments such as `// Real example` inside the code block.
 
-The `docs/asp-net-validation/fluent-validation.md` page documents `ValidatableRequest<TRequest>` and general fluent-rule behavior:
+The `docs/asp-net-request-validation/fluent-validation.md` page documents `ValidatableRequest<TRequest>` and general fluent-rule behavior:
 
 - Keep one main request example near the top.
 - Do not duplicate the full rule catalog on this page.
