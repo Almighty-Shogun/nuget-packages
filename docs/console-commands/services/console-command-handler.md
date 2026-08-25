@@ -1,52 +1,56 @@
 # ConsoleCommandHandler
 
-Dependency-injection service for starting the console command input loop. [`AddConsoleCommands`](../extensions/add-console-commands) registers the package handler for `IConsoleCommandHandler`, and application code should resolve the interface when it is ready to read and dispatch console commands.
+Starts and stops the console command input loop. Application code depends on `IConsoleCommandHandler` and resolves it from a hosted service or entry point when it is ready to read commands.
 
-Use this service from hosted services, startup code, or console application entry points that control when command input should begin. Command discovery and registration still happen through [`RegisterConsoleCommands`](../extensions/register-console-commands); this service starts and stops the runtime loop that consumes the registered command instances.
+Command classes are discovered separately, by [`RegisterConsoleCommands`](../extensions/register-console-commands).
 
 ## Usage
 
-```csharp
+::: code-group
+
+```csharp [ConsoleCommandWorker.cs]
 using Microsoft.Extensions.Hosting;
 using AlmightyShogun.ConsoleCommands;
 
-public sealed class ConsoleCommandWorker(IConsoleCommandHandler commandHandler) : BackgroundService
+public sealed class ConsoleCommandWorker(
+    IConsoleCommandHandler commandHandler
+) : BackgroundService
 {
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        return commandHandler.StartAsync(stoppingToken);
-    }
+    protected override Task ExecuteAsync(
+        CancellationToken cancellationToken
+    ) => commandHandler.StartAsync(cancellationToken);
 }
 ```
 
-Register the command handler and command classes before resolving the service.
-
-```csharp
+```csharp [Program.cs]
 using AlmightyShogun.ConsoleCommands;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services
     .AddConsoleCommands()
-    .RegisterConsoleCommands(typeof(Program).Assembly)
+    .RegisterConsoleCommands()
     .AddHostedService<ConsoleCommandWorker>();
 ```
 
+:::
+
 ## StartAsync
 
-Starts the console command input loop through the registered command handler. The provided implementation reads lines from `Console.In`, treats the first token as the command name, and forwards the remaining tokens to the matching command class.
+Reads lines from `Console.In`, treats the first token as the command name, and forwards the rest to the matching command class. The loop ends when the token is cancelled or [`Stop`](#stop) is called.
 
-Use this method after the service provider has been built and command classes have been registered. Resolve the handler through `IConsoleCommandHandler` so application code depends on the public DI contract instead of the concrete handler type.
+Only one loop may run at a time. Calling this while one is already running logs an error and returns.
 
 ```csharp
 using Microsoft.Extensions.Hosting;
 using AlmightyShogun.ConsoleCommands;
 
-public sealed class ConsoleCommandWorker(IConsoleCommandHandler commandHandler) : BackgroundService
+public sealed class ConsoleCommandWorker(
+    IConsoleCommandHandler commandHandler
+) : BackgroundService
 {
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        return commandHandler.StartAsync(stoppingToken);
-    }
+    protected override Task ExecuteAsync(
+        CancellationToken cancellationToken
+    ) => commandHandler.StartAsync(cancellationToken);
 }
 ```
 
@@ -58,22 +62,25 @@ public Task StartAsync(CancellationToken cancellationToken = default);
 
 ## Stop
 
-Stops the active console command input loop started by `StartAsync`. Use this when application lifetime code needs to shut the command loop down explicitly instead of only relying on the original cancellation token.
+Cancels the running loop. A command such as `exit` calls it to shut the prompt down from inside itself.
 
-Calling `Stop` when the handler is not currently running logs an error and returns. It does not dispose the service provider or unregister commands; it only cancels the active read loop owned by the handler.
+Calling it when no loop is running logs an error and returns. A command already executing is not interrupted unless it accepts a `CancellationToken` of its own.
 
 ```csharp
 using Microsoft.Extensions.Hosting;
 using AlmightyShogun.ConsoleCommands;
 
-public sealed class ConsoleCommandWorker(IConsoleCommandHandler commandHandler) : BackgroundService
+public sealed class ConsoleCommandWorker(
+    IConsoleCommandHandler commandHandler
+) : BackgroundService
 {
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        return commandHandler.StartAsync(stoppingToken);
-    }
+    protected override Task ExecuteAsync(
+        CancellationToken cancellationToken
+    ) => commandHandler.StartAsync(cancellationToken);
 
-    public override async Task StopAsync(CancellationToken cancellationToken)
+    public override async Task StopAsync(
+        CancellationToken cancellationToken
+    )
     {
         commandHandler.Stop();
 

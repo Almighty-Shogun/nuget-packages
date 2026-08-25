@@ -16,8 +16,8 @@
         <Description>A C# library that adds attribute-based console command registration and execution.</Description>
 
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.ConsoleCommands</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.ConsoleCommands</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.ConsoleCommands</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,8 +26,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AlmightyShogun.Utils\AlmightyShogun.Utils.csproj"/>
-        <ProjectReference Include="..\AlmightyShogun.Logging\AlmightyShogun.Logging.csproj"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AlmightyShogun.Core\AlmightyShogun.Core.csproj"/>
     </ItemGroup>
 
 </Project>

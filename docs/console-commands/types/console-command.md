@@ -1,57 +1,41 @@
 ---
-params:
-    - name: name
-      description: Command name read from the command class metadata.
+fields:
+    - name: Name
+      description: The name the command is invoked by, which is also what `Usage` and `Example` are prefixed with.
       type: string
 
-    - name: description
-      description: Optional command description read from the command class metadata.
+    - name: Description
+      description: The explanation for a listing, or null when the command was declared without one.
       type: string?
 
-    - name: aliases
-      description: Aliases read from the command class metadata.
-      type: string[]
+    - name: Aliases
+      description: The extra names the command answers to, from [`AliasAttribute`](../attributes/alias-attribute). Empty when it declares none.
+      type: 'IReadOnlyList<string>'
 
-    - name: usage
-      description: Generated usage text built from the command `ExecuteAsync` parameters.
+    - name: Usage
+      description: The full line to type, as the name followed by one `<name:Type>` placeholder per handler parameter. A command taking no arguments yields the bare name.
       type: string
 
-    - name: example
-      description: Optional example arguments read from the command class metadata.
+    - name: Example
+      description: A complete sample invocation from [`ExampleAttribute`](../attributes/example-attribute), including the command name, or null when the command declares none.
       type: string?
-
-returns: Command metadata containing the name, optional description, aliases, generated usage, and optional example.
 ---
 
 # ConsoleCommand
 
-Represents metadata for a discovered console command. [`ConsoleUtils.GetAllCommands`](./console-utils#getallcommands) creates this value from command class attributes and `ExecuteAsync` parameters so application code can build help output, command listings, or diagnostics.
-
-Use this class as a read model. It does not execute commands; command execution is handled by the registered command handler and by [`ConsoleCommandBase`](./console-command-base).
+The metadata describing one discovered command, built by [`ConsoleUtils.GetAllCommands`](../utilities/console-utils#getallcommands) from a command class's attributes and `ExecuteAsync` parameters. It is a read model, so holding one never constructs the class it came from. Instances come only from that method.
 
 ## Usage
 
 ```csharp
 using AlmightyShogun.ConsoleCommands;
 
-List<ConsoleCommand> commands = ConsoleUtils.GetAllCommands();
-
-foreach (ConsoleCommand command in commands)
+foreach (ConsoleCommand command in ConsoleUtils.GetAllCommands())
 {
-    Console.WriteLine($"{command.Name}: {command.Description ?? "No description"}");
+    string description = command.Description ?? string.Empty;
+
+    Console.WriteLine($"{command.Usage} - {description}");
 }
 ```
 
 <FrontmatterDocs/>
-
-## Type signature
-
-```csharp
-public sealed class ConsoleCommand(
-    string name,
-    string? description,
-    string[] aliases,
-    string usage,
-    string? example
-);
-```

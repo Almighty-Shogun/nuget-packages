@@ -1,79 +1,72 @@
 using System.Reflection;
 using Microsoft.Extensions.Logging;
+using System.Runtime.ExceptionServices;
 
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Provides the reflection and argument binding pipeline used by class-based console commands.
+/// The base every console command inherits. It reads the class attributes once per instance and turns the tokens typed at
+/// the prompt into the arguments of the single public <c>ExecuteAsync</c> the subclass declares.
 /// </summary>
+///
+/// <remarks>
+/// The handler method is found by name rather than by an abstract member, so a command declares whatever parameters it
+/// wants and the binder matches them positionally. That is the whole reason this class exists.
+/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>1.0.0</since>
 public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleCommand
 {
     /// <summary>
-    /// Stores aliases declared on the command class.
+    /// The handler resolved once in the constructor, so the reflection cost is paid when the command is built rather than
+    /// on every invocation.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    private readonly List<string> _aliases = [];
+    private readonly MethodInfo _handlerMethod;
 
     /// <summary>
-    /// Stores the public <c>ExecuteAsync</c> method invoked when the command runs.
+    /// The handler's parameters in declaration order, which is also the order arguments are matched in.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    private readonly MethodInfo? _handlerMethod;
+    private readonly ParameterInfo[] _parameters;
 
     /// <summary>
-    /// Stores the reflected parameters of the command handler method.
+    /// The class attribute, kept for the argument-count rule it carries rather than for the name and description, which
+    /// are copied onto properties.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    private readonly ParameterInfo[] _parameters = [];
+    private readonly ConsoleCommandAttribute _attribute;
 
     /// <summary>
-    /// Stores the logger used for argument binding and execution warnings.
+    /// Gets the name from the class attribute, available to a subclass that wants to mention itself in its own output.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    private readonly ILogger<ConsoleCommandBase> _logger;
+    protected string Name { get; }
 
     /// <summary>
-    /// Stores the command metadata declared on the command class.
+    /// Gets the description from the class attribute, or <c>null</c> when the command declares none.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    private readonly ConsoleCommandAttribute? _attribute;
+    protected string? Description { get; }
 
     /// <summary>
-    /// Gets the command name used by the input dispatcher.
+    /// Gets the aliases from the class attribute, or an empty list when the command declares none.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    internal string Name { get; }
-
-    /// <summary>
-    /// Gets the optional command description declared on the command class.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>1.0.0</since>
-    internal string? Description { get; }
-
-    /// <summary>
-    /// Gets the aliases declared on the command class.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>1.0.0</since>
-    internal IReadOnlyList<string> Aliases => _aliases;
+    protected IReadOnlyList<string> Aliases { get; }
 
     /// <inheritdoc />
     string IConsoleCommand.Name => Name;
@@ -85,140 +78,70 @@ public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleComm
     IReadOnlyList<string> IConsoleCommand.Aliases => Aliases;
 
     /// <summary>
-    /// Creates a console command instance and validates the required class-level metadata and handler method.
+    /// Validates the subclass and caches its handler. Validation happens here rather than at registration, so a malformed
+    /// command fails when the handler is resolved and names the offending class instead of quietly never appearing.
     /// </summary>
     ///
-    /// <param name="logger">The logger used to report invalid command arguments.</param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the class carries no <see cref="ConsoleCommandAttribute"/>, declares anything other than exactly one
+    /// public <c>ExecuteAsync</c>, or declares one that does not return <see cref="Task"/>.
+    /// </exception>
     ///
-    /// <exception cref="InvalidOperationException">Thrown when the command class is missing required metadata or does not expose exactly one valid <c>ExecuteAsync</c> method.</exception>
+    /// <remarks>
+    /// Deliberately takes nothing. A command reports bad input through the dispatcher's logger rather than one of its own,
+    /// so a command that needs no services of its own declares no constructor at all.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    protected ConsoleCommandBase(ILogger<ConsoleCommandBase> logger)
+    protected ConsoleCommandBase()
     {
-        _logger = logger;
+        if (!CommandMetadata.TryDescribe(GetType(), out ConsoleCommandAttribute attribute, out MethodInfo handlerMethod, out string? error))
+            throw new InvalidOperationException(error);
 
-        _attribute = GetType().GetCustomAttribute<ConsoleCommandAttribute>()
-            ?? throw new InvalidOperationException($"{GetType().Name} must define {nameof(ConsoleCommandAttribute)} on the class.");
+        _attribute = attribute;
+        _handlerMethod = handlerMethod;
+        _parameters = handlerMethod.GetParameters();
 
-        MethodInfo[] handlerMethods = GetType()
-            .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-            .Where(m => string.Equals(m.Name, "ExecuteAsync", StringComparison.Ordinal))
-            .ToArray();
-
-        if (handlerMethods.Length != 1)
-        {
-            throw new InvalidOperationException(
-                $"{GetType().Name} must define exactly one public instance method named ExecuteAsync.");
-        }
-
-        _handlerMethod = handlerMethods[0];
-
-        if (_handlerMethod.ReturnType != typeof(Task))
-        {
-            throw new InvalidOperationException($"{GetType().Name}.ExecuteAsync must return {nameof(Task)}.");
-        }
-
-        Name = _attribute.Name;
-        Description = _attribute.Description;
-
-        var aliasAttribute = GetType().GetCustomAttribute<AliasAttribute>();
-
-        _aliases.AddRange(aliasAttribute?.Aliases ?? []);
-
-        _parameters = _handlerMethod.GetParameters();
+        Name = attribute.Name;
+        Description = attribute.Description;
+        Aliases = GetType().GetCustomAttribute<AliasAttribute>()?.Aliases ?? [];
     }
 
     /// <inheritdoc />
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>1.0.0</since>
-    async Task IInternalConsoleCommand.InternallyExecuteCommandAsync(string[] args)
+    async Task IInternalConsoleCommand.InternallyExecuteCommandAsync(string[] args, ILogger logger, CancellationToken cancellationToken)
     {
-        ParameterInfo[] realParameters = _parameters.Where(p => !p.HasDefaultValue).ToArray();
+        ParameterInfo[] boundParameters = _parameters;
+        bool takesCancellationToken = _parameters.Length > 0 && _parameters[^1].ParameterType == typeof(CancellationToken);
 
-        if (args.Length < realParameters.Length || !_attribute!.IgnoreExtraArgs && args.Length > _parameters.Length)
+        if (takesCancellationToken)
+            boundParameters = _parameters[..^1];
+
+        if (!CommandArgumentBinder.IsArgumentCountValid(boundParameters, args.Length, _attribute.IgnoreExtraArgs))
         {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning("Invalid number of parameters on command {Name:c}. Expected {ParametersLength}, got {ArgsLength}", Name, _parameters.Length, args.Length);
-            }
+            if (logger.IsEnabled(LogLevel.Warning))
+                logger.LogWarning(
+                    "Invalid number of parameters on command {Name:c}. Expected {ParametersLength}, got {ArgsLength}",
+                    Name,
+                    boundParameters.Length,
+                    args.Length
+                );
 
             return;
         }
 
-        object?[] parameters = new object[_parameters.Length];
+        if (!CommandArgumentBinder.TryBind(boundParameters, args, logger, out object?[] values)) return;
 
-        for (var i = 0; i < _parameters.Length; i++)
-        {
-            ParameterInfo paramInfo = _parameters[i];
-
-            if (i < args.Length)
-            {
-                parameters[i] = GetParameterValue(_parameters[i], args[i]);
-
-                if (parameters[i] == null && !paramInfo.ParameterType.IsClass) return;
-            }
-            else if (paramInfo.HasDefaultValue)
-            {
-                parameters[i] = paramInfo.DefaultValue;
-            }
-        }
-
-        object? result = _handlerMethod!.Invoke(this, parameters);
-
-        if (result is Task task)
-        {
-            await task;
-        }
-    }
-
-    /// <summary>
-    /// Converts a string argument into the type required by a command handler parameter.
-    /// </summary>
-    ///
-    /// <param name="parameterInfo">Metadata for the target command handler parameter.</param>
-    /// <param name="argument">The string argument to convert to the target parameter type.</param>
-    ///
-    /// <returns>The converted argument value, or <c>null</c> when conversion fails and a warning has been logged.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>1.0.0</since>
-    private object? GetParameterValue(ParameterInfo parameterInfo, string argument)
-    {
-        Type parameterType = parameterInfo.ParameterType;
-
-        if (parameterType.IsEnum)
-        {
-            try
-            {
-                return Enum.Parse(parameterType, argument, true);
-            }
-            catch (Exception ex) when (ex is ArgumentNullException or ArgumentException or OverflowException or InvalidCastException)
-            {
-                if (_logger.IsEnabled(LogLevel.Warning))
-                {
-                    _logger.LogWarning("Invalid enum value {Value:b} for parameter {ParamName:b}. Valid values are: {ValidValues:c}",
-                        argument, parameterInfo.Name, string.Join(", ", Enum.GetNames(parameterType)));
-                }
-
-                return null;
-            }
-        }
+        object?[] invocationValues = takesCancellationToken ? [.. values, cancellationToken] : values;
 
         try
         {
-            return Convert.ChangeType(argument, Nullable.GetUnderlyingType(parameterType) ?? parameterType);
+            if (_handlerMethod.Invoke(this, invocationValues) is Task task)
+                await task;
         }
-        catch (Exception ex) when (ex is InvalidCastException or FormatException or OverflowException or ArgumentNullException)
+        catch (TargetInvocationException exception) when (exception.InnerException is not null)
         {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning("Cannot convert value {Value:b} to type {Type:c} for parameter {ParamName:b}",
-                    argument, parameterType.Name, parameterInfo.Name);
-            }
-
-            return null;
+            ExceptionDispatchInfo.Capture(exception.InnerException).Throw();
         }
     }
 }

@@ -1,56 +1,74 @@
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Represents metadata for a discovered console command.
+/// The metadata describing one discovered command, built by reflection for a help listing to render. It is a read model
+/// and runs nothing, so holding one never constructs the command class it came from.
 /// </summary>
-///
-/// <param name="name">The command name.</param>
-/// <param name="description">The optional command description.</param>
-/// <param name="aliases">Aliases that invoke the command.</param>
-/// <param name="usage">Generated usage text for the command arguments.</param>
-/// <param name="example">Optional example arguments for the command.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>1.0.0</since>
-public sealed class ConsoleCommand(string name, string? description, string[] aliases, string usage, string? example)
+public sealed class ConsoleCommand
 {
     /// <summary>
-    /// Gets the command name.
+    /// Assembles the metadata, prefixing the command name onto the usage and example text so both read as something the
+    /// user could type. Internal because the values only mean anything when reflected off a real command class.
     /// </summary>
+    ///
+    /// <param name="name">The name the command is invoked by.</param>
+    /// <param name="description">The explanation for a listing, or <c>null</c> when the command declares none.</param>
+    /// <param name="aliases">The extra names the command answers to, empty when it declares none.</param>
+    /// <param name="usage">The parameter shape, without the command name. Blank for a command that takes no arguments.</param>
+    /// <param name="example">The sample argument values, without the command name, or <c>null</c> when none were declared.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    public string Name { get; } = name;
+    internal ConsoleCommand(string name, string? description, IReadOnlyList<string> aliases, string usage, string? example)
+    {
+        Name = name;
+        Description = description;
+        Aliases = aliases;
+        Usage = string.IsNullOrWhiteSpace(usage) ? name : $"{name} {usage}";
+        Example = string.IsNullOrWhiteSpace(example) ? null : $"{name} {example}";
+    }
 
     /// <summary>
-    /// Gets the optional command description.
+    /// Gets the name the command is invoked by, which is also what the usage and example text are prefixed with.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    public string? Description { get; } = description;
+    public string Name { get; }
 
     /// <summary>
-    /// Gets aliases that invoke the command.
+    /// Gets the explanation for a listing, or <c>null</c> when the command was declared without one.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    public string[] Aliases { get; } = aliases;
+    public string? Description { get; }
 
     /// <summary>
-    /// Gets the generated usage text for the command.
+    /// Gets the extra names the command answers to, or an empty list when it declares none.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    public string? Usage { get; } = $"{name} {usage}";
+    public IReadOnlyList<string> Aliases { get; }
 
     /// <summary>
-    /// Gets the optional example text for the command.
+    /// Gets the full line to type, as the name followed by one <c>&lt;name:Type&gt;</c> placeholder per handler parameter.
+    /// A command taking no arguments yields the bare name, never a trailing space.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    public string? Example { get; } = string.IsNullOrWhiteSpace(example) ? null : $"{name} {example}";
+    public string Usage { get; }
+
+    /// <summary>
+    /// Gets a complete sample invocation including the command name, or <c>null</c> when the command declares no example.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>1.0.0</since>
+    public string? Example { get; }
 }

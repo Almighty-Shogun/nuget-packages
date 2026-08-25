@@ -1,9 +1,11 @@
 using System.Reflection;
+using AlmightyShogun.Core;
 
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Provides console input helpers and command metadata discovery utilities.
+/// Discovers console command types and builds the public metadata a help listing is rendered from. Console input and
+/// cursor helpers live on <see cref="AlmightyShogun.Core.ConsoleUtils"/>.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -11,115 +13,84 @@ namespace AlmightyShogun.ConsoleCommands;
 public static class ConsoleUtils
 {
     /// <summary>
-    /// Removes the previous console line when the current console host supports cursor movement.
+    /// Retrieves metadata for the commands declared in the calling assembly, which is what a help command in the startup
+    /// project wants. Reach for the overload taking assemblies when the commands live elsewhere.
     /// </summary>
+    ///
+    /// <returns>
+    /// The metadata for each valid command class, in declaration order. A class carrying the attribute but failing the
+    /// handler-method rules is skipped rather than reported, so this never throws on a malformed command.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public static void RemoveLastLine()
-    {
-        if (Console.IsOutputRedirected || Console.CursorTop <= 0)
-            return;
-
-        try
-        {
-            int line = Console.CursorTop - 1;
-
-            Console.SetCursorPosition(0, line);
-            Console.Write(new string(' ', Console.WindowWidth));
-            Console.SetCursorPosition(0, line);
-        }
-        catch (Exception exception) when (exception is IOException or ArgumentOutOfRangeException or InvalidOperationException)
-        {
-            // Some hosts do not allow cursor movement even when output is not reported as redirected.
-        }
-    }
+    public static IReadOnlyList<ConsoleCommand> GetAllCommands()
+        => GetAllCommands([Assembly.GetCallingAssembly()]);
 
     /// <summary>
-    /// Prompts the user with a question and waits until a value or default answer is available.
+    /// Retrieves metadata for the commands declared in the given assemblies, read from the class attributes and the
+    /// parameters of each handler method rather than from resolved instances, so nothing is constructed.
     /// </summary>
     ///
-    /// <param name="question">The question to display to the user in the console.</param>
-    /// <param name="defaultValue">The value to use when the user submits an empty answer.</param>
+    /// <param name="assemblies">
+    /// The assemblies to scan, in the order they should be searched. An empty array yields nothing; the overload taking no
+    /// assembly at all is the one that falls back to the calling assembly.
+    /// </param>
     ///
-    /// <returns>A task containing the user's answer or the configured default value.</returns>
+    /// <returns>
+    /// The metadata for each valid command class, in assembly then declaration order. A class carrying the attribute but
+    /// failing the handler-method rules is skipped rather than reported, so this never throws on a malformed command.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    public static async Task<string> AskQuestionAsync(string question, string? defaultValue = null)
-    {
-        string? answer = null;
-
-        while (answer is null)
-        {
-            await Console.Out.WriteAsync($"[QUESTION] {question}: ");
-            Console.ForegroundColor = ConsoleColor.Blue;
-
-            string input = Console.ReadLine() ?? "";
-
-            answer = input.Length >= 1 ? input : defaultValue;
-
-            Console.ResetColor();
-            RemoveLastLine();
-        }
-
-        return answer;
-    }
+    public static IReadOnlyList<ConsoleCommand> GetAllCommands(Assembly[] assemblies)
+        => [.. GetConsoleCommandTypes(assemblies).Select(Describe)];
 
     /// <summary>
-    /// Retrieves command types marked with <see cref="ConsoleCommandAttribute"/> from the provided assemblies.
+    /// Retrieves the command types in the given assemblies that pass every rule the dispatcher relies on.
     /// </summary>
     ///
-    /// <param name="assemblies">The assemblies to scan. If none are provided, all currently loaded application domain assemblies are used.</param>
+    /// <param name="assemblies">The assemblies to scan, in the order they should be searched.</param>
     ///
-    /// <returns>The concrete command types that implement the internal command contract and expose one public <c>ExecuteAsync</c> method returning <see cref="Task"/>.</returns>
+    /// <returns>
+    /// The concrete command types that carry <see cref="ConsoleCommandAttribute"/> and expose exactly one public
+    /// <c>ExecuteAsync</c> method returning <see cref="Task"/>, lazily.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>3.0.0</since>
-    internal static IEnumerable<Type> GetConsoleCommandTypes(params Assembly[] assemblies)
-    {
-        if (assemblies.Length == 0)
-        {
-            assemblies = AppDomain.CurrentDomain.GetAssemblies();
-        }
-
-        return assemblies
-            .SelectMany(a => a.GetTypes())
-            .Where(t => t is { IsInterface: false, IsAbstract: false } && typeof(IConsoleCommand).IsAssignableFrom(t))
-            .Where(t => t.GetCustomAttribute<ConsoleCommandAttribute>() is not null)
-            .Where(type =>
-            {
-                MethodInfo[] executeMethods = type
-                    .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                    .Where(method => string.Equals(method.Name, "ExecuteAsync", StringComparison.Ordinal))
-                    .ToArray();
-
-                return executeMethods.Length == 1 && executeMethods[0].ReturnType == typeof(Task);
-            });
-    }
+    internal static IEnumerable<Type> GetConsoleCommandTypes(Assembly[] assemblies)
+        => TypeDiscovery.FindAssignableTypes<IConsoleCommand>(assemblies)
+            .Where(type => CommandMetadata.TryDescribe(type, out _, out _, out _));
 
     /// <summary>
-    /// Retrieves metadata for all discovered console commands.
+    /// Builds the public metadata for one command type that has already passed <see cref="CommandMetadata.TryDescribe"/>.
     /// </summary>
     ///
-    /// <returns>A list of command metadata records built from command attributes, aliases, examples, and handler parameters.</returns>
+    /// <param name="commandType">The command class to reflect over, already known to satisfy every rule.</param>
+    ///
+    /// <returns>
+    /// The metadata, whose usage string lists each handler parameter as <c>&lt;name:Type&gt;</c>. A trailing
+    /// <see cref="CancellationToken"/> is left out, because the dispatcher supplies it rather than the user typing it.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>1.0.0</since>
-    public static List<ConsoleCommand> GetAllCommands() => GetConsoleCommandTypes()
-        .Select(type => new
-        {
-            Type = type,
-            Attribute = type.GetCustomAttribute<ConsoleCommandAttribute>()!,
-            Alias = type.GetCustomAttribute<AliasAttribute>(),
-            Example = type.GetCustomAttribute<ExampleAttribute>(),
-            ExecuteMethod = type.GetMethod("ExecuteAsync", BindingFlags.Public | BindingFlags.Instance)!
-        })
-        .Select(command => new ConsoleCommand(
-            command.Attribute.Name,
-            command.Attribute.Description,
-            command.Alias?.Aliases ?? [],
-            string.Join(" ", command.ExecuteMethod.GetParameters().Select(p => $"<{p.Name}:{p.ParameterType.Name}>")),
-            command.Example?.Example ?? null
-        )).ToList();
+    /// <since>Unreleased</since>
+    internal static ConsoleCommand Describe(Type commandType)
+    {
+        CommandMetadata.TryDescribe(commandType, out ConsoleCommandAttribute attribute, out MethodInfo handlerMethod, out _);
+
+        string usage = string.Join(" ", handlerMethod.GetParameters()
+            .Where(parameter => parameter.ParameterType != typeof(CancellationToken))
+            .Select(parameter => $"<{parameter.Name}:{parameter.ParameterType.Name}>"));
+
+        return new ConsoleCommand(
+            attribute.Name,
+            attribute.Description,
+            commandType.GetCustomAttribute<AliasAttribute>()?.Aliases ?? [],
+            usage,
+            commandType.GetCustomAttribute<ExampleAttribute>()?.Example
+        );
+    }
 }
