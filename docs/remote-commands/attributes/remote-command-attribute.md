@@ -28,7 +28,7 @@ public sealed class PingCommand : RemoteCommand<PingCommandData>
         PingCommandData message,
         ICommandResponse response,
         CancellationToken cancellationToken
-    ) => response.WriteAsync(new 
+    ) => response.WriteAsync(new
     {
         status = "ok",
         message.RequestId
