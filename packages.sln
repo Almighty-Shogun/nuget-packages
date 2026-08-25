@@ -21,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.JwtAu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Mail.Resend", "packages\AlmightyShogun.Mail.Resend\AlmightyShogun.Mail.Resend.csproj", "{1DE8EC13-7875-4841-9E05-A6B027C1266D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Maintenance", "packages\AlmightyShogun.AspNet.Maintenance\AlmightyShogun.AspNet.Maintenance.csproj", "{A9F799FD-7FE0-437A-B5C1-6E6BC8E2D2C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.MaintenanceMode", "packages\AlmightyShogun.AspNet.MaintenanceMode\AlmightyShogun.AspNet.MaintenanceMode.csproj", "{A9F799FD-7FE0-437A-B5C1-6E6BC8E2D2C8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.RequestValidation", "packages\AlmightyShogun.AspNet.RequestValidation\AlmightyShogun.AspNet.RequestValidation.csproj", "{C192A826-26F0-4C42-A2F4-C474B2B4FE7D}"
 EndProject

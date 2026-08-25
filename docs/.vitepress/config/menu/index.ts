@@ -4,7 +4,7 @@ import { aspNetCore } from './asp-net-core'
 import { aspNetCredentialAuth } from './asp-net-credential-auth'
 import { aspNetJwtAuth } from './asp-net-jwt-auth'
 import { aspNetLocalization } from './asp-net-localization'
-import { aspNetMaintenance } from './asp-net-maintenance'
+import { aspNetMaintenanceMode } from './asp-net-maintenance-mode'
 import { aspNetRequestValidation } from './asp-net-request-validation'
 import { consoleCommands } from './console-commands'
 import { core } from './core'
@@ -23,12 +23,12 @@ export const nav: DefaultTheme.NavItem[] = [
     },
     {
         text: 'ASP.NET',
-        activeMatch: '^/(asp-net-core|asp-net-credential-auth|asp-net-jwt-auth|asp-net-localization|asp-net-maintenance|asp-net-request-validation)/',
+        activeMatch: '^/(asp-net-core|asp-net-credential-auth|asp-net-jwt-auth|asp-net-localization|asp-net-maintenance-mode|asp-net-request-validation)/',
         items: [
             { text: 'Core', activeMatch: '^/asp-net-core/', link: '/asp-net-core/' },
             { text: 'JWT Auth', activeMatch: '^/asp-net-jwt-auth/', link: '/asp-net-jwt-auth/' },
             { text: 'Localization', activeMatch: '^/asp-net-localization/', link: '/asp-net-localization/' },
-            { text: 'Maintenance', activeMatch: '^/asp-net-maintenance/', link: '/asp-net-maintenance/' },
+            { text: 'Maintenance Mode', activeMatch: '^/asp-net-maintenance-mode/', link: '/asp-net-maintenance-mode/' },
             { text: 'Request Validation', activeMatch: '^/asp-net-request-validation/', link: '/asp-net-request-validation/' },
             {
                 text: 'Login Systems',
@@ -70,7 +70,7 @@ export const sidebar = {
     "/asp-net-credential-auth/": aspNetCredentialAuth,
     "/asp-net-jwt-auth/": aspNetJwtAuth,
     "/asp-net-localization/": aspNetLocalization,
-    "/asp-net-maintenance/": aspNetMaintenance,
+    "/asp-net-maintenance-mode/": aspNetMaintenanceMode,
     "/asp-net-request-validation/": aspNetRequestValidation,
     "/console-commands/": consoleCommands,
     "/core/": core,
