@@ -33,12 +33,18 @@ export const consoleCommands: DefaultTheme.SidebarItem[] = [
         ]
     },
     {
+        text: 'Utilities',
+        collapsed: false,
+        items: [
+            { text: 'ConsoleUtils', link: '/console-commands/utilities/console-utils' }
+        ]
+    },
+    {
         text: 'Types',
         collapsed: false,
         items: [
             { text: 'ConsoleCommand', link: '/console-commands/types/console-command' },
-            { text: 'ConsoleCommandBase', link: '/console-commands/types/console-command-base' },
-            { text: 'ConsoleUtils', link: '/console-commands/types/console-utils' }
+            { text: 'ConsoleCommandBase', link: '/console-commands/types/console-command-base' }
         ]
     },
 ];
