@@ -1,18 +1,17 @@
 ---
 params:
     - name: assemblies
-      description: Assemblies scanned for concrete remote command classes. When omitted, the calling assembly is used.
+      description: The assemblies to scan, in the order they should be searched. An empty array registers nothing; the overload taking no assembly is the one that falls back to the calling assembly.
       type: Assembly[]
-      default: '[]'
 
 returns: The `IServiceCollection` instance with discovered remote command classes registered.
 ---
 
 # RegisterRemoteCommands
 
-Registers application remote command classes from one or more assemblies. The method scans for concrete implementations of the public remote command contract and registers them as transient services so [`RemoteCommandHandler`](../services/remote-command-handler) can dispatch incoming payloads to them.
+Registers remote command classes from one or more assemblies as transient services, so [`RemoteCommandHandler`](../services/remote-command-handler) can dispatch payloads to them. Call it after [`AddRemoteCommands`](./add-remote-commands), passing explicit assemblies when commands live outside the startup assembly.
 
-Use this method after [`AddRemoteCommands`](./add-remote-commands). Pass explicit assemblies when command classes live in another project; relying on the calling assembly is only appropriate when commands are defined in the startup assembly. Command classes should inherit from [`RemoteCommand<T>`](../types/remote-command).
+A class is discovered by inheriting [`RemoteCommand<T>`](../types/remote-command), whose constructor then throws when the class does not also declare [`RemoteCommandAttribute`](../attributes/remote-command-attribute).
 
 ## Usage
 
@@ -21,7 +20,7 @@ using AlmightyShogun.RemoteCommands;
 
 builder.Services
     .AddRemoteCommands(builder.Configuration)
-    .RegisterRemoteCommands(typeof(Program).Assembly);
+    .RegisterRemoteCommands();
 ```
 
 <FrontmatterDocs/>
@@ -29,7 +28,9 @@ builder.Services
 ## Type signature
 
 ```csharp
+public IServiceCollection RegisterRemoteCommands();
+
 public IServiceCollection RegisterRemoteCommands(
-    params Assembly[] assemblies
+    Assembly[] assemblies
 );
 ```

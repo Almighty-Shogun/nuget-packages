@@ -1,41 +1,52 @@
 # RemoteCommandHandler
 
-Dependency-injection service for controlling the remote command listener. [`AddRemoteCommands`](../extensions/add-remote-commands) registers the package listener for `IRemoteCommandHandler`, and application code should resolve the interface when it needs to start or stop accepting remote command connections.
+Binds the configured address and port and dispatches each accepted request to the matching [`RemoteCommand<T>`](../types/remote-command). Application code depends on `IRemoteCommandHandler`.
 
-Use this service from hosted services, startup code, or controlled shutdown paths. Command discovery still happens through [`RegisterRemoteCommands`](../extensions/register-remote-commands); the handler service controls the TCP listener that receives payloads and dispatches them to registered [`RemoteCommand<T>`](../types/remote-command) implementations.
+Command classes are discovered separately, by [`RegisterRemoteCommands`](../extensions/register-remote-commands).
 
 ## Usage
 
-```csharp
+::: code-group
+
+```csharp [RemoteCommandWorker.cs]
 using Microsoft.Extensions.Hosting;
 using AlmightyShogun.RemoteCommands;
 
-public sealed class RemoteCommandWorker(IRemoteCommandHandler commandHandler) : BackgroundService
+public sealed class RemoteCommandWorker(
+    IRemoteCommandHandler commandHandler
+) : BackgroundService
 {
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        return commandHandler.StartAsync(stoppingToken);
-    }
+    protected override Task ExecuteAsync(
+        CancellationToken cancellationToken
+    ) => commandHandler.StartAsync(cancellationToken);
 }
 ```
 
+```csharp [Program.cs]
+using AlmightyShogun.RemoteCommands;
+using Microsoft.Extensions.DependencyInjection;
+
+builder.Services
+    .AddRemoteCommands(builder.Configuration)
+    .RegisterRemoteCommands()
+    .AddHostedService<RemoteCommandWorker>();
+```
+
+:::
+
 ## StartAsync
 
-Starts the remote command listener through the registered handler. The provided implementation binds to the configured address and port, rejects clients outside the whitelist, reads length-prefixed UTF-8 JSON payloads, and dispatches known commands to registered [`RemoteCommand<T>`](../types/remote-command) implementations.
+Binds the configured endpoint, refuses connections from outside the whitelist, and serves length-prefixed UTF-8 JSON requests until the token is cancelled or [`Stop`](#stop) is called. A connection is kept open between requests, so one client may run many commands on it.
 
-Use this method after [`AddRemoteCommands`](../extensions/add-remote-commands) and [`RegisterRemoteCommands`](../extensions/register-remote-commands) have been called and the service provider is built. Resolve the handler through `IRemoteCommandHandler` so application code depends on the public DI contract instead of the concrete listener implementation.
+Only one listener may run at a time. Calling this while one is already running logs an error and returns. A failure to bind, such as the port already being in use, is logged rather than thrown.
 
 ```csharp
-using Microsoft.Extensions.Hosting;
 using AlmightyShogun.RemoteCommands;
+using Microsoft.Extensions.DependencyInjection;
 
-public sealed class RemoteCommandWorker(IRemoteCommandHandler commandHandler) : BackgroundService
-{
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        return commandHandler.StartAsync(stoppingToken);
-    }
-}
+await serviceProvider
+    .GetRequiredService<IRemoteCommandHandler>()
+    .StartAsync(applicationLifetime.ApplicationStopping);
 ```
 
 ### Type signature
@@ -46,20 +57,20 @@ public Task StartAsync(CancellationToken cancellationToken = default);
 
 ## Stop
 
-Stops the active remote command listener through the registered handler. If the listener has not been started, the provided implementation logs an error and returns without throwing.
+Stops accepting new connections and cancels the ones in flight. Connections already serving a request are given five seconds to finish, so a client mid-response is not cut off.
 
-Use this method during controlled shutdown when the application should stop accepting new remote command connections before the process exits.
+Calling it when no listener is running logs an error and returns, so it is safe from shutdown code that cannot know.
 
 ```csharp
 using Microsoft.Extensions.Hosting;
 using AlmightyShogun.RemoteCommands;
 
-public sealed class RemoteCommandShutdown(IRemoteCommandHandler commandHandler) : IHostedService
+public sealed class RemoteCommandShutdown(
+    IRemoteCommandHandler commandHandler
+) : IHostedService
 {
     public Task StartAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
+        => Task.CompletedTask;
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
