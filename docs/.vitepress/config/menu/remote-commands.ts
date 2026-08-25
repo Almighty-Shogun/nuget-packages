@@ -6,14 +6,8 @@ export const remoteCommands: DefaultTheme.SidebarItem[] = [
         items: [
             { text: 'Introduction', link: '/remote-commands/' },
             { text: 'Installation', link: '/remote-commands/installation' },
-            { text: 'Configuration', link: '/remote-commands/configuration' }
-        ]
-    },
-    {
-        text: 'Configuration',
-        collapsed: false,
-        items: [
-            { text: 'RemoteServerSettings', link: '/remote-commands/configuration/remote-server-settings' }
+            { text: 'Configuration', link: '/remote-commands/configuration' },
+            { text: 'Exceptions', link: '/remote-commands/exceptions' }
         ]
     },
     {
@@ -35,6 +29,8 @@ export const remoteCommands: DefaultTheme.SidebarItem[] = [
         text: 'Services',
         collapsed: false,
         items: [
+            { text: 'CommandResponse', link: '/remote-commands/services/command-response' },
+            { text: 'RemoteCommandClient', link: '/remote-commands/services/remote-command-client' },
             { text: 'RemoteCommandHandler', link: '/remote-commands/services/remote-command-handler' }
         ]
     },
@@ -43,6 +39,14 @@ export const remoteCommands: DefaultTheme.SidebarItem[] = [
         collapsed: false,
         items: [
             { text: 'RemoteCommand<T>', link: '/remote-commands/types/remote-command' }
+        ]
+    },
+    {
+        text: 'Records',
+        collapsed: false,
+        items: [
+            { text: 'RemoteCommandPayload', link: '/remote-commands/records/remote-command-payload' },
+            { text: 'RemoteCommandResponse', link: '/remote-commands/records/remote-command-response' }
         ]
     },
 ];

@@ -1,76 +1,29 @@
-# RemoteCommand&lt;T&gt;
+# RemoteCommand
 
-Base type for typed remote commands. A command class should inherit from this type, specify the message type as `T`, and implement `HandleCommandAsync`.
-
-The base type reads [`RemoteCommandAttribute`](../attributes/remote-command-attribute) to expose the command name and uses the package's internal execution contract to deserialize incoming JSON into the typed message. Application code should inherit from this type; it should not call the internal raw execution path directly.
+Base type for typed remote commands. A command class inherits from it, specifies its message type as `T`, and implements `HandleCommandAsync`. The base reads [`RemoteCommandAttribute`](../attributes/remote-command-attribute) for the command name and deserializes the incoming JSON into `T` before dispatching.
 
 ## Usage
 
 ::: code-group
 
 ```csharp [PingCommand.cs]
-using System.Net.Sockets;
 using AlmightyShogun.RemoteCommands;
 
 [RemoteCommand("ping", "Replies to a health-check command.")]
 public sealed class PingCommand : RemoteCommand<PingCommandData>
 {
-    public override async Task HandleCommandAsync(PingCommandData message, NetworkStream stream)
-    {
-        await WriteResponseAsync(stream, new
-        {
-            status = "ok",
-            message.RequestId,
-            message.SentAt
-        });
-    }
-}
-```
-
-```csharp [PingCommandData.cs]
-public sealed record PingCommandData(
-    string RequestId,
-    DateTimeOffset SentAt
-);
-```
-
-:::
-
-## HandleCommandAsync
-
-Handles a remote command after the package has deserialized the incoming JSON payload into the command's message type. Implement this method in each command class to perform the command behavior and optionally write a response to the connected network stream.
-
-Use `WriteResponseAsync` from the base type when the command should send a JSON response object back to the client.
-
-### Type signature
-
-```csharp
-public abstract Task HandleCommandAsync(T message, NetworkStream stream);
-```
-
-## WriteResponseAsync
-
-Writes a JSON response object to the connected remote client. The method serializes the supplied object with `System.Text.Json`, writes the UTF-8 bytes to the provided `NetworkStream`, and flushes the stream so the client can read the response immediately.
-
-Use this helper inside `HandleCommandAsync` when a command should return a small structured response after it has processed the incoming payload. The method does not add a length prefix to the response, so the client side should read the JSON response according to the protocol used by the application.
-
-::: code-group
-
-```csharp [PingCommand.cs]
-using System.Net.Sockets;
-using AlmightyShogun.RemoteCommands;
-
-[RemoteCommand("ping", "Replies to a health-check command.")]
-public sealed class PingCommand : RemoteCommand<PingCommandData>
-{
-    public override async Task HandleCommandAsync(PingCommandData message, NetworkStream stream)
-    {
-        await WriteResponseAsync(stream, new PingCommandResponse(
+    public override Task HandleCommandAsync(
+        PingCommandData message,
+        ICommandResponse response,
+        CancellationToken cancellationToken
+    ) => response.WriteAsync(
+        new PingCommandResponse(
             "ok",
             message.RequestId,
             DateTimeOffset.UtcNow
-        ));
-    }
+        ),
+        cancellationToken
+    );
 }
 ```
 
@@ -91,11 +44,69 @@ public sealed record PingCommandResponse(
 
 :::
 
+::: warning
+The constructor throws `InvalidOperationException` when the class does not declare [`RemoteCommandAttribute`](../attributes/remote-command-attribute), so a missing attribute surfaces the first time the command is resolved rather than on the first request.
+:::
+
+## HandleCommandAsync
+
+Handles the command after the incoming JSON payload has been deserialized into `T`. Write a reply through [`ICommandResponse`](../services/command-response) when the client expects one; a command that returns nothing simply completes.
+
+Deserialization failure never reaches this method. A payload whose `Data` does not produce a `T` raises a `JsonException` before dispatch, which the handler turns into an `invalid_message` [`RemoteCommandResponse`](../records/remote-command-response).
+
 ### Type signature
 
 ```csharp
-protected Task WriteResponseAsync(
-    NetworkStream stream,
-    object data
+public abstract Task HandleCommandAsync(
+    T message,
+    ICommandResponse response,
+    CancellationToken cancellationToken = default
 );
+```
+
+## CommandName
+
+The command name declared on the class, read once in the constructor. Available to derived classes for logging and error messages, so a command does not have to reflect on its own attribute again.
+
+::: code-group
+
+```csharp [ReindexCommand.cs]
+using Microsoft.Extensions.Logging;
+using AlmightyShogun.RemoteCommands;
+
+[RemoteCommand("reindex")]
+public sealed class ReindexCommand(
+    ILogger<ReindexCommand> logger
+) : RemoteCommand<ReindexCommandData>
+{
+    public override Task HandleCommandAsync(
+        ReindexCommandData message,
+        ICommandResponse response,
+        CancellationToken cancellationToken
+    )
+    {
+        logger.LogInformation(
+            "Running {Command} for {Index}",
+            CommandName,
+            message.Index
+        );
+
+        return response.WriteAsync(
+            new { status = "queued" },
+            cancellationToken
+        );
+    }
+}
+```
+
+```csharp [ReindexCommandData.cs]
+public sealed record ReindexCommandData(string Index);
+```
+
+:::
+
+### Type signature
+
+```csharp
+protected string CommandName { get; }
 ```

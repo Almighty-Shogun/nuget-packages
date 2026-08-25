@@ -9,7 +9,7 @@ returns: The `IServiceCollection` instance with remote command services configur
 
 # AddRemoteCommands
 
-Registers the remote command listener services and configuration. The method validates that the `RemoteServer` configuration section exists, binds it to [`RemoteServerSettings`](../configuration/remote-server-settings), and registers [`RemoteCommandHandler`](../services/remote-command-handler) for `IRemoteCommandHandler`.
+Registers the listener behind [`IRemoteCommandHandler`](../services/remote-command-handler) and binds the [`RemoteServer`](../configuration) section it runs on. The section is validated while the host starts, so a missing port, a malformed address, or a whitelist entry that is neither an address nor a CIDR range stops the application there.
 
 Use this method before registering command classes with [`RegisterRemoteCommands`](./register-remote-commands).
 

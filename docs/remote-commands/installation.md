@@ -8,10 +8,16 @@ dotnet add package AlmightyShogun.RemoteCommands
 
 ## Dependencies
 
+### Package references
+
+- `Microsoft.Extensions.Configuration.Binder` `10.0.11` &mdash; binds the `RemoteServer` configuration section.
+- `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.11` &mdash; the service collection the commands register into.
+- `Microsoft.Extensions.Logging.Abstractions` `10.0.11` &mdash; `ILogger<T>`, which the listener writes through.
+- `Microsoft.Extensions.Options` `10.0.11` &mdash; reads the bound settings at runtime.
+
 ### Project references
 
-- `AlmightyShogun.Logging` &mdash; provides logging behavior used by the listener.
-- `AlmightyShogun.Utils` &mdash; provides assembly scanning and inherited-type registration helpers.
+- `AlmightyShogun.Core` &mdash; provides assembly scanning and inherited-type registration helpers.
 
 ## Startup Registration
 
@@ -26,5 +32,5 @@ using AlmightyShogun.RemoteCommands;
 
 builder.Services
     .AddRemoteCommands(builder.Configuration)
-    .RegisterRemoteCommands(typeof(Program).Assembly);
+    .RegisterRemoteCommands();
 ```

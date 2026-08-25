@@ -16,8 +16,8 @@
         <Description>A C# library that adds attribute-based TCP remote command hosting and dispatch.</Description>
 
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.RemoteCommands</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/packages/AlmightyShogun.RemoteCommands</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.RemoteCommands</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,8 +26,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AlmightyShogun.Logging\AlmightyShogun.Logging.csproj"/>
-        <ProjectReference Include="..\AlmightyShogun.Utils\AlmightyShogun.Utils.csproj"/>
+        <PackageReference Include="Microsoft.Extensions.Options"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AlmightyShogun.Core\AlmightyShogun.Core.csproj"/>
     </ItemGroup>
 
 </Project>

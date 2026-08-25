@@ -2,342 +2,510 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// Listens for TCP remote command payloads and dispatches them to registered command handlers.
+/// Accepts connections on the configured endpoint and serves framed requests on each until the client goes away. A
+/// connection outlives one request, so a caller may run several commands without reconnecting.
 /// </summary>
+///
+/// <param name="remoteServerSettings">
+/// The bound listener settings. Read once into fields, so a reload does not change the behavior of a listener that is
+/// already bound, and the address and whitelist are parsed here rather than on every connection.
+/// </param>
+/// <param name="logger">The logger every lifecycle event and rejected request is reported through.</param>
+/// <param name="commands">
+/// Every registered command, enumerated once to build the dispatch table. This is where a malformed command surfaces,
+/// because constructing it runs the validation in <see cref="RemoteCommand{T}"/>.
+/// </param>
+///
+/// <exception cref="InvalidOperationException">
+/// Thrown while constructing, when the configured address or a whitelist entry does not parse, or a registered command
+/// does not derive from <see cref="RemoteCommand{T}"/>. Everything the listener needs is therefore settled before it can
+/// be started, rather than failing part-way through binding.
+/// </exception>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>1.0.0</since>
-internal class RemoteCommandHandler : IRemoteCommandHandler
+internal sealed class RemoteCommandHandler(
+    IOptions<RemoteServerSettings> remoteServerSettings,
+    ILogger<RemoteCommandHandler> logger,
+    IEnumerable<IRemoteCommand> commands
+) : IRemoteCommandHandler
 {
     /// <summary>
-    /// Stores the active TCP listener while the handler is running.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>1.0.0</since>
-    private TcpListener? _listener;
-
-    /// <summary>
-    /// Stores the bound listener configuration.
+    /// The settings snapshot the listener runs on, taken at construction rather than read per request.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>3.0.0</since>
-    private readonly RemoteServerSettings _config;
+    private readonly RemoteServerSettings _config = remoteServerSettings.Value;
 
     /// <summary>
-    /// Stores the logger used for listener lifecycle, validation, and dispatch messages.
+    /// The whitelist as networks rather than strings, parsed once. An empty list matches nothing, so a configuration
+    /// without a whitelist refuses every connection rather than accepting every one.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>1.0.0</since>
-    private readonly ILogger<RemoteCommandHandler> _logger;
+    /// <since>Unreleased</since>
+    private readonly IReadOnlyList<IPNetwork> _whitelist = remoteServerSettings.Value.ValidWhitelisted();
 
     /// <summary>
-    /// Stores command names mapped to their internal raw-payload handlers.
+    /// The address the listener binds to, parsed at construction so a bad value is reported when the handler is resolved
+    /// rather than when it first tries to bind.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private readonly IPAddress _address = remoteServerSettings.Value.ValidAddress();
+
+    /// <summary>
+    /// The required key as bytes, or <c>null</c> when the server asks for none. Held encoded so each comparison is a
+    /// fixed-time byte compare rather than a string equality that returns early on the first wrong character.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private readonly byte[]? _secret = remoteServerSettings.Value.Secret is { Length: > 0 } secret
+        ? Encoding.UTF8.GetBytes(secret)
+        : null;
+
+    /// <summary>
+    /// Every command name mapped to its entry point, compared with ordinal case sensitivity so a wire name must match
+    /// exactly. Built once, because the set of commands cannot change while the process runs.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>3.0.0</since>
-    private readonly Dictionary<string, IInternalRemoteCommand> _commands;
+    private readonly Dictionary<string, IInternalRemoteCommand> _commands = BuildCommandTable(commands, logger);
 
     /// <summary>
-    /// Creates a remote command handler from configuration and registered commands.
+    /// The cap on connections served at once. A further client is accepted only when a slot frees, so load is refused by
+    /// waiting rather than by exhausting the process.
     /// </summary>
     ///
-    /// <param name="remoteServerSettings">The bound remote server settings used by the listener.</param>
-    /// <param name="logger">The logger used to report lifecycle and command dispatch events.</param>
-    /// <param name="commands">The command services registered in dependency injection.</param>
-    ///
-    /// <exception cref="InvalidOperationException">Thrown when a registered command does not inherit from <see cref="RemoteCommand{T}"/>.</exception>
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private readonly SemaphoreSlim _connectionLimit = new(remoteServerSettings.Value.MaxConcurrentConnections);
+
+    /// <summary>
+    /// Guards the lifecycle source and the in-flight list, so a stop cannot observe either mid-update.
+    /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>3.0.0</since>
-    public RemoteCommandHandler(IOptions<RemoteServerSettings> remoteServerSettings, ILogger<RemoteCommandHandler> logger, IEnumerable<IRemoteCommand> commands)
-    {
-        _logger = logger;
-        _config = remoteServerSettings.Value;
-        _commands = new Dictionary<string, IInternalRemoteCommand>();
+    /// <since>Unreleased</since>
+    private readonly Lock _lifecycleGate = new();
 
-        foreach (IRemoteCommand command in commands)
-        {
-            if (command is not IInternalRemoteCommand internalCommand)
-            {
-                throw new InvalidOperationException($"{command.GetType().Name} must inherit {nameof(RemoteCommand<>)}.");
-            }
+    /// <summary>
+    /// The connections still being served, awaited for five seconds on shutdown so a client receiving a response is not
+    /// cut off mid-frame. Completed entries are pruned as new ones are added.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private readonly List<Task> _inFlight = [];
 
-            _commands.Add(command.Name, internalCommand);
-        }
-    }
+    /// <summary>
+    /// The source cancelled to stop the listener, and the flag for whether one is running: non-null only between the
+    /// start of a listener and its exit.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private CancellationTokenSource? _stopSource;
 
     /// <inheritdoc />
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>1.2.0</since>
     public async Task StartAsync(CancellationToken cancellationToken = default)
     {
-        if (_listener is not null)
-        {
-            _logger.LogError("Cannot start the remote command handler because it is already running.");
+        CancellationTokenSource stopSource;
 
-            return;
+        lock (_lifecycleGate)
+        {
+            if (_stopSource is not null)
+            {
+                logger.LogError("Cannot start the remote command handler because it is already running.");
+
+                return;
+            }
+
+            stopSource = _stopSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         }
 
-        TcpListener? listener = null;
+        TcpListener listener = new(_address, _config.Port);
 
         try
         {
-            listener = new TcpListener(IPAddress.Parse(_config.Address), _config.Port);
-            _listener = listener;
-
             listener.Start();
 
-            if (_logger.IsEnabled(LogLevel.Information))
-            {
-                _logger.LogInformation("Started listening for remote command on {Address:c}:{Port:c}", _config.Address, _config.Port);
-            }
+            if (logger.IsEnabled(LogLevel.Information))
+                logger.LogInformation("Started listening for remote commands on {Address:c}:{Port:c}", _config.Address, _config.Port);
 
-            while (!cancellationToken.IsCancellationRequested)
+            while (!stopSource.IsCancellationRequested)
             {
                 TcpClient client;
 
                 try
                 {
-                    client = await listener.AcceptTcpClientAsync(cancellationToken);
+                    await _connectionLimit.WaitAsync(stopSource.Token);
+
+                    client = await listener.AcceptTcpClientAsync(stopSource.Token);
                 }
                 catch (OperationCanceledException)
                 {
                     break;
                 }
-                catch (ObjectDisposedException)
-                {
-                    break;
-                }
-                catch (SocketException) when (_listener is null || cancellationToken.IsCancellationRequested)
-                {
-                    break;
-                }
 
-                _ = HandleClientSafelyAsync(client);
+                Task handling = HandleClientSafelyAsync(client, stopSource.Token);
+
+                lock (_lifecycleGate)
+                {
+                    _inFlight.RemoveAll(task => task.IsCompleted);
+                    _inFlight.Add(handling);
+                }
             }
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "The remote command handler stopped unexpectedly.");
+            logger.LogError(exception, "The remote command handler stopped unexpectedly.");
         }
         finally
         {
-            if (listener is not null && ReferenceEquals(_listener, listener))
+            listener.Stop();
+
+            Task[] pending;
+
+            lock (_lifecycleGate)
             {
-                _listener = null;
+                pending = [.. _inFlight];
             }
 
-            listener?.Stop();
+            await Task.WhenAny(Task.WhenAll(pending), Task.Delay(TimeSpan.FromSeconds(5), CancellationToken.None));
+
+            lock (_lifecycleGate)
+            {
+                _stopSource?.Dispose();
+                _stopSource = null;
+            }
         }
     }
 
     /// <inheritdoc />
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>1.2.0</since>
     public void Stop()
     {
-        if (_listener is null)
+        lock (_lifecycleGate)
         {
-            _logger.LogError("Cannot stop the remote command handler because it is not running.");
+            if (_stopSource is null)
+            {
+                logger.LogError("Cannot stop the remote command handler because it is not running.");
 
-            return;
+                return;
+            }
+
+            _stopSource.Cancel();
         }
 
-        try
-        {
-            _listener.Stop();
-            _listener = null;
-        }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, "Failed to stop the remote command handler.");
-
-            _listener = null;
-        }
-
-        if (_logger.IsEnabled(LogLevel.Information))
-        {
-            _logger.LogInformation("Stopped listening for remote commands.");
-        }
+        if (logger.IsEnabled(LogLevel.Information))
+            logger.LogInformation("Stopped listening for remote commands.");
     }
 
     /// <summary>
-    /// Handles a remote client connection and logs unexpected failures instead of surfacing them through a background task.
+    /// Builds the dispatch table once, keeping the first command to claim each name rather than failing the whole
+    /// listener over a collision.
     /// </summary>
     ///
-    /// <param name="client">The connected remote client.</param>
+    /// <param name="commands">The registered commands, each resolved once here.</param>
+    /// <param name="logger">The logger a dropped duplicate name is reported through.</param>
     ///
-    /// <returns>A task that represents the asynchronous client handling operation.</returns>
+    /// <returns>
+    /// Every usable command keyed by name. A name claimed twice keeps its first command, so registration order decides
+    /// the winner and the loser is unreachable.
+    /// </returns>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// A registered command does not derive from <see cref="RemoteCommand{T}"/> and so exposes no entry point to
+    /// dispatch to.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private async Task HandleClientSafelyAsync(TcpClient client)
+    private static Dictionary<string, IInternalRemoteCommand> BuildCommandTable(IEnumerable<IRemoteCommand> commands, ILogger logger)
+    {
+        Dictionary<string, IInternalRemoteCommand> table = new(StringComparer.Ordinal);
+
+        foreach (IRemoteCommand command in commands)
+        {
+            if (command is not IInternalRemoteCommand internalCommand)
+                throw new InvalidOperationException($"{command.GetType().Name} must inherit {nameof(RemoteCommand<>)}.");
+
+            if (!table.TryAdd(command.Name, internalCommand) && logger.IsEnabled(LogLevel.Warning))
+                logger.LogWarning(
+                    "{Name:y} is already registered, so {Skipped:c} will never be dispatched",
+                    command.Name,
+                    command.GetType().Name
+                );
+        }
+
+        return table;
+    }
+
+    /// <summary>
+    /// Serves one connection and swallows whatever escapes, because nothing awaits the task this returns and an escaping
+    /// failure would surface as an unobserved exception instead of a log line.
+    /// </summary>
+    ///
+    /// <param name="client">The accepted connection, disposed by the inner call whatever happens.</param>
+    /// <param name="cancellationToken">Signaled when the listener is stopping.</param>
+    ///
+    /// <returns>
+    /// A task that always completes successfully. Nothing awaits it for a result, so a failure allowed to escape would
+    /// surface as an unobserved exception rather than a log line.
+    /// </returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task HandleClientSafelyAsync(TcpClient client, CancellationToken cancellationToken)
     {
         try
         {
-            await HandleClientAsync(client);
+            await HandleClientAsync(client, cancellationToken);
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Failed to handle a remote command client.");
-
-            client.Close();
+            logger.LogError(exception, "Failed to handle a remote command client.");
+        }
+        finally
+        {
+            _connectionLimit.Release();
         }
     }
 
     /// <summary>
-    /// Validates a connected client, reads one remote command payload, and dispatches it when registered.
+    /// Checks the client against the whitelist, then serves its requests one at a time until it disconnects, goes idle
+    /// past the timeout, or sends something unreadable.
     /// </summary>
     ///
-    /// <param name="client">The connected remote command client.</param>
+    /// <param name="client">The accepted connection, taken over and disposed when this returns.</param>
+    /// <param name="cancellationToken">Signaled when the listener is stopping.</param>
     ///
-    /// <returns>A task that completes when the client has been handled or rejected.</returns>
+    /// <returns>
+    /// A task that completes when the client disconnects, goes idle past the timeout, or sends something unreadable. The
+    /// connection is kept open between requests, so one client may run many commands on it.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    private async Task HandleClientAsync(TcpClient client)
+    private async Task HandleClientAsync(TcpClient client, CancellationToken cancellationToken)
     {
-        var remoteEndPoint = client.Client.RemoteEndPoint as IPEndPoint;
-        IPAddress? remoteIp = remoteEndPoint?.Address;
+        using TcpClient owned = client;
 
-        if (remoteIp == null || !_config.Whitelisted.Contains(remoteIp.ToString()))
+        var remoteEndPoint = owned.Client.RemoteEndPoint as IPEndPoint;
+
+        if (!IsWhitelisted(remoteEndPoint?.Address))
         {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning("Rejected connection from non-whitelisted address {Address:c}", remoteEndPoint);
-            }
-
-            client.Close();
+            if (logger.IsEnabled(LogLevel.Warning))
+                logger.LogWarning(
+                    "Rejected connection from {Address:c}; whitelist is {Whitelist:c}",
+                    remoteEndPoint?.Address,
+                    string.Join(", ", _config.Whitelisted)
+                );
 
             return;
         }
 
-        await using NetworkStream stream = client.GetStream();
+        await using NetworkStream stream = owned.GetStream();
 
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            using var idleSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+            idleSource.CancelAfter(TimeSpan.FromSeconds(_config.IdleTimeout));
+
+            byte[]? frame;
+
+            try
+            {
+                frame = await RemoteCommandProtocol.ReadFrameAsync(stream, _config.MaxPayloadBytes, idleSource.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            catch (Exception exception) when (exception is EndOfStreamException or InvalidDataException or IOException)
+            {
+                if (logger.IsEnabled(LogLevel.Warning))
+                    logger.LogWarning("Discarded a malformed frame from {Address:c}: {Reason:c}", remoteEndPoint, exception.Message);
+
+                return;
+            }
+
+            if (frame is null) return;
+
+            using var readSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+            readSource.CancelAfter(TimeSpan.FromSeconds(_config.ReadTimeout));
+
+            await DispatchAsync(frame, stream, remoteEndPoint, readSource.Token);
+        }
+    }
+
+    /// <summary>
+    /// Turns one request frame into a command invocation, answering with a refusal rather than a dropped connection
+    /// whenever it cannot be served.
+    /// </summary>
+    ///
+    /// <param name="frame">The request bytes, one complete frame.</param>
+    /// <param name="stream">The connection to answer on.</param>
+    /// <param name="remoteEndPoint">The client address, used only to name it in the log.</param>
+    /// <param name="cancellationToken">Signaled when the read timeout elapses or the listener is stopping.</param>
+    ///
+    /// <returns>
+    /// A task that completes once exactly one envelope has been sent, whether it carries the command's own response, a
+    /// refusal, or neither, which is how a command that returned without answering is acknowledged.
+    /// </returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task DispatchAsync(byte[] frame, Stream stream, IPEndPoint? remoteEndPoint, CancellationToken cancellationToken)
+    {
         RemoteCommandPayload? payload;
 
         try
         {
-            payload = await ReadPayloadAsync(stream);
+            payload = JsonSerializer.Deserialize<RemoteCommandPayload>(frame, RemoteCommandProtocol.SerializerOptions);
         }
-        catch (EndOfStreamException)
+        catch (JsonException exception)
         {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning("Received incomplete payload from {Address:c}", remoteEndPoint);
-            }
+            if (logger.IsEnabled(LogLevel.Warning))
+                logger.LogWarning("Received malformed JSON from {Address:c}: {Reason:c}", remoteEndPoint, exception.Message);
 
-            return;
-        }
-        catch (JsonException)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning("Received malformed JSON payload from {Address:c}", remoteEndPoint);
-            }
+            await RemoteCommandProtocol.WriteFrameAsync(
+                stream,
+                RemoteCommandResponse.Refused(RemoteCommandRefusal.MalformedPayload),
+                cancellationToken
+            );
 
             return;
         }
 
-        if (payload == null)
+        if (payload is null || string.IsNullOrWhiteSpace(payload.Command))
         {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning("Received invalid payload from {Address:c}", remoteEndPoint);
-            }
+            if (logger.IsEnabled(LogLevel.Warning))
+                logger.LogWarning("Received a payload from {Address:c} with no command name", remoteEndPoint);
+
+            await RemoteCommandProtocol.WriteFrameAsync(
+                stream,
+                RemoteCommandResponse.Refused(RemoteCommandRefusal.MissingCommandName),
+                cancellationToken
+            );
 
             return;
         }
 
-        if (_commands.TryGetValue(payload.Command, out IInternalRemoteCommand? handler))
+        if (!IsSecretValid(payload.Secret))
         {
-            if (_logger.IsEnabled(LogLevel.Information) && _config.EnableReceiveLog)
-            {
-                _logger.LogInformation("Received remote command {Command:y} from {Address:c}", payload.Command, remoteEndPoint);
-            }
+            if (logger.IsEnabled(LogLevel.Warning))
+                logger.LogWarning(
+                    "Rejected {Command:y} from {Address:c} because the pre-shared key did not match",
+                    payload.Command,
+                    remoteEndPoint
+                );
 
-            await handler.HandleRawAsync(payload.Data, stream);
+            await RemoteCommandProtocol.WriteFrameAsync(
+                stream,
+                RemoteCommandResponse.Refused(RemoteCommandRefusal.Unauthorized),
+                cancellationToken
+            );
+
+            return;
         }
-        else
+
+        if (!_commands.TryGetValue(payload.Command, out IInternalRemoteCommand? command))
         {
-            if (_logger.IsEnabled(LogLevel.Warning) && _config.EnableReceiveLog)
-            {
-                _logger.LogWarning("Received unknown remote command {Command:y} from {Address:c}", payload.Command, remoteEndPoint);
-            }
+            if (logger.IsEnabled(LogLevel.Warning))
+                logger.LogWarning("Received unknown remote command {Command:y} from {Address:c}", payload.Command, remoteEndPoint);
+
+            await RemoteCommandProtocol.WriteFrameAsync(
+                stream,
+                RemoteCommandResponse.Refused(RemoteCommandRefusal.CommandNotFound),
+                cancellationToken
+            );
+
+            return;
         }
 
-        client.Close();
+        if (logger.IsEnabled(LogLevel.Information) && _config.EnableReceiveLog)
+            logger.LogInformation("Received remote command {Command:y} from {Address:c}", payload.Command, remoteEndPoint);
+
+        StreamCommandResponse response = new(stream);
+
+        try
+        {
+            await command.HandleRawAsync(payload.Data, response, cancellationToken);
+        }
+        catch (JsonException exception)
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
+                logger.LogWarning("The {Command:y} payload did not match its message type: {Reason:c}", payload.Command, exception.Message);
+
+            if (!response.HasWritten)
+                await RemoteCommandProtocol.WriteFrameAsync(
+                    stream,
+                    RemoteCommandResponse.Refused(RemoteCommandRefusal.InvalidMessage),
+                    cancellationToken
+                );
+
+            return;
+        }
+
+        if (!response.HasWritten)
+            await RemoteCommandProtocol.WriteFrameAsync(stream, new RemoteCommandResponse(), cancellationToken);
     }
 
     /// <summary>
-    /// Reads a length-prefixed remote command payload from the network stream and deserializes it.
+    /// Checks a remote address against the parsed whitelist.
     /// </summary>
     ///
-    /// <param name="stream">The network stream to read the payload from.</param>
+    /// <param name="address">
+    /// The connecting address, or <c>null</c> when the socket reported no endpoint. An IPv4-mapped IPv6 address is
+    /// unmapped first, so a rule written as IPv4 still matches a client arriving on a dual-stack socket.
+    /// </param>
     ///
-    /// <returns>The deserialized <see cref="RemoteCommandPayload"/>, or <c>null</c> when the payload length is invalid.</returns>
+    /// <returns><c>true</c> when some configured network contains the address; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>2.4.0</since>
-    private static async Task<RemoteCommandPayload?> ReadPayloadAsync(NetworkStream stream)
+    /// <since>Unreleased</since>
+    private bool IsWhitelisted(IPAddress? address)
     {
-        byte[] lengthBuffer = new byte[sizeof(int)];
-        await ReadExactlyAsync(stream, lengthBuffer);
+        if (address is null)
+            return false;
 
-        int length = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(lengthBuffer));
+        IPAddress candidate = address.IsIPv4MappedToIPv6 ? address.MapToIPv4() : address;
 
-        if (length <= 0)
-        {
-            return null;
-        }
-
-        byte[] payloadBuffer = new byte[length];
-        await ReadExactlyAsync(stream, payloadBuffer);
-
-        string json = Encoding.UTF8.GetString(payloadBuffer);
-
-        return JsonSerializer.Deserialize<RemoteCommandPayload>(json);
+        return _whitelist.Any(network => network.Contains(candidate));
     }
 
     /// <summary>
-    /// Reads exactly the specified number of bytes from the network stream into the provided buffer.
+    /// Compares the supplied pre-shared key in constant time.
     /// </summary>
     ///
-    /// <param name="stream">The network stream to read from.</param>
-    /// <param name="buffer">The buffer to fill completely with the incoming data.</param>
+    /// <param name="supplied">The key from the request, or <c>null</c> when the client sent none.</param>
     ///
-    /// <returns>A task representing the asynchronous read operation.</returns>
-    ///
-    /// <exception cref="EndOfStreamException">Thrown when the stream closes before the full buffer has been read.</exception>
+    /// <returns>
+    /// <c>true</c> when the server requires no key, or when the supplied one matches. Comparison takes the same time
+    /// whatever the value, so a wrong key cannot be recovered a character at a time.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>2.4.0</since>
-    private static async Task ReadExactlyAsync(NetworkStream stream, byte[] buffer)
+    /// <since>Unreleased</since>
+    private bool IsSecretValid(string? supplied)
     {
-        var offset = 0;
+        if (_secret is null)
+            return true;
 
-        while (offset < buffer.Length)
-        {
-            int bytesRead = await stream.ReadAsync(buffer.AsMemory(offset));
-
-            if (bytesRead == 0)
-            {
-                throw new EndOfStreamException("Remote command payload ended before the full message was received.");
-            }
-
-            offset += bytesRead;
-        }
+        return supplied is not null && CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(supplied), _secret);
     }
 }
