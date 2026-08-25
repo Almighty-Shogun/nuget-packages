@@ -2,12 +2,10 @@
 
 Represents the result returned by a custom validation rule. Built-in rules use the same structure internally, but application code most commonly interacts with this record from [`ICustomValidationRule<TRequest, TProperty>`](../custom-rules).
 
-Return `Success` when the value is valid. Return `Failure` with a validation message key when the value is invalid. Optional parameters are passed to the message resolver and replace placeholders such as `{0}` in the localized message.
-
 ## Usage
 
 ```csharp
-using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.RequestValidation;
 
 return isUnique
     ? ValidationRuleResult.Success()
@@ -19,7 +17,7 @@ return isUnique
 Creates a reusable successful validation result.
 
 ```csharp
-using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.RequestValidation;
 
 ValidationRuleResult result = ValidationRuleResult.Success();
 ```
@@ -35,7 +33,7 @@ public static ValidationRuleResult Success();
 Creates a failed validation result with a message key and optional message parameters.
 
 ```csharp
-using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.RequestValidation;
 
 ValidationRuleResult result = ValidationRuleResult.Failure(
     "validation.min.string",

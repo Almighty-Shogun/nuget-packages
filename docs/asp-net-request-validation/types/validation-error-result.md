@@ -2,18 +2,19 @@
 
 Creates MVC `ObjectResult` values for standardized validation error responses. The helper exists for controller actions that need to manually return the same response shape produced by automatic request validation.
 
-Most applications do not need to call this type directly because [`AddAspNetValidation`](../extensions/add-asp-net-validation) and [`UseAspNetValidation`](../extensions/use-asp-net-validation) cover model-state failures, endpoint validation, invalid request bodies, and [`ValidationException`](./validation-exception). Use it when an action already knows the exact field and validation message key to return.
-
 ## Usage
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Utils;
-using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.Core;
+using AlmightyShogun.AspNet.Localization;
+using AlmightyShogun.AspNet.RequestValidation;
 
 [ApiController]
 [Route("invites")]
-public sealed class InvitesController(IMessageResolver messageResolver) : ControllerBase
+public sealed class InvitesController(
+    IMessageResolver messageResolver
+) : ControllerBase
 {
     [HttpPost]
     public ObjectResult Create(InviteUserRequest request)
@@ -33,8 +34,9 @@ Creates an `ObjectResult` with status code `422`, the top-level `validation_erro
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Utils;
-using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.Core;
+using AlmightyShogun.AspNet.Localization;
+using AlmightyShogun.AspNet.RequestValidation;
 
 ObjectResult result = ValidationErrorResult.Create(
     messageResolver,

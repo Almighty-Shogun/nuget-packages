@@ -2,8 +2,6 @@
 
 Date rules validate parseable dates, exact date formats, and date ordering against literal dates or other request fields. Attribute rules use `ComparisonTarget` for string targets; fluent rules use typed date values or property expressions.
 
-Use `ComparisonTarget.Value` when an attribute target string is a literal date value. Use `ComparisonTarget.Field` when the target string names another request property. Nullable request DTO properties are usually safer for required dates because non-nullable value types receive a default value during model binding.
-
 ## Date
 
 Requires the value to be a date or date/time value that can be parsed.

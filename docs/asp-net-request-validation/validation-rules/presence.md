@@ -2,8 +2,6 @@
 
 Presence rules control whether a field must exist, contain a value, be present even when empty, be missing, or be prohibited. They run before normal validation rules so missing or disallowed fields produce clear validation errors instead of later format, size, or comparison failures.
 
-Use these rules for unconditional field state checks. Use [Conditional Presence](./conditional-presence) when the field state depends on another request field.
-
 ## Required
 
 Requires the field to be present and contain a non-empty value. It fails for missing values, `null`, empty text, empty collections, and empty uploaded files.

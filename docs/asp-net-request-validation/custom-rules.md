@@ -2,8 +2,6 @@
 
 Custom rules let validation use application services while still producing the same localized validation error response as built-in rules. Use them for checks that need database access, tenant state, an external service, or application logic that does not belong inside an attribute constructor.
 
-Custom rules are DI-resolved classes that implement `ICustomValidationRule<TRequest, TProperty>`. They return [`ValidationRuleResult.Success`](./records/validation-rule-result) when the value is valid, or [`ValidationRuleResult.Failure`](./records/validation-rule-result) with a message key and optional message parameters when validation fails.
-
 ## CustomRule
 
 Adds a custom validation rule resolved from dependency injection. Use the attribute form when the rule can sit directly on a DTO property. Use the fluent form when the rule belongs in a `ValidatableRequest<TRequest>` chain with other expression-based rules.
@@ -29,9 +27,10 @@ Use `.CustomRule<TRule>()` from a `ValidatableRequest<TRequest>` when the rule o
 ::: code-group
 
 ```csharp [CreateAccountRequest.cs]
-using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.RequestValidation;
 
-public sealed class CreateAccountRequest : ValidatableRequest<CreateAccountRequest>
+public sealed class CreateAccountRequest
+    : ValidatableRequest<CreateAccountRequest>
 {
     public string Email { get; init; } = string.Empty;
 
@@ -53,20 +52,23 @@ using System.Collections.Generic;
 
 public sealed class UserRepository
 {
-    private static readonly HashSet<string> Emails = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "admin@example.com"
-    };
+    private static readonly HashSet<string> Emails
+        = new(StringComparer.OrdinalIgnoreCase) 
+        { 
+            "admin@example.com" 
+        };
 
-    public Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default)
-        => Task.FromResult(Emails.Contains(email));
+    public Task<bool> EmailExistsAsync(
+        string email,
+        CancellationToken cancellationToken = default
+    ) => Task.FromResult(Emails.Contains(email));
 }
 ```
 
 ```csharp [UniqueEmailRule.cs]
 using System.Threading;
 using System.Threading.Tasks;
-using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.RequestValidation;
 
 public sealed class UniqueEmailRule(UserRepository userRepository)
     : ICustomValidationRule<CreateAccountRequest, string>
@@ -80,7 +82,8 @@ public sealed class UniqueEmailRule(UserRepository userRepository)
         if (string.IsNullOrWhiteSpace(value))
             return ValidationRuleResult.Success();
 
-        bool exists = await userRepository.EmailExistsAsync(value, cancellationToken);
+        bool exists = await userRepository
+            .EmailExistsAsync(value, cancellationToken);
 
         return exists
             ? ValidationRuleResult.Failure("validation.unique")
@@ -98,7 +101,7 @@ The failure key is resolved through the message files described on the [Localiza
 Use `CustomRuleAttribute<TRule>` when the same DI-backed rule should be attached directly to a request property. This keeps the request DTO compact when the validation rule is reusable and does not need fluent expression setup.
 
 ```csharp
-using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.RequestValidation;
 
 public sealed class CreateAccountRequest
 {
@@ -115,16 +118,17 @@ Derive from `CustomRuleAttribute` when an application wants a domain-specific at
 
 ```csharp [UniqueEmailAttribute.cs]
 using System;
-using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.RequestValidation;
 
 public sealed class UniqueEmailAttribute : CustomRuleAttribute
 {
-    protected override Type CreateCustomRule() => CustomRule<UniqueEmailRule>();
+    protected override Type CreateCustomRule()
+        => CustomRule<UniqueEmailRule>();
 }
 ```
 
 ```csharp [RegisterAccountRequest.cs]
-using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.RequestValidation;
 
 public sealed class RegisterAccountRequest
 {

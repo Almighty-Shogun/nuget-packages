@@ -2,8 +2,6 @@
 
 Conditional presence rules apply required, present, missing, or prohibited behavior only when other request fields match a condition. They are useful when one field changes the meaning of another field, such as payment method details, scheduled publishing, or mutually exclusive options.
 
-Attribute parameters use request property names. Fluent rules use property expressions, which gives compile-time refactoring support. Conditionally-required fields usually stay nullable in request DTOs because the value is allowed to be missing until the configured condition is true.
-
 ## RequiredIf
 
 Requires the field when another field equals one of the provided values.

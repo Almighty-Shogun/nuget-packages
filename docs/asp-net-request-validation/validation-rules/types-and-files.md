@@ -2,8 +2,6 @@
 
 Type and file rules validate the runtime shape of the bound value. They are commonly used before content-specific validation so clients receive clear type or file errors instead of later rule failures.
 
-File rules work with ASP.NET Core uploaded files. File size comparisons in number-style rules are measured in kilobytes, and image dimension rules inspect the image header to avoid fully loading large files into memory.
-
 ## String
 
 Requires the value to be a string.

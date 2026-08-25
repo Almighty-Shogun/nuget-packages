@@ -1,8 +1,6 @@
 # Localization
 
-Validation messages are resolved through [ASP.NET Utils localization](/asp-net-utils/localization). The resolver loads JSON files from `messages/{language}`, flattens the file name and nested JSON keys into message keys, and returns the original key when no language file or message exists.
-
-ASP.NET Validation uses the `validation` message group for rule failures. A message stored in `messages/en/validation.json` at `required.default` resolves as `validation.required.default`. The package also uses ASP.NET Utils HTTP error messages for top-level `422` and invalid-body descriptions, so keep `messages/{language}/http-error.json` available as documented by [ASP.NET Utils Localization](/asp-net-utils/localization).
+Validation messages are resolved through [ASP.NET Localization](/asp-net-localization/localization). The resolver loads JSON files from `messages/{language}`, flattens the file name and nested JSON keys into message keys, and returns the original key when no language file or message exists.
 
 ## Validation Messages
 
@@ -89,6 +87,7 @@ Create `messages/{language}/validation.json` for every language the API should s
         "array-keys": "This field must contain at least one of the following keys: {0}."
     },
     "integer": "This field must be an integer.",
+    "invalid-body": "The request body is missing or invalid.",
     "ip": {
         "default": "This field must be a valid IP address.",
         "ipv4": "This field must be a valid IPv4 address.",
@@ -272,6 +271,7 @@ Create `messages/{language}/validation.json` for every language the API should s
         "array-keys": "Dit veld moet minimaal een van de volgende sleutels bevatten: {0}."
     },
     "integer": "Dit veld moet een geheel getal zijn.",
+    "invalid-body": "De aanvraagbody ontbreekt of is ongeldig.",
     "ip": {
         "default": "Dit veld moet een geldig IP-adres zijn.",
         "ipv4": "Dit veld moet een geldig IPv4-adres zijn.",
@@ -455,6 +455,7 @@ Create `messages/{language}/validation.json` for every language the API should s
         "array-keys": "Ce champ doit contenir au moins l'une des clés suivantes : {0}."
     },
     "integer": "Ce champ doit être un entier.",
+    "invalid-body": "Le corps de la requête est manquant ou invalide.",
     "ip": {
         "default": "Ce champ doit être une adresse IP valide.",
         "ipv4": "Ce champ doit être une adresse IPv4 valide.",

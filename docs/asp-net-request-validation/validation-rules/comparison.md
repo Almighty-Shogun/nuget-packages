@@ -248,17 +248,21 @@ RuleFor(x => x.RoleIds)
 
 Requires the value to match the regular expression pattern.
 
+The optional `description` is passed to the message template as `{0}`, so a failure can state the expected shape instead of only saying the value is invalid.
+
+Each match runs under a timeout, one second by default, after which the match is abandoned and the rule fails. This bounds catastrophic backtracking on attacker-supplied input, which would otherwise pin a CPU core with no way to cancel it. Raise `matchTimeoutSeconds` only for a pattern that legitimately needs longer.
+
 ::: code-group
 
 ```csharp [Attribute.cs]
-[Regex(string pattern, RegexOptions options = RegexOptions.None)]
+[Regex(string pattern, RegexOptions options = RegexOptions.None, string? description = null, double matchTimeoutSeconds = 1)]
 
-[Regex("^[a-z0-9-]+$", RegexOptions.IgnoreCase)]
+[Regex("^[a-z0-9-]+$", RegexOptions.IgnoreCase, "lowercase letters, digits, and hyphens")]
 ```
 
 ```csharp [FluentRule.cs]
 RuleFor(x => x.Slug)
-    .Regex("^[a-z0-9-]+$", RegexOptions.IgnoreCase);
+    .Regex("^[a-z0-9-]+$", RegexOptions.IgnoreCase, "lowercase letters, digits, and hyphens");
 ```
 
 :::
@@ -267,17 +271,19 @@ RuleFor(x => x.Slug)
 
 Requires the value to not match the regular expression pattern.
 
+Takes the same optional `description` and match timeout as [Regex](#regex).
+
 ::: code-group
 
 ```csharp [Attribute.cs]
-[NotRegex(string pattern, RegexOptions options = RegexOptions.None)]
+[NotRegex(string pattern, RegexOptions options = RegexOptions.None, string? description = null, double matchTimeoutSeconds = 1)]
 
-[NotRegex("^admin-")]
+[NotRegex("^admin-", RegexOptions.None, "must not start with admin-")]
 ```
 
 ```csharp [FluentRule.cs]
 RuleFor(x => x.Username)
-    .NotRegex("^admin-");
+    .NotRegex("^admin-", description: "must not start with admin-");
 ```
 
 :::
