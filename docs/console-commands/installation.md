@@ -8,30 +8,23 @@ dotnet add package AlmightyShogun.ConsoleCommands
 
 ## Dependencies
 
+### Package references
+
+- `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.11` &mdash; the service collection the commands register into.
+- `Microsoft.Extensions.Logging.Abstractions` `10.0.11` &mdash; `ILogger<T>`, which the input loop reports unusable input through. Output goes to whichever logging provider the application registered.
+
 ### Project references
 
-- `AlmightyShogun.Utils` &mdash; provides assembly scanning and inherited-type registration helpers.
-- `AlmightyShogun.Logging` &mdash; provides logging support used by the command runtime.
+- `AlmightyShogun.Core` &mdash; provides assembly scanning and inherited-type registration helpers.
 
 ## Startup Registration
 
-Register the command handler once, then scan the assemblies that contain command classes. If command classes live outside the startup project, pass a marker type from the project that contains them.
+[`AddConsoleCommands`](./extensions/add-console-commands) registers the input loop, and [`RegisterConsoleCommands`](./extensions/register-console-commands) discovers the command classes it dispatches to. Nothing reads the console until [`IConsoleCommandHandler`](./services/console-command-handler) is resolved and started.
 
 ```csharp
 using AlmightyShogun.ConsoleCommands;
 
 builder.Services
     .AddConsoleCommands()
-    .RegisterConsoleCommands(typeof(Program).Assembly);
-```
-
-When the application is ready to run the input loop, resolve the handler through [`IConsoleCommandHandler`](./services/console-command-handler) and call `StartAsync`.
-
-```csharp
-using AlmightyShogun.ConsoleCommands;
-using Microsoft.Extensions.DependencyInjection;
-
-IConsoleCommandHandler handler = serviceProvider.GetRequiredService<IConsoleCommandHandler>();
-
-await handler.StartAsync();
+    .RegisterConsoleCommands();
 ```
