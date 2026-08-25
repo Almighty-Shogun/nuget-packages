@@ -58,7 +58,7 @@ public static class PackageRegistry
                 .AddAuthorization()
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options => ConfigureJwtBearer(options, configuration));
-                
+
             if (registerExceptionHandler)
                 serviceCollection.AddExceptionHandler<JwtAuthExceptionHandler>();
 
