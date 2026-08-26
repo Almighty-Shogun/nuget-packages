@@ -1,18 +1,32 @@
+---
+fields:
+    - name: Username
+      description: The account name to claim. Refused with `UsernameTakenException` when another account already holds it.
+      type: string
+
+    - name: Email
+      description: The address to claim, checked for a valid shape by `[Email]`. Refused with `EmailTakenException` when another account already holds it.
+      type: string
+
+    - name: Password
+      description: The initial password, at least 8 characters and subject to the `[PasswordSecure]` rule. Hashed before the row is written and never stored as given.
+      type: string
+---
+
 # RegisterRequest
 
-Represents a public registration request for a credential user. The request accepts only the values a new user should be allowed to provide themselves: username, email address, and plain-text password.
-
-Use this DTO with [`IAuthUserService<TUser>.RegisterAsync`](../services/auth-user-service#registerasync). The username and email fields include uniqueness validation, and the password field uses the secure password rule from [ASP.NET Validation](/asp-net-validation/validation-rules/passwords). Role and permission assignment should happen in application code or through an admin-only flow that uses [`CreateUserRequest`](./create-user-request).
+The three values a user may supply about themselves when signing up. It carries no role or permission field on purpose, since anything a client can send there ends up as claims in its own access token.
 
 ## Usage
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
+using AlmightyShogun.AspNet.JwtAuth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
 public sealed class RegisterController(IAuthUserService<AppUser> authUsers) : ControllerBase
 {
-    public Task<AuthSessionResult<AppUser>> Register(RegisterRequest request)
+    public async Task<ActionResult<AppUser>> Register(RegisterRequest request)
     {
         AppUser user = new()
         {
@@ -20,18 +34,19 @@ public sealed class RegisterController(IAuthUserService<AppUser> authUsers) : Co
             Username = request.Username
         };
 
-        return authUsers.RegisterAsync(user, request.Password, HttpContext);
+        AuthSessionResult<AppUser> result = await authUsers.RegisterAsync(user, request.Password, HttpContext);
+
+        Response.SetRefreshTokenCookie(result.RefreshToken, 30);
+
+        return Ok(result.User);
     }
 }
 ```
 
+<FrontmatterDocs/>
+
 ## Type signature
 
 ```csharp
-public class RegisterRequest
-{
-    public required string Username { get; set; }
-    public required string Email { get; set; }
-    public required string Password { get; set; }
-}
+public class RegisterRequest;
 ```

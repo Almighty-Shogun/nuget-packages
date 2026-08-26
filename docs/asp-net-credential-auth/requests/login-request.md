@@ -1,13 +1,23 @@
+---
+fields:
+    - name: Identifier
+      description: A username or an email address. Both are matched, so one login form serves users who remember either.
+      type: string
+
+    - name: Password
+      description: The password as typed. It is verified against the stored hash by the service, not during request validation.
+      type: string
+---
+
 # LoginRequest
 
-Represents a username/email and password login request. The `Identifier` field accepts either a username or an email address, and the `Password` field is validated against the user found by that identifier before the login service creates a session.
-
-Use this DTO with [`IAuthUserService<TUser>.LoginAsync`](../services/auth-user-service#loginasync). The request includes `[Required]`, [`LoginIdentifierExists`](../attributes/login-identifier-exists-attribute), and [`CurrentPassword`](../attributes/current-password-attribute), so it works with [ASP.NET Validation](/asp-net-validation/) when the package is registered. The service still looks up the user again before creating a session, but the password check belongs to request validation.
+The credentials [`LoginAsync`](../services/auth-user-service#loginasync) takes. Validation only checks that both values are present; whether they are correct is decided by the service, so a wrong password and an unknown user come back identically.
 
 ## Usage
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
+using AlmightyShogun.AspNet.JwtAuth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
 [ApiController]
@@ -15,17 +25,21 @@ using AlmightyShogun.AspNet.CredentialAuth;
 public sealed class LoginController(IAuthUserService<AppUser> authUsers) : ControllerBase
 {
     [HttpPost("login")]
-    public Task<AuthSessionResult<AppUser>> Login(LoginRequest request)
-        => authUsers.LoginAsync(request, HttpContext);
+    public async Task<ActionResult<AppUser>> Login(LoginRequest request)
+    {
+        AuthSessionResult<AppUser> result = await authUsers.LoginAsync(request, HttpContext);
+
+        Response.SetRefreshTokenCookie(result.RefreshToken, 30);
+
+        return Ok(result.User);
+    }
 }
 ```
+
+<FrontmatterDocs/>
 
 ## Type signature
 
 ```csharp
-public record LoginRequest
-{
-    public required string Identifier { get; set; }
-    public required string Password { get; set; }
-}
+public record LoginRequest;
 ```

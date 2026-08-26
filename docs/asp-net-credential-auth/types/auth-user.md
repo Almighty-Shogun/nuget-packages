@@ -1,8 +1,63 @@
+---
+fields:
+    - name: Id
+      description: The surrogate key, used for foreign keys inside the package. Never put it in a response; `Identifier` is the value a client is given.
+      type: int
+
+    - name: Identifier
+      description: The public identifier, a version 7 GUID so rows sort by creation without leaking a sequence. This is what appears in the access token and what the services accept.
+      type: Guid
+
+    - name: Username
+      description: The account name, uniquely indexed and accepted by login alongside the email address.
+      type: string
+
+    - name: Email
+      description: The address, uniquely indexed. Also what the forgot-password flow matches against.
+      type: string
+
+    - name: Password
+      description: The password hash produced by ASP.NET Core's hasher. Ignored during JSON serialization, and rehashed in place on sign-in when the hasher reports an outdated format.
+      type: string
+
+    - name: Sessions
+      description: The user's refresh-token sessions. Ignored during JSON serialization, and not loaded unless explicitly included.
+      type: 'List<UserSession>'
+      default: '[]'
+
+    - name: Role
+      description: The single role written into the access token as a role claim.
+      type: string
+      default: User
+
+    - name: Permissions
+      description: The permission values written into the token, one claim each. Store `api:users.read` style values only when routes are scoped per application; otherwise store plain values such as `users.read`.
+      type: 'string[]'
+      default: '[]'
+
+    - name: IsActive
+      description: Whether the account may sign in. A false value is refused after the password is checked, so it never reveals that an account exists.
+      type: bool
+      default: 'true'
+
+    - name: Lockout
+      description: The run of failed sign-ins against the account, or null while there is none. Held in its own table and not loaded unless explicitly included.
+      type: UserLockout?
+      default: 'null'
+
+    - name: TwoFactor
+      description: The user's TOTP enrolment, or null when they never began one. Held in its own table and not loaded unless explicitly included.
+      type: UserTwoFactor?
+      default: 'null'
+---
+
 # AuthUser
 
-Base credential user entity used by the package services. Application user entities should inherit from `AuthUser` when they need extra profile or domain fields while still using the built-in login, password, session, and token services.
+The base user entity every credential service works against. Applications inherit from it to add their own profile fields, and the derived type becomes the `TUser` of the context and the services.
 
-The package requires `Username`, `Email`, `Password`, `Role`, and `Permissions` because those values are used for credential lookup, password verification, JWT role claims, and permission claims. Store plain permissions such as `users.read` for single-host APIs. Store app-scoped permissions with their app prefix, for example `api:users.read`, only when routes use app-prefixed [`AuthPermission`](/asp-net-jwt-auth/attributes/auth-permission-attribute) values for host/app scoped authorization. The `Password` and `Sessions` properties are ignored during JSON serialization.
+::: warning
+`Role` and `Permissions` are ordinary settable properties that become claims in the user's own access token. Never bind a client payload straight onto the entity; build it from a [`RegisterRequest`](../requests/register-request) and set those values in application code.
+:::
 
 ## Usage
 
@@ -12,22 +67,8 @@ using AlmightyShogun.AspNet.CredentialAuth;
 public sealed class AppUser : AuthUser
 {
     public string DisplayName { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
 ```
 
-## Type signature
-
-```csharp
-[Table("users")]
-public class AuthUser
-{
-    public int Id { get; set; }
-    public required string Username { get; set; }
-    public required string Email { get; set; }
-    public string Password { get; set; } = string.Empty;
-    public List<UserSession> Sessions { get; set; } = [];
-    public string Role { get; set; } = "User";
-    public string[] Permissions { get; set; } = [];
-}
-```
+<FrontmatterDocs/>

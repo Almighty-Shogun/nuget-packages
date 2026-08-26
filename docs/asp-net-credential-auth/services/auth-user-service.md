@@ -1,37 +1,14 @@
 # AuthUserService
 
-Provides user-facing credential operations for login, user creation, and registration. Application code should depend on `IAuthUserService<TUser>`; [`AddCredentialAuth`](../extensions/add-credential-auth) registers the package implementation for the configured [`AuthDbContext<TUser>`](../types/auth-db-context).
+Signs users in and creates new accounts. Application code depends on `IAuthUserService<TUser>`, which returns an [`AuthSessionResult<TUser>`](../results/auth-session-result) carrying the access token, the refresh token, and the user.
 
-The service hashes passwords before storing users, creates refresh-token sessions for login and registration, and generates JWT access tokens using [ASP.NET JWT Auth](/asp-net-jwt-auth/) settings. Login requests should be validated with [`LoginRequest`](../requests/login-request) before the service runs; the service then looks up the user again before creating the session.
-
-## Usage
-
-```csharp
-using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.JwtAuth;
-using AlmightyShogun.AspNet.CredentialAuth;
-
-[ApiController]
-[Route("auth")]
-public sealed class AuthController(IAuthUserService<AppUser> authUsers) : ControllerBase
-{
-    [HttpPost("login")]
-    public async Task<ActionResult<AuthSessionResult<AppUser>>> Login(LoginRequest request)
-    {
-        AuthSessionResult<AppUser> result = await authUsers.LoginAsync(request, HttpContext);
-
-        Response.SetRefreshTokenCookie(result.RefreshToken, 30);
-
-        return Ok(result);
-    }
-}
-```
+A failed login costs the same time as a successful one: when no user matches the identifier, the password is still verified against a throwaway hash before the failure is thrown, so response timing does not reveal which identifiers exist.
 
 ## LoginAsync
 
-Authenticates a validated username/email login request, creates a refresh-token session, and returns a signed JWT access token. When [app scoping](/asp-net-jwt-auth/configuration/auth-settings) is enabled, the current request host determines the access-token audience and the session app value.
+Matches `Identifier` against both username and email, verifies the password, and creates a refresh-token session for the resolved application. The stored hash is upgraded in place when ASP.NET Core's password hasher reports an outdated format, so raising the work factor takes effect as users sign in.
 
-The method throws [`HttpErrorException`](/asp-net-utils/types/http-error-exception) with status code `401 Unauthorized` and message key `auth.failed` when the identifier no longer resolves to a user by the time the session is created. The submitted password is checked by [`CurrentPassword`](../attributes/current-password-attribute) during request validation.
+Throws [`InvalidCredentialsException`](../exceptions) when the identifier matches nothing or the password is wrong, [`AccountLockedException`](../exceptions) while a lockout is in force, and [`AccountDisabledException`](../exceptions) for a deactivated account. The disabled check runs after the password check, so it cannot be used to probe for accounts.
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
@@ -40,13 +17,13 @@ using AlmightyShogun.AspNet.CredentialAuth;
 
 public sealed class LoginController(IAuthUserService<AppUser> authUsers) : ControllerBase
 {
-    public async Task<ActionResult<AuthSessionResult<AppUser>>> Login(LoginRequest request)
+    public async Task<ActionResult<AppUser>> Login(LoginRequest request)
     {
         AuthSessionResult<AppUser> result = await authUsers.LoginAsync(request, HttpContext);
 
         Response.SetRefreshTokenCookie(result.RefreshToken, 30);
 
-        return Ok(result);
+        return Ok(result.User);
     }
 }
 ```
@@ -62,21 +39,23 @@ public Task<AuthSessionResult<TUser>> LoginAsync(
 
 ## CreateUserAsync
 
-Creates a user without creating a session. Use this method for admin-created accounts, imports, seed data, or flows where the account should exist before the user signs in.
+Creates a user without signing anyone in. Use it for administrator-created accounts, imports, and seed data, where the account should exist before its owner ever sends a request.
 
-The method hashes the supplied plain-text password with ASP.NET Core's password hasher before saving the user. It does not run request validation by itself, so validate user input before mapping it into the `TUser` entity.
+The plain-text password is hashed before the row is written and is never stored as given. Throws [`UsernameTakenException`](../exceptions) or [`EmailTakenException`](../exceptions) when another account already holds either value. Both comparisons run under the database's own collation, so give the username and email columns a case-insensitive one unless two accounts differing only in casing are acceptable.
 
 ```csharp
 using AlmightyShogun.AspNet.CredentialAuth;
 
 public sealed class AdminUserService(IAuthUserService<AppUser> authUsers)
 {
-    public Task<AppUser> CreateAsync(string username, string email, string password)
+    public Task<AppUser> CreateAsync(CreateUserRequest request)
         => authUsers.CreateUserAsync(new AppUser
         {
-            Email = email,
-            Username = username
-        }, password);
+            Role = request.Role,
+            Email = request.Email,
+            Username = request.Username,
+            Permissions = request.Permissions
+        }, request.Password);
 }
 ```
 
@@ -91,9 +70,9 @@ public Task<TUser> CreateUserAsync(
 
 ## RegisterAsync
 
-Creates a user and immediately creates an authenticated session for that user. Use this method for public registration endpoints when the user should be signed in after successful registration.
+Creates a user and signs them in immediately, which is what a public sign-up endpoint wants. It performs the same uniqueness checks and the same hashing as [`CreateUserAsync`](#createuserasync), then creates a session scoped to the resolved application.
 
-The method resolves the same app scope as [`LoginAsync`](#loginasync), stores a refresh-token session, and returns the created user with the generated access and refresh tokens.
+Build the entity from a [`RegisterRequest`](../requests/register-request) rather than binding a client payload onto it directly. `Role` and `Permissions` are ordinary properties on the entity, so anything a client can set there becomes claims in its own access token.
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
@@ -102,7 +81,7 @@ using AlmightyShogun.AspNet.CredentialAuth;
 
 public sealed class RegisterController(IAuthUserService<AppUser> authUsers) : ControllerBase
 {
-    public async Task<ActionResult<AuthSessionResult<AppUser>>> Register(RegisterRequest request)
+    public async Task<ActionResult<AppUser>> Register(RegisterRequest request)
     {
         AppUser user = new()
         {
@@ -114,7 +93,7 @@ public sealed class RegisterController(IAuthUserService<AppUser> authUsers) : Co
 
         Response.SetRefreshTokenCookie(result.RefreshToken, 30);
 
-        return Ok(result);
+        return Ok(result.User);
     }
 }
 ```
