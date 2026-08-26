@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -6,15 +5,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// One issued password reset. Rows are kept after use rather than deleted, so presenting a spent token is recognised as
-/// a replay instead of looking like a token that never existed.
+/// One issued email verification. Rows are kept after use, so a spent token is recognised as a replay rather than as one
+/// that never existed.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-[Table("password_reset_tokens")]
+[Table("email_verification_tokens")]
 [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
-public sealed class PasswordResetToken
+public sealed class EmailVerificationToken
 {
     /// <summary>
     /// Gets or sets the surrogate key. It is never handed to a client: the emailed token is the only handle a caller
@@ -26,7 +25,8 @@ public sealed class PasswordResetToken
     public int Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the user the reset was issued for. Cascades with the user.
+    /// Gets or sets the user the verification was issued for. Cascades with the user, so removing an account takes its
+    /// outstanding verifications with it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -34,20 +34,29 @@ public sealed class PasswordResetToken
     public int UserId { get; set; }
 
     /// <summary>
-    /// Gets or sets the hash of the token that was emailed. Only the hash is stored, so the value in the email cannot be
-    /// recovered from the database.
+    /// Gets or sets the hash of the token that was emailed, so the emailed value cannot be read back out.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     [Required]
-    [JsonIgnore]
     [MaxLength(64)]
     public string TokenHash { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets when the reset was requested. Kept after the token is spent, so a burst of requests against one
-    /// account is still visible afterwards.
+    /// Gets or sets the address being verified. Stored separately from the user's current address so the same flow
+    /// covers verifying a new sign-up and confirming a change of email.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    [Required]
+    [MaxLength(255)]
+    public string Email { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets when the verification was requested. Kept after the token is spent, so repeated requests against
+    /// one address remain visible afterwards.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -55,7 +64,8 @@ public sealed class PasswordResetToken
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
-    /// Gets or sets when the token stops being usable, set from the configured reset lifetime at issue.
+    /// Gets or sets when the token stops being usable. Fixed at issue rather than extended on each attempt, so an
+    /// unopened verification email cannot keep an address claimable indefinitely.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -70,15 +80,6 @@ public sealed class PasswordResetToken
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public DateTimeOffset? UsedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the address the reset was requested from, kept for auditing an unexpected reset.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    [MaxLength(45)]
-    public string? RequestedIpAddress { get; set; }
 
     /// <summary>
     /// Gets whether the token would still be accepted, which is unspent and not past its expiry.

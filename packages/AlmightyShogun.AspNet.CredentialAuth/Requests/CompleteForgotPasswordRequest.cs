@@ -1,9 +1,10 @@
-using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.RequestValidation;
 
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// Represents a request to complete a forgot-password flow.
+/// The second half of a forgot-password flow, exchanging a reset token for a new password. The token is spent on
+/// success, so the same one cannot set the password twice.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -11,17 +12,17 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 public class CompleteForgotPasswordRequest
 {
     /// <summary>
-    /// Gets or sets the password reset token.
+    /// Gets or sets the token from the reset email, in the form it was sent. Only its hash is stored, so it is matched by
+    /// hashing what arrives rather than by looking the value up.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     [Required]
-    [PasswordResetToken]
     public required string Token { get; set; }
 
     /// <summary>
-    /// Gets or sets the new password.
+    /// Gets or sets the replacement. Refused when it matches the password already in use.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -29,17 +30,15 @@ public class CompleteForgotPasswordRequest
     [Min(8)]
     [Required]
     [PasswordSecure]
-    [NotCurrentPassword]
     public required string NewPassword { get; set; }
 
     /// <summary>
-    /// Gets or sets the new password confirmation.
+    /// Gets or sets the repeat of the new password, refused when the two differ.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     [Min(8)]
     [Required]
-    [PasswordMatch]
     public required string ConfirmPassword { get; set; }
 }
