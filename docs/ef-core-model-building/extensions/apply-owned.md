@@ -1,35 +1,26 @@
 ---
 params:
     - name: navigation
-      description: The navigation to the owned value.
+      description: The property on the owner holding the owned value.
       type: 'Expression<Func<TEntity, TOwned?>>'
     - name: columnPrefix
-      description: Prefix applied to every owned column. Required when one entity owns two values of the same type, because their columns would otherwise collide.
-      type: string?
-      default: 'null'
+      description: The string put in front of every non-key column name, such as `"Billing"` giving `BillingStreet`. Required, because prefixing is the whole of what this adds over calling `OwnsOne` directly.
+      type: string
 
-returns: The same `ModelBuilder` instance.
+returns: The `ModelBuilder` instance with the owned type mapped.
 ---
 
 # ApplyOwned
 
 Configures a property as an owned type, stored in the owner's table rather than a separate one.
 
-Use it for a value that belongs to exactly one entity and has no identity of its own, such as an address, a money amount with its currency, or a date range. An entity holding two owned values of the same type needs `columnPrefix` on at least one of them, otherwise their columns collide.
+Use it for a value that belongs to exactly one entity and has no identity of its own, such as an address, a money amount with its currency, or a date range. Every non-key column is prefixed, which is what lets one entity own two values of the same type without their columns colliding. Call `OwnsOne` directly when no prefix is wanted.
 
 ## Usage
 
 ::: code-group
 
-```csharp [Single.cs]
-using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
-
-modelBuilder.ApplyOwned<Account, Address>(
-    account => account.BillingAddress
-);
-```
-
-```csharp [Two.cs]
+```csharp [AppDbContext.cs]
 using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyOwned<Account, Address>(
@@ -97,6 +88,6 @@ There is no `DbSet` for an owned type and it cannot be the root of a query. `dat
 ```csharp
 public ModelBuilder ApplyOwned<TEntity, TOwned>(
     Expression<Func<TEntity, TOwned?>> navigation,
-    string? columnPrefix = null
+    string columnPrefix
 ) where TEntity : class where TOwned : class;
 ```
