@@ -1,60 +1,62 @@
 ---
 params:
     - name: navigation
-      description: Collection navigation on the principal entity.
+      description: The collection property on the principal. Its element type decides which entity is expected to carry the foreign key, which is the one held in the collection rather than the one holding it.
       type: 'Expression<Func<TEntity, IEnumerable<TDependent>?>>'
+
     - name: foreignKey
-      description: Foreign key property on the dependent entity.
+      description: The property on the dependent holding the key. Its nullability is what decides whether a dependent may exist without a principal, and with it whether deleting the principal cascades or orphans the rows.
       type: 'Expression<Func<TDependent, object?>>'
-    - name: principalKey
-      description: Principal key property. When omitted, the principal's primary key is used.
-      type: 'Expression<Func<TEntity, object?>>?'
-      default: 'null'
-    - name: isRequired
-      description: Whether the relationship is required.
-      type: bool
-      default: 'false'
-    - name: deleteBehavior
-      description: What happens to the dependents when the principal is deleted.
-      type: DeleteBehavior
-      default: DeleteBehavior.ClientSetNull
+
     - name: inverseNavigation
-      description: Reference navigation on the dependent back to the principal.
+      description: The property on the dependent pointing back at its principal. Leave it unset when the dependent has none.
       type: 'Expression<Func<TDependent, TEntity?>>?'
       default: 'null'
 
-returns: The same `ModelBuilder` instance.
+    - name: principalKey
+      description: On the four-argument overload only, the property on the principal the foreign key targets. EF Core promotes it to an alternate key, so it needs a unique index of its own.
+      type: 'Expression<Func<TEntity, object?>>'
+
+returns: The `ModelBuilder` instance with the relationship configured.
 ---
 
 # ApplyOneToMany
 
-Configures a one-to-many relationship where `TEntity` is the principal holding a collection of `TDependent`.
+Configures a one-to-many relationship where `TEntity` holds a collection of `TDependent`.
 
-The defaults describe an optional relationship: the foreign key is nullable and is cleared when the principal is deleted. Pass `isRequired: true` with `DeleteBehavior.Cascade` when the dependents cannot exist without it.
+Requiredness and delete behavior are left to EF Core, which infers both from the foreign key property: a non-nullable key gives a required relationship whose dependents are deleted with the principal, a nullable one gives an optional relationship whose keys are cleared instead.
 
 ## Usage
 
 ::: code-group
 
-```csharp [Optional.cs]
-using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
-
-modelBuilder.ApplyOneToMany<Account, Order>(
-    account => account.Orders,
-    order => order.AccountId
-);
-```
-
 ```csharp [Required.cs]
-using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyOneToMany<Account, Order>(
     account => account.Orders,
     order => order.AccountId,
-    isRequired: true,
-    deleteBehavior: DeleteBehavior.Cascade
+    order => order.Account
+);
+```
+
+```csharp [Optional.cs]
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
+
+modelBuilder.ApplyOneToMany<Account, Badge>(
+    account => account.Badges,
+    badge => badge.AccountId
+);
+```
+
+```csharp [AlternateKey.cs]
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
+
+modelBuilder.ApplyOneToMany<Account, Ticket>(
+    account => account.Tickets,
+    ticket => ticket.AccountReference,
+    null,
+    account => account.Reference
 );
 ```
 
@@ -62,16 +64,36 @@ modelBuilder.ApplyOneToMany<Account, Order>(
 public sealed class Account
 {
     public int Id { get; set; }
+    public Guid Reference { get; set; }
     public List<Order> Orders { get; set; } = [];
+    public List<Badge> Badges { get; set; } = [];
+    public List<Ticket> Tickets { get; set; } = [];
 }
 
 public sealed class Order
 {
     public int Id { get; set; }
+    public int AccountId { get; set; }
+    public Account? Account { get; set; }
+}
+
+public sealed class Badge
+{
+    public int Id { get; set; }
     public int? AccountId { get; set; }
+}
+
+public sealed class Ticket
+{
+    public int Id { get; set; }
+    public Guid AccountReference { get; set; }
 }
 ```
 
+:::
+
+::: tip
+The four-argument overload is for an alternate principal key and takes `inverseNavigation` explicitly, passing `null` when there is none, so the two overloads stay distinguishable.
 :::
 
 <FrontmatterDocs/>
@@ -82,9 +104,13 @@ public sealed class Order
 public ModelBuilder ApplyOneToMany<TEntity, TDependent>(
     Expression<Func<TEntity, IEnumerable<TDependent>?>> navigation,
     Expression<Func<TDependent, object?>> foreignKey,
-    Expression<Func<TEntity, object?>>? principalKey = null,
-    bool isRequired = false,
-    DeleteBehavior deleteBehavior = DeleteBehavior.ClientSetNull,
     Expression<Func<TDependent, TEntity?>>? inverseNavigation = null
+) where TEntity : class where TDependent : class;
+
+public ModelBuilder ApplyOneToMany<TEntity, TDependent>(
+    Expression<Func<TEntity, IEnumerable<TDependent>?>> navigation,
+    Expression<Func<TDependent, object?>> foreignKey,
+    Expression<Func<TDependent, TEntity?>>? inverseNavigation,
+    Expression<Func<TEntity, object?>> principalKey
 ) where TEntity : class where TDependent : class;
 ```

@@ -34,9 +34,8 @@ public sealed class AppDbContext(
             order => order.AccountId
         );
         
-        modelBuilder.ApplyIndex<Account>(
-            account => account.Email,
-            isUnique: true
+        modelBuilder.ApplyUniqueIndex<Account>(
+            account => account.Email
         );
     }
 }
@@ -54,10 +53,9 @@ dotnet ef migrations add AddAccountEmailIndex
 
 The relational dependency means these helpers assume a relational provider: SQL Server, PostgreSQL, MySQL, MariaDB, SQLite, and equivalents.
 
-Three parameters carry provider-specific behavior:
+Two parameters carry provider-specific behavior:
 
-- `filter` on [`ApplyIndex`](./extensions/apply-index) is raw SQL, and identifier quoting differs per provider: `[Slug]` on SQL Server, `"Slug"` on PostgreSQL and SQLite, `` `Slug` `` on MySQL and MariaDB.
-- `databaseName` on [`ApplyIndex`](./extensions/apply-index) sets the physical index name and is subject to the provider's identifier length limit.
+- `filter` on [`ApplyUniqueIndex`](./extensions/apply-unique-index) is raw SQL, and identifier quoting differs per provider: `[Slug]` on SQL Server, `"Slug"` on PostgreSQL and SQLite, `` `Slug` `` on MySQL and MariaDB.
 - `columnPrefix` on [`ApplyOwned`](./extensions/apply-owned) renames physical columns.
 
-On a document provider such as Cosmos, those three have no effect and the relationship helpers do not apply.
+On a document provider such as Cosmos, those two have no effect and the relationship helpers do not apply.

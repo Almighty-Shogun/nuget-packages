@@ -1,66 +1,99 @@
 ---
 params:
     - name: navigation
-      description: Reference navigation on the dependent entity pointing to the principal.
+      description: The reference property on the dependent. Declaring it on the dependent is what puts the foreign key there, which is the difference between this and writing the same relationship from the collection side.
       type: 'Expression<Func<TDependent, TEntity?>>'
+
     - name: foreignKey
-      description: Foreign key property on the dependent entity.
+      description: The property on the dependent holding the key. Its nullability is what decides whether the reference is optional, so a nullable key is how a dependent is allowed to stand alone.
       type: 'Expression<Func<TDependent, object?>>'
-    - name: principalKey
-      description: Principal key property. When omitted, the principal's primary key is used.
-      type: 'Expression<Func<TEntity, object?>>?'
-      default: 'null'
-    - name: isRequired
-      description: Whether the relationship is required.
-      type: bool
-      default: 'false'
-    - name: deleteBehavior
-      description: What happens to the dependents when the principal is deleted.
-      type: DeleteBehavior
-      default: DeleteBehavior.ClientSetNull
+
     - name: inverseNavigation
-      description: Collection navigation on the principal containing the dependents.
+      description: The collection property on the principal. Leave it unset when the principal exposes no collection.
       type: 'Expression<Func<TEntity, IEnumerable<TDependent>?>>?'
       default: 'null'
 
-returns: The same `ModelBuilder` instance.
+    - name: principalKey
+      description: On the four-argument overload only, the property on the principal the foreign key targets. EF Core promotes it to an alternate key, so it needs a unique index of its own.
+      type: 'Expression<Func<TEntity, object?>>'
+
+returns: The `ModelBuilder` instance with the relationship configured.
 ---
 
 # ApplyManyToOne
 
-The same relationship as [`ApplyOneToMany`](./apply-one-to-many), configured from the dependent's side.
+Configures the same shape as [`ApplyOneToMany`](./apply-one-to-many), written from the dependent's side for a model where the reference reads better than the collection.
 
-Use it when the dependent holds the navigation and the principal does not, which is the usual shape for a lookup table: an `Order` points at a `Country`, and `Country` holds no collection of orders. Both helpers produce the same schema, so the choice is only about which side the navigation is written on.
+Requiredness and delete behavior are left to EF Core, which infers both from the foreign key property: a non-nullable key gives a required reference whose dependents are deleted with the principal, a nullable one gives an optional reference whose keys are cleared instead.
 
 ## Usage
 
 ::: code-group
 
-```csharp [AppDbContext.cs]
-using Microsoft.EntityFrameworkCore;
+```csharp [Required.cs]
 using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
-modelBuilder.ApplyManyToOne<Country, Order>(
-    order => order.Country,
-    order => order.CountryId
+modelBuilder.ApplyManyToOne<Account, Order>(
+    order => order.Account,
+    order => order.AccountId,
+    account => account.Orders
+);
+```
+
+```csharp [Optional.cs]
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
+
+modelBuilder.ApplyManyToOne<Account, Badge>(
+    badge => badge.Account,
+    badge => badge.AccountId
+);
+```
+
+```csharp [AlternateKey.cs]
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
+
+modelBuilder.ApplyManyToOne<Account, Ticket>(
+    ticket => ticket.Account,
+    ticket => ticket.AccountReference,
+    null,
+    account => account.Reference
 );
 ```
 
 ```csharp [Entities.cs]
-public sealed class Country
+public sealed class Account
 {
     public int Id { get; set; }
-    public required string Name { get; set; }
+    public Guid Reference { get; set; }
+    public List<Order> Orders { get; set; } = [];
 }
 
 public sealed class Order
 {
     public int Id { get; set; }
-    public int? CountryId { get; set; }
-    public Country? Country { get; set; }
+    public int AccountId { get; set; }
+    public Account? Account { get; set; }
+}
+
+public sealed class Badge
+{
+    public int Id { get; set; }
+    public int? AccountId { get; set; }
+    public Account? Account { get; set; }
+}
+
+public sealed class Ticket
+{
+    public int Id { get; set; }
+    public Guid AccountReference { get; set; }
+    public Account? Account { get; set; }
 }
 ```
 
+:::
+
+::: tip
+The four-argument overload is for an alternate principal key and takes `inverseNavigation` explicitly, passing `null` when there is none, so the two overloads stay distinguishable.
 :::
 
 <FrontmatterDocs/>
@@ -71,9 +104,13 @@ public sealed class Order
 public ModelBuilder ApplyManyToOne<TEntity, TDependent>(
     Expression<Func<TDependent, TEntity?>> navigation,
     Expression<Func<TDependent, object?>> foreignKey,
-    Expression<Func<TEntity, object?>>? principalKey = null,
-    bool isRequired = false,
-    DeleteBehavior deleteBehavior = DeleteBehavior.ClientSetNull,
     Expression<Func<TEntity, IEnumerable<TDependent>?>>? inverseNavigation = null
+) where TEntity : class where TDependent : class;
+
+public ModelBuilder ApplyManyToOne<TEntity, TDependent>(
+    Expression<Func<TDependent, TEntity?>> navigation,
+    Expression<Func<TDependent, object?>> foreignKey,
+    Expression<Func<TEntity, IEnumerable<TDependent>?>>? inverseNavigation,
+    Expression<Func<TEntity, object?>> principalKey
 ) where TEntity : class where TDependent : class;
 ```

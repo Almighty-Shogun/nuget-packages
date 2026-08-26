@@ -1,61 +1,37 @@
 ---
 params:
     - name: navigation
-      description: Collection navigation on `TEntity` to the related entities.
+      description: The collection property on `TEntity`, whose join column is named after that type.
       type: 'Expression<Func<TEntity, IEnumerable<TRelated>?>>'
-    - name: inverseNavigation
-      description: Collection navigation on `TRelated` back to the first entities.
-      type: 'Expression<Func<TRelated, IEnumerable<TEntity>?>>'
-    - name: joinTableName
-      description: The name of the join table.
-      type: string
-    - name: foreignKey
-      description: Join column pointing at `TEntity`. Defaults to `{TEntity}Id`, so an `Account` produces `AccountId`.
-      type: string?
-      default: 'null'
-    - name: relatedForeignKey
-      description: Join column pointing at `TRelated`. Defaults to `{TRelated}Id`, so a `Tag` produces `TagId`.
-      type: string?
-      default: 'null'
-    - name: deleteBehavior
-      description: Delete behavior for both sides of the join.
-      type: DeleteBehavior
-      default: DeleteBehavior.Cascade
 
-returns: The same `ModelBuilder` instance.
+    - name: inverseNavigation
+      description: The collection property on `TRelated`. Both sides are required, because a many-to-many with a navigation on one side only has no second collection for EF Core to pair the join rows with.
+      type: 'Expression<Func<TRelated, IEnumerable<TEntity>?>>'
+
+    - name: joinTableName
+      description: The table holding the pairs. Named explicitly because EF Core's generated name concatenates the two entity names, which reads poorly in a migration and changes if either type is renamed.
+      type: string
+
+returns: The `ModelBuilder` instance with the relationship and its join table configured.
 ---
 
 # ApplyManyToMany
 
-Configures a many-to-many relationship through an implicit join table with no extra columns.
+Configures a many-to-many relationship over an explicitly named join table, whose columns are named `{TypeName}Id` after the two entities, so an `Account` and a `Tag` give `AccountId` and `TagId`.
 
-The two navigations are supplied in the order the type parameters declare them, and the helper derives both join columns from that order. Map the join entity yourself when the link needs columns of its own, such as a timestamp or a role.
+Both join columns are non-nullable, so EF Core cascades from either side by convention and a join row disappears with whichever entity it referenced.
 
 ## Usage
 
 ::: code-group
 
 ```csharp [AppDbContext.cs]
-using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 modelBuilder.ApplyManyToMany<Account, Tag>(
     account => account.Tags,
     tag => tag.Accounts,
     "account_tags"
-);
-```
-
-```csharp [NamedColumns.cs]
-using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
-
-modelBuilder.ApplyManyToMany<Account, Tag>(
-    account => account.Tags,
-    tag => tag.Accounts,
-    "account_tags",
-    foreignKey: "account_id",
-    relatedForeignKey: "tag_id"
 );
 ```
 
@@ -77,7 +53,7 @@ public sealed class Tag
 :::
 
 ::: warning
-The join table cannot carry its own columns. A join that stores data of its own, such as an `EnrolledAt` timestamp, needs a real entity type; configure it with `UsingEntity<TJoin>` directly instead.
+The join table carries nothing but the two keys, and its column names are fixed by the convention above. A join that stores data of its own, such as an `EnrolledAt` timestamp, or one that needs different column names, is past what this hides: configure it with `UsingEntity` directly.
 :::
 
 <FrontmatterDocs/>
@@ -88,9 +64,6 @@ The join table cannot carry its own columns. A join that stores data of its own,
 public ModelBuilder ApplyManyToMany<TEntity, TRelated>(
     Expression<Func<TEntity, IEnumerable<TRelated>?>> navigation,
     Expression<Func<TRelated, IEnumerable<TEntity>?>> inverseNavigation,
-    string joinTableName,
-    string? foreignKey = null,
-    string? relatedForeignKey = null,
-    DeleteBehavior deleteBehavior = DeleteBehavior.Cascade
+    string joinTableName
 ) where TEntity : class where TRelated : class;
 ```

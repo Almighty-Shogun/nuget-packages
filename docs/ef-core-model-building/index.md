@@ -2,7 +2,7 @@
 
 Model configuration helpers for `ModelBuilder`, covering the shapes written on almost every model: relationships, indexes, owned types, enum storage, and eager loading.
 
-Each helper wraps a fluent-API sequence whose parameter order or default is easy to get wrong in a way the compiler accepts. Every one is called inside `OnModelCreating` and returns the `ModelBuilder`, so calls chain.
+Each helper collapses a fluent-API sequence into one call without overriding a convention: requiredness and delete behavior stay inferred from the foreign key's nullability. Every one is called inside `OnModelCreating` and returns the `ModelBuilder`, so calls chain.
 
 ## Categories
 
@@ -34,14 +34,12 @@ public sealed class AppDbContext(
             order => order.AccountId
         );
 
-        modelBuilder.ApplyIndex<Account>(
-            account => account.Email,
-            isUnique: true
+        modelBuilder.ApplyUniqueIndex<Account>(
+            account => account.Email
         );
-        
-        modelBuilder.ApplyIndex<Account>(
+
+        modelBuilder.ApplyUniqueIndex<Account>(
             account => account.Slug,
-            isUnique: true,
             filter: "[Slug] IS NOT NULL"
         );
         
