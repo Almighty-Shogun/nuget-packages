@@ -2,7 +2,7 @@ import type { DefaultTheme } from 'vitepress'
 
 export const aspNetLocalization: DefaultTheme.SidebarItem[] = [
     {
-        text: 'AspNet Localization',
+        text: 'ASP.NET Localization',
         items: [
             { text: 'Introduction', link: '/asp-net-localization/' },
             { text: 'Installation', link: '/asp-net-localization/installation' },

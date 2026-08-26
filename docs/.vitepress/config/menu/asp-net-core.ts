@@ -2,7 +2,7 @@ import type { DefaultTheme } from 'vitepress'
 
 export const aspNetCore: DefaultTheme.SidebarItem[] = [
     {
-        text: 'AspNet Core',
+        text: 'ASP.NET Core',
         items: [
             { text: 'Introduction', link: '/asp-net-core/' },
             { text: 'Installation', link: '/asp-net-core/installation' },
