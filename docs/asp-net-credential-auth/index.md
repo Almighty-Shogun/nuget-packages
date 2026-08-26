@@ -26,11 +26,14 @@ Application code depends on small service contracts rather than one aggregate, s
 using AlmightyShogun.AspNet.Core;
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Localization;
 using AlmightyShogun.AspNet.CredentialAuth;
 using AlmightyShogun.AspNet.RequestValidation;
 
 builder.Services
-    .AddHttpErrorResponses(builder.Configuration)
+    .AddMessageLocalization(builder.Configuration)
+    .AddHttpErrorResponseWriter()
+    .AddExceptionHandling()
     .AddJwtAuth(builder.Configuration)
     .AddAspNetValidation()
     .AddDbContext<AppDbContext>(options => ...)

@@ -20,10 +20,15 @@ Use this package when an API should accept JWT access tokens, store refresh toke
 ```csharp
 using AlmightyShogun.AspNet.Core;
 using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Localization;
 
 builder.Services
-    .AddHttpErrorResponses(builder.Configuration)
+    .AddMessageLocalization(builder.Configuration)
+    .AddHttpErrorResponseWriter()
+    .AddExceptionHandling()
     .AddJwtAuth(builder.Configuration);
+
+WebApplication app = builder.Build();
 
 app.UseHttpErrorResponses();
 ```
