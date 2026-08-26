@@ -1,4 +1,4 @@
-# AspNet Core
+# ASP.NET Core
 
 Provides the shared ASP.NET Core layer the other web packages build on: one standardized error response shape, exception mapping, request metadata capture, CORS setup, and forwarded-header configuration for a Cloudflare-proxied application.
 

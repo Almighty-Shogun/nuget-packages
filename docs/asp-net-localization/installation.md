@@ -1,6 +1,6 @@
 # Installation
 
-Install `AlmightyShogun.AspNet.Localization` in the ASP.NET Core application that serves localized text. The package targets `net10.0` and references the ASP.NET Core shared framework. `AlmightyShogun.AspNet.Utils` depends on it, so an application already using standardized error responses has it transitively.
+Install `AlmightyShogun.AspNet.Localization` in the ASP.NET Core application that serves localized text. The package targets `net10.0` and references the ASP.NET Core shared framework. `AlmightyShogun.AspNet.Core` depends on it, so an application already using standardized error responses has it transitively.
 
 ```sh
 dotnet add package AlmightyShogun.AspNet.Localization

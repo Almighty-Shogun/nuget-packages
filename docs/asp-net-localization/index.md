@@ -1,10 +1,10 @@
-# AspNet Localization
+# ASP.NET Localization
 
 Resolves human-readable messages in the language a request asks for. Message text lives in JSON files on disk rather than in resource assemblies, so a wording change is a file edit and a translator never needs the solution.
 
 Language negotiation reads `Accept-Language` and falls back to a configured default, so a caller that sends no preference still gets a complete message. The negotiated language is reported back on the response through `Content-Language`.
 
-Adopting it is one registration and, optionally, one middleware call. `AlmightyShogun.AspNet.Utils` depends on this package to localize the description on every error body, so an application using standardized error responses already has it.
+Adopting it is one registration and, optionally, one middleware call. `AlmightyShogun.AspNet.Core` depends on this package to localize the description on every error body, so an application using standardized error responses already has it.
 
 ## Categories
 

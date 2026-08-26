@@ -9,7 +9,7 @@ Adds the middleware that writes the `Content-Language` header from the language 
 ## Usage
 
 ```csharp
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 using AlmightyShogun.AspNet.Localization;
 
 WebApplication app = builder.Build();
@@ -19,7 +19,7 @@ app.UseHttpErrorResponses();
 ```
 
 ::: tip
-Place it before any middleware that writes a localized body, including [`UseHttpErrorResponses`](/asp-net-utils/extensions/use-http-error-responses), so the header is set on error responses too.
+Place it before any middleware that writes a localized body, including [`UseHttpErrorResponses`](/asp-net-core/extensions/use-http-error-responses), so the header is set on error responses too.
 :::
 
 <FrontmatterDocs/>
