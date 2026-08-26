@@ -150,7 +150,15 @@ Hard limits. A page that exceeds one is wrong, not a judgement call.
 
 **Callouts.** One per page, for the single thing that costs the reader something if they get it wrong. Two callouts means neither stands out. When a page seems to need two, one of them is either a fact for the frontmatter `params` description or prose for the description.
 
-**`## Usage` comes first.** On every page kind whose list includes it, `## Usage` is the first section on the page, directly after the description. A reader arrives wanting the call, not a preamble about overloads or arguments. Nothing earns a place above it: a behavior section goes after it, and everything else is a description, a callout, or a frontmatter entry.
+**`## Usage` comes first.** On every page that keeps one, `## Usage` is the first section, directly after the description. A reader arrives wanting the call, not a preamble about overloads or arguments. Nothing earns a place above it: a behavior section goes after it, and everything else is a description, a callout, or a frontmatter entry.
+
+**`## Usage` is dropped when the member sections already show it.** On a page whose `##` sections are its members and where each carries its own example, a usage block is a second rendering of what the page is about to show anyway. Delete it and let the first member section open the page. This is the normal shape for a service page: `AuthUserService` opens on `## LoginAsync`, not on a controller that calls `LoginAsync` and is then shown again underneath.
+
+Keep `## Usage` only when it shows something no member section does. `types/auth-db-context.md` keeps one because it shows the context and user entity being derived, which none of its `DbSet` sections cover. A page whose only example is its usage block, such as a request, result, or entity page, has no member sections to duplicate and always keeps it.
+
+**Removing it must not lose the receiver.** On a service page the usage block is often the only place the service appears being injected, while the member examples call an already-resolved variable. Fold that construction into the first member's example rather than dropping it, so the reader still sees where the receiver comes from; the later members stay short, focused calls.
+
+**Never leave a duplicate behind under another name.** Retitling the usage block `## Example`, `## Getting started`, or `## Overview` to keep it is the same duplication with a section name that is also forbidden.
 
 **No prose after the usage example.** The example is the last thing in `## Usage`. A trailing sentence explaining what the example just showed is the most common form of the clutter these rules exist to stop. Anything worth saying goes in the description, in the frontmatter, or in the one callout.
 
@@ -162,7 +170,7 @@ Hard limits. A page that exceeds one is wrong, not a judgement call.
 | `configuration.md` | the JSON shape, then at most one cross-cutting section, then `<FrontmatterDocs/>`, then `Usage` |
 | `installation.md` | `Dependencies`, then `Startup Registration` **or** `Usage`, then at most one install-specific section |
 | `extensions/*.md` | `Usage`, `Type signature`. An extension page may add one behavior section between them. |
-| `services/*.md`, `types/*.md`, `utilities/*.md`, `handlers/*.md`, `records/*.md`, `attributes/*.md`, `constants/*.md` | `Usage`, then one `##` per public member |
+| `services/*.md`, `types/*.md`, `utilities/*.md`, `handlers/*.md`, `records/*.md`, `attributes/*.md`, `constants/*.md` | one `##` per public member, preceded by `Usage` only when it shows something no member section does |
 | `validation-rules/*.md` | one `##` per rule |
 | package guide pages | free, but every other rule still applies |
 
@@ -563,6 +571,8 @@ After documentation changes:
    - descriptions longer than three sentences;
    - pages with more than one callout;
    - prose after the last code block in `## Usage`;
+   - a `## Usage` on a page whose member sections already show the same calls, or one retitled to `## Example` or `## Getting started` to survive that rule;
+   - a member example calling a service through a variable the page never shows being injected;
    - sections not on the page kind's list in Page Budgets;
    - `registered by AddX` on a page outside `extensions/`;
    - an `IExceptionHandler` documented under `types/` instead of `handlers/`;
