@@ -1,28 +1,30 @@
 # Monorepo
 
-This repository contains the `AlmightyShogun.*` NuGet packages and the VitePress documentation site that describes them. The package source lives under `packages/`, the documentation lives under `docs/`, and `packages.sln` is the solution used to build every package together.
+This repository contains the `AlmightyShogun.*` NuGet packages and the VitePress documentation site that describes them. Package source lives under `packages/`, documentation under `docs/`, and `packages.sln` is the solution that builds every package together.
 
 ```text
 nuget-packages/
     packages/
+        AlmightyShogun.AspNet.Core/
         AlmightyShogun.AspNet.CredentialAuth/
         AlmightyShogun.AspNet.JwtAuth/
-        AlmightyShogun.AspNet.Maintenance/
-        AlmightyShogun.AspNet.Utils/
-        AlmightyShogun.AspNet.Validation/
+        AlmightyShogun.AspNet.Localization/
+        AlmightyShogun.AspNet.MaintenanceMode/
+        AlmightyShogun.AspNet.RequestValidation/
         AlmightyShogun.ConsoleCommands/
-        AlmightyShogun.EntityFrameworkCore.Utils/
-        AlmightyShogun.Hangfire.Utils/
-        AlmightyShogun.Hosting.Utils/
-        AlmightyShogun.Logging/
+        AlmightyShogun.Core/
+        AlmightyShogun.EntityFrameworkCore.ModelBuilding/
+        AlmightyShogun.Hangfire.RecurringJobs/
+        AlmightyShogun.Hosting.ConsoleLifetime/
+        AlmightyShogun.Mail.Resend/
         AlmightyShogun.RemoteCommands/
-        AlmightyShogun.Resend.Utils/
-        AlmightyShogun.Utils/
+        AlmightyShogun.Serilog/
     docs/
         .vitepress/
         guide/
         index.md
     .github/workflows/release.yml
+    Directory.Packages.props
     package.json
     packages.sln
     wrangler.toml
@@ -30,50 +32,62 @@ nuget-packages/
 
 ## Package groups
 
-The packages are small on purpose. Each one owns a specific application concern and can be installed independently when an application only needs that concern.
+The packages are small on purpose. Each owns one application concern and can be installed on its own when an application needs only that concern.
 
-- ASP.NET packages cover authentication, login, request helpers, validation, and maintenance mode.
-- Operations packages cover console commands, recurring Hangfire jobs, hosting helpers, logging, and remote command handling.
-- Data and messaging packages cover Entity Framework Core model-building helpers and Resend email helpers.
-- Core utilities provide shared configuration, dependency-injection, JSON, reflection, and console helpers used by other packages.
+- ASP.NET packages cover the shared web layer, authentication, credential login, localization, request validation, and maintenance mode.
+- Operations packages cover console commands, recurring Hangfire jobs, host lifetime behavior, remote command handling, and logging.
+- Data packages cover Entity Framework Core model building and Resend email.
+- `AlmightyShogun.Core` provides the shared configuration, dependency-injection, JSON, and reflection helpers the others build on.
 
 ## Package dependencies
 
-Project references are kept explicit in each `.csproj`. The arrows below point from a package to the internal packages it depends on.
+Project references are explicit in each `.csproj`. The arrows point from a package to the packages in this repository it depends on.
 
 ```text
+AlmightyShogun.AspNet.Core
+    -> AlmightyShogun.AspNet.Localization
+
 AlmightyShogun.AspNet.CredentialAuth
+    -> AlmightyShogun.Core
+    -> AlmightyShogun.AspNet.Core
     -> AlmightyShogun.AspNet.JwtAuth
-    -> AlmightyShogun.AspNet.Utils
-    -> AlmightyShogun.AspNet.Validation
+    -> AlmightyShogun.AspNet.Localization
+    -> AlmightyShogun.AspNet.RequestValidation
 
 AlmightyShogun.AspNet.JwtAuth
-    -> AlmightyShogun.AspNet.Utils
-    -> AlmightyShogun.Utils
+    -> AlmightyShogun.Core
+    -> AlmightyShogun.AspNet.Core
+    -> AlmightyShogun.AspNet.Localization
 
-AlmightyShogun.AspNet.Maintenance
-    -> AlmightyShogun.Utils
+AlmightyShogun.AspNet.Localization
+    -> AlmightyShogun.Core
 
-AlmightyShogun.AspNet.Validation
-    -> AlmightyShogun.AspNet.Utils
+AlmightyShogun.AspNet.MaintenanceMode
+    -> AlmightyShogun.Core
+    -> AlmightyShogun.AspNet.Core
+    -> AlmightyShogun.AspNet.Localization
+
+AlmightyShogun.AspNet.RequestValidation
+    -> AlmightyShogun.AspNet.Core
+    -> AlmightyShogun.AspNet.Localization
 
 AlmightyShogun.ConsoleCommands
-    -> AlmightyShogun.Logging
-    -> AlmightyShogun.Utils
+    -> AlmightyShogun.Core
 
-AlmightyShogun.Hangfire.Utils
-    -> AlmightyShogun.Utils
+AlmightyShogun.Hangfire.RecurringJobs
+    -> AlmightyShogun.Core
+
+AlmightyShogun.Hosting.ConsoleLifetime
+    -> AlmightyShogun.Core
+
+AlmightyShogun.Mail.Resend
+    -> AlmightyShogun.Core
 
 AlmightyShogun.RemoteCommands
-    -> AlmightyShogun.Logging
-    -> AlmightyShogun.Utils
-
-AlmightyShogun.Resend.Utils
-    -> AlmightyShogun.Logging
-    -> AlmightyShogun.Utils
+    -> AlmightyShogun.Core
 ```
 
-Packages not listed in that map either depend only on framework/package references or are the base packages other projects reference.
+`AlmightyShogun.Core`, `AlmightyShogun.EntityFrameworkCore.ModelBuilding`, and `AlmightyShogun.Serilog` reference no other package here; they depend only on framework and NuGet references.
 
 ## Building
 
@@ -83,17 +97,17 @@ Build the full package solution from the repository root:
 dotnet build packages.sln
 ```
 
-Build one package when you are only working inside that package:
+Build one package when working inside it:
 
 ```sh
-dotnet build packages/AlmightyShogun.Utils/AlmightyShogun.Utils.csproj
+dotnet build packages/AlmightyShogun.Core/AlmightyShogun.Core.csproj
 ```
 
-The release workflow builds and packs packages in dependency order before publishing them to NuGet. Local development should build and validate, but publishing is handled by GitHub Actions.
+NuGet package versions are declared centrally in `Directory.Packages.props`, so a `.csproj` lists a `PackageReference` without a version. The release workflow builds and packs in dependency order before publishing to NuGet; local work should build and validate, never publish.
 
 ## Documentation
 
-The documentation site is a Bun workspace under `docs/`. Install dependencies from the repository root and run the docs scripts through the root package scripts. The root `wrangler.toml` contains the Cloudflare deployment configuration used by the release workflow.
+The documentation site is a Bun workspace under `docs/`. Install dependencies from the repository root and run the docs scripts through the root package scripts. The root `wrangler.toml` holds the Cloudflare deployment configuration the release workflow uses.
 
 ```sh
 bun install
@@ -105,4 +119,4 @@ Package documentation lives directly under `docs/{package-slug}/`. For example, 
 
 ## Versioning
 
-Packages are versioned together. A GitHub release tag becomes the package version used by CI when it builds, packs, and publishes every package. New XML documentation added during normal development uses `<since>Unreleased</since>` until the release process replaces it with the release version.
+Packages are versioned together. A GitHub release tag becomes the package version CI uses when it builds, packs, and publishes every package. New XML documentation added during normal development uses `<since>Unreleased</since>` until the release process replaces it with the release version.

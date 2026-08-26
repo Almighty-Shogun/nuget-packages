@@ -18,63 +18,73 @@ hero:
             link: /guide/
 
 features:
-    -   title: ASP.NET Credential Auth
-        details: Password login, refresh sessions, and reset tokens.
-        link: /asp-net-credential-auth/
+    -   title: ASP.NET Core
+        details: One standardized error response, exception mapping, request metadata, and CORS.
+        link: /asp-net-core/
         linkText: View package
 
     -   title: ASP.NET JWT Auth
-        details: JWT auth, refresh-token cookies, and permission policies.
+        details: Bearer authentication, refresh-token cookies, and permission policies.
         link: /asp-net-jwt-auth/
         linkText: View package
 
-    -   title: ASP.NET Maintenance
-        details: File-backed maintenance mode for ASP.NET Core.
-        link: /asp-net-maintenance/
+    -   title: ASP.NET Localization
+        details: Request messages resolved from JSON files in the caller's language.
+        link: /asp-net-localization/
         linkText: View package
 
-    -   title: ASP.NET Utils
-        details: Request helpers, CORS setup, and HTTP error responses.
-        link: /asp-net-utils/
+    -   title: ASP.NET Maintenance Mode
+        details: File-backed maintenance windows that survive a restart.
+        link: /asp-net-maintenance-mode/
+        linkText: View package
+
+    -   title: ASP.NET Request Validation
+        details: Attribute and fluent request rules, reported together as one response.
+        link: /asp-net-request-validation/
+        linkText: View package
+
+    -   title: ASP.NET Credential Auth
+        details: Password login, refresh sessions, reset tokens, lockout, and two-factor.
+        link: /asp-net-credential-auth/
         linkText: View package
 
     -   title: Console Commands
-        details: Attribute-based commands for DI console applications.
+        details: Attribute-discovered command classes dispatched from an input loop.
         link: /console-commands/
         linkText: View package
 
-    -   title: Entity Framework Core Utils
-        details: ModelBuilder helpers for relationships and indexes.
-        link: /ef-core-utils/
+    -   title: Hangfire Recurring Jobs
+        details: Hangfire setup with schedules declared on the job class.
+        link: /hangfire-recurring-jobs/
         linkText: View package
 
-    -   title: Hangfire Utils
-        details: Hangfire setup and attributed recurring-job discovery.
-        link: /hangfire-utils/
-        linkText: View package
-
-    -   title: Hosting Utils
-        details: Hosting extensions for custom console lifetime behavior and host option configuration.
-        link: /hosting-utils/
-        linkText: View package
-
-    -   title: Logging
-        details: Serilog setup with a compact console formatter.
-        link: /logging/
+    -   title: Hosting Console Lifetime
+        details: A host that survives an accidental interrupt but still stops for an orchestrator.
+        link: /hosting-console-lifetime/
         linkText: View package
 
     -   title: Remote Commands
-        details: TCP command handling with JSON payload dispatch.
+        details: Length-prefixed JSON over TCP, dispatched to typed handlers.
         link: /remote-commands/
         linkText: View package
 
-    -   title: Resend Utils
-        details: Resend email sending with reusable templates.
-        link: /resend-utils/
+    -   title: Serilog
+        details: Serilog setup with a console formatter that colors by level and property.
+        link: /serilog/
         linkText: View package
 
-    -   title: Utils
-        details: Shared helpers for setup, JSON, and DI patterns.
-        link: /utils/
+    -   title: EF Core Model Building
+        details: ModelBuilder helpers for relationships, indexes, owned types, and enums.
+        link: /ef-core-model-building/
+        linkText: View package
+
+    -   title: Mail Resend
+        details: Resend sending with reusable HTML and plain-text templates.
+        link: /mail-resend/
+        linkText: View package
+
+    -   title: Core
+        details: Assembly scanning, options binding, JSON helpers, and console utilities.
+        link: /core/
         linkText: View package
 ---

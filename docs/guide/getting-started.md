@@ -5,16 +5,15 @@ This guide shows how to install one or more `AlmightyShogun.*` packages and use 
 ## Prerequisites
 
 - .NET 10 SDK.
-- ASP.NET Core when using `AlmightyShogun.AspNet.*` packages.
-- Entity Framework Core when using `AlmightyShogun.EntityFrameworkCore.Utils`.
-- Entity Framework Core when using `AlmightyShogun.AspNet.CredentialAuth`.
-- Hangfire when using `AlmightyShogun.Hangfire.Utils`.
-- Resend account and API key when using `AlmightyShogun.Resend.Utils`.
+- ASP.NET Core when using any `AlmightyShogun.AspNet.*` package.
+- Entity Framework Core when using `AlmightyShogun.EntityFrameworkCore.ModelBuilding` or `AlmightyShogun.AspNet.CredentialAuth`.
+- Hangfire when using `AlmightyShogun.Hangfire.RecurringJobs`.
+- A Resend account and API key when using `AlmightyShogun.Mail.Resend`.
 - Application configuration from `appsettings.json` when a package reads options through `builder.Configuration`.
 
 ## Install your first package
 
-Most ASP.NET Core APIs can start with `AlmightyShogun.AspNet.JwtAuth`. It registers JWT bearer authentication, permission authorization, refresh-token cookie helpers, and host-to-application audience validation.
+Most ASP.NET Core APIs start with `AlmightyShogun.AspNet.JwtAuth`. It registers JWT bearer authentication, permission authorization, refresh-token cookie helpers, and host-to-application audience validation.
 
 ```sh
 dotnet add package AlmightyShogun.AspNet.JwtAuth
@@ -30,24 +29,34 @@ The package expects an `Auth` section in `appsettings.json`. See the [ASP.NET JW
 
 ## Common ASP.NET setup
 
-An ASP.NET Core API usually combines authentication with request helpers. Use `AlmightyShogun.AspNet.JwtAuth` for authentication and `AlmightyShogun.AspNet.Utils` for CORS, MVC filters, session context, cookie helpers, and User-Agent parsing.
+`AlmightyShogun.AspNet.Core` is the layer the other web packages build on. It owns the one error body every package writes, and that body carries a localized description, so `AlmightyShogun.AspNet.Localization` is registered alongside it.
 
 ```sh
+dotnet add package AlmightyShogun.AspNet.Core
+dotnet add package AlmightyShogun.AspNet.Localization
 dotnet add package AlmightyShogun.AspNet.JwtAuth
-dotnet add package AlmightyShogun.AspNet.Utils
 ```
 
 ```csharp
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Localization;
 
 builder.Services
-    .AddJwtAuth(builder.Configuration)
-    .AddActionFilters()
-    .AddAllowedOrigins("DefaultCors", builder.Configuration);
+    .AddMessageLocalization(builder.Configuration)
+    .AddHttpErrorResponseWriter()
+    .AddExceptionHandling()
+    .AddHttpErrorResponseFilter()
+    .AddCorsPolicy("DefaultCors", builder.Configuration)
+    .AddJwtAuth(builder.Configuration);
+
+WebApplication app = builder.Build();
+
+app.UseHttpErrorResponses();
+app.UseMessageLocalization();
 ```
 
-Controllers can then use attributes and helpers from the installed packages:
+Controllers can then use the attributes and helpers from the installed packages:
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
@@ -63,35 +72,55 @@ public sealed class AdminUsersController : ControllerBase
 }
 ```
 
+## Request validation
+
+`AlmightyShogun.AspNet.RequestValidation` validates request models through attributes, fluent rules, or both, and reports every failure in one `422` response.
+
+```sh
+dotnet add package AlmightyShogun.AspNet.RequestValidation
+```
+
+```csharp
+using AlmightyShogun.AspNet.RequestValidation;
+
+builder.Services.AddAspNetValidation();
+
+WebApplication app = builder.Build();
+
+app.UseAspNetValidation();
+```
+
 ## Credential login
 
-Use `AlmightyShogun.AspNet.CredentialAuth` when the API owns username/email password accounts. It builds on ASP.NET JWT Auth for access tokens, ASP.NET Utils for request metadata and HTTP errors, ASP.NET Validation for request validation, and Entity Framework Core for user/session storage.
+Use `AlmightyShogun.AspNet.CredentialAuth` when the API owns username and password accounts. It builds on ASP.NET JWT Auth for access tokens, ASP.NET Core for request metadata and error responses, ASP.NET Request Validation for the request models, and Entity Framework Core for storage.
 
 ```sh
 dotnet add package AlmightyShogun.AspNet.CredentialAuth
 ```
 
 ```csharp
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.JwtAuth;
-using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.Localization;
 using AlmightyShogun.AspNet.CredentialAuth;
+using AlmightyShogun.AspNet.RequestValidation;
 
 builder.Services
-    .AddHttpErrorResponses(builder.Configuration)
+    .AddMessageLocalization(builder.Configuration)
+    .AddHttpErrorResponseWriter()
+    .AddExceptionHandling()
     .AddJwtAuth(builder.Configuration)
     .AddAspNetValidation()
-    .AddDbContext<AppDbContext>(options =>
-        options.UseSqlite(builder.Configuration.GetConnectionString("Database")))
-    .AddCredentialAuth<AppDbContext, AppUser>();
+    .AddDbContext<AppDbContext>(options => ...)
+    .AddCredentialAuth<AppDbContext, AppUser>(builder.Configuration);
 ```
 
-Application code derives its auth context from [`AuthDbContext<TUser>`](/asp-net-credential-auth/types/auth-db-context) and user entity from [`AuthUser`](/asp-net-credential-auth/types/auth-user). Use [`IAuthUserService<TUser>`](/asp-net-credential-auth/services/auth-user-service) for login and registration, [`IAuthSessionService<TUser>`](/asp-net-credential-auth/services/auth-session-service) for refresh-token rotation, and [`IAuthPasswordService`](/asp-net-credential-auth/services/auth-password-service) for password changes and password reset flows.
+Application code derives its context from [`AuthDbContext<TUser>`](/asp-net-credential-auth/types/auth-db-context) and its user entity from [`AuthUser`](/asp-net-credential-auth/types/auth-user). Use [`IAuthUserService<TUser>`](/asp-net-credential-auth/services/auth-user-service) for login and registration, [`IAuthSessionService<TUser>`](/asp-net-credential-auth/services/auth-session-service) for refresh-token rotation, [`IAuthPasswordService`](/asp-net-credential-auth/services/auth-password-service) for password changes and resets, and [`IAuthTwoFactorService<TUser>`](/asp-net-credential-auth/services/auth-two-factor-service) for two-factor enrolment.
 
 ## Console commands
 
-Use `AlmightyShogun.ConsoleCommands` when a hosted console application should discover command classes from application assemblies and execute them from an input loop.
+Use `AlmightyShogun.ConsoleCommands` when a hosted console application should discover command classes from its own assemblies and run them from an input loop.
 
 ```sh
 dotnet add package AlmightyShogun.ConsoleCommands
@@ -102,17 +131,16 @@ using AlmightyShogun.ConsoleCommands;
 
 builder.Services
     .AddConsoleCommands()
-    .RegisterConsoleCommands(typeof(Program).Assembly);
+    .RegisterConsoleCommands();
 ```
 
-Commands are public classes that derive from [`ConsoleCommandBase`](/console-commands/types/console-command-base), add [`ConsoleCommandAttribute`](/console-commands/attributes/console-command-attribute) to the class, and expose exactly one public `ExecuteAsync` method returning `Task`.
+A command is a public class carrying [`ConsoleCommandAttribute`](/console-commands/attributes/console-command-attribute), inheriting [`ConsoleCommandBase`](/console-commands/types/console-command-base), and exposing exactly one public `ExecuteAsync` returning `Task`. The base takes no constructor arguments, so a command needing nothing declares no constructor at all.
 
 ```csharp
-using Microsoft.Extensions.Logging;
 using AlmightyShogun.ConsoleCommands;
 
 [ConsoleCommand("ping", "Writes a pong response.")]
-public sealed class PingCommand(ILogger<ConsoleCommandBase> logger) : ConsoleCommandBase(logger)
+public sealed class PingCommand : ConsoleCommandBase
 {
     public Task ExecuteAsync()
     {
@@ -125,22 +153,23 @@ public sealed class PingCommand(ILogger<ConsoleCommandBase> logger) : ConsoleCom
 
 ## Entity Framework Core
 
-Use `AlmightyShogun.EntityFrameworkCore.Utils` when repeated relationship, navigation, or index configuration starts to make `OnModelCreating` noisy. The package adds chainable extension methods to `ModelBuilder` for common one-to-one, one-to-many, many-to-one, auto-include, and index configuration.
+Use `AlmightyShogun.EntityFrameworkCore.ModelBuilding` when repeated relationship, index, or owned-type configuration starts to make `OnModelCreating` noisy. Every helper returns the `ModelBuilder`, so calls chain.
 
 ```sh
-dotnet add package AlmightyShogun.EntityFrameworkCore.Utils
+dotnet add package AlmightyShogun.EntityFrameworkCore.ModelBuilding
 ```
 
 ::: code-group
 
 ```csharp [AppDbContext.cs]
 using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.EntityFrameworkCore.Utils;
+using AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public sealed class AppDbContext(
+    DbContextOptions<AppDbContext> options
+) : DbContext(options)
 {
     public DbSet<User> Users => Set<User>();
-
     public DbSet<UserSession> Sessions => Set<UserSession>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -160,16 +189,13 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 public sealed class User
 {
     public int Id { get; set; }
-
     public List<UserSession> Sessions { get; set; } = [];
 }
 
 public sealed class UserSession
 {
     public int Id { get; set; }
-
     public int UserId { get; set; }
-
     public User? User { get; set; }
 }
 ```
@@ -178,24 +204,23 @@ public sealed class UserSession
 
 ## Hangfire jobs
 
-Use `AlmightyShogun.Hangfire.Utils` when recurring jobs should be discovered from attributes instead of registered one by one in startup code.
+Use `AlmightyShogun.Hangfire.RecurringJobs` when a job's schedule should live on the job class instead of being repeated in startup code.
 
 ```sh
-dotnet add package AlmightyShogun.Hangfire.Utils
+dotnet add package AlmightyShogun.Hangfire.RecurringJobs
 ```
 
 ```csharp
-using AlmightyShogun.Hangfire.Utils;
-using Microsoft.Extensions.DependencyInjection;
+using AlmightyShogun.Hangfire.RecurringJobs;
 
 builder.Services
-    .AddHangfire()
-    .RegisterRecurringJobs(typeof(Program).Assembly);
+    .AddCustomHangfire()
+    .RegisterRecurringJobs(builder.Configuration);
 ```
 
 ## Remote commands
 
-Use `AlmightyShogun.RemoteCommands` when an application should listen for length-prefixed JSON command payloads over TCP and dispatch them to typed command handlers discovered from assemblies.
+Use `AlmightyShogun.RemoteCommands` when an application should listen for length-prefixed JSON payloads over TCP and dispatch them to typed handlers.
 
 ```sh
 dotnet add package AlmightyShogun.RemoteCommands
@@ -206,19 +231,33 @@ using AlmightyShogun.RemoteCommands;
 
 builder.Services
     .AddRemoteCommands(builder.Configuration)
-    .RegisterRemoteCommands(typeof(Program).Assembly);
+    .RegisterRemoteCommands();
+```
+
+## Logging
+
+Use `AlmightyShogun.Serilog` for Serilog registration with a console formatter that colors output by level and by property. Configuration is optional.
+
+```sh
+dotnet add package AlmightyShogun.Serilog
+```
+
+```csharp
+using AlmightyShogun.Serilog;
+
+builder.Services.AddCustomLogging(builder.Configuration);
 ```
 
 ## Email
 
-Use `AlmightyShogun.Resend.Utils` when an application sends reusable HTML and plain-text email templates through Resend.
+Use `AlmightyShogun.Mail.Resend` when an application sends reusable HTML and plain-text templates through Resend.
 
 ```sh
-dotnet add package AlmightyShogun.Resend.Utils
+dotnet add package AlmightyShogun.Mail.Resend
 ```
 
 ```csharp
-using AlmightyShogun.Resend.Utils;
+using AlmightyShogun.Mail.Resend;
 
 builder.Services.AddResendEmail(builder.Configuration);
 ```
