@@ -1,9 +1,10 @@
-using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.RequestValidation;
 
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// Represents a public registration request for a new credential user.
+/// A public sign-up. Deliberately carries no role or permissions, so a client cannot grant itself authorization; use
+/// <see cref="CreateUserRequest"/> where the caller is trusted to assign them.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -11,28 +12,26 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 public class RegisterRequest
 {
     /// <summary>
-    /// Gets or sets the unique username.
+    /// Gets or sets the username to claim. Refused when another account already holds it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     [Required]
-    [UniqueUsername]
     public required string Username { get; set; }
 
     /// <summary>
-    /// Gets or sets the unique email address.
+    /// Gets or sets the email address to claim. Refused when another account already holds it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     [Email]
     [Required]
-    [UniqueEmail]
     public required string Email { get; set; }
 
     /// <summary>
-    /// Gets or sets the plain-text password.
+    /// Gets or sets the chosen password, hashed before it is stored and never persisted as given.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

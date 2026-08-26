@@ -1,8 +1,21 @@
+---
+fields:
+    - name: CurrentPassword
+      description: The password in force now. A wrong value raises `InvalidCredentialsException`, the same failure a wrong login password produces.
+      type: string
+
+    - name: NewPassword
+      description: The replacement, at least 8 characters and subject to the `[PasswordSecure]` rule. Raises `PasswordReusedException` when it verifies against the password already stored.
+      type: string
+
+    - name: ConfirmPassword
+      description: The new password typed again. Compared by the service, not during validation, so a mismatch arrives as `PasswordMismatchException`.
+      type: string
+---
+
 # ChangePasswordRequest
 
-Represents a password-change request for an already authenticated user. The current password is validated against the current user, the new password must satisfy the secure password rule, and the confirmation password must match the new password.
-
-Use this DTO with [`IAuthPasswordService.ChangePasswordAsync`](../services/auth-password-service#changepasswordasync). `CurrentPassword` is validated by [`CurrentPassword`](../attributes/current-password-attribute), and `NewPassword` uses [`NotCurrentPassword`](../attributes/not-current-password-attribute), so password-change requests cannot reuse the currently stored password. The service still checks that the target user exists before saving the new password.
+What [`ChangePasswordAsync`](../services/auth-password-service#changepasswordasync) takes from a signed-in user. Validation checks shape and strength only; the three password comparisons are made by the service against the stored hash.
 
 ## Usage
 
@@ -16,23 +29,20 @@ public sealed class ChangePasswordController(IAuthPasswordService passwords) : C
     [RequireRefreshToken]
     public async Task<IActionResult> Change(ChangePasswordRequest request)
     {
-        int userId = User.GetCurrentUserId();
+        Guid identifier = User.GetCurrentUserId();
         string refreshToken = Request.GetRefreshTokenCookie();
 
-        await passwords.ChangePasswordAsync(userId, request, refreshToken);
+        await passwords.ChangePasswordAsync(identifier, request, refreshToken);
 
         return NoContent();
     }
 }
 ```
 
+<FrontmatterDocs/>
+
 ## Type signature
 
 ```csharp
-public class ChangePasswordRequest
-{
-    public required string CurrentPassword { get; set; }
-    public required string NewPassword { get; set; }
-    public required string ConfirmPassword { get; set; }
-}
+public class ChangePasswordRequest;
 ```

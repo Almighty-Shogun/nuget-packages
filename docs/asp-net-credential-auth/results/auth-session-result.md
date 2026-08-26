@@ -1,8 +1,21 @@
+---
+fields:
+    - name: AccessToken
+      description: The signed JWT to return to the client. Its lifetime comes from `AccessTokenMinutes` in the JWT package's configuration.
+      type: string
+
+    - name: RefreshToken
+      description: The refresh token in plain text, the only copy that will ever exist; only its hash is stored. Put it in the refresh-token cookie rather than the response body.
+      type: string
+
+    - name: User
+      description: The authenticated user, tracked by the context. `Password` and `Sessions` are ignored during JSON serialization, so returning it directly leaks neither.
+      type: TUser
+---
+
 # AuthSessionResult
 
-Represents the result returned by credential flows that create or refresh an authenticated session. [`LoginAsync`](../services/auth-user-service#loginasync), [`RegisterAsync`](../services/auth-user-service#registerasync), and [`RefreshSessionAsync`](../services/auth-session-service#refreshsessionasync) all return this model.
-
-The result contains the authenticated user, a JWT access token, and a refresh token. API endpoints usually return the user and access token in the response body and store the refresh token through [`SetRefreshTokenCookie`](/asp-net-jwt-auth/extensions/set-refresh-token-cookie).
+What every flow that establishes a session returns: [`LoginAsync`](../services/auth-user-service#loginasync), [`RegisterAsync`](../services/auth-user-service#registerasync), and [`RefreshSessionAsync`](../services/auth-session-service#refreshsessionasync).
 
 ## Usage
 
@@ -11,7 +24,7 @@ using Microsoft.AspNetCore.Mvc;
 using AlmightyShogun.AspNet.JwtAuth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
-public sealed class SessionResultController : ControllerBase
+public sealed class SessionResponseController : ControllerBase
 {
     public ActionResult<object> CreateResponse(AuthSessionResult<AppUser> result)
     {
@@ -26,13 +39,10 @@ public sealed class SessionResultController : ControllerBase
 }
 ```
 
+<FrontmatterDocs/>
+
 ## Type signature
 
 ```csharp
-public sealed class AuthSessionResult<TUser> where TUser : AuthUser
-{
-    public required string AccessToken { get; init; }
-    public required string RefreshToken { get; init; }
-    public required TUser User { get; init; }
-}
+public sealed class AuthSessionResult<TUser> where TUser : AuthUser;
 ```

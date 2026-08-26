@@ -1,8 +1,13 @@
+---
+fields:
+    - name: Email
+      description: The address to send a reset link to, checked for a valid shape by `[Email]`. An address matching no account is not an error, so the response cannot be used to test which addresses are registered.
+      type: string
+---
+
 # ForgotPasswordRequest
 
-Represents the first step of a forgot-password flow. The request contains the email address that should receive a password reset token when a matching credential user exists.
-
-Use this DTO with [`IAuthPasswordService.RequestForgotPasswordAsync`](../services/auth-password-service#requestforgotpasswordasync). The returned token is plain text and should be sent through application-owned mail logic; Credential Auth stores only the token hash.
+What [`RequestForgotPasswordAsync`](../services/auth-password-service#requestforgotpasswordasync) takes to start a reset. It returns the token in plain text for the application to email, or `null` when nothing matched.
 
 ## Usage
 
@@ -19,9 +24,10 @@ public sealed class ForgotPasswordController(
     public async Task<IActionResult> Start(ForgotPasswordRequest request)
     {
         string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-        string token = await passwords.RequestForgotPasswordAsync(request, ipAddress);
+        string? token = await passwords.RequestForgotPasswordAsync(request, ipAddress);
 
-        await mailer.SendAsync(request.Email, token);
+        if (token is not null)
+            await mailer.SendAsync(request.Email, token);
 
         return NoContent();
     }
@@ -37,11 +43,10 @@ public interface IPasswordResetMailer
 
 :::
 
+<FrontmatterDocs/>
+
 ## Type signature
 
 ```csharp
-public class ForgotPasswordRequest
-{
-    public required string Email { get; set; }
-}
+public class ForgotPasswordRequest;
 ```

@@ -1,29 +1,38 @@
 ---
-returns: The `IServiceCollection` instance with credential authentication services configured.
+params:
+    - name: configuration
+      description: The application configuration the optional `CredentialAuth` section is bound from. Pass `builder.Configuration`.
+      type: IConfiguration
+
+    - name: registerExceptionHandler
+      description: Whether to add the handler that turns the package's exceptions into standardized HTTP errors. Pass `false` to answer them with a handler of your own; the mapper stays registered either way.
+      type: bool
+      default: 'true'
+
+returns: The `IServiceCollection` instance with the credential authentication services registered.
 ---
 
 # AddCredentialAuth
 
-Registers the services used by ASP.NET Credential Auth for a specific EF Core authentication context and user entity. The method maps the application DbContext to [`AuthDbContext<TUser>`](../types/auth-db-context), registers the internal implementation behind the public service contracts, and registers the credential-specific validation rules used by the package attributes.
+Registers [`IAuthUserService<TUser>`](../services/auth-user-service), [`IAuthSessionService<TUser>`](../services/auth-session-service), [`IAuthPasswordService`](../services/auth-password-service), [`IAuthTokenService<TUser>`](../services/auth-token-service), and [`IAuthTwoFactorService<TUser>`](../services/auth-two-factor-service) as scoped services, alongside an [`AuthDbContext<TUser>`](../types/auth-db-context) resolving to the same `TDbContext` the request already holds, so a credential write joins whatever transaction the application has open.
 
-Call this method after [`AddJwtAuth`](/asp-net-jwt-auth/extensions/add-jwt-auth) because credential auth reads [`AuthSettings`](/asp-net-jwt-auth/configuration/auth-settings), resolves the current app through [`IAppHostResolver`](/asp-net-jwt-auth/services/app-host-resolver), and creates JWT access tokens with the same issuer, secret, lifetime, and app audience rules.
+Call it after [`AddJwtAuth`](/asp-net-jwt-auth/extensions/add-jwt-auth). Credential flows read [`AuthSettings`](/asp-net-jwt-auth/configuration), resolve the current application through [`IAppHostResolver`](/asp-net-jwt-auth/services/app-host-resolver), and mint access tokens through the JWT package's generator, so the same issuer, secret, lifetime, and audience rules apply to both.
 
 ## Usage
 
 ```csharp
-using AlmightyShogun.AspNet.Utils;
+using AlmightyShogun.AspNet.Core;
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.JwtAuth;
-using AlmightyShogun.AspNet.Validation;
 using AlmightyShogun.AspNet.CredentialAuth;
+using AlmightyShogun.AspNet.RequestValidation;
 
 builder.Services
     .AddHttpErrorResponses(builder.Configuration)
     .AddJwtAuth(builder.Configuration)
     .AddAspNetValidation()
-    .AddDbContext<AppDbContext>(options =>
-        options.UseSqlite(builder.Configuration.GetConnectionString("Database")))
-    .AddCredentialAuth<AppDbContext, AppUser>();
+    .AddDbContext<AppDbContext>(options => ...)
+    .AddCredentialAuth<AppDbContext, AppUser>(builder.Configuration);
 ```
 
 <FrontmatterDocs/>
@@ -31,7 +40,8 @@ builder.Services
 ## Type signature
 
 ```csharp
-public IServiceCollection AddCredentialAuth<TDbContext, TUser>()
-    where TDbContext : AuthDbContext<TUser>
-    where TUser : AuthUser;
+public IServiceCollection AddCredentialAuth<TDbContext, TUser>(
+    IConfiguration configuration,
+    bool registerExceptionHandler = true
+) where TDbContext : AuthDbContext<TUser> where TUser : AuthUser;
 ```

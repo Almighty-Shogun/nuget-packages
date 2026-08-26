@@ -1,8 +1,45 @@
+---
+fields:
+    - name: Id
+      description: The surrogate key. Never leaves the server; the emailed token is the only handle a caller has on this row.
+      type: int
+
+    - name: UserId
+      description: The user the reset was issued for. Cascades with the user.
+      type: int
+
+    - name: TokenHash
+      description: Hash of the token that was emailed, uniquely indexed. The emailed value cannot be recovered from the database.
+      type: string
+
+    - name: CreatedAt
+      description: When the reset was requested. Kept after the token is spent, so a burst of requests against one account stays visible.
+      type: DateTimeOffset
+
+    - name: ExpiresAt
+      description: When the token stops being usable, set at issue from `PasswordResetMinutes`.
+      type: DateTimeOffset
+
+    - name: UsedAt
+      description: When the token was spent, or null while it is still usable. Set instead of deleting the row, so a second attempt reads as a replay.
+      type: DateTimeOffset?
+      default: 'null'
+
+    - name: RequestedIpAddress
+      description: The address the reset was requested from, when the caller passed one. Kept for auditing a reset the account owner did not ask for.
+      type: string?
+      default: 'null'
+
+    - name: IsActive
+      description: Whether the token would still be accepted, meaning unspent and not past its expiry. Computed, not mapped, so it cannot be used in a query.
+      type: bool
+---
+
 # PasswordResetToken
 
-Represents a stored password reset token issued for a credential user. The package stores only the SHA-256 token hash, so the plain reset token is available only when [`RequestForgotPasswordAsync`](../services/auth-password-service#requestforgotpasswordasync) returns it.
+One issued password reset. Rows are kept after use rather than deleted, so presenting a spent token is recognised as a replay instead of looking like a token that never existed.
 
-Use this entity for audit views, cleanup jobs, or administrative diagnostics. Normal password reset flows should go through [`IAuthPasswordService`](../services/auth-password-service), which creates, validates, marks, and invalidates reset tokens consistently.
+Normal flows go through [`IAuthPasswordService`](../services/auth-password-service), which issues, redeems, and invalidates these consistently. Read the entity directly for audit views and cleanup jobs.
 
 ## Usage
 
@@ -12,31 +49,15 @@ using AlmightyShogun.AspNet.CredentialAuth;
 
 public sealed class PasswordResetCleanup(AppDbContext database)
 {
-    public async Task DeleteExpiredAsync()
+    public async Task DeleteSpentAsync()
     {
-        List<PasswordResetToken> expiredTokens = await database.PasswordResetTokens
-            .Where(token => !token.IsActive)
-            .ToListAsync();
+        DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        database.PasswordResetTokens.RemoveRange(expiredTokens);
-        await database.SaveChangesAsync();
+        await database.PasswordResetTokens
+            .Where(token => token.UsedAt != null || token.ExpiresAt <= now)
+            .ExecuteDeleteAsync();
     }
 }
 ```
 
-## Type signature
-
-```csharp
-[Table("password_reset_tokens")]
-public sealed class PasswordResetToken
-{
-    public int Id { get; set; }
-    public int UserId { get; set; }
-    public string TokenHash { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime ExpiresAt { get; set; }
-    public DateTime? UsedAt { get; set; }
-    public string? RequestedIpAddress { get; set; }
-    public bool IsActive { get; }
-}
-```
+<FrontmatterDocs/>

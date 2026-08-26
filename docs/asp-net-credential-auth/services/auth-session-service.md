@@ -1,58 +1,56 @@
 # AuthSessionService
 
-Refreshes and revokes credential-auth sessions. Application code should depend on `IAuthSessionService<TUser>`; [`AddCredentialAuth`](../extensions/add-credential-auth) registers the package implementation.
+Creates, refreshes, and revokes the refresh-token sessions behind a signed-in user. Application code depends on `IAuthSessionService<TUser>`; only the hash of a refresh token is ever stored, so the value returned to the caller is the only copy.
 
-The service reads request metadata through [ASP.NET Utils](/asp-net-utils/records/session-context), updates browser, device, IP address, User-Agent, and last-active values on the stored [`UserSession`](../types/user-session), and rejects revoked, expired, unknown, or wrong-app refresh tokens. Refresh tokens are hashed before storage; only the generated token returned to the caller is plain text.
+Refreshing rotates the token and records the one it replaced. Presenting a token that was already rotated away, outside a 30-second grace for a retried request, is treated as theft: every session belonging to that user is revoked.
 
-## Usage
+## CreateSessionAsync
+
+Issues a refresh token for a user and stores the session it belongs to, recording the IP address, User-Agent, and the browser, OS, and device parsed from it. Sessions already past their expiry for that user are deleted in the same call, so the table does not accumulate dead rows.
+
+[`LoginAsync`](./auth-user-service#loginasync) and [`RegisterAsync`](./auth-user-service#registerasync) already call this. Call it directly only for a sign-in path this package does not own, such as an SSO callback that has established the user some other way.
 
 ```csharp
-using Microsoft.AspNetCore.Mvc;
+using AlmightyShogun.AspNet.Core;
 using AlmightyShogun.AspNet.JwtAuth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
-[ApiController]
-[Route("auth/session")]
-public sealed class AuthSessionController(IAuthSessionService<AppUser> sessions) : ControllerBase
+public sealed class SsoSignInService(
+    IAppHostResolver appHostResolver,
+    IAuthSessionService<AppUser> sessions)
 {
-    [HttpPost("refresh")]
-    [RequireRefreshToken]
-    public async Task<ActionResult<AuthSessionResult<AppUser>>> Refresh()
-    {
-        string refreshToken = Request.GetRefreshTokenCookie();
-        AuthSessionResult<AppUser> result = await sessions.RefreshSessionAsync(refreshToken, HttpContext);
-
-        Response.SetRefreshTokenCookie(result.RefreshToken, 30);
-
-        return Ok(result);
-    }
-
-    [HttpPost("logout")]
-    [RequireRefreshToken]
-    public async Task<IActionResult> Logout()
-    {
-        string refreshToken = Request.GetRefreshTokenCookie();
-
-        await sessions.RevokeSessionAsync(refreshToken);
-        Response.DeleteAuthCookies();
-
-        return NoContent();
-    }
+    public Task<string> SignInAsync(AppUser user, HttpContext httpContext)
+        => sessions.CreateSessionAsync(
+                user,
+                appHostResolver.Resolve(),
+                httpContext.GetSessionContext()
+            );
 }
+```
+
+### Type signature
+
+```csharp
+public Task<string> CreateSessionAsync(
+    TUser user,
+    string? app,
+    SessionContext context
+);
 ```
 
 ## RefreshSessionAsync
 
-Finds the active session for the submitted refresh token, verifies it belongs to the current app scope when app scoping is enabled, rotates the refresh token, extends the session lifetime using [`AuthSettings.RefreshTokenDays`](/asp-net-jwt-auth/configuration/auth-settings), and returns a new [`AuthSessionResult<TUser>`](../results/auth-session-result).
+Matches the submitted token against a live session, rotates it, refreshes the recorded request metadata, and returns a new access token. The new expiry is capped by [`AbsoluteSessionLifetimeDays`](../configuration), so refreshing extends a session but cannot keep it alive forever.
 
-The method throws [`HttpErrorException`](/asp-net-utils/types/http-error-exception) with status code `401 Unauthorized` when the refresh token is unknown, expired, revoked, or scoped to a different app.
+Throws [`InvalidSessionException`](../exceptions) when the token matches no usable session, whether unknown, expired, revoked, or scoped to a different application. A disabled or locked-out account is refused with [`AccountDisabledException`](../exceptions) or [`AccountLockedException`](../exceptions), so deactivating a user takes effect on their next refresh rather than at the end of their access token.
 
 ```csharp
 using AlmightyShogun.AspNet.JwtAuth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
 string refreshToken = httpContext.Request.GetRefreshTokenCookie();
-AuthSessionResult<AppUser> result = await sessions.RefreshSessionAsync(refreshToken, httpContext);
+AuthSessionResult<AppUser> result = await sessions
+    .RefreshSessionAsync(refreshToken, httpContext);
 ```
 
 ### Type signature
@@ -66,9 +64,9 @@ public Task<AuthSessionResult<TUser>> RefreshSessionAsync(
 
 ## RevokeSessionAsync
 
-Revokes the active session that matches the submitted refresh token. Use this method for logout endpoints so the application does not compare the browser cookie against the hashed refresh token stored in [`UserSession`](../types/user-session).
+Revokes the one session the token belongs to, leaving the user's other sessions alone. This is what a logout endpoint calls before deleting the cookie.
 
-The method does nothing when the token is unknown, expired, or already revoked. That keeps logout idempotent: deleting the browser cookie can still succeed even when the stored session is already gone.
+An unknown, expired, or already revoked token is not an error and nothing is written, which keeps logout idempotent: clearing the browser cookie still succeeds when the stored session is already gone.
 
 ```csharp
 using AlmightyShogun.AspNet.JwtAuth;

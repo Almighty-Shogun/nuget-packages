@@ -1,10 +1,14 @@
 # AuthTokenService
 
-Generates JWT access tokens for credential users. Application code should depend on `IAuthTokenService<TUser>` when it needs to create a token from a custom flow that does not use [`IAuthUserService<TUser>`](./auth-user-service).
+Builds the claim set for a user and returns a signed access token carrying it. Application code depends on `IAuthTokenService<TUser>` only for a flow this package does not own; [`LoginAsync`](./auth-user-service#loginasync), [`RegisterAsync`](./auth-user-service#registerasync), and [`RefreshSessionAsync`](./auth-session-service#refreshsessionasync) already issue one.
 
-The service uses [`AuthSettings.Issuer`](/asp-net-jwt-auth/configuration/auth-settings), [`AuthSettings.Secret`](/asp-net-jwt-auth/configuration/auth-settings), and [`AuthSettings.Hours`](/asp-net-jwt-auth/configuration/auth-settings) from [ASP.NET JWT Auth](/asp-net-jwt-auth/). It writes `userId`, `ClaimTypes.NameIdentifier`, `username`, role, and permission claims into the token. When no app value is provided, permission claims can be plain values such as `users.read`. When an app value is provided, permission claims are limited to permissions prefixed with that app name, such as `api:users.read`.
+Signing, issuer, audience, and expiry come from [ASP.NET JWT Auth](/asp-net-jwt-auth/configuration). This service decides only what the token says.
 
-## Usage
+## GenerateToken
+
+Writes the user's public identifier as both `userId` and `ClaimTypes.NameIdentifier`, the username, the role, and one permission claim per entry in `Permissions`. It creates no session and no refresh token, so a token minted here cannot be refreshed and simply expires.
+
+`app` decides which permissions travel. With a value, only permissions prefixed `app:` are included and the prefix is stripped, so a user holding `api:users.read` receives `users.read` in a token for `api`. With `null`, every stored permission is included verbatim.
 
 ```csharp
 using AlmightyShogun.AspNet.JwtAuth;
@@ -12,29 +16,12 @@ using AlmightyShogun.AspNet.CredentialAuth;
 
 public sealed class ImpersonationService(
     IAppHostResolver appHostResolver,
-    IAuthTokenService<AppUser> tokens)
+    IAuthTokenService<AppUser> tokens
+)
 {
     public string CreateToken(AppUser user)
-    {
-        string? app = appHostResolver.Resolve();
-
-        return tokens.GenerateToken(user, app);
-    }
+        => tokens.GenerateToken(user, appHostResolver.Resolve());
 }
-```
-
-## GenerateToken
-
-Creates a signed JWT access token for the supplied user. Pass an app value when the token should be scoped to a specific audience. Pass `null` only when app scoping is disabled or when the calling flow intentionally wants all user permissions included.
-
-The method does not create or update a refresh-token session. Use [`LoginAsync`](./auth-user-service#loginasync), [`RegisterAsync`](./auth-user-service#registerasync), or [`RefreshSessionAsync`](./auth-session-service#refreshsessionasync) when the flow should also manage refresh sessions.
-
-Permission claims keep their stored value. Protect routes with the same value you store on the user: `[AuthPermission("users.read")]` for single-host APIs, or `[AuthPermission("api:users.read")]` when host/app scoping uses app-prefixed permissions.
-
-```csharp
-using AlmightyShogun.AspNet.CredentialAuth;
-
-string accessToken = tokens.GenerateToken(user, "api");
 ```
 
 ### Type signature

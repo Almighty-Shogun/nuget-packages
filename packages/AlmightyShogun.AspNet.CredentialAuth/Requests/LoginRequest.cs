@@ -1,9 +1,10 @@
-using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.RequestValidation;
 
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// Represents a login request using a username or email address and password.
+/// A sign-in by username or email address. The two are accepted in one field because a user rarely remembers which they
+/// registered with.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -11,22 +12,21 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 public record LoginRequest
 {
     /// <summary>
-    /// Gets or sets the username or email address.
+    /// Gets or sets the username or email address, matched against both. An unknown value fails exactly as a wrong password
+    /// does, so neither reveals whether the account exists.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     [Required]
-    [LoginIdentifierExists]
     public required string Identifier { get; set; }
 
     /// <summary>
-    /// Gets or sets the plain-text password.
+    /// Gets or sets the submitted password, verified against the stored hash.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     [Required]
-    [CurrentPassword]
     public required string Password { get; set; }
 }

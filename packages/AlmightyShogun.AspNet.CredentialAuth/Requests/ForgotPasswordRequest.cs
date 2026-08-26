@@ -1,9 +1,10 @@
-using AlmightyShogun.AspNet.Validation;
+using AlmightyShogun.AspNet.RequestValidation;
 
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// Represents a request to start a forgot-password flow.
+/// The first half of a forgot-password flow. The service answers the same way whether or not the address is registered,
+/// so the response cannot be used to discover which addresses have accounts.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -11,7 +12,8 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 public class ForgotPasswordRequest
 {
     /// <summary>
-    /// Gets or sets the email address for the password reset request.
+    /// Gets or sets the address a reset link should go to. An address matching no account is not an error, so nothing
+    /// in the response reveals whether it is registered.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

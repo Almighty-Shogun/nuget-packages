@@ -1,41 +1,61 @@
+---
+fields:
+    - name: Username
+      description: The account name to claim. Refused with `UsernameTakenException` when another account already holds it.
+      type: string
+
+    - name: Password
+      description: The initial password, at least 8 characters and subject to the `[PasswordSecure]` rule. Hashed before the row is written and never stored as given.
+      type: string
+
+    - name: Email
+      description: The address to claim, checked for a valid shape by `[Email]`. Refused with `EmailTakenException` when another account already holds it.
+      type: string
+
+    - name: Role
+      description: The role the new account gets, written into its access token as a role claim.
+      type: string
+      default: User
+
+    - name: Permissions
+      description: The permissions the new account gets, one token claim each. Prefix them per application, as in `api:users.read`, only when routes are scoped that way.
+      type: 'string[]'
+      default: '[]'
+---
+
 # CreateUserRequest
 
-Represents the reusable credential fields needed to create a user from an administrative or trusted flow: username, email, plain-text password, role, and permission names. The package does not include profile-specific fields such as display name; add those in an application request and map them onto your own [`AuthUser`](../types/auth-user) subclass.
+Everything an administrator supplies to create an account, including the role and permissions a user must never set for themselves. Public sign-up uses [`RegisterRequest`](./register-request) instead.
 
-Use this DTO for admin user creation forms, imports, or other flows where the caller is allowed to assign roles and permissions. Public registration endpoints should use [`RegisterRequest`](./register-request), because clients should not submit their own authorization values. The username and email fields include uniqueness validation, and the password field uses the secure password rule from [ASP.NET Validation](/asp-net-validation/validation-rules/passwords).
+::: warning
+Never bind this model on a route a normal user can reach. `Role` and `Permissions` become claims in the created account's own token, so exposing it publicly lets a caller grant themselves anything.
+:::
 
 ## Usage
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using AlmightyShogun.AspNet.CredentialAuth;
 
+[Authorize(Roles = "Admin")]
 public sealed class AdminUsersController(IAuthUserService<AppUser> authUsers) : ControllerBase
 {
     public Task<AppUser> Create(CreateUserRequest request)
-    {
-        AppUser user = new()
+        => authUsers.CreateUserAsync(new AppUser
         {
             Role = request.Role,
             Email = request.Email,
             Username = request.Username,
             Permissions = request.Permissions
-        };
-
-        return authUsers.CreateUserAsync(user, request.Password);
-    }
+        }, request.Password);
 }
 ```
+
+<FrontmatterDocs/>
 
 ## Type signature
 
 ```csharp
-public class CreateUserRequest
-{
-    public required string Username { get; set; }
-    public required string Password { get; set; }
-    public required string Email { get; set; }
-    public string Role { get; set; } = "User";
-    public string[] Permissions { get; set; } = [];
-}
+public class CreateUserRequest;
 ```
