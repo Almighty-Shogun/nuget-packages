@@ -130,8 +130,11 @@ public abstract class BaseMailTemplate
     /// <returns>The rendered plain-text body, trimmed of the trailing blank lines the footer would otherwise leave.</returns>
     ///
     /// <remarks>
-    /// Nothing is encoded here and <see cref="AdditionalValues"/> is not applied, because there is no markup to escape and no
-    /// placeholder to fill. A template relying on an additional value for its wording therefore renders it only in the HTML.
+    /// Nothing is encoded here, because there is no markup to escape. <see cref="AdditionalValues"/> is still not applied, so
+    /// a template relying on an additional value for its wording renders it only in the HTML.
+    ///
+    /// The configurable footer text goes through the same resolution the HTML body applies, so <c>{app_name}</c> and
+    /// <c>{app_url}</c> read the same in both bodies rather than reaching the reader unsubstituted here.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -156,7 +159,7 @@ public abstract class BaseMailTemplate
 
         return text.AppendLine(ResolveTemplateValue(settings.Template.CopyrightTextTemplate, settings))
             .AppendLine(ResolveTemplateValue(settings.Template.FooterLinkText, settings))
-            .AppendLine(settings.Template.IgnoreText)
+            .AppendLine(ResolveTemplateValue(settings.Template.IgnoreText, settings))
             .ToString()
             .Trim();
     }
