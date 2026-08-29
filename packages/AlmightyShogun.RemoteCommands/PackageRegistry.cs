@@ -48,8 +48,9 @@ public static class PackageRegistry
         public IServiceCollection RegisterRemoteCommands() => serviceCollection.RegisterRemoteCommands([Assembly.GetCallingAssembly()]);
 
         /// <summary>
-        /// Registers the command classes declared in the given assemblies as transient services, so a fresh instance is
-        /// built per request and a command may depend on scoped application services.
+        /// Registers the command classes declared in the given assemblies as transient services under their own concrete
+        /// type, alongside a descriptor naming each one, so a fresh instance is built per request from a fresh scope and a
+        /// command may depend on scoped application services.
         /// </summary>
         ///
         /// <param name="assemblies">
@@ -59,15 +60,40 @@ public static class PackageRegistry
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the remote commands registered.</returns>
         ///
+        /// <exception cref="InvalidOperationException">
+        /// A discovered command class carries no <see cref="RemoteCommandAttribute"/> and so declares no name to be
+        /// reachable by. Raised here rather than when the listener is resolved, because the name is what a descriptor is
+        /// built from.
+        /// </exception>
+        ///
         /// <remarks>
-        /// Every discovered command class is registered, including one that is malformed. The resulting
-        /// <see cref="InvalidOperationException"/> from <see cref="RemoteCommand{T}"/> then surfaces when the listener is
-        /// resolved, which names the offending class rather than silently leaving its command name unreachable.
+        /// Commands are registered under their concrete type rather than under the command interface, because the listener
+        /// resolves one by type from a per-request scope instead of enumerating them all. A class carrying
+        /// <see cref="SkipAutoRegistrationAttribute"/> is skipped, and a name claimed twice is reported when the dispatch
+        /// table is built rather than here.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.2.0</since>
         public IServiceCollection RegisterRemoteCommands(Assembly[] assemblies)
-            => serviceCollection.RegisterOnInherit<IRemoteCommand>(assemblies, ServiceLifetime.Transient);
+        {
+            serviceCollection.RegisterOnInherit<IRemoteCommand>(assemblies, ServiceLifetime.Transient, false);
+
+            IEnumerable<Type> commandTypes = TypeDiscovery
+                .FindAssignableTypes<IRemoteCommand>(assemblies)
+                .Where(type => !type.IsDefined(typeof(SkipAutoRegistrationAttribute), false));
+
+            foreach (Type commandType in commandTypes)
+            {
+                var attribute = commandType.GetCustomAttribute<RemoteCommandAttribute>();
+
+                if (attribute is null)
+                    throw new InvalidOperationException($"Command {commandType.Name} must have {nameof(RemoteCommandAttribute)}.");
+                
+                serviceCollection.AddSingleton(new RemoteCommandDescriptor(attribute.Name, commandType));
+            }
+
+            return serviceCollection;
+        }
     }
 }
