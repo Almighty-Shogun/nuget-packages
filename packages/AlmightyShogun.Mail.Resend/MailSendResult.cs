@@ -5,20 +5,61 @@ namespace AlmightyShogun.Mail.Resend;
 /// in a loop does not have to wrap each message.
 /// </summary>
 ///
-/// <param name="IsSuccess">
-/// Whether Resend accepted the message. Acceptance is not delivery, which is reported later by a webhook.
-/// </param>
-/// <param name="MessageId">
-/// The Resend id, for correlating with a webhook or the dashboard, and <c>null</c> whenever the send failed.
-/// </param>
-/// <param name="Error">
-/// The provider or transport failure message, and <c>null</c> whenever the send succeeded. It is not localized.
-/// </param>
+/// <remarks>
+/// Only <see cref="Success"/> and <see cref="Failure"/> construct one, both of which are internal, so the two states cannot
+/// be mixed into a combination the package never produces, such as a success carrying an error. A caller reads the result
+/// and never builds one.
+/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public sealed record MailSendResult(bool IsSuccess, string? MessageId, string? Error)
+public sealed record MailSendResult
 {
+    /// <summary>
+    /// Initializes the outcome. Private so the two factories stay the only way to produce one, which is what keeps the
+    /// combinations of the three values to the two the package actually returns.
+    /// </summary>
+    ///
+    /// <param name="isSuccess">Whether Resend accepted the message.</param>
+    /// <param name="messageId">The Resend id, or <c>null</c> when the send failed.</param>
+    /// <param name="error">The failure message, or <c>null</c> when the send succeeded.</param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private MailSendResult(bool isSuccess, string? messageId, string? error)
+    {
+        IsSuccess = isSuccess;
+        MessageId = messageId;
+        Error = error;
+    }
+
+    /// <summary>
+    /// Gets whether Resend accepted the message. Acceptance is not delivery, which is reported later by a webhook, so a
+    /// <c>true</c> here means the provider took responsibility for the message and nothing more.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public bool IsSuccess { get; }
+
+    /// <summary>
+    /// Gets the Resend id, for correlating with a webhook or the dashboard. Always <c>null</c> when the send failed, and it
+    /// can also be absent on success when the response carried none.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public string? MessageId { get; }
+
+    /// <summary>
+    /// Gets the provider or transport failure message, and <c>null</c> whenever the send succeeded. It is not localized and
+    /// comes from the provider, so it is for logs and diagnostics rather than for showing to a user.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public string? Error { get; }
+
     /// <summary>
     /// Creates the accepted outcome.
     /// </summary>
