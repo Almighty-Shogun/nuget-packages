@@ -153,7 +153,7 @@ public sealed class PingCommand : ConsoleCommandBase
 
 ## Entity Framework Core
 
-Use `AlmightyShogun.EntityFrameworkCore.ModelBuilding` when repeated relationship, index, or owned-type configuration starts to make `OnModelCreating` noisy. Every helper returns the `ModelBuilder`, so calls chain.
+Use `AlmightyShogun.EntityFrameworkCore.ModelBuilding` when repeated relationship or index configuration starts to make `OnModelCreating` noisy. Every helper returns the `ModelBuilder`, so calls chain.
 
 ```sh
 dotnet add package AlmightyShogun.EntityFrameworkCore.ModelBuilding

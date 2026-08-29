@@ -23,7 +23,7 @@ The repository is intentionally practical. Packages are small, .NET-first, depen
 
 ## Data
 
-- [EF Core Model Building](/ef-core-model-building/) &mdash; `ModelBuilder` helpers for the shapes written on almost every model: relationships, indexes, owned types, enum storage, and eager loading.
+- [EF Core Model Building](/ef-core-model-building/) &mdash; `ModelBuilder` helpers for the shapes written on almost every model: relationships, indexes, enum storage, and eager loading.
 - [Mail Resend](/mail-resend/) &mdash; Resend sending through a typed contract, with reusable HTML and plain-text templates that share one layout.
 
 ## Utils
