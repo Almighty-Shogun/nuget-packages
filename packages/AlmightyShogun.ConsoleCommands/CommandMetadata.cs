@@ -48,6 +48,14 @@ internal static class CommandMetadata
             return false;
         }
 
+        if (!IsInvocableName(declaredAttribute.Name))
+        {
+            error = $"{commandType.Name} declares the command name '{declaredAttribute.Name}', which cannot be typed at the "
+                    + "prompt. A name must not be blank and must contain no whitespace, because input is split on spaces.";
+
+            return false;
+        }
+
         MethodInfo[] handlerMethods =
         [
             .. commandType
@@ -75,4 +83,21 @@ internal static class CommandMetadata
 
         return true;
     }
+
+    /// <summary>
+    /// Checks whether a declared name is one a user could actually type and the dispatcher could actually match.
+    /// </summary>
+    ///
+    /// <param name="name">The name from the class attribute, or from an alias.</param>
+    ///
+    /// <returns><c>true</c> when the name is non-blank and free of whitespace; otherwise <c>false</c>.</returns>
+    ///
+    /// <remarks>
+    /// Input is split on spaces before the first token is looked up, so a name containing one can never be matched however
+    /// it is typed. Rejecting it here is what stops such a command registering and then never responding.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal static bool IsInvocableName(string name) => !string.IsNullOrWhiteSpace(name) && !name.Any(char.IsWhiteSpace);
 }
