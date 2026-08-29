@@ -30,7 +30,7 @@ jobs:
                 run: |
                     cd packages
                     
-                    dotnet build AlmightyShogun.Core/AlmightyShogun.Core.csproj --configuration Release
+                    dotnet build AlmightyShogun.Utils/AlmightyShogun.Utils.csproj --configuration Release
                     dotnet build AlmightyShogun.AspNet.Localization/AlmightyShogun.AspNet.Localization.csproj --configuration Release
                     dotnet build AlmightyShogun.AspNet.Core/AlmightyShogun.AspNet.Core.csproj --configuration Release
                     dotnet build AlmightyShogun.Serilog/AlmightyShogun.Serilog.csproj --configuration Release
@@ -49,7 +49,7 @@ jobs:
                 run: |
                     cd packages
                     
-                    dotnet pack AlmightyShogun.Core/AlmightyShogun.Core.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.Utils/AlmightyShogun.Utils.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.AspNet.Localization/AlmightyShogun.AspNet.Localization.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.AspNet.Core/AlmightyShogun.AspNet.Core.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.Serilog/AlmightyShogun.Serilog.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
