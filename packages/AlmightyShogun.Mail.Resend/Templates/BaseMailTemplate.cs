@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using System.Collections.Frozen;
 
 namespace AlmightyShogun.Mail.Resend;
 
@@ -64,11 +65,14 @@ public abstract class BaseMailTemplate
     ///
     /// <remarks>
     /// Override this to add template fields without changing the package or introducing a template engine.
+    ///
+    /// The default is the shared empty <see cref="FrozenDictionary{TKey,TValue}"/> rather than a new dictionary, because this
+    /// is read on every render and a template that adds no fields should allocate nothing to say so.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    protected virtual IReadOnlyDictionary<string, string> AdditionalValues => new Dictionary<string, string>();
+    protected virtual IReadOnlyDictionary<string, string> AdditionalValues => FrozenDictionary<string, string>.Empty;
 
     /// <summary>
     /// Assembles the HTML body from the shared fragments, filling the chrome from settings and the content from this
@@ -168,7 +172,7 @@ public abstract class BaseMailTemplate
     /// Substitutes the <c>{app_name}</c> and <c>{app_url}</c> placeholders shared by the configurable footer text.
     /// </summary>
     ///
-    /// <param name="value">The configured text, which may contain neither, either, or both placeholders.</param>
+    /// <param name="value">The configured text, which may contain neither, either, nor both placeholders.</param>
     /// <param name="settings">The bound settings the replacements are read from.</param>
     ///
     /// <returns>The text with both placeholders substituted, an unset URL becoming an empty string.</returns>
