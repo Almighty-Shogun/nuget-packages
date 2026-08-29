@@ -1,7 +1,7 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AlmightyShogun.Core;
+namespace AlmightyShogun.Utils;
 
 /// <summary>
 /// Excludes a type from the assembly scanning performed by

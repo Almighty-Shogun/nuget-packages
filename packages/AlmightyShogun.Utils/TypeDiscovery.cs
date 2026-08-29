@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace AlmightyShogun.Core;
+namespace AlmightyShogun.Utils;
 
 /// <summary>
 /// Finds concrete implementations across assemblies by reflection, which is what the registration helpers in this package

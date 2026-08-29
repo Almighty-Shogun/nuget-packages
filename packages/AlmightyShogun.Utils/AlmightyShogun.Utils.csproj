@@ -6,8 +6,8 @@
         <TargetFramework>net10.0</TargetFramework>
 
         <Authors>Almighty-Shogun</Authors>
-        <PackageId>AlmightyShogun.Core</PackageId>
-        <RootNamespace>AlmightyShogun.Core</RootNamespace>
+        <PackageId>AlmightyShogun.Utils</PackageId>
+        <RootNamespace>AlmightyShogun.Utils</RootNamespace>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
         <PackageIcon>icon.png</PackageIcon>
@@ -17,7 +17,7 @@
 
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.Core</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.Utils</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,12 +26,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.Binder"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
         <PackageReference Include="Microsoft.Extensions.Options"/>
-        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder"/>
         <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions"/>
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
     </ItemGroup>
 
 </Project>
