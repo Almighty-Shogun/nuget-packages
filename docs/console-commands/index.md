@@ -10,7 +10,7 @@ Commands are ordinary DI-created classes: one that needs application services de
 - [Attributes](./attributes/console-command-attribute) &mdash; class metadata for command names, aliases, descriptions, and examples.
 - [Services](./services/console-command-handler) &mdash; the input loop application code starts and stops.
 - [Utilities](./utilities/console-command-discovery) &mdash; command metadata read by reflection, for building a help listing.
-- [Types](./types/console-command-base) &mdash; the base class commands inherit and the metadata it is described by.
+- [Types](./types/console-command-base) &mdash; the base class commands inherit, the metadata it is described by, and the failure raised when one throws.
 
 ## Quick Example
 
