@@ -19,7 +19,6 @@ export const efCoreModelBuilding: DefaultTheme.SidebarItem[] = [
             { text: 'ApplyManyToOne', link: '/ef-core-model-building/extensions/apply-many-to-one' },
             { text: 'ApplyOneToMany', link: '/ef-core-model-building/extensions/apply-one-to-many' },
             { text: 'ApplyOneToOne', link: '/ef-core-model-building/extensions/apply-one-to-one' },
-            { text: 'ApplyOwned', link: '/ef-core-model-building/extensions/apply-owned' },
             { text: 'ApplyUniqueIndex', link: '/ef-core-model-building/extensions/apply-unique-index' }
         ]
     },
