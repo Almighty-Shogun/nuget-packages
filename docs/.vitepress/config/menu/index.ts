@@ -7,7 +7,7 @@ import { aspNetLocalization } from './asp-net-localization'
 import { aspNetMaintenanceMode } from './asp-net-maintenance-mode'
 import { aspNetRequestValidation } from './asp-net-request-validation'
 import { consoleCommands } from './console-commands'
-import { core } from './core'
+import { utils } from './utils'
 import { efCoreModelBuilding } from './ef-core-model-building'
 import { hangfireRecurringJobs } from './hangfire-recurring-jobs'
 import { hostingConsoleLifetime } from './hosting-console-lifetime'
@@ -58,9 +58,9 @@ export const nav: DefaultTheme.NavItem[] = [
         ]
     },
     {
-        text: 'Core',
-        link: '/core/',
-        activeMatch: '^/core/',
+        text: 'Utils',
+        link: '/utils/',
+        activeMatch: '^/utils/',
     }
 ];
 
@@ -73,7 +73,7 @@ export const sidebar = {
     "/asp-net-maintenance-mode/": aspNetMaintenanceMode,
     "/asp-net-request-validation/": aspNetRequestValidation,
     "/console-commands/": consoleCommands,
-    "/core/": core,
+    "/utils/": utils,
     "/ef-core-model-building/": efCoreModelBuilding,
     "/hangfire-recurring-jobs/": hangfireRecurringJobs,
     "/hosting-console-lifetime/": hostingConsoleLifetime,
