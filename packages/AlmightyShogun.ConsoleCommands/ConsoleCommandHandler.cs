@@ -100,6 +100,9 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     }
 
     /// <inheritdoc />
+    public event EventHandler<ConsoleCommandErrorEvent>? CommandFailed;
+
+    /// <inheritdoc />
     public async Task StartAsync(CancellationToken cancellationToken = default)
     {
         CancellationTokenSource stopSource;
@@ -248,7 +251,20 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
 
         var command = (IInternalConsoleCommand)scope.ServiceProvider.GetRequiredService(commandType);
 
-        await command.InternallyExecuteCommandAsync(parts[1..], _logger, cancellationToken);
+        try
+        {
+            await command.InternallyExecuteCommandAsync(parts[1..], _logger, cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "The {CommandName:y} console command failed", commandName);
+
+            CommandFailed?.Invoke(this, new ConsoleCommandErrorEvent(commandName, exception));
+        }
     }
 
     /// <summary>
