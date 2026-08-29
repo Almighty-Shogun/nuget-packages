@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using System.Collections.Frozen;
 
 namespace AlmightyShogun.Mail.Resend;
 
@@ -64,11 +65,14 @@ public abstract class BaseMailTemplate
     ///
     /// <remarks>
     /// Override this to add template fields without changing the package or introducing a template engine.
+    ///
+    /// The default is the shared empty <see cref="FrozenDictionary{TKey,TValue}"/> rather than a new dictionary, because this
+    /// is read on every render and a template that adds no fields should allocate nothing to say so.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    protected virtual IReadOnlyDictionary<string, string> AdditionalValues => new Dictionary<string, string>();
+    protected virtual IReadOnlyDictionary<string, string> AdditionalValues => FrozenDictionary<string, string>.Empty;
 
     /// <summary>
     /// Assembles the HTML body from the shared fragments, filling the chrome from settings and the content from this
@@ -130,8 +134,11 @@ public abstract class BaseMailTemplate
     /// <returns>The rendered plain-text body, trimmed of the trailing blank lines the footer would otherwise leave.</returns>
     ///
     /// <remarks>
-    /// Nothing is encoded here and <see cref="AdditionalValues"/> is not applied, because there is no markup to escape and no
-    /// placeholder to fill. A template relying on an additional value for its wording therefore renders it only in the HTML.
+    /// Nothing is encoded here, because there is no markup to escape. <see cref="AdditionalValues"/> is still not applied, so
+    /// a template relying on an additional value for its wording renders it only in the HTML.
+    ///
+    /// The configurable footer text goes through the same resolution the HTML body applies, so <c>{app_name}</c> and
+    /// <c>{app_url}</c> read the same in both bodies rather than reaching the reader unsubstituted here.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -156,7 +163,7 @@ public abstract class BaseMailTemplate
 
         return text.AppendLine(ResolveTemplateValue(settings.Template.CopyrightTextTemplate, settings))
             .AppendLine(ResolveTemplateValue(settings.Template.FooterLinkText, settings))
-            .AppendLine(settings.Template.IgnoreText)
+            .AppendLine(ResolveTemplateValue(settings.Template.IgnoreText, settings))
             .ToString()
             .Trim();
     }
@@ -165,7 +172,7 @@ public abstract class BaseMailTemplate
     /// Substitutes the <c>{app_name}</c> and <c>{app_url}</c> placeholders shared by the configurable footer text.
     /// </summary>
     ///
-    /// <param name="value">The configured text, which may contain neither, either, or both placeholders.</param>
+    /// <param name="value">The configured text, which may contain neither, either, nor both placeholders.</param>
     /// <param name="settings">The bound settings the replacements are read from.</param>
     ///
     /// <returns>The text with both placeholders substituted, an unset URL becoming an empty string.</returns>

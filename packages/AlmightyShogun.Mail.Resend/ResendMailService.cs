@@ -45,11 +45,7 @@ internal sealed class ResendMailService(
     ) => SendAsync(mail, new MailOptions { To = [recipientEmail] }, cancellationToken);
 
     /// <inheritdoc />
-    public async Task<MailSendResult> SendAsync(
-        BaseMailTemplate mail,
-        MailOptions options,
-        CancellationToken cancellationToken = default
-    )
+    public async Task<MailSendResult> SendAsync(BaseMailTemplate mail, MailOptions options, CancellationToken cancellationToken = default)
     {
         if (options.To.Count == 0)
             return MailSendResult.Failure("No recipient was supplied.");
@@ -83,6 +79,7 @@ internal sealed class ResendMailService(
                 Content = attachment.Content,
                 ContentType = attachment.ContentType
             });
+        
         string idempotencyKey = options.IdempotencyKey ?? Guid.CreateVersion7().ToString();
 
         try
@@ -90,6 +87,10 @@ internal sealed class ResendMailService(
             ResendResponse<Guid> response = await resend.EmailSendAsync(idempotencyKey, message, cancellationToken);
 
             return MailSendResult.Success(response.Content.ToString());
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception exception)
         {

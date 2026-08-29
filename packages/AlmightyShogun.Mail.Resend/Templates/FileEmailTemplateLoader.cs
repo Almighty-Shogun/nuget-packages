@@ -26,8 +26,8 @@ internal sealed class FileEmailTemplateLoader : IEmailTemplateLoader
     /// </summary>
     ///
     /// <remarks>
-    /// Caching the task would let concurrent first-time loads share one read, at the cost of caching a faulted or cancelled
-    /// one forever: a template deleted after startup would then fail every later send, and one cancelled send would poison
+    /// Caching the task would let concurrent first-time loads share one read, at the cost of caching a faulted or canceled
+    /// one forever: a template deleted after startup would then fail every later send, and one canceled send would poison
     /// the entry for every other caller. Racing to read the same small file twice is the cheaper mistake.
     /// </remarks>
     ///
@@ -47,7 +47,7 @@ internal sealed class FileEmailTemplateLoader : IEmailTemplateLoader
     }
 
     /// <summary>
-    /// Reads one template from disk, refusing a name that would climb out of the templates directory.
+    /// Reads one template from disk, refusing a name that would climb out of the templates' directory.
     /// </summary>
     ///
     /// <param name="templateName">The file name to read, combined with the templates directory and then checked.</param>
@@ -55,27 +55,36 @@ internal sealed class FileEmailTemplateLoader : IEmailTemplateLoader
     ///
     /// <returns>The template contents.</returns>
     ///
-    /// <exception cref="ArgumentException">The name would resolve outside the templates directory.</exception>
+    /// <exception cref="ArgumentException">The name would resolve outside the templates' directory.</exception>
     /// <exception cref="IOException">The file is missing, locked, or otherwise unreadable.</exception>
     ///
     /// <remarks>
     /// The check compares resolved paths rather than scanning for <c>..</c>, so it also covers an absolute path and a name
     /// that only escapes once the platform has normalized it.
+    ///
+    /// Containment is decided by <see cref="Path.GetRelativePath"/> rather than by a string prefix. A prefix test passes any
+    /// sibling directory whose name merely starts with the templates directory, so <c>../mail-hacked/secret</c> under a
+    /// <c>mail</c> root resolves to <c>mail-hacked/secret</c> and reads clean. A relative path that is rooted or that starts
+    /// with <c>..</c> is the only thing that escapes, and that is what is rejected here.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private static Task<string> ReadAsync(string templateName, CancellationToken cancellationToken)
     {
-        string templatePath = Path.GetFullPath(Path.Combine(TemplatesDirectory, templateName));
+        string root = Path.GetFullPath(TemplatesDirectory);
+        string templatePath = Path.GetFullPath(Path.Combine(root, templateName));
+        string relative = Path.GetRelativePath(root, templatePath);
 
-        if (!templatePath.StartsWith(TemplatesDirectory, StringComparison.Ordinal))
-        {
+        bool isOutside = Path.IsPathRooted(relative)
+                         || relative == ".."
+                         || relative.StartsWith($"..{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
+
+        if (isOutside)
             throw new ArgumentException(
                 $"Template name '{templateName}' resolves outside the mail template directory.",
                 nameof(templateName)
             );
-        }
 
         return File.ReadAllTextAsync(templatePath, cancellationToken);
     }

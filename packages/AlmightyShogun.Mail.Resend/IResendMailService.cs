@@ -24,7 +24,11 @@ public interface IResendMailService
     ///
     /// <exception cref="IOException">
     /// A shared template could not be read. <c>AddResendEmail</c> checks for them at startup, so this means one was removed
-    /// or locked afterwards.
+    /// or locked afterward.
+    /// </exception>
+    /// <exception cref="OperationCanceledException">
+    /// <paramref name="cancellationToken"/> was signaled. Cancellation propagates rather than arriving as a failed result,
+    /// so a caller shutting down is never told the send was rejected.
     /// </exception>
     ///
     /// <remarks>
@@ -51,7 +55,11 @@ public interface IResendMailService
     ///
     /// <exception cref="IOException">
     /// A shared template could not be read. <c>AddResendEmail</c> checks for them at startup, so this means one was removed
-    /// or locked afterwards.
+    /// or locked afterwars.
+    /// </exception>
+    /// <exception cref="OperationCanceledException">
+    /// <paramref name="cancellationToken"/> was signaled. Cancellation propagates rather than arriving as a failed result,
+    /// so a caller shutting down is never told the send was rejected.
     /// </exception>
     ///
     /// <remarks>
@@ -74,7 +82,7 @@ public interface IResendMailService
     ///
     /// <exception cref="IOException">
     /// A shared template could not be read. <c>AddResendEmail</c> checks for them at startup, so this means one was removed
-    /// or locked afterwards.
+    /// or locked afterwars.
     /// </exception>
     ///
     /// <remarks>

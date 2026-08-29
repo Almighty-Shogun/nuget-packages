@@ -87,7 +87,7 @@ Mail Resend reads the `Email` section when [`AddResendEmail`](./extensions/add-r
 ```
 
 ::: tip
-`CopyrightTextTemplate` and `FooterLinkText` resolve `{app_name}` from `BrandName` and `{app_url}` from `AppUrl` in both the HTML and the plain-text body. `IgnoreText` takes no placeholders and is rendered as configured.
+`CopyrightTextTemplate`, `FooterLinkText` and `IgnoreText` each resolve `{app_name}` from `BrandName` and `{app_url}` from `AppUrl`, in the HTML body and the plain-text body alike.
 :::
 
 <FrontmatterDocs/>

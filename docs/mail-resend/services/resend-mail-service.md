@@ -57,7 +57,7 @@ A provider or transport failure comes back as a failed [`MailSendResult`](../rec
 
 Sends a template to one recipient. Use it for the common case that needs no copies, attachments, or reply-to address.
 
-The returned [`MailSendResult`](../records/mail-send-result) reports whether Resend accepted the message, and carries the message id for correlating with a webhook or the dashboard. Acceptance is not delivery. An empty recipient list and a rejection from Resend both come back as a failed result rather than an exception, so a caller sending in a loop does not have to wrap each message.
+The returned [`MailSendResult`](../records/mail-send-result) reports whether Resend accepted the message, and carries the message id for correlating with a webhook or the dashboard. Acceptance is not delivery. An empty recipient list and a rejection from Resend both come back as a failed result rather than an exception, so a caller sending in a loop does not have to wrap each message. Cancelling the token is the exception to that and propagates, so a caller shutting down is never told the send was rejected.
 
 Every call to this overload generates its own idempotency key. Reach for the [`MailOptions`](../records/mail-options) overload when the caller can itself be retried and the key has to be stable across those retries.
 
