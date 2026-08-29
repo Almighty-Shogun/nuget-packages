@@ -23,14 +23,14 @@ fields:
 
 # ConsoleCommand
 
-The metadata describing one discovered command, built by [`ConsoleUtils.GetAllCommands`](../utilities/console-utils#getallcommands) from a command class's attributes and `ExecuteAsync` parameters. It is a read model, so holding one never constructs the class it came from. Instances come only from that method.
+The metadata describing one discovered command, built by [`ConsoleCommandDiscovery.GetAllCommands`](../utilities/console-command-discovery#getallcommands) from a command class's attributes and `ExecuteAsync` parameters. It is a read model, so holding one never constructs the class it came from. Instances come only from that method.
 
 ## Usage
 
 ```csharp
 using AlmightyShogun.ConsoleCommands;
 
-foreach (ConsoleCommand command in ConsoleUtils.GetAllCommands())
+foreach (ConsoleCommand command in ConsoleCommandDiscovery.GetAllCommands())
 {
     string description = command.Description ?? string.Empty;
 

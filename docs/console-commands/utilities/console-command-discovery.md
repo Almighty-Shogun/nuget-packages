@@ -1,4 +1,4 @@
-# ConsoleUtils
+# ConsoleCommandDiscovery
 
 Reads the metadata of every command declared in an assembly, without constructing any of them. Use it to build a `help` listing or a command reference.
 
@@ -7,7 +7,7 @@ Reads the metadata of every command declared in an assembly, without constructin
 ```csharp
 using AlmightyShogun.ConsoleCommands;
 
-foreach (ConsoleCommand command in ConsoleUtils.GetAllCommands())
+foreach (ConsoleCommand command in ConsoleCommandDiscovery.GetAllCommands())
 {
     Console.WriteLine(command.Usage);
 }
@@ -31,7 +31,7 @@ using AlmightyShogun.ConsoleCommands;
 public sealed class HelpCommand : ConsoleCommandBase
 {
     private static readonly IReadOnlyList<ConsoleCommand> _commands =
-        ConsoleUtils.GetAllCommands();
+        ConsoleCommandDiscovery.GetAllCommands();
 
     public Task ExecuteAsync()
     {
