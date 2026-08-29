@@ -28,7 +28,7 @@ public static class ServiceCollectionExtensions
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Runs a registration module, letting a feature keep its wiring in one reusable type instead of spreading it across
+        /// Runs a registration module, letting a feature keep it's wiring in one reusable type instead of spreading it across
         /// startup. The module is constructed directly rather than resolved, so it cannot take constructor dependencies.
         /// </summary>
         ///
@@ -37,14 +37,16 @@ public static class ServiceCollectionExtensions
         /// which the <c>new()</c> constraint enforces at compile time rather than at startup.
         /// </typeparam>
         ///
-        /// <returns>
-        /// The collection returned by <see cref="IServiceRegistry.ConfigureService"/>, which is normally the same instance
-        /// that was passed in.
-        /// </returns>
+        /// <returns>The <see cref="IServiceCollection"/> instance with the module's registrations applied.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
-        public IServiceCollection AddService<T>() where T : IServiceRegistry, new() => new T().ConfigureService(serviceCollection);
+        public IServiceCollection AddService<T>() where T : IServiceRegistry, new()
+        {
+            new T().ConfigureService(serviceCollection);
+
+            return serviceCollection;
+        }
 
         /// <summary>
         /// Binds a configuration section to a strongly typed options class and validates it, so a missing or malformed setting
