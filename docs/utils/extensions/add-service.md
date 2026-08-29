@@ -1,5 +1,5 @@
 ---
-returns: The `IServiceCollection` returned by the module's `ConfigureService` implementation.
+returns: The same `IServiceCollection` instance, with the module's registrations applied.
 ---
 
 # AddService
@@ -25,7 +25,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 public sealed class NotificationsRegistry : IServiceRegistry
 {
-    public IServiceCollection ConfigureService(
+    public void ConfigureService(
         IServiceCollection serviceCollection
     ) => serviceCollection 
             .AddSingleton<NotificationFormatter>()
