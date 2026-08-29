@@ -85,6 +85,26 @@ internal static class CommandMetadata
     }
 
     /// <summary>
+    /// Checks the same rules as <see cref="TryDescribe"/> and throws instead of reporting, for the callers that treat a
+    /// malformed command as a startup failure rather than something to skip.
+    /// </summary>
+    ///
+    /// <param name="commandType">The candidate type, already known to be concrete.</param>
+    ///
+    /// <returns>The class attribute and the sole public <c>ExecuteAsync</c>.</returns>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// The type breaks one of the rules, with the same message <see cref="TryDescribe"/> would have reported.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal static (ConsoleCommandAttribute Attribute, MethodInfo HandlerMethod) Describe(Type commandType)
+        => !TryDescribe(commandType, out ConsoleCommandAttribute attribute, out MethodInfo handlerMethod, out string? error)
+            ? throw new InvalidOperationException(error)
+            : (attribute, handlerMethod);
+
+    /// <summary>
     /// Checks whether a declared name is one a user could actually type and the dispatcher could actually match.
     /// </summary>
     ///

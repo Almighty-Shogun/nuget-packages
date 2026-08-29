@@ -4,28 +4,28 @@ using AlmightyShogun.Utils;
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Discovers console command types and builds the public metadata a help listing is rendered from. Console input and
-/// cursor helpers live on <see cref="AlmightyShogun.Utils.ConsoleUtils"/>.
+/// Finds console command classes and builds the public metadata a help listing is rendered from.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>1.0.0</since>
-public static class ConsoleUtils
+public static class ConsoleCommandDiscovery
 {
     /// <summary>
     /// Retrieves metadata for the commands declared in the calling assembly, which is what a help command in the startup
     /// project wants. Reach for the overload taking assemblies when the commands live elsewhere.
     /// </summary>
     ///
-    /// <returns>
-    /// The metadata for each valid command class, in declaration order. A class carrying the attribute but failing the
-    /// handler-method rules is skipped rather than reported, so this never throws on a malformed command.
-    /// </returns>
+    /// <returns>The metadata for each command class, in declaration order.</returns>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// A discovered class breaks one of the command rules. Reported rather than skipped, so a malformed command is the
+    /// same failure here as it is at registration.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public static IReadOnlyList<ConsoleCommand> GetAllCommands()
-        => GetAllCommands([Assembly.GetCallingAssembly()]);
+    public static IReadOnlyList<ConsoleCommand> GetAllCommands() => GetAllCommands([Assembly.GetCallingAssembly()]);
 
     /// <summary>
     /// Retrieves metadata for the commands declared in the given assemblies, read from the class attributes and the
@@ -37,10 +37,12 @@ public static class ConsoleUtils
     /// assembly at all is the one that falls back to the calling assembly.
     /// </param>
     ///
-    /// <returns>
-    /// The metadata for each valid command class, in assembly then declaration order. A class carrying the attribute but
-    /// failing the handler-method rules is skipped rather than reported, so this never throws on a malformed command.
-    /// </returns>
+    /// <returns>The metadata for each command class, in assembly then declaration order.</returns>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// A discovered class breaks one of the command rules. Reported rather than skipped, so a malformed command is the
+    /// same failure here as it is at registration.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
@@ -48,38 +50,42 @@ public static class ConsoleUtils
         => [.. GetConsoleCommandTypes(assemblies).Select(Describe)];
 
     /// <summary>
-    /// Retrieves the command types in the given assemblies that pass every rule the dispatcher relies on.
+    /// Retrieves every command type in the given assemblies, valid or not, leaving each caller to decide what a malformed
+    /// one means.
     /// </summary>
     ///
     /// <param name="assemblies">The assemblies to scan, in the order they should be searched.</param>
     ///
-    /// <returns>
-    /// The concrete command types that carry <see cref="ConsoleCommandAttribute"/> and expose exactly one public
-    /// <c>ExecuteAsync</c> method returning <see cref="Task"/>, lazily.
-    /// </returns>
+    /// <returns>The concrete types assignable to <see cref="IConsoleCommand"/>, lazily.</returns>
+    ///
+    /// <remarks>
+    /// Nothing is filtered here. A silent filter is what previously let a class carrying the attribute disappear from the
+    /// help listing while registration reported it as an error, which meant the two disagreed about what a command is.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>3.0.0</since>
     internal static IEnumerable<Type> GetConsoleCommandTypes(Assembly[] assemblies)
-        => TypeDiscovery.FindAssignableTypes<IConsoleCommand>(assemblies)
-            .Where(type => CommandMetadata.TryDescribe(type, out _, out _, out _));
+        => TypeDiscovery.FindAssignableTypes<IConsoleCommand>(assemblies);
 
     /// <summary>
-    /// Builds the public metadata for one command type that has already passed <see cref="CommandMetadata.TryDescribe"/>.
+    /// Builds the public metadata for one command type.
     /// </summary>
     ///
-    /// <param name="commandType">The command class to reflect over, already known to satisfy every rule.</param>
+    /// <param name="commandType">The command class to reflect over.</param>
     ///
     /// <returns>
     /// The metadata, whose usage string lists each handler parameter as <c>&lt;name:Type&gt;</c>. A trailing
     /// <see cref="CancellationToken"/> is left out, because the dispatcher supplies it rather than the user typing it.
     /// </returns>
     ///
+    /// <exception cref="InvalidOperationException">The class breaks one of the command rules.</exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     internal static ConsoleCommand Describe(Type commandType)
     {
-        CommandMetadata.TryDescribe(commandType, out ConsoleCommandAttribute attribute, out MethodInfo handlerMethod, out _);
+        (ConsoleCommandAttribute attribute, MethodInfo handlerMethod) = CommandMetadata.Describe(commandType);
 
         string usage = string.Join(" ", handlerMethod.GetParameters()
             .Where(parameter => parameter.ParameterType != typeof(CancellationToken))
