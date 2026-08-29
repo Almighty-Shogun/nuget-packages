@@ -69,7 +69,7 @@ public static class PackageRegistry
         /// <since>1.1.0</since>
         public IServiceCollection RegisterConsoleCommands(Assembly[] assemblies)
         {
-            serviceCollection.RegisterOnInherit<IConsoleCommand>(assemblies, ServiceLifetime.Transient, registerAsBaseType: false);
+            serviceCollection.RegisterOnInherit<IConsoleCommand>(assemblies, ServiceLifetime.Transient, false);
 
             IEnumerable<Type> commandTypes = ConsoleCommandDiscovery.GetConsoleCommandTypes(assemblies)
                 .Where(type => !type.IsDefined(typeof(SkipAutoRegistrationAttribute), false));
