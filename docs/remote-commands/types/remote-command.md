@@ -45,7 +45,7 @@ public sealed record PingCommandResponse(
 :::
 
 ::: warning
-The constructor throws `InvalidOperationException` when the class does not declare [`RemoteCommandAttribute`](../attributes/remote-command-attribute), so a missing attribute surfaces the first time the command is resolved rather than on the first request.
+A class must declare [`RemoteCommandAttribute`](../attributes/remote-command-attribute), because the name on it is what [`RegisterRemoteCommands`](../extensions/register-remote-commands) records. A class without one throws `InvalidOperationException` during registration, so a missing attribute stops startup rather than reaching the first request.
 :::
 
 ## HandleCommandAsync

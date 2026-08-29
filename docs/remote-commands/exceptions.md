@@ -1,7 +1,9 @@
 # Exceptions
 
 [`RemoteCommandClient`](./services/remote-command-client) throws four exceptions, all deriving from `RemoteCommandException` so a single
-`catch` covers a command that did not run. The listener itself throws none: it answers a bad request with a [
+`catch` covers a command that did not run. Cancelling the token is the exception to that: it propagates as
+`OperationCanceledException` after the connection is disposed, because a caller shutting down asked for it rather than
+suffering it. The listener itself throws none: it answers a bad request with a [
 `RemoteCommandResponse`](./records/remote-command-response) instead.
 
 Which type is thrown says whether the problem was the connection, the wire format, or the server's own decision.
