@@ -14,8 +14,9 @@ namespace AlmightyShogun.Utils;
 public static class DeserializeExtensions
 {
     /// <summary>
-    /// Gets the package default JSON options, which apply camel-case property naming so a payload from an ASP.NET Core API
-    /// binds without further configuration. The instance is read-only, so it can be shared across the process and passed to
+    /// Gets the package default JSON options, built from <see cref="JsonSerializerDefaults.Web"/> so a payload from an
+    /// ASP.NET Core API binds on the rules that API itself applied: camel-case naming, case-insensitive property matching, and
+    /// numbers accepted from JSON strings. The instance is read-only, so it can be shared across the process and passed to
     /// <see cref="JsonSerializer"/> directly without any caller being able to alter it.
     /// </summary>
     ///
@@ -32,16 +33,16 @@ public static class DeserializeExtensions
     /// <remarks>
     /// Sealing is what makes a single static instance safe. A shared mutable <see cref="JsonSerializerOptions"/> could be
     /// altered by any caller and would silently change deserialization for every other caller in the process.
+    ///
+    /// The web preset is taken whole rather than reproduced property by property, so these defaults keep matching ASP.NET Core
+    /// if a future runtime changes what the preset covers.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private static JsonSerializerOptions CreateDefaultOptions()
     {
-        JsonSerializerOptions options = new()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
+        JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
 
         options.MakeReadOnly(true);
 
@@ -73,7 +74,8 @@ public static class DeserializeExtensions
         /// non-null from that point and no suppression is needed. Left at the default for <typeparamref name="T"/> otherwise.
         /// </param>
         /// <param name="options">
-        /// The serializer options to apply. Left unset, the package defaults are used, which bind camel-case property names.
+        /// The serializer options to apply. Left unset, the package defaults are used, which bind an ASP.NET Core payload on
+        /// the same rules the API serialized it with.
         /// </param>
         ///
         /// <returns><c>true</c> when a non-null value was read; otherwise <c>false</c>.</returns>
@@ -127,7 +129,12 @@ public static class DeserializeExtensions
         ///
         /// <typeparam name="T">The type to bind the payload to.</typeparam>
         /// <param name="options">
-        /// The serializer options to apply. Left unset, the package defaults are used, which bind camel-case property names.
+        /// The serializer options to apply. Left unset, the package defaults are used, which bind an ASP.NET Core payload on
+        /// the same rules the API serialized it with.
+        /// </param>
+        /// <param name="cancellationToken">
+        /// Stops the read part way through. The stream is left at wherever reading reached, so a cancelled call leaves it
+        /// unusable for a second attempt unless the caller can rewind it.
         /// </param>
         ///
         /// <returns>
@@ -138,6 +145,7 @@ public static class DeserializeExtensions
         /// The stream does not contain valid JSON, carries data after the first document, or cannot bind to
         /// <typeparamref name="T"/>.
         /// </exception>
+        /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signalled during the read.</exception>
         ///
         /// <remarks>
         /// There is no <c>Try</c> counterpart for streams, because an <c>out</c> parameter cannot be used on an asynchronous
@@ -146,7 +154,9 @@ public static class DeserializeExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.1.0</since>
-        public async Task<T?> DeserializeAsync<T>(JsonSerializerOptions? options = null)
-            => await JsonSerializer.DeserializeAsync<T>(stream, options ?? DefaultOptions);
+        public async Task<T?> DeserializeAsync<T>(
+            JsonSerializerOptions? options = null,
+            CancellationToken cancellationToken = default
+        ) => await JsonSerializer.DeserializeAsync<T>(stream, options ?? DefaultOptions, cancellationToken);
     }
 }
