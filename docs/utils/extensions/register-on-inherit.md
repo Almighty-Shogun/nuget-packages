@@ -30,7 +30,7 @@ Two overloads trade brevity for control: passing no assembly scans the calling o
 ::: code-group
 
 ```csharp [CallingAssembly.cs]
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services
@@ -38,7 +38,7 @@ builder.Services
 ```
 
 ```csharp [Filtered.cs]
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.RegisterOnInherit<ICommandHandler>(

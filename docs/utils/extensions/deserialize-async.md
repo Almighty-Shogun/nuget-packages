@@ -19,7 +19,7 @@ The stream is read from its current position and is not disposed, and a malforme
 ::: code-group
 
 ```csharp [FileStream.cs]
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 
 await using FileStream stream = File.OpenRead("orders.json");
 
@@ -28,7 +28,7 @@ Order[]? orders = await stream.DeserializeAsync<Order[]>();
 
 ```csharp [ExplicitOptions.cs]
 using System.Text.Json;
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 
 JsonSerializerOptions options = new() 
 {

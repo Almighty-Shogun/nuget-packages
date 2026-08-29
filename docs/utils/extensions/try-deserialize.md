@@ -22,7 +22,7 @@ Returns `false` for a malformed payload and for the JSON literal `null`, so a `t
 ::: code-group
 
 ```csharp [TryDeserialize.cs]
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 
 if (!payload.TryDeserialize(out Order? order))
 {
@@ -36,7 +36,7 @@ await ProcessAsync(order);
 
 ```csharp [ExplicitOptions.cs]
 using System.Text.Json;
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 
 JsonSerializerOptions options = new() 
 {

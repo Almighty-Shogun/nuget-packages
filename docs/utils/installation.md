@@ -1,9 +1,9 @@
 # Installation
 
-Install `AlmightyShogun.Core` in applications or packages that need the shared helper APIs directly. The package targets `net10.0` and depends on the Microsoft configuration, options, and dependency-injection abstractions.
+Install `AlmightyShogun.Utils` in applications or packages that need the shared helper APIs directly. The package targets `net10.0` and depends on the Microsoft configuration, options, and dependency-injection abstractions.
 
 ```sh
-dotnet add package AlmightyShogun.Core
+dotnet add package AlmightyShogun.Utils
 ```
 
 ## Dependencies

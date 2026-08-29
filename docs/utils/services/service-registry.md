@@ -9,14 +9,14 @@ Implementations need a public parameterless constructor, because `AddService<T>`
 ::: code-group
 
 ```csharp [Program.cs]
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.AddService<NotificationsRegistry>();
 ```
 
 ```csharp [NotificationsRegistry.cs]
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 public sealed class NotificationsRegistry : IServiceRegistry
