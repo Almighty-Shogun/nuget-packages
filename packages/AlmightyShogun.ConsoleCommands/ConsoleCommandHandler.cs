@@ -140,6 +140,8 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
                     break;
                 }
 
+                if (input is null) break;
+
                 if (string.IsNullOrWhiteSpace(input)) continue;
 
                 Utils.ConsoleUtils.RemoveLastLine();

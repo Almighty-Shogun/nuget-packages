@@ -24,6 +24,9 @@ public interface IConsoleCommandHandler
     /// <remarks>
     /// An exception escaping a command is logged and the prompt keeps reading, so one failing command does not take the
     /// console down with it. Subscribe to <see cref="CommandFailed"/> to report it anywhere else.
+    ///
+    /// The loop also ends when the input stream does. A redirected process reaching end of input stops rather than
+    /// spinning on a reader that will never return another line.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
