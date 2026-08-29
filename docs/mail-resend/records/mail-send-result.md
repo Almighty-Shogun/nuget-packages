@@ -13,7 +13,7 @@ fields:
 
 # MailSendResult
 
-The outcome of a send. Returned rather than thrown, so a caller can decide whether a failed notification should fail the operation around it.
+The outcome of a send. Returned rather than thrown, so a caller can decide whether a failed notification should fail the operation around it. Only the package constructs one, so a result always describes an outcome that actually happened.
 
 ## Usage
 
@@ -34,9 +34,10 @@ if (!result.IsSuccess)
 ## Type signature
 
 ```csharp
-public sealed record MailSendResult(
-    bool IsSuccess,
-    string? MessageId,
-    string? Error
-);
+public sealed record MailSendResult
+{
+    public bool IsSuccess { get; }
+    public string? MessageId { get; }
+    public string? Error { get; }
+}
 ```
