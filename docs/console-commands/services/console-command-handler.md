@@ -36,7 +36,7 @@ builder.Services
 
 ## StartAsync
 
-Reads lines from `Console.In`, treats the first token as the command name, and forwards the rest to the matching command class. The loop ends when the token is cancelled or [`Stop`](#stop) is called.
+Reads lines from `Console.In`, treats the first token as the command name, and forwards the rest to the matching command class. Names and aliases match case-insensitively, and a token matching neither is logged with the closest registered name as a suggestion. The loop ends when the token is cancelled, [`Stop`](#stop) is called, or the input stream reaches its end.
 
 An exception escaping a command is logged and the prompt keeps reading, so one failing command does not take the console down. Subscribe to `CommandFailed` to report it elsewhere.
 
