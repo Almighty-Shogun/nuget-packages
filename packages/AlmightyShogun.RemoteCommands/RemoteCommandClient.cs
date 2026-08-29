@@ -31,10 +31,10 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private const int MaxPayloadBytes = 1024 * 1024;
+    private const int _maxPayloadBytes = 1024 * 1024;
 
     /// <summary>
-    /// The connection, opened on first use and reused afterwards. Discarded on any transport failure so the next call
+    /// The connection, opened on first use and reused afterward. Discarded on any transport failure so the next call
     /// reconnects rather than writing into a broken socket.
     /// </summary>
     ///
@@ -98,7 +98,13 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
 
             await RemoteCommandProtocol.WriteFrameAsync(stream, payload, cancellationToken);
 
-            frame = await RemoteCommandProtocol.ReadFrameAsync(stream, MaxPayloadBytes, cancellationToken);
+            frame = await RemoteCommandProtocol.ReadFrameAsync(stream, _maxPayloadBytes, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            await DisposeAsync();
+
+            throw;
         }
         catch (SocketException exception)
         {
