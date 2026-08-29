@@ -39,7 +39,7 @@ public sealed record RestartResponse
 :::
 
 ::: warning
-Every failure throws a [`RemoteCommandException`](../exceptions) subclass, one per reason, so a server that refused the command is distinguishable from one that could not be reached or closed the connection without answering.
+Every failure throws a [`RemoteCommandException`](../exceptions) subclass, one per reason, so a server that refused the command is distinguishable from one that could not be reached or closed the connection without answering. Cancellation is not one of them: it propagates as `OperationCanceledException`, and the connection is disposed first so the next send opens a clean one.
 :::
 
 ## SendAsync

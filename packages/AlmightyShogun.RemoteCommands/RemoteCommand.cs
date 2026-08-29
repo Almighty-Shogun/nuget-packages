@@ -18,8 +18,8 @@ namespace AlmightyShogun.RemoteCommands;
 public abstract class RemoteCommand<T> : IRemoteCommand<T>, IInternalRemoteCommand where T : class
 {
     /// <summary>
-    /// The command name, read once from the attribute. Reading it per access would reflect on every dispatch, and a
-    /// missing attribute would not surface until the first request.
+    /// The command name, read once when the command is constructed. Held in a field rather than read per access, so a
+    /// subclass using it repeatedly within one request does not reflect on its own type each time.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -27,12 +27,14 @@ public abstract class RemoteCommand<T> : IRemoteCommand<T>, IInternalRemoteComma
     private readonly string _name;
 
     /// <summary>
-    /// Reads and caches the declared command name. This runs when the listener resolves the command rather than on the
-    /// first request, so a class missing its attribute is reported at startup instead of to whoever calls it first.
+    /// Reads the declared command name for the subclass's own use. A command is resolved from a fresh scope per request,
+    /// so this runs once per invocation rather than once per process.
     /// </summary>
     ///
     /// <exception cref="InvalidOperationException">
-    /// The class does not carry <see cref="RemoteCommandAttribute"/>, so it declares no name to be reachable by.
+    /// The class does not carry <see cref="RemoteCommandAttribute"/>, so it declares no name to be reachable by. Anything
+    /// reaching here through the container has already passed the same check at registration, which leaves this covering
+    /// a command constructed directly, such as in a test.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>

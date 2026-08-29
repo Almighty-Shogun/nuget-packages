@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AlmightyShogun.RemoteCommands;
 
@@ -18,9 +19,13 @@ namespace AlmightyShogun.RemoteCommands;
 /// already bound, and the address and whitelist are parsed here rather than on every connection.
 /// </param>
 /// <param name="logger">The logger every lifecycle event and rejected request is reported through.</param>
-/// <param name="commands">
-/// Every registered command, enumerated once to build the dispatch table. This is where a malformed command surfaces,
-/// because constructing it runs the validation in <see cref="RemoteCommand{T}"/>.
+/// <param name="descriptors">
+/// Every registered command's name and class, enumerated once to build the dispatch table. Descriptors rather than
+/// commands, so this singleton never captures an instance and a command stays free to depend on scoped services.
+/// </param>
+/// <param name="scopeFactory">
+/// The factory each request's scope comes from. A command is resolved inside that scope and released with it, which is
+/// what makes a transient registration behave as one.
 /// </param>
 ///
 /// <exception cref="InvalidOperationException">
@@ -29,12 +34,19 @@ namespace AlmightyShogun.RemoteCommands;
 /// be started, rather than failing part-way through binding.
 /// </exception>
 ///
+/// <remarks>
+/// Resolving a command by type out of a scope is the service locator pattern, taken deliberately. The listener is a
+/// singleton that outlives every request, so the alternative is injecting the commands themselves and turning each into a
+/// singleton too, which is what this replaced.
+/// </remarks>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>1.0.0</since>
 internal sealed class RemoteCommandHandler(
     IOptions<RemoteServerSettings> remoteServerSettings,
     ILogger<RemoteCommandHandler> logger,
-    IEnumerable<IRemoteCommand> commands
+    IEnumerable<RemoteCommandDescriptor> descriptors,
+    IServiceScopeFactory scopeFactory
 ) : IRemoteCommandHandler
 {
     /// <summary>
@@ -52,7 +64,8 @@ internal sealed class RemoteCommandHandler(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private readonly IReadOnlyList<IPNetwork> _whitelist = remoteServerSettings.Value.ValidWhitelisted();
+    private readonly IReadOnlyList<IPNetwork> _whitelist =
+        RemoteServerSettingsParser.ParseWhitelist(remoteServerSettings.Value.Whitelisted);
 
     /// <summary>
     /// The address the listener binds to, parsed at construction so a bad value is reported when the handler is resolved
@@ -61,7 +74,7 @@ internal sealed class RemoteCommandHandler(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private readonly IPAddress _address = remoteServerSettings.Value.ValidAddress();
+    private readonly IPAddress _address = RemoteServerSettingsParser.ParseAddress(remoteServerSettings.Value.Address);
 
     /// <summary>
     /// The required key as bytes, or <c>null</c> when the server asks for none. Held encoded so each comparison is a
@@ -75,13 +88,13 @@ internal sealed class RemoteCommandHandler(
         : null;
 
     /// <summary>
-    /// Every command name mapped to its entry point, compared with ordinal case sensitivity so a wire name must match
-    /// exactly. Built once, because the set of commands cannot change while the process runs.
+    /// Every command name mapped to the class serving it, compared with ordinal case sensitivity so a wire name must
+    /// match exactly. Built once, because the set of commands cannot change while the process runs.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>3.0.0</since>
-    private readonly Dictionary<string, IInternalRemoteCommand> _commands = BuildCommandTable(commands, logger);
+    private readonly Dictionary<string, RemoteCommandDescriptor> _commands = BuildCommandTable(descriptors, logger);
 
     /// <summary>
     /// The cap on connections served at once. A further client is accepted only when a slot frees, so load is refused by
@@ -110,7 +123,7 @@ internal sealed class RemoteCommandHandler(
     private readonly List<Task> _inFlight = [];
 
     /// <summary>
-    /// The source cancelled to stop the listener, and the flag for whether one is running: non-null only between the
+    /// The source canceled to stop the listener, and the flag for whether one is running: non-null only between the
     /// start of a listener and its exit.
     /// </summary>
     ///
@@ -217,7 +230,7 @@ internal sealed class RemoteCommandHandler(
     /// listener over a collision.
     /// </summary>
     ///
-    /// <param name="commands">The registered commands, each resolved once here.</param>
+    /// <param name="descriptors">The registered command descriptors, read without resolving anything.</param>
     /// <param name="logger">The logger a dropped duplicate name is reported through.</param>
     ///
     /// <returns>
@@ -227,25 +240,28 @@ internal sealed class RemoteCommandHandler(
     ///
     /// <exception cref="InvalidOperationException">
     /// A registered command does not derive from <see cref="RemoteCommand{T}"/> and so exposes no entry point to
-    /// dispatch to.
+    /// dispatch to. Checked against the type rather than an instance, so it still surfaces before the listener binds.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static Dictionary<string, IInternalRemoteCommand> BuildCommandTable(IEnumerable<IRemoteCommand> commands, ILogger logger)
+    private static Dictionary<string, RemoteCommandDescriptor> BuildCommandTable(
+        IEnumerable<RemoteCommandDescriptor> descriptors,
+        ILogger logger
+    )
     {
-        Dictionary<string, IInternalRemoteCommand> table = new(StringComparer.Ordinal);
+        Dictionary<string, RemoteCommandDescriptor> table = new(StringComparer.Ordinal);
 
-        foreach (IRemoteCommand command in commands)
+        foreach (RemoteCommandDescriptor descriptor in descriptors)
         {
-            if (command is not IInternalRemoteCommand internalCommand)
-                throw new InvalidOperationException($"{command.GetType().Name} must inherit {nameof(RemoteCommand<>)}.");
+            if (!typeof(IInternalRemoteCommand).IsAssignableFrom(descriptor.ImplementationType))
+                throw new InvalidOperationException($"{descriptor.ImplementationType.Name} must inherit {nameof(RemoteCommand<>)}.");
 
-            if (!table.TryAdd(command.Name, internalCommand) && logger.IsEnabled(LogLevel.Warning))
+            if (!table.TryAdd(descriptor.Name, descriptor) && logger.IsEnabled(LogLevel.Warning))
                 logger.LogWarning(
                     "{Name:y} is already registered, so {Skipped:c} will never be dispatched",
-                    command.Name,
-                    command.GetType().Name
+                    descriptor.Name,
+                    descriptor.ImplementationType.Name
                 );
         }
 
@@ -423,7 +439,7 @@ internal sealed class RemoteCommandHandler(
             return;
         }
 
-        if (!_commands.TryGetValue(payload.Command, out IInternalRemoteCommand? command))
+        if (!_commands.TryGetValue(payload.Command, out RemoteCommandDescriptor? descriptor))
         {
             if (logger.IsEnabled(LogLevel.Warning))
                 logger.LogWarning("Received unknown remote command {Command:y} from {Address:c}", payload.Command, remoteEndPoint);
@@ -441,6 +457,10 @@ internal sealed class RemoteCommandHandler(
             logger.LogInformation("Received remote command {Command:y} from {Address:c}", payload.Command, remoteEndPoint);
 
         StreamCommandResponse response = new(stream);
+
+        await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
+
+        var command = (IInternalRemoteCommand)scope.ServiceProvider.GetRequiredService(descriptor.ImplementationType);
 
         try
         {
