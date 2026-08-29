@@ -45,7 +45,7 @@ public sealed record PingCommandResponse(
 :::
 
 ::: warning
-A class must declare [`RemoteCommandAttribute`](../attributes/remote-command-attribute), because the name on it is what [`RegisterRemoteCommands`](../extensions/register-remote-commands) records. A class without one throws `InvalidOperationException` during registration, so a missing attribute stops startup rather than reaching the first request.
+A class must declare [`RemoteCommandAttribute`](../attributes/remote-command-attribute), because the name on it is what [`RegisterRemoteCommands`](../extensions/register-remote-commands) records. A class without one throws `InvalidOperationException` during registration, so a missing attribute stops startup rather than reaching the first request, and constructing such a command directly throws the same exception.
 :::
 
 ## HandleCommandAsync
