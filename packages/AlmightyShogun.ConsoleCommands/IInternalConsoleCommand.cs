@@ -22,7 +22,7 @@ internal interface IInternalConsoleCommand
     /// services of its own can declare no constructor and still report bad input.
     /// </param>
     /// <param name="cancellationToken">
-    /// Signalled when the handler is stopping. Passed on only to a handler whose last parameter is a
+    /// Signaled when the handler is stopping. Passed on only to a handler whose last parameter is a
     /// <see cref="CancellationToken"/>; otherwise the command runs to completion regardless.
     /// </param>
     ///

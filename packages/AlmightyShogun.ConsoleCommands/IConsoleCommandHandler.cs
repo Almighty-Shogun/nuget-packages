@@ -10,12 +10,12 @@ namespace AlmightyShogun.ConsoleCommands;
 public interface IConsoleCommandHandler
 {
     /// <summary>
-    /// Reads and dispatches console input until the token is cancelled or <see cref="Stop"/> is called. Calling it while a
+    /// Reads and dispatches console input until the token is canceled or <see cref="Stop"/> is called. Calling it while a
     /// loop is already running logs an error and returns rather than starting a second reader on the same console.
     /// </summary>
     ///
     /// <param name="cancellationToken">
-    /// Stops the loop when signalled, which is how a hosted service hands over application shutdown. A command already
+    /// Stops the loop when signaled, which is how a hosted service hands over application shutdown. A command already
     /// running is not interrupted unless it accepts the token itself.
     /// </param>
     ///

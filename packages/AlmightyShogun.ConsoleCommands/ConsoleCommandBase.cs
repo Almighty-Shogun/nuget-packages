@@ -19,8 +19,8 @@ namespace AlmightyShogun.ConsoleCommands;
 public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleCommand
 {
     /// <summary>
-    /// The handler resolved once in the constructor, so the reflection cost is paid when the command is built rather than
-    /// on every invocation.
+    /// The handler resolved in the constructor, so a repeated invocation inside one command does not reflect again. A
+    /// command is transient, so this is paid once per invocation rather than once per process.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -78,8 +78,8 @@ public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleComm
     IReadOnlyList<string> IConsoleCommand.Aliases => Aliases;
 
     /// <summary>
-    /// Validates the subclass and caches its handler. Validation happens here rather than at registration, so a malformed
-    /// command fails when the handler is resolved and names the offending class instead of quietly never appearing.
+    /// Validates the subclass and caches its handler. Registration validates the same rules, so this repeats them for a
+    /// command constructed by hand, naming the offending class instead of failing later inside the dispatcher.
     /// </summary>
     ///
     /// <exception cref="InvalidOperationException">

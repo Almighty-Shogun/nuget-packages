@@ -21,7 +21,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     private readonly Lock _lifecycleGate = new();
 
     /// <summary>
-    /// The source cancelled to end the running loop, and the flag for whether one is running at all: it is non-null only
+    /// The source canceled to end the running loop, and the flag for whether one is running at all: it is non-null only
     /// between the start of a loop and its exit.
     /// </summary>
     ///
@@ -187,7 +187,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     }
 
     /// <summary>
-    /// Claims one name for a command, first come first served. A clash is a warning rather than a throw, so one careless
+    /// Claims one name for a command, first come, first served. A clash is a warning rather than a throw, so one careless
     /// alias cannot stop an application from starting.
     /// </summary>
     ///
