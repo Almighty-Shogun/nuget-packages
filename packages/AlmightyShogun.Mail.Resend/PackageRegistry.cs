@@ -22,7 +22,7 @@ public static class PackageRegistry
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static readonly string[] RequiredTemplates =
+    private static readonly string[] _requiredTemplates =
     [
         "BaseEmailTemplate.html",
         "BaseEmailParagraph.html",
@@ -95,10 +95,10 @@ public static class PackageRegistry
 
         if (!Directory.Exists(directory))
             throw new InvalidOperationException(
-                $"The mail template directory '{directory}' does not exist. Create it and add {string.Join(", ", RequiredTemplates)}."
+                $"The mail template directory '{directory}' does not exist. Create it and add {string.Join(", ", _requiredTemplates)}."
             );
 
-        string[] missing = [.. RequiredTemplates.Where(template => !File.Exists(Path.Combine(directory, template)))];
+        string[] missing = [.. _requiredTemplates.Where(template => !File.Exists(Path.Combine(directory, template)))];
 
         if (missing.Length > 0)
             throw new InvalidOperationException(
