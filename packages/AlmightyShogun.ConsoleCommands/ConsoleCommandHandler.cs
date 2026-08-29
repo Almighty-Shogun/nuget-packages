@@ -235,16 +235,12 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
             string? suggestion = FindClosestCommand(commandName);
 
             if (suggestion is null)
-            {
                 _logger.LogWarning("{CommandName:y} is not registered as a console command", commandName);
-            }
             else
-            {
                 _logger.LogWarning(
                     "{CommandName:y} is not registered as a console command. Did you mean {Suggestion:c}?",
                     commandName, suggestion
                 );
-            }
 
             return;
         }
