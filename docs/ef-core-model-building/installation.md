@@ -11,7 +11,7 @@ dotnet add package AlmightyShogun.EntityFrameworkCore.ModelBuilding
 ### Package references
 
 - `Microsoft.EntityFrameworkCore` `10.0.11` &mdash; supplies `ModelBuilder`, the type every helper extends.
-- `Microsoft.EntityFrameworkCore.Relational` `10.0.11` &mdash; supplies index names, index filters, and owned-type column naming.
+- `Microsoft.EntityFrameworkCore.Relational` `10.0.11` &mdash; supplies index names and index filters.
 
 ## Usage
 
@@ -53,9 +53,6 @@ dotnet ef migrations add AddAccountEmailIndex
 
 The relational dependency means these helpers assume a relational provider: SQL Server, PostgreSQL, MySQL, MariaDB, SQLite, and equivalents.
 
-Two parameters carry provider-specific behavior:
+One parameter carries provider-specific behavior: `filter` on [`ApplyUniqueIndex`](./extensions/apply-unique-index) is raw SQL, and identifier quoting differs per provider, `[Slug]` on SQL Server, `"Slug"` on PostgreSQL and SQLite, `` `Slug` `` on MySQL and MariaDB.
 
-- `filter` on [`ApplyUniqueIndex`](./extensions/apply-unique-index) is raw SQL, and identifier quoting differs per provider: `[Slug]` on SQL Server, `"Slug"` on PostgreSQL and SQLite, `` `Slug` `` on MySQL and MariaDB.
-- `columnPrefix` on [`ApplyOwned`](./extensions/apply-owned) renames physical columns.
-
-On a document provider such as Cosmos, those two have no effect and the relationship helpers do not apply.
+On a document provider such as Cosmos, it has no effect and the relationship helpers do not apply.

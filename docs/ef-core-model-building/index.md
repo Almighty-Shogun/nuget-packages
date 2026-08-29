@@ -1,6 +1,6 @@
 # Entity Framework Core Model Building
 
-Model configuration helpers for `ModelBuilder`, covering the shapes written on almost every model: relationships, indexes, owned types, enum storage, and eager loading.
+Model configuration helpers for `ModelBuilder`, covering the shapes written on almost every model: relationships, indexes, enum storage, and eager loading.
 
 Each helper collapses a fluent-API sequence into one call without overriding a convention: requiredness and delete behavior stay inferred from the foreign key's nullability. Every one is called inside `OnModelCreating` and returns the `ModelBuilder`, so calls chain.
 
@@ -46,11 +46,6 @@ public sealed class AppDbContext(
         modelBuilder.ApplyEnumAsString<Account, Tier>(
             account => account.Tier
         );
-        
-        modelBuilder.ApplyOwned<Account, Address>(
-            account => account.BillingAddress,
-            "Billing"
-        );
 
         modelBuilder.ApplyManyToMany<Account, Tag>(
             account => account.Tags,
@@ -69,7 +64,6 @@ public sealed class Account
     public string? Slug { get; set; }
     public Tier Tier { get; set; }
     public Profile? Profile { get; set; }
-    public Address? BillingAddress { get; set; }
     public List<Order> Orders { get; set; } = [];
     public List<Tag> Tags { get; set; } = [];
 }

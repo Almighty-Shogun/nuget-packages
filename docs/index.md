@@ -74,7 +74,7 @@ features:
         linkText: View package
 
     -   title: EF Core Model Building
-        details: ModelBuilder helpers for relationships, indexes, owned types, and enums.
+        details: ModelBuilder helpers for relationships, indexes, and enums.
         link: /ef-core-model-building/
         linkText: View package
 
