@@ -1,12 +1,11 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 /// <summary>
-/// Collapses the fluent chain a relationship, index, or owned value normally takes into a single call, so every mapping
+/// Collapses the fluent chain a relationship or an index normally takes into a single call, so every mapping
 /// in <c>OnModelCreating</c> is one statement taking the same parameters in the same order whatever its kind.
 /// </summary>
 ///
@@ -424,42 +423,6 @@ public static class ModelBuilderExtensions
         ) where TEntity : class where TProperty : struct, Enum
         {
             modelBuilder.Entity<TEntity>().Property(property).HasConversion<string>().HasMaxLength(maxLength);
-
-            return modelBuilder;
-        }
-
-        /// <summary>
-        /// Maps an owned type into its owner's table with every column prefixed, so two owned values of the same type
-        /// on one entity do not collide and a column says which one it belongs to.
-        /// </summary>
-        ///
-        /// <typeparam name="TEntity">The owner, whose table the columns land in.</typeparam>
-        /// <typeparam name="TOwned">The owned type, which has no identity or table of its own.</typeparam>
-        /// <param name="navigation">The property on the owner holding the owned value.</param>
-        /// <param name="columnPrefix">
-        /// The string put in front of every non-key column name, such as <c>"Billing"</c> giving <c>BillingStreet</c>.
-        /// Required, because prefixing is the whole of what this adds over calling <c>OwnsOne</c> directly.
-        /// </param>
-        ///
-        /// <returns>The <see cref="ModelBuilder"/> instance with the owned type mapped.</returns>
-        ///
-        /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
-        public ModelBuilder ApplyOwned<TEntity, TOwned>(
-            Expression<Func<TEntity, TOwned?>> navigation,
-            string columnPrefix
-        ) where TEntity : class where TOwned : class
-        {
-            modelBuilder.Entity<TEntity>().OwnsOne(navigation, owned =>
-                {
-                    foreach (IMutableProperty ownedProperty in owned.OwnedEntityType.GetProperties())
-                    {
-                        if (ownedProperty.IsKey()) continue;
-
-                        ownedProperty.SetColumnName($"{columnPrefix}{ownedProperty.Name}");
-                    }
-                }
-            );
 
             return modelBuilder;
         }
