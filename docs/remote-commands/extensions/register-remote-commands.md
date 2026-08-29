@@ -9,9 +9,9 @@ returns: The `IServiceCollection` instance with discovered remote command classe
 
 # RegisterRemoteCommands
 
-Registers remote command classes from one or more assemblies as transient services, so [`RemoteCommandHandler`](../services/remote-command-handler) can dispatch payloads to them. Call it after [`AddRemoteCommands`](./add-remote-commands), passing explicit assemblies when commands live outside the startup assembly.
+Registers remote command classes from one or more assemblies as transient services under their own concrete type, so [`RemoteCommandHandler`](../services/remote-command-handler) can resolve one per request. Call it after [`AddRemoteCommands`](./add-remote-commands), passing explicit assemblies when commands live outside the startup assembly.
 
-A class is discovered by inheriting [`RemoteCommand<T>`](../types/remote-command), whose constructor then throws when the class does not also declare [`RemoteCommandAttribute`](../attributes/remote-command-attribute).
+A class is discovered by inheriting [`RemoteCommand<T>`](../types/remote-command) and must declare [`RemoteCommandAttribute`](../attributes/remote-command-attribute), whose name is what registration records, so a class without one throws here.
 
 ## Usage
 
@@ -22,6 +22,10 @@ builder.Services
     .AddRemoteCommands(builder.Configuration)
     .RegisterRemoteCommands();
 ```
+
+::: tip
+Each request resolves its command from its own scope, so a command may take scoped services such as a `DbContext` in its constructor and gets a fresh instance every time.
+:::
 
 <FrontmatterDocs/>
 
