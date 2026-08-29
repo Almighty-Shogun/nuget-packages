@@ -19,7 +19,7 @@ dotnet add package AlmightyShogun.Mail.Resend
 
 ### Project references
 
-- `AlmightyShogun.Core` &mdash; provides the configuration binding helper used during startup registration.
+- `AlmightyShogun.Utils` &mdash; provides the configuration binding helper used during startup registration.
 
 ## Startup Registration
 

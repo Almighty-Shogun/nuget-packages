@@ -20,7 +20,7 @@ dotnet add package AlmightyShogun.AspNet.JwtAuth
 
 ### Project references
 
-- `AlmightyShogun.Core` &mdash; provides the validated configuration binding helper the `Auth` section is bound with.
+- `AlmightyShogun.Utils` &mdash; provides the validated configuration binding helper the `Auth` section is bound with.
 - `AlmightyShogun.AspNet.Core` &mdash; provides the [`IExceptionMapper`](/asp-net-core/exceptions) contract and the standardized HTTP error response pipeline this package's failures are answered through.
 - `AlmightyShogun.AspNet.Localization` &mdash; resolves the message shown for each mapped failure, so a rejected request is explained in the caller's language.
 

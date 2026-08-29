@@ -83,8 +83,8 @@ features:
         link: /mail-resend/
         linkText: View package
 
-    -   title: Core
+    -   title: Utils
         details: Assembly scanning, options binding, JSON helpers, and console utilities.
-        link: /core/
+        link: /utils/
         linkText: View package
 ---
