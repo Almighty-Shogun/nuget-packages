@@ -19,8 +19,8 @@ namespace AlmightyShogun.ConsoleCommands;
 public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleCommand
 {
     /// <summary>
-    /// The handler resolved once in the constructor, so the reflection cost is paid when the command is built rather than
-    /// on every invocation.
+    /// The handler resolved in the constructor, so a repeated invocation inside one command does not reflect again. A
+    /// command is transient, so this is paid once per invocation rather than once per process.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -78,13 +78,14 @@ public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleComm
     IReadOnlyList<string> IConsoleCommand.Aliases => Aliases;
 
     /// <summary>
-    /// Validates the subclass and caches its handler. Validation happens here rather than at registration, so a malformed
-    /// command fails when the handler is resolved and names the offending class instead of quietly never appearing.
+    /// Validates the subclass and caches its handler. Registration validates the same rules, so this repeats them for a
+    /// command constructed by hand, naming the offending class instead of failing later inside the dispatcher.
     /// </summary>
     ///
     /// <exception cref="InvalidOperationException">
     /// Thrown when the class carries no <see cref="ConsoleCommandAttribute"/>, declares anything other than exactly one
-    /// public <c>ExecuteAsync</c>, or declares one that does not return <see cref="Task"/>.
+    /// public <c>ExecuteAsync</c>, or declares one returning anything other than <see cref="Task"/> or
+    /// <see cref="ValueTask"/>.
     /// </exception>
     ///
     /// <remarks>
@@ -136,8 +137,12 @@ public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleComm
 
         try
         {
-            if (_handlerMethod.Invoke(this, invocationValues) is Task task)
-                await task;
+            await (_handlerMethod.Invoke(this, invocationValues) switch
+            {
+                Task task => task,
+                ValueTask valueTask => valueTask.AsTask(),
+                _ => Task.CompletedTask
+            });
         }
         catch (TargetInvocationException exception) when (exception.InnerException is not null)
         {

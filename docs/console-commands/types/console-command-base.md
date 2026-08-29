@@ -1,11 +1,8 @@
 # ConsoleCommandBase
 
-Base class for application-defined console commands. A command class should inherit from this type, add [
-`ConsoleCommandAttribute`](../attributes/console-command-attribute) to the class, and define exactly one public instance method named
-`ExecuteAsync` that returns `Task`.
+Base class for application-defined console commands. A command class should inherit from this type, add [`ConsoleCommandAttribute`](../attributes/console-command-attribute) to the class, and define exactly one public instance method named `ExecuteAsync` that returns `Task` or `ValueTask`.
 
-It reads metadata and aliases from the class attributes, validates argument counts, and converts string input to the `ExecuteAsync`
-parameter types before invoking it.
+It reads metadata and aliases from the class attributes, validates argument counts, and converts string input to the `ExecuteAsync` parameter types before invoking it.
 
 ## Usage
 
@@ -26,18 +23,15 @@ public sealed class PingCommand : ConsoleCommandBase
 }
 ```
 
-::: tip The base takes no constructor arguments, so a command needing nothing declares no constructor at all. One that needs application
-services declares its own, and the dispatcher resolves them from a fresh scope per invocation.
+::: tip
+The base takes no constructor arguments, so a command needing nothing declares no constructor at all. One that needs application services declares its own, and the dispatcher resolves them from a fresh scope per invocation.
 :::
 
 ## ExecuteAsync
 
-Derived command classes must define exactly one public instance method named `ExecuteAsync` that returns `Task`. Parameters on that method
-become positional command arguments. Non-optional parameters are required, optional parameters use their C# default value when the user
-omits them, and invalid conversions are logged instead of invoking the command.
+Derived command classes must define exactly one public instance method named `ExecuteAsync` that returns `Task` or `ValueTask`. Parameters on that method become positional command arguments. Non-optional parameters are required, optional parameters use their C# default value when the user omits them, and invalid conversions are logged instead of invoking the command.
 
-A trailing `CancellationToken` parameter is supplied by the dispatcher rather than typed by the user, and is signalled when the command loop
-is stopping.
+A trailing `CancellationToken` parameter is supplied by the dispatcher rather than typed by the user, and is signalled when the command loop is stopping.
 
 ::: code-group
 
@@ -59,7 +53,7 @@ public sealed class PromoteCommand(
             version,
             environment,
             cancellationToken
-        I);
+        );
 
         Console.WriteLine($"Promoted {version} to {environment}");
     }
@@ -72,7 +66,7 @@ public interface IReleaseService
     Task PromoteAsync(
         string version,
         string environment,
-        CancellationToken cancellationTokendefault
+        CancellationToken cancellationToken = default
     );
 }
 ```

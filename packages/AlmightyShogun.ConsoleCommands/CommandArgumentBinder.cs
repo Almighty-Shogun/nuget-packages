@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Globalization;
+using System.ComponentModel;
 using Microsoft.Extensions.Logging;
 
 namespace AlmightyShogun.ConsoleCommands;
@@ -104,8 +105,12 @@ internal static class CommandArgumentBinder
     /// <remarks>
     /// An enum is matched case-insensitively by name and then checked with <see cref="Enum.IsDefined(Type, object)"/>,
     /// because <see cref="Enum.TryParse(Type, string, bool, out object)"/> also accepts any bare number and would
-    /// otherwise let an undefined value through. Everything else goes through
-    /// <see cref="Convert.ChangeType(object, Type, IFormatProvider)"/> under the invariant culture, so a decimal argument
+    /// otherwise let an undefined value through.
+    ///
+    /// Everything else is tried against <see cref="Convert.ChangeType(object, Type, IFormatProvider)"/> first, which covers
+    /// the primitives, and then against the type's <see cref="TypeConverter"/>, which is what makes
+    /// <see cref="Guid"/>, <see cref="TimeSpan"/>, <see cref="DateOnly"/>, <see cref="Uri"/> and any type carrying a
+    /// <see cref="TypeConverterAttribute"/> bindable. Both run under the invariant culture, so a decimal or a date argument
     /// means the same thing whatever machine the application runs on.
     /// </remarks>
     ///
@@ -137,6 +142,35 @@ internal static class CommandArgumentBinder
             return false;
         }
 
+        if (TryChangeType(argument, parameterType, out value) || TryConvertFromString(argument, parameterType, out value))
+            return true;
+
+        if (logger.IsEnabled(LogLevel.Warning))
+            logger.LogWarning(
+                "Cannot convert value {Value:b} to type {Type:c} for parameter {ParamName:b}",
+                argument,
+                parameterType.Name,
+                parameter.Name
+            );
+
+        return false;
+    }
+
+    /// <summary>
+    /// Converts through <see cref="Convert.ChangeType(object, Type, IFormatProvider)"/>, which handles the primitives and
+    /// anything else implementing <see cref="IConvertible"/>.
+    /// </summary>
+    ///
+    /// <param name="argument">The token as typed.</param>
+    /// <param name="parameterType">The target type, already unwrapped from <see cref="Nullable{T}"/>.</param>
+    /// <param name="value">The converted value on success; <c>null</c> otherwise.</param>
+    ///
+    /// <returns><c>true</c> when the token converted; otherwise <c>false</c>.</returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static bool TryChangeType(string argument, Type parameterType, out object? value)
+    {
         try
         {
             value = Convert.ChangeType(argument, parameterType, CultureInfo.InvariantCulture);
@@ -146,14 +180,47 @@ internal static class CommandArgumentBinder
         catch (Exception exception)
             when (exception is InvalidCastException or FormatException or OverflowException or ArgumentNullException)
         {
-            if (logger.IsEnabled(LogLevel.Warning))
-                logger.LogWarning(
-                    "Cannot convert value {Value:b} to type {Type:c} for parameter {ParamName:b}",
-                    argument,
-                    parameterType.Name,
-                    parameter.Name
-                );
+            value = null;
 
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Converts through the type's <see cref="TypeConverter"/>, which is what a type outside <see cref="IConvertible"/>
+    /// declares its own string parsing with.
+    /// </summary>
+    ///
+    /// <param name="argument">The token as typed.</param>
+    /// <param name="parameterType">The target type, already unwrapped from <see cref="Nullable{T}"/>.</param>
+    /// <param name="value">The converted value on success; <c>null</c> otherwise.</param>
+    ///
+    /// <returns><c>true</c> when the token converted; otherwise <c>false</c>.</returns>
+    ///
+    /// <remarks>
+    /// Every exception is swallowed rather than the parse-shaped ones alone, because a converter is third-party code and
+    /// may throw anything at all to mean "not my format". The caller reports the failure either way.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static bool TryConvertFromString(string argument, Type parameterType, out object? value)
+    {
+        value = null;
+
+        TypeConverter converter = TypeDescriptor.GetConverter(parameterType);
+
+        if (!converter.CanConvertFrom(typeof(string)))
+            return false;
+
+        try
+        {
+            value = converter.ConvertFromInvariantString(argument);
+
+            return value is not null;
+        }
+        catch
+        {
             return false;
         }
     }

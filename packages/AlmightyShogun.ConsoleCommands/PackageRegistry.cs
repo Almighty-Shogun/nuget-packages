@@ -40,8 +40,9 @@ public static class PackageRegistry
         public IServiceCollection RegisterConsoleCommands() => serviceCollection.RegisterConsoleCommands([Assembly.GetCallingAssembly()]);
 
         /// <summary>
-        /// Registers the command classes declared in the given assemblies as transient services, so a fresh instance is built
-        /// for each invocation and a command may depend on scoped application services.
+        /// Registers the command classes declared in the given assemblies as transient services under their own concrete
+        /// type, alongside a descriptor naming each one, so a fresh instance is built for each invocation from a fresh scope
+        /// and a command may depend on scoped application services.
         /// </summary>
         ///
         /// <param name="assemblies">
@@ -51,15 +52,40 @@ public static class PackageRegistry
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the console commands registered.</returns>
         ///
+        /// <exception cref="InvalidOperationException">
+        /// A discovered class breaks one of the command rules: no <see cref="ConsoleCommandAttribute"/>, a name that cannot
+        /// be typed, or anything other than one public <c>ExecuteAsync</c> returning an awaitable. Raised here so the
+        /// offending class is named at startup rather than quietly never answering the prompt.
+        /// </exception>
+        ///
         /// <remarks>
-        /// Every discovered command class is registered, including one that turns out to be malformed. The resulting
-        /// <see cref="InvalidOperationException"/> from <see cref="ConsoleCommandBase"/> then surfaces when the handler is
-        /// resolved, which reports the offending class by name rather than silently omitting it from the prompt.
+        /// Commands are registered under their concrete type rather than under the command interface, because the dispatcher
+        /// resolves one by type from a per-invocation scope instead of enumerating them all. A class carrying
+        /// <see cref="SkipAutoRegistrationAttribute"/> is skipped, and a name claimed twice is reported when the dispatcher
+        /// builds its table rather than here.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.1.0</since>
         public IServiceCollection RegisterConsoleCommands(Assembly[] assemblies)
-            => serviceCollection.RegisterOnInherit<IConsoleCommand>(assemblies, ServiceLifetime.Transient);
+        {
+            serviceCollection.RegisterOnInherit<IConsoleCommand>(assemblies, ServiceLifetime.Transient, false);
+
+            IEnumerable<Type> commandTypes = ConsoleCommandDiscovery.GetConsoleCommandTypes(assemblies)
+                .Where(type => !type.IsDefined(typeof(SkipAutoRegistrationAttribute), false));
+
+            foreach (Type commandType in commandTypes)
+            {
+                (ConsoleCommandAttribute attribute, _) = CommandMetadata.Describe(commandType);
+
+                serviceCollection.AddSingleton(new ConsoleCommandDescriptor(
+                    attribute.Name,
+                    commandType.GetCustomAttribute<AliasAttribute>()?.Aliases ?? [],
+                    commandType
+                ));
+            }
+
+            return serviceCollection;
+        }
     }
 }

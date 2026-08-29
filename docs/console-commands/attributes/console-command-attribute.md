@@ -1,7 +1,7 @@
 ---
 params:
     - name: name
-      description: Command name typed by the user in the console input.
+      description: Command name typed by the user in the console input, matched case-insensitively. Must not be blank or contain whitespace, since input is split on spaces before the first token is matched.
       type: string
 
     - name: description

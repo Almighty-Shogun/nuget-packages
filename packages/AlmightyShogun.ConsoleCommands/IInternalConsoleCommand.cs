@@ -22,11 +22,17 @@ internal interface IInternalConsoleCommand
     /// services of its own can declare no constructor and still report bad input.
     /// </param>
     /// <param name="cancellationToken">
-    /// Signalled when the handler is stopping. Passed on only to a handler whose last parameter is a
+    /// Signaled when the handler is stopping. Passed on only to a handler whose last parameter is a
     /// <see cref="CancellationToken"/>; otherwise the command runs to completion regardless.
     /// </param>
     ///
     /// <returns>A task that completes when the handler has finished, or immediately when the arguments were rejected.</returns>
+    ///
+    /// <remarks>
+    /// A handler returning <see cref="ValueTask"/> is converted with <see cref="ValueTask.AsTask"/> rather than awaited in
+    /// its own branch, because the two return types share no base to await through. The conversion allocates, but reflection
+    /// has already boxed the value, so the allocation <see cref="ValueTask"/> exists to avoid is gone either way.
+    /// </remarks>
     ///
     /// <exception cref="Exception">
     /// Whatever the command's own <c>ExecuteAsync</c> threw, rethrown with its original stack trace rather than wrapped in

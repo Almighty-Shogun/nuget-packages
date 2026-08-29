@@ -1,4 +1,4 @@
-# ConsoleUtils
+# ConsoleCommandDiscovery
 
 Reads the metadata of every command declared in an assembly, without constructing any of them. Use it to build a `help` listing or a command reference.
 
@@ -7,7 +7,7 @@ Reads the metadata of every command declared in an assembly, without constructin
 ```csharp
 using AlmightyShogun.ConsoleCommands;
 
-foreach (ConsoleCommand command in ConsoleUtils.GetAllCommands())
+foreach (ConsoleCommand command in ConsoleCommandDiscovery.GetAllCommands())
 {
     Console.WriteLine(command.Usage);
 }
@@ -15,7 +15,7 @@ foreach (ConsoleCommand command in ConsoleUtils.GetAllCommands())
 
 ## GetAllCommands
 
-Builds the metadata for each valid command class, reading the class attributes and the parameters of its `ExecuteAsync` method. A class that carries [`ConsoleCommandAttribute`](../attributes/console-command-attribute) but breaks the handler-method rules is skipped, so this never throws on a malformed command.
+Builds the metadata for each command class, reading the class attributes and the parameters of its `ExecuteAsync` method. A class that breaks the command rules throws `InvalidOperationException` naming it, the same failure [`RegisterConsoleCommands`](../extensions/register-console-commands) raises, so a help listing and the prompt never disagree about what a command is.
 
 The overload taking no argument scans the calling assembly. Pass assemblies explicitly when the commands live in another project; an empty array yields nothing.
 
@@ -31,7 +31,7 @@ using AlmightyShogun.ConsoleCommands;
 public sealed class HelpCommand : ConsoleCommandBase
 {
     private static readonly IReadOnlyList<ConsoleCommand> _commands =
-        ConsoleUtils.GetAllCommands();
+        ConsoleCommandDiscovery.GetAllCommands();
 
     public Task ExecuteAsync()
     {

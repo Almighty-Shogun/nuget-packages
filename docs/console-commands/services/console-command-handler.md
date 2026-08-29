@@ -36,7 +36,9 @@ builder.Services
 
 ## StartAsync
 
-Reads lines from `Console.In`, treats the first token as the command name, and forwards the rest to the matching command class. The loop ends when the token is cancelled or [`Stop`](#stop) is called.
+Reads lines from `Console.In`, treats the first token as the command name, and forwards the rest to the matching command class. Names and aliases match case-insensitively, and a token matching neither is logged with the closest registered name as a suggestion. The loop ends when the token is cancelled, [`Stop`](#stop) is called, or the input stream reaches its end.
+
+An exception escaping a command is logged and the prompt keeps reading, so one failing command does not take the console down. Subscribe to `CommandFailed` to report it elsewhere.
 
 Only one loop may run at a time. Calling this while one is already running logs an error and returns.
 
@@ -93,4 +95,33 @@ public sealed class ConsoleCommandWorker(
 
 ```csharp
 public void Stop();
+```
+
+## CommandFailed
+
+Raised after a command threw and the failure was logged, for reporting it somewhere the dispatcher knows nothing about, such as telemetry or a non-zero exit code. `CommandName` is the name as typed, so an alias comes through as the alias.
+
+Handlers run on the loop's thread before the next line is read, so a slow one delays the prompt, and an exception from a handler is not caught.
+
+```csharp
+using AlmightyShogun.ConsoleCommands;
+using Microsoft.Extensions.Logging;
+
+public sealed class CommandFailureReporter(
+    IConsoleCommandHandler commandHandler,
+    ILogger<CommandFailureReporter> logger
+)
+{
+    public void Subscribe() => commandHandler.CommandFailed += (_, args) => logger.LogCritical(
+        args.Exception,
+        "Operator command {CommandName} failed",
+        args.CommandName
+    );
+}
+```
+
+### Type signature
+
+```csharp
+public event EventHandler<ConsoleCommandErrorEvent>? CommandFailed;
 ```

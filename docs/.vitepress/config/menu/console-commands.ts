@@ -36,7 +36,7 @@ export const consoleCommands: DefaultTheme.SidebarItem[] = [
         text: 'Utilities',
         collapsed: false,
         items: [
-            { text: 'ConsoleUtils', link: '/console-commands/utilities/console-utils' }
+            { text: 'ConsoleCommandDiscovery', link: '/console-commands/utilities/console-command-discovery' }
         ]
     },
     {
@@ -44,7 +44,8 @@ export const consoleCommands: DefaultTheme.SidebarItem[] = [
         collapsed: false,
         items: [
             { text: 'ConsoleCommand', link: '/console-commands/types/console-command' },
-            { text: 'ConsoleCommandBase', link: '/console-commands/types/console-command-base' }
+            { text: 'ConsoleCommandBase', link: '/console-commands/types/console-command-base' },
+            { text: 'ConsoleCommandErrorEvent', link: '/console-commands/types/console-command-error-event' }
         ]
     },
 ];

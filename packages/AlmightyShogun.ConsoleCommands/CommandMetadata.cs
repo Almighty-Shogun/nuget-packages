@@ -48,6 +48,14 @@ internal static class CommandMetadata
             return false;
         }
 
+        if (!IsInvocableName(declaredAttribute.Name))
+        {
+            error = $"{commandType.Name} declares the command name '{declaredAttribute.Name}', which cannot be typed at the "
+                    + "prompt. A name must not be blank and must contain no whitespace, because input is split on spaces.";
+
+            return false;
+        }
+
         MethodInfo[] handlerMethods =
         [
             .. commandType
@@ -62,10 +70,10 @@ internal static class CommandMetadata
             return false;
         }
 
-        if (handlerMethods[0].ReturnType != typeof(Task))
+        if (!IsAwaitableReturn(handlerMethods[0].ReturnType))
         {
-            error = $"{commandType.Name}.ExecuteAsync must return {nameof(Task)}. A command is only ever invoked by someone "
-                    + "typing it at the prompt, so there is nowhere for a return value to go.";
+            error = $"{commandType.Name}.ExecuteAsync must return {nameof(Task)} or {nameof(ValueTask)}. A command is only "
+                    + "ever invoked by someone typing it at the prompt, so there is nowhere for a return value to go.";
 
             return false;
         }
@@ -75,4 +83,58 @@ internal static class CommandMetadata
 
         return true;
     }
+
+    /// <summary>
+    /// Checks the same rules as <see cref="TryDescribe"/> and throws instead of reporting, for the callers that treat a
+    /// malformed command as a startup failure rather than something to skip.
+    /// </summary>
+    ///
+    /// <param name="commandType">The candidate type, already known to be concrete.</param>
+    ///
+    /// <returns>The class attribute and the sole public <c>ExecuteAsync</c>.</returns>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// The type breaks one of the rules, with the same message <see cref="TryDescribe"/> would have reported.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal static (ConsoleCommandAttribute Attribute, MethodInfo HandlerMethod) Describe(Type commandType)
+        => !TryDescribe(commandType, out ConsoleCommandAttribute attribute, out MethodInfo handlerMethod, out string? error)
+            ? throw new InvalidOperationException(error)
+            : (attribute, handlerMethod);
+
+    /// <summary>
+    /// Checks whether a declared name is one a user could actually type and the dispatcher could actually match.
+    /// </summary>
+    ///
+    /// <param name="name">The name from the class attribute, or from an alias.</param>
+    ///
+    /// <returns><c>true</c> when the name is non-blank and free of whitespace; otherwise <c>false</c>.</returns>
+    ///
+    /// <remarks>
+    /// Input is split on spaces before the first token is looked up, so a name containing one can never be matched however
+    /// it is typed. Rejecting it here is what stops such a command registering and then never responding.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal static bool IsInvocableName(string name) => !string.IsNullOrWhiteSpace(name) && !name.Any(char.IsWhiteSpace);
+
+    /// <summary>
+    /// Checks whether a handler's return type is one the dispatcher can await.
+    /// </summary>
+    ///
+    /// <param name="returnType">The declared return type of <c>ExecuteAsync</c>.</param>
+    ///
+    /// <returns><c>true</c> for <see cref="Task"/> and <see cref="ValueTask"/>; otherwise <c>false</c>.</returns>
+    ///
+    /// <remarks>
+    /// The generic forms are rejected along with everything else. A command's result has nowhere to go, so returning one
+    /// is a sign the method was meant to be called by something other than the prompt.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal static bool IsAwaitableReturn(Type returnType) => returnType == typeof(Task) || returnType == typeof(ValueTask);
 }
