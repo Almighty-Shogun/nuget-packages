@@ -139,7 +139,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
 
                 if (string.IsNullOrWhiteSpace(input)) continue;
 
-                Core.ConsoleUtils.RemoveLastLine();
+                Utils.ConsoleUtils.RemoveLastLine();
 
                 await HandleCommandAsync(input, stopSource.Token);
             }
