@@ -153,7 +153,7 @@ public static class ServiceCollectionExtensions
         /// takes no assembly at all is the one that falls back to the calling assembly.
         /// </param>
         /// <param name="serviceLifetime">The lifetime applied to every registration this call produces.</param>
-        /// <param name="addType">
+        /// <param name="registerAsBaseType">
         /// Whether to register each implementation under <typeparamref name="T"/>, which is what a consumer resolving
         /// <see cref="IEnumerable{T}"/> needs, or under its own concrete type when <c>false</c>.
         /// </param>
@@ -175,9 +175,9 @@ public static class ServiceCollectionExtensions
         public IServiceCollection RegisterOnInherit<T>(
             Assembly[] assemblies,
             ServiceLifetime serviceLifetime = ServiceLifetime.Singleton,
-            bool addType = true,
+            bool registerAsBaseType = true,
             Func<Type, bool>? filter = null
-        ) where T : class => serviceCollection.InternalRegister<T>(serviceLifetime, addType, filter, assemblies);
+        ) where T : class => serviceCollection.InternalRegister<T>(serviceLifetime, registerAsBaseType, filter, assemblies);
 
         /// <summary>
         /// Performs the discovery and registration every public overload ends up at, once the assemblies have been resolved
@@ -186,7 +186,7 @@ public static class ServiceCollectionExtensions
         ///
         /// <typeparam name="T">The base type or interface to match.</typeparam>
         /// <param name="serviceLifetime">The lifetime applied to every registration.</param>
-        /// <param name="addType">
+        /// <param name="registerAsBaseType">
         /// Whether to register each implementation under <typeparamref name="T"/> instead of its own concrete type.
         /// </param>
         /// <param name="filter">An optional predicate applied to each discovered type. Only types it accepts are registered.</param>
@@ -201,7 +201,7 @@ public static class ServiceCollectionExtensions
         /// <since>1.0.0</since>
         private IServiceCollection InternalRegister<T>(
             ServiceLifetime serviceLifetime,
-            bool addType,
+            bool registerAsBaseType,
             Func<Type, bool>? filter,
             Assembly[] assemblies
         ) where T : class
@@ -212,7 +212,7 @@ public static class ServiceCollectionExtensions
 
             foreach (Type type in types)
             {
-                Type serviceType = addType ? typeof(T) : type;
+                Type serviceType = registerAsBaseType ? typeof(T) : type;
                 serviceCollection.Add(new ServiceDescriptor(serviceType, type, serviceLifetime));
             }
 
