@@ -84,7 +84,8 @@ public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleComm
     ///
     /// <exception cref="InvalidOperationException">
     /// Thrown when the class carries no <see cref="ConsoleCommandAttribute"/>, declares anything other than exactly one
-    /// public <c>ExecuteAsync</c>, or declares one that does not return <see cref="Task"/>.
+    /// public <c>ExecuteAsync</c>, or declares one returning anything other than <see cref="Task"/> or
+    /// <see cref="ValueTask"/>.
     /// </exception>
     ///
     /// <remarks>
@@ -136,8 +137,12 @@ public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleComm
 
         try
         {
-            if (_handlerMethod.Invoke(this, invocationValues) is Task task)
-                await task;
+            await (_handlerMethod.Invoke(this, invocationValues) switch
+            {
+                Task task => task,
+                ValueTask valueTask => valueTask.AsTask(),
+                _ => Task.CompletedTask
+            });
         }
         catch (TargetInvocationException exception) when (exception.InnerException is not null)
         {

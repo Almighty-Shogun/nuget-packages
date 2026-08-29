@@ -70,10 +70,10 @@ internal static class CommandMetadata
             return false;
         }
 
-        if (handlerMethods[0].ReturnType != typeof(Task))
+        if (!IsAwaitableReturn(handlerMethods[0].ReturnType))
         {
-            error = $"{commandType.Name}.ExecuteAsync must return {nameof(Task)}. A command is only ever invoked by someone "
-                    + "typing it at the prompt, so there is nowhere for a return value to go.";
+            error = $"{commandType.Name}.ExecuteAsync must return {nameof(Task)} or {nameof(ValueTask)}. A command is only "
+                    + "ever invoked by someone typing it at the prompt, so there is nowhere for a return value to go.";
 
             return false;
         }
@@ -100,4 +100,21 @@ internal static class CommandMetadata
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     internal static bool IsInvocableName(string name) => !string.IsNullOrWhiteSpace(name) && !name.Any(char.IsWhiteSpace);
+
+    /// <summary>
+    /// Checks whether a handler's return type is one the dispatcher can await.
+    /// </summary>
+    ///
+    /// <param name="returnType">The declared return type of <c>ExecuteAsync</c>.</param>
+    ///
+    /// <returns><c>true</c> for <see cref="Task"/> and <see cref="ValueTask"/>; otherwise <c>false</c>.</returns>
+    ///
+    /// <remarks>
+    /// The generic forms are rejected along with everything else. A command's result has nowhere to go, so returning one
+    /// is a sign the method was meant to be called by something other than the prompt.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal static bool IsAwaitableReturn(Type returnType) => returnType == typeof(Task) || returnType == typeof(ValueTask);
 }

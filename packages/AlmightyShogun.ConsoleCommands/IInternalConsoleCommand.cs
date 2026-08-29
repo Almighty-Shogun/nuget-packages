@@ -28,6 +28,12 @@ internal interface IInternalConsoleCommand
     ///
     /// <returns>A task that completes when the handler has finished, or immediately when the arguments were rejected.</returns>
     ///
+    /// <remarks>
+    /// A handler returning <see cref="ValueTask"/> is converted with <see cref="ValueTask.AsTask"/> rather than awaited in
+    /// its own branch, because the two return types share no base to await through. The conversion allocates, but reflection
+    /// has already boxed the value, so the allocation <see cref="ValueTask"/> exists to avoid is gone either way.
+    /// </remarks>
+    ///
     /// <exception cref="Exception">
     /// Whatever the command's own <c>ExecuteAsync</c> threw, rethrown with its original stack trace rather than wrapped in
     /// <see cref="System.Reflection.TargetInvocationException"/>. Nothing on this path catches it.
