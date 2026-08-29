@@ -9,7 +9,7 @@ returns: The `IServiceCollection` instance with the discovered command classes r
 
 # RegisterConsoleCommands
 
-Registers the command classes declared in the given assemblies as transient services, so [`ConsoleCommandHandler`](../services/console-command-handler) receives them from dependency injection. Call it after [`AddConsoleCommands`](./add-console-commands), which registers the handler itself.
+Registers the command classes declared in the given assemblies as transient services under their own concrete type, so [`ConsoleCommandHandler`](../services/console-command-handler) can resolve one per invocation. Call it after [`AddConsoleCommands`](./add-console-commands), which registers the handler itself.
 
 A fresh instance is built per invocation, so a command may depend on scoped application services.
 
@@ -46,10 +46,10 @@ public sealed class DeployCommand : ConsoleCommandBase
 
 ## Malformed commands
 
-Every discovered command class is registered, including one that is malformed. A class that carries no [`ConsoleCommandAttribute`](../attributes/console-command-attribute), declares anything other than exactly one public `ExecuteAsync`, or declares one that does not return `Task`, throws `InvalidOperationException` naming the class when the handler is resolved.
+A class that carries no [`ConsoleCommandAttribute`](../attributes/console-command-attribute), declares a name that is blank or contains whitespace, declares anything other than exactly one public `ExecuteAsync`, or declares one returning something other than `Task` or `ValueTask`, throws `InvalidOperationException` naming the class during registration.
 
 ::: warning
-A command that does not inherit [`ConsoleCommandBase`](../types/console-command-base) is rejected the same way.
+Discovery only finds classes inheriting [`ConsoleCommandBase`](../types/console-command-base). A class carrying the attribute without it is never registered and never reachable at the prompt.
 :::
 
 <FrontmatterDocs/>
