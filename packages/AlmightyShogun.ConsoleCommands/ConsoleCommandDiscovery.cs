@@ -81,15 +81,23 @@ public static class ConsoleCommandDiscovery
     ///
     /// <exception cref="InvalidOperationException">The class breaks one of the command rules.</exception>
     ///
+    /// <remarks>
+    /// Only a trailing token is dropped, matching the one position <see cref="ConsoleCommandBase"/> fills in. A token
+    /// declared anywhere else is a parameter the user has to supply, and the usage string says so rather than hiding it.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     internal static ConsoleCommand Describe(Type commandType)
     {
         (ConsoleCommandAttribute attribute, MethodInfo handlerMethod) = CommandMetadata.Describe(commandType);
 
-        string usage = string.Join(" ", handlerMethod.GetParameters()
-            .Where(parameter => parameter.ParameterType != typeof(CancellationToken))
-            .Select(parameter => $"<{parameter.Name}:{parameter.ParameterType.Name}>"));
+        ParameterInfo[] parameters = handlerMethod.GetParameters();
+
+        if (parameters.Length > 0 && parameters[^1].ParameterType == typeof(CancellationToken))
+            parameters = parameters[..^1];
+
+        string usage = string.Join(" ", parameters.Select(parameter => $"<{parameter.Name}:{parameter.ParameterType.Name}>"));
 
         return new ConsoleCommand(
             attribute.Name,
