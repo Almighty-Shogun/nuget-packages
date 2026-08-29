@@ -1,4 +1,3 @@
-using System.Net;
 using System.ComponentModel.DataAnnotations;
 
 namespace AlmightyShogun.RemoteCommands;
@@ -106,51 +105,4 @@ public sealed record RemoteServerSettings
     /// <since>Unreleased</since>
     [Range(1, int.MaxValue)]
     public int MaxConcurrentConnections { get; init; } = 100;
-
-    /// <summary>
-    /// Parses <see cref="Address"/> into the address the listener binds to, so an unusable value is reported here rather
-    /// than as a socket failure with no indication of which setting produced it.
-    /// </summary>
-    ///
-    /// <returns>The address to bind.</returns>
-    ///
-    /// <exception cref="InvalidOperationException">The configured value is not an IP address.</exception>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    internal IPAddress ValidAddress() => IPAddress.TryParse(Address, out IPAddress? address)
-        ? address
-        : throw new InvalidOperationException($"RemoteServer:Address '{Address}' is not an IP address.");
-
-    /// <summary>
-    /// Parses <see cref="Whitelisted"/> into the networks a connecting address is matched against, accepting a CIDR range
-    /// and a bare address through the same path.
-    /// </summary>
-    ///
-    /// <returns>
-    /// One network per entry, a bare address becoming a single-address network so matching never has to special-case it.
-    /// Empty when none are configured, which is what makes an unconfigured whitelist refuse every connection.
-    /// </returns>
-    ///
-    /// <exception cref="InvalidOperationException">
-    /// An entry is neither an address nor a CIDR range. Rejected rather than skipped, because an entry that silently never
-    /// matches leaves a whitelist that looks correct refusing the client it was written for.
-    /// </exception>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    internal IReadOnlyList<IPNetwork> ValidWhitelisted()
-    {
-        List<IPNetwork> networks = [];
-
-        foreach (string entry in Whitelisted)
-            if (IPNetwork.TryParse(entry, out IPNetwork network))
-                networks.Add(network);
-            else if (IPAddress.TryParse(entry, out IPAddress? address))
-                networks.Add(new IPNetwork(address, address.GetAddressBytes().Length * 8));
-            else
-                throw new InvalidOperationException($"RemoteServer:Whitelisted entry '{entry}' is neither an IP address nor a CIDR range.");
-
-        return networks;
-    }
 }

@@ -52,7 +52,8 @@ internal sealed class RemoteCommandHandler(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private readonly IReadOnlyList<IPNetwork> _whitelist = remoteServerSettings.Value.ValidWhitelisted();
+    private readonly IReadOnlyList<IPNetwork> _whitelist =
+        RemoteServerSettingsParser.ParseWhitelist(remoteServerSettings.Value.Whitelisted);
 
     /// <summary>
     /// The address the listener binds to, parsed at construction so a bad value is reported when the handler is resolved
@@ -61,7 +62,7 @@ internal sealed class RemoteCommandHandler(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private readonly IPAddress _address = remoteServerSettings.Value.ValidAddress();
+    private readonly IPAddress _address = RemoteServerSettingsParser.ParseAddress(remoteServerSettings.Value.Address);
 
     /// <summary>
     /// The required key as bytes, or <c>null</c> when the server asks for none. Held encoded so each comparison is a
