@@ -13,7 +13,7 @@
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Description>A C# library that adds Entity Framework Core model-building helpers for relationships, indexes, owned types, enum storage, and eager loading.</Description>
+        <Description>A C# library that adds Entity Framework Core model-building helpers for relationships, indexes, enum storage, and eager loading.</Description>
 
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages</RepositoryUrl>
