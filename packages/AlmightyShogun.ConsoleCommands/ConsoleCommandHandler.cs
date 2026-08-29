@@ -57,8 +57,8 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     private readonly Dictionary<string, Type> _commands = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Builds the dispatch table by resolving every registered command once. This is where a malformed command surfaces,
-    /// because constructing it runs the validation in <see cref="ConsoleCommandBase"/>.
+    /// Builds the dispatch table from the registered descriptors, without resolving a command. A malformed one has already
+    /// been rejected at registration, so the only rule left to check here is that the class can actually be executed.
     /// </summary>
     ///
     /// <param name="logger">
@@ -66,9 +66,9 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     /// without depending on a logger itself.
     /// </param>
     /// <param name="scopeFactory">The factory used to build a scope per invocation.</param>
-    /// <param name="commands">
-    /// Every registered command, enumerated once here and then discarded. The instances are only used for their names, so
-    /// nothing about them survives into the loop.
+    /// <param name="descriptors">
+    /// Every registered command's name, aliases and class, enumerated once to build the name table. Descriptors rather
+    /// than commands, so this singleton never captures an instance and a command stays free to depend on scoped services.
     /// </param>
     ///
     /// <exception cref="InvalidOperationException">
@@ -81,21 +81,21 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     public ConsoleCommandHandler(
         ILogger<ConsoleCommandHandler> logger,
         IServiceScopeFactory scopeFactory,
-        IEnumerable<IConsoleCommand> commands
+        IEnumerable<ConsoleCommandDescriptor> descriptors
     )
     {
         _logger = logger;
         _scopeFactory = scopeFactory;
 
-        foreach (IConsoleCommand consoleCommand in commands)
+        foreach (ConsoleCommandDescriptor descriptor in descriptors)
         {
-            if (consoleCommand is not IInternalConsoleCommand)
-                throw new InvalidOperationException($"{consoleCommand.GetType().Name} must inherit {nameof(ConsoleCommandBase)}.");
+            if (!typeof(IInternalConsoleCommand).IsAssignableFrom(descriptor.ImplementationType))
+                throw new InvalidOperationException($"{descriptor.ImplementationType.Name} must inherit {nameof(ConsoleCommandBase)}.");
 
-            Register(consoleCommand.Name, consoleCommand.GetType());
+            Register(descriptor.Name, descriptor.ImplementationType);
 
-            foreach (string alias in consoleCommand.Aliases)
-                Register(alias, consoleCommand.GetType());
+            foreach (string alias in descriptor.Aliases)
+                Register(alias, descriptor.ImplementationType);
         }
     }
 
@@ -246,7 +246,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
 
-        var command = (IInternalConsoleCommand)ActivatorUtilities.CreateInstance(scope.ServiceProvider, commandType);
+        var command = (IInternalConsoleCommand)scope.ServiceProvider.GetRequiredService(commandType);
 
         await command.InternallyExecuteCommandAsync(parts[1..], _logger, cancellationToken);
     }
