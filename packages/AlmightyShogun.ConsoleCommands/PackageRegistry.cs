@@ -1,5 +1,5 @@
 using System.Reflection;
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AlmightyShogun.ConsoleCommands;

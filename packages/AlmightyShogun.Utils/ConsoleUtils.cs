@@ -1,4 +1,4 @@
-namespace AlmightyShogun.Core;
+namespace AlmightyShogun.Utils;
 
 /// <summary>
 /// Groups the console primitives a long-running command-line application needs: naming the window and taking over what
@@ -61,8 +61,8 @@ public static class ConsoleUtils
     }
 
     /// <summary>
-    /// Prompts on the console and waits for an answer, repeating the prompt until one is available. The prompt line is
-    /// erased once answered, so a sequence of questions does not fill the screen with what was already asked.
+    /// Prompts on the console and waits for an answer, repeating the prompt until one is available or the input stream ends.
+    /// The prompt line is erased once answered, so a sequence of questions does not fill the screen with what was already asked.
     /// </summary>
     ///
     /// <param name="question">
@@ -70,40 +70,61 @@ public static class ConsoleUtils
     /// the same line.
     /// </param>
     /// <param name="defaultValue">
-    /// The answer to use when the reader submits an empty line. Leave it unset to make the question mandatory: an empty
-    /// line then re-asks rather than returning, and the loop only ends once something is typed.
+    /// The answer to use when the reader submits an empty line or the input stream ends. Leave it unset to make the question
+    /// mandatory: an empty line then re-asks rather than returning, and only a typed answer or a closed stream ends the loop.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Abandons the question. Only observed between reads, so it takes effect once the pending line is submitted rather than
+    /// interrupting a reader who is part way through typing one.
     /// </param>
     ///
     /// <returns>
-    /// The typed answer, or <paramref name="defaultValue"/> when the line was empty. Never <c>null</c> and never empty.
+    /// The typed answer, <paramref name="defaultValue"/> when the line was empty or the input stream ended, or <c>null</c>
+    /// when the stream ended on a mandatory question. Never empty.
     /// </returns>
+    ///
+    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled before a read began.</exception>
     ///
     /// <remarks>
     /// Typed input is colored, and the color is reset before returning even though the console is left on whatever
-    /// line the caller was on. A redirected input stream returns <c>null</c> from every read, which with no default is
-    /// an infinite loop, so a mandatory question belongs only in an interactive tool.
+    /// line the caller was on.
+    ///
+    /// A closed or exhausted input stream ends the loop rather than spinning on it, which is what a redirected process gets on
+    /// every read. That is the only path to a <c>null</c> result, so a caller that always passes a default never sees one.
+    ///
+    /// <see cref="Console.In"/> reads synchronously whatever is asked of it, so awaiting here yields no thread back while a
+    /// reader is typing. The asynchronous shape is for composing with asynchronous callers, not for scaling.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    public static async Task<string> AskQuestionAsync(string question, string? defaultValue = null)
+    public static async Task<string?> AskQuestionAsync(
+        string question,
+        string? defaultValue = null,
+        CancellationToken cancellationToken = default
+    )
     {
-        string? answer = null;
-
-        while (answer is null)
+        while (true)
         {
             await Console.Out.WriteAsync($"[QUESTION] {question}: ");
             Console.ForegroundColor = ConsoleColor.Blue;
 
-            string input = Console.ReadLine() ?? "";
+            try
+            {
+                string? input = await Console.In.ReadLineAsync(cancellationToken);
 
-            answer = input.Length >= 1 ? input : defaultValue;
+                if (input is null) return defaultValue;
 
-            Console.ResetColor();
-            RemoveLastLine();
+                if (input.Length >= 1) return input;
+
+                if (defaultValue is not null) return defaultValue;
+            }
+            finally
+            {
+                Console.ResetColor();
+                RemoveLastLine();
+            }
         }
-
-        return answer;
     }
 
     /// <summary>
@@ -114,7 +135,7 @@ public static class ConsoleUtils
     /// <remarks>
     /// There is no counterpart that restores the default. Once suppressed, cancellation stays suppressed for the life of the
     /// process, and the application must expose some other way to stop. A hosted application should prefer
-    /// <c>UseCustomConsoleLifetime</c> from <c>AlmightyShogun.Hosting.Utils</c>, which suppresses the same key press but still
+    /// <c>UseCustomConsoleLifetime</c> from <c>AlmightyShogun.Hosting.ConsoleLifetime</c>, which suppresses the same key press but still
     /// shuts down cleanly on <c>SIGTERM</c>.
     /// </remarks>
     ///

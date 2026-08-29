@@ -9,19 +9,19 @@ Implementations need a public parameterless constructor, because `AddService<T>`
 ::: code-group
 
 ```csharp [Program.cs]
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.AddService<NotificationsRegistry>();
 ```
 
 ```csharp [NotificationsRegistry.cs]
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 public sealed class NotificationsRegistry : IServiceRegistry
 {
-    public IServiceCollection ConfigureService(
+    public void ConfigureService(
         IServiceCollection serviceCollection
     ) => serviceCollection.AddSingleton<NotificationFormatter>();
 }
@@ -40,12 +40,12 @@ public sealed class NotificationFormatter
 
 Adds the module's registrations to the provided `IServiceCollection`. [`AddService<T>`](../extensions/add-service) calls this after constructing the module, and application code can call it directly when it already owns an instance.
 
-Return the same service collection so registration calls stay chainable. Do not resolve services or perform runtime work here; this method should only describe registrations.
+The collection passed in is the application's live one, not a copy, so registrations made here are visible to the rest of startup and there is nothing to return. Do not resolve services or perform runtime work here; this method should only describe registrations.
 
 ### Type signature
 
 ```csharp
-IServiceCollection ConfigureService(
+void ConfigureService(
     IServiceCollection serviceCollection
 );
 ```

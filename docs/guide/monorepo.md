@@ -12,7 +12,7 @@ nuget-packages/
         AlmightyShogun.AspNet.MaintenanceMode/
         AlmightyShogun.AspNet.RequestValidation/
         AlmightyShogun.ConsoleCommands/
-        AlmightyShogun.Core/
+        AlmightyShogun.Utils/
         AlmightyShogun.EntityFrameworkCore.ModelBuilding/
         AlmightyShogun.Hangfire.RecurringJobs/
         AlmightyShogun.Hosting.ConsoleLifetime/
@@ -37,7 +37,7 @@ The packages are small on purpose. Each owns one application concern and can be 
 - ASP.NET packages cover the shared web layer, authentication, credential login, localization, request validation, and maintenance mode.
 - Operations packages cover console commands, recurring Hangfire jobs, host lifetime behavior, remote command handling, and logging.
 - Data packages cover Entity Framework Core model building and Resend email.
-- `AlmightyShogun.Core` provides the shared configuration, dependency-injection, JSON, and reflection helpers the others build on.
+- `AlmightyShogun.Utils` provides the shared configuration, dependency-injection, JSON, and reflection helpers the others build on.
 
 ## Package dependencies
 
@@ -48,22 +48,22 @@ AlmightyShogun.AspNet.Core
     -> AlmightyShogun.AspNet.Localization
 
 AlmightyShogun.AspNet.CredentialAuth
-    -> AlmightyShogun.Core
+    -> AlmightyShogun.Utils
     -> AlmightyShogun.AspNet.Core
     -> AlmightyShogun.AspNet.JwtAuth
     -> AlmightyShogun.AspNet.Localization
     -> AlmightyShogun.AspNet.RequestValidation
 
 AlmightyShogun.AspNet.JwtAuth
-    -> AlmightyShogun.Core
+    -> AlmightyShogun.Utils
     -> AlmightyShogun.AspNet.Core
     -> AlmightyShogun.AspNet.Localization
 
 AlmightyShogun.AspNet.Localization
-    -> AlmightyShogun.Core
+    -> AlmightyShogun.Utils
 
 AlmightyShogun.AspNet.MaintenanceMode
-    -> AlmightyShogun.Core
+    -> AlmightyShogun.Utils
     -> AlmightyShogun.AspNet.Core
     -> AlmightyShogun.AspNet.Localization
 
@@ -72,22 +72,22 @@ AlmightyShogun.AspNet.RequestValidation
     -> AlmightyShogun.AspNet.Localization
 
 AlmightyShogun.ConsoleCommands
-    -> AlmightyShogun.Core
+    -> AlmightyShogun.Utils
 
 AlmightyShogun.Hangfire.RecurringJobs
-    -> AlmightyShogun.Core
+    -> AlmightyShogun.Utils
 
 AlmightyShogun.Hosting.ConsoleLifetime
-    -> AlmightyShogun.Core
+    -> AlmightyShogun.Utils
 
 AlmightyShogun.Mail.Resend
-    -> AlmightyShogun.Core
+    -> AlmightyShogun.Utils
 
 AlmightyShogun.RemoteCommands
-    -> AlmightyShogun.Core
+    -> AlmightyShogun.Utils
 ```
 
-`AlmightyShogun.Core`, `AlmightyShogun.EntityFrameworkCore.ModelBuilding`, and `AlmightyShogun.Serilog` reference no other package here; they depend only on framework and NuGet references.
+`AlmightyShogun.Utils`, `AlmightyShogun.EntityFrameworkCore.ModelBuilding`, and `AlmightyShogun.Serilog` reference no other package here; they depend only on framework and NuGet references.
 
 ## Building
 
@@ -100,7 +100,7 @@ dotnet build packages.sln
 Build one package when working inside it:
 
 ```sh
-dotnet build packages/AlmightyShogun.Core/AlmightyShogun.Core.csproj
+dotnet build packages/AlmightyShogun.Utils/AlmightyShogun.Utils.csproj
 ```
 
 NuGet package versions are declared centrally in `Directory.Packages.props`, so a `.csproj` lists a `PackageReference` without a version. The release workflow builds and packs in dependency order before publishing to NuGet; local work should build and validate, never publish.

@@ -15,7 +15,7 @@ dotnet add package AlmightyShogun.ConsoleCommands
 
 ### Project references
 
-- `AlmightyShogun.Core` &mdash; provides assembly scanning and inherited-type registration helpers.
+- `AlmightyShogun.Utils` &mdash; provides assembly scanning and inherited-type registration helpers.
 
 ## Startup Registration
 

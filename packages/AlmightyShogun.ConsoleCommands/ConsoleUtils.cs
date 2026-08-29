@@ -1,11 +1,11 @@
 using System.Reflection;
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
 /// Discovers console command types and builds the public metadata a help listing is rendered from. Console input and
-/// cursor helpers live on <see cref="AlmightyShogun.Core.ConsoleUtils"/>.
+/// cursor helpers live on <see cref="AlmightyShogun.Utils.ConsoleUtils"/>.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

@@ -1,6 +1,6 @@
 using AlmightyShogun.AspNet.Core;
 using AlmightyShogun.AspNet.JwtAuth;
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

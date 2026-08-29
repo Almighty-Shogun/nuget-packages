@@ -7,7 +7,7 @@ params:
       description: Lifetime used for each discovered service registration.
       type: ServiceLifetime
       default: ServiceLifetime.Singleton
-    - name: addType
+    - name: registerAsBaseType
       description: Registers each discovered implementation under service type `T` when `true`, which is what a consumer resolving `IEnumerable<T>` needs. Registers it under its own concrete type when `false`. Only on the overload taking assemblies.
       type: bool
       default: 'true'
@@ -23,14 +23,14 @@ returns: The same `IServiceCollection` instance with matching discovered types r
 
 Scans assemblies for concrete types assignable to `T` and registers each one, for command handlers, recurring jobs, validation rules, and anything else better discovered than listed by hand. Interfaces and abstract classes are never registered, and neither is a type carrying [`SkipAutoRegistration`](../attributes/skip-auto-registration).
 
-Two overloads trade brevity for control: passing no assembly scans the calling one, while passing an array scans each in order and opens up `addType` and `filter`. Both default the lifetime to `ServiceLifetime.Singleton`. Registrations are added rather than replaced, so scanning the same assembly twice registers everything twice.
+Two overloads trade brevity for control: passing no assembly scans the calling one, while passing an array scans each in order and opens up `registerAsBaseType` and `filter`. Both default the lifetime to `ServiceLifetime.Singleton`. Registrations are added rather than replaced, so scanning the same assembly twice registers everything twice.
 
 ## Usage
 
 ::: code-group
 
 ```csharp [CallingAssembly.cs]
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services
@@ -38,13 +38,13 @@ builder.Services
 ```
 
 ```csharp [Filtered.cs]
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.RegisterOnInherit<ICommandHandler>(
     [typeof(ImportCommandHandler).Assembly],
     ServiceLifetime.Transient,
-    addType: false,
+    registerAsBaseType: false,
     filter: type => type.Name.EndsWith("CommandHandler")
 );
 ```
@@ -52,7 +52,7 @@ builder.Services.RegisterOnInherit<ICommandHandler>(
 :::
 
 ::: tip
-Assemblies always go in as an array; no overload takes a single `Assembly` or `params`. `addType` and `filter` live only there, so reaching for either means passing the assemblies explicitly.
+Assemblies always go in as an array; no overload takes a single `Assembly` or `params`. `registerAsBaseType` and `filter` live only there, so reaching for either means passing the assemblies explicitly.
 :::
 
 <FrontmatterDocs/>
@@ -67,7 +67,7 @@ public IServiceCollection RegisterOnInherit<T>(
 public IServiceCollection RegisterOnInherit<T>(
     Assembly[] assemblies,
     ServiceLifetime serviceLifetime = ServiceLifetime.Singleton,
-    bool addType = true,
+    bool registerAsBaseType = true,
     Func<Type, bool>? filter = null
 ) where T : class;
 ```

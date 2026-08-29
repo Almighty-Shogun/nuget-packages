@@ -35,7 +35,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AlmightyShogun.Core\AlmightyShogun.Core.csproj"/>
+        <ProjectReference Include="..\AlmightyShogun.Utils\AlmightyShogun.Utils.csproj"/>
     </ItemGroup>
 
 </Project>

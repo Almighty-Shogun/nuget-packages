@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AlmightyShogun.Core;
+namespace AlmightyShogun.Utils;
 
 /// <summary>
 /// Defines a reusable registration module that groups related service registrations behind a single type, so a feature can
@@ -24,16 +24,10 @@ public interface IServiceRegistry
     ///
     /// <param name="serviceCollection">
     /// The collection the module adds its registrations to. It is the application's live collection, not a copy, so every
-    /// change is visible to the rest of startup.
+    /// change is visible to the rest of startup and there is nothing to hand back.
     /// </param>
-    ///
-    /// <returns>
-    /// The collection the caller should continue building on. Return <paramref name="serviceCollection"/> unless the module
-    /// deliberately substitutes a different collection, because <see cref="ServiceCollectionExtensions.AddService{T}"/>
-    /// hands this value straight back to its own caller for chaining.
-    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    IServiceCollection ConfigureService(IServiceCollection serviceCollection);
+    void ConfigureService(IServiceCollection serviceCollection);
 }

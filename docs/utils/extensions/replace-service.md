@@ -15,7 +15,7 @@ Swaps whatever is registered for `TService` with `TImplementation`, for overridi
 ## Usage
 
 ```csharp
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 builder.Services.ReplaceService<IClock, TestClock>();

@@ -15,7 +15,7 @@ dotnet add package AlmightyShogun.Hosting.ConsoleLifetime
 
 ### Project references
 
-- `AlmightyShogun.Core` &mdash; supplies `ReplaceService`, which swaps the framework's own console lifetime out rather than adding a second registration alongside it.
+- `AlmightyShogun.Utils` &mdash; supplies `ReplaceService`, which swaps the framework's own console lifetime out rather than adding a second registration alongside it.
 
 ## Startup Registration
 

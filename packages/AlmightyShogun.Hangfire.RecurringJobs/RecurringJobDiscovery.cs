@@ -1,7 +1,7 @@
 using Cronos;
 using Hangfire.Common;
 using System.Reflection;
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 using System.Collections.Immutable;
 
 namespace AlmightyShogun.Hangfire.RecurringJobs;

@@ -1,5 +1,5 @@
 using System.Text;
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;

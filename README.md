@@ -8,18 +8,19 @@
 A collection of NuGet packages I use in (personal) projects.
 
 ## 📦 Packages
+- **[ASP.NET Core](packages/AlmightyShogun.AspNet.Core)**: `AlmightyShogun.AspNet.Core`
 - **[ASP.NET Credential Auth](packages/AlmightyShogun.AspNet.CredentialAuth)**: `AlmightyShogun.AspNet.CredentialAuth`
 - **[ASP.NET JWT Auth](packages/AlmightyShogun.AspNet.JwtAuth)**: `AlmightyShogun.AspNet.JwtAuth`
-- **[ASP.NET Maintenance](packages/AlmightyShogun.AspNet.Maintenance)**: `AlmightyShogun.AspNet.Maintenance`
-- **[ASP.NET Utils](packages/AlmightyShogun.AspNet.Utils)**: `AlmightyShogun.AspNet.Utils`
-- **[ASP.NET Validation](packages/AlmightyShogun.AspNet.Validation)**: `AlmightyShogun.AspNet.Validation`
-- **[ConsoleCommands](packages/AlmightyShogun.ConsoleCommands)**: `AlmightyShogun.ConsoleCommands`
-- **[EFCore Utils](packages/AlmightyShogun.EntityFrameworkCore.Utils)**: `AlmightyShogun.EntityFrameworkCore.Utils`
-- **[Hangfire Utils](packages/AlmightyShogun.Hangfire.Utils)**: `AlmightyShogun.Hangfire.Utils`
-- **[Hosting Utils](packages/AlmightyShogun.Hosting.Utils)**: `AlmightyShogun.Hosting.Utils`
-- **[Logging](packages/AlmightyShogun.Logging)**: `AlmightyShogun.Logging`
-- **[RemoteCommands](packages/AlmightyShogun.RemoteCommands)**: `AlmightyShogun.RemoteCommands`
-- **[Resend Utils](packages/AlmightyShogun.Resend.Utils)**: `AlmightyShogun.Resend.Utils`
+- **[ASP.NET Localization](packages/AlmightyShogun.AspNet.Localization)**: `AlmightyShogun.AspNet.Localization`
+- **[ASP.NET Maintenance Mode](packages/AlmightyShogun.AspNet.MaintenanceMode)**: `AlmightyShogun.AspNet.MaintenanceMode`
+- **[ASP.NET Request Validation](packages/AlmightyShogun.AspNet.RequestValidation)**: `AlmightyShogun.AspNet.RequestValidation`
+- **[Console Commands](packages/AlmightyShogun.ConsoleCommands)**: `AlmightyShogun.ConsoleCommands`
+- **[EF Core Model Building](packages/AlmightyShogun.EntityFrameworkCore.ModelBuilding)**: `AlmightyShogun.EntityFrameworkCore.ModelBuilding`
+- **[Hangfire Recurring Jobs](packages/AlmightyShogun.Hangfire.RecurringJobs)**: `AlmightyShogun.Hangfire.RecurringJobs`
+- **[Hosting Console Lifetime](packages/AlmightyShogun.Hosting.ConsoleLifetime)**: `AlmightyShogun.Hosting.ConsoleLifetime`
+- **[Mail Resend](packages/AlmightyShogun.Mail.Resend)**: `AlmightyShogun.Mail.Resend`
+- **[Remote Commands](packages/AlmightyShogun.RemoteCommands)**: `AlmightyShogun.RemoteCommands`
+- **[Serilog](packages/AlmightyShogun.Serilog)**: `AlmightyShogun.Serilog`
 - **[Utils](packages/AlmightyShogun.Utils)**: `AlmightyShogun.Utils`
 
 ## 📃 Prerequisites

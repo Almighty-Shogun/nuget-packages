@@ -30,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AlmightyShogun.Core\AlmightyShogun.Core.csproj"/>
+        <ProjectReference Include="..\AlmightyShogun.Utils\AlmightyShogun.Utils.csproj"/>
         <ProjectReference Include="..\AlmightyShogun.AspNet.Core\AlmightyShogun.AspNet.Core.csproj"/>
         <ProjectReference Include="..\AlmightyShogun.AspNet.Localization\AlmightyShogun.AspNet.Localization.csproj"/>
     </ItemGroup>

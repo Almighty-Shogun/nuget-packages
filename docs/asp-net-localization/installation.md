@@ -14,7 +14,7 @@ dotnet add package AlmightyShogun.AspNet.Localization
 
 ### Project references
 
-- `AlmightyShogun.Core` &mdash; supplies the configuration binding helper the `Localization` section is bound through, so a malformed value fails at startup.
+- `AlmightyShogun.Utils` &mdash; supplies the configuration binding helper the `Localization` section is bound through, so a malformed value fails at startup.
 
 ## Startup Registration
 

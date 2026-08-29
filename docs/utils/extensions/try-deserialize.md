@@ -4,7 +4,7 @@ params:
       description: When the method returns `true`, contains the deserialized value, annotated so the compiler treats it as non-null from that point. Left at the default for `T` otherwise.
       type: 'out T?'
     - name: options
-      description: Serializer options to apply. Left unset, the package defaults are used, which bind camel-case property names.
+      description: Serializer options to apply. Left unset, the package defaults are used, which bind an ASP.NET Core payload on the same rules the API serialized it with, meaning camel-case naming, case-insensitive property matching, and numbers accepted from JSON strings.
       type: JsonSerializerOptions?
       default: 'null'
 
@@ -22,7 +22,7 @@ Returns `false` for a malformed payload and for the JSON literal `null`, so a `t
 ::: code-group
 
 ```csharp [TryDeserialize.cs]
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 
 if (!payload.TryDeserialize(out Order? order))
 {
@@ -36,11 +36,11 @@ await ProcessAsync(order);
 
 ```csharp [ExplicitOptions.cs]
 using System.Text.Json;
-using AlmightyShogun.Core;
+using AlmightyShogun.Utils;
 
 JsonSerializerOptions options = new() 
 {
-    PropertyNameCaseInsensitive = true
+    PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
 };
 
 bool parsed = payload.TryDeserialize(out Order? order, options);

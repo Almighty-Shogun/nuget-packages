@@ -2,7 +2,7 @@
 
 Welcome to NuGet Packages, a collection of small .NET packages used across ASP.NET Core APIs, hosted applications, console tooling, background jobs, logging, email, and Entity Framework Core. Each one is published independently and documented the same way: installation, configuration, usage, type signatures, and the dependencies a consumer will notice.
 
-The repository is intentionally practical. Packages are small, .NET-first, dependency-injection-friendly, and aimed at infrastructure that is common enough to share but not large enough to become a framework. Several build on each other, so an API that installs one of the ASP.NET packages usually gets [Core](/core/) and [ASP.NET Core](/asp-net-core/) alongside it.
+The repository is intentionally practical. Packages are small, .NET-first, dependency-injection-friendly, and aimed at infrastructure that is common enough to share but not large enough to become a framework. Several build on each other, so an API that installs one of the ASP.NET packages usually gets [Utils](/utils/) and [ASP.NET Core](/asp-net-core/) alongside it.
 
 ## ASP.NET
 
@@ -26,6 +26,6 @@ The repository is intentionally practical. Packages are small, .NET-first, depen
 - [EF Core Model Building](/ef-core-model-building/) &mdash; `ModelBuilder` helpers for the shapes written on almost every model: relationships, indexes, owned types, enum storage, and eager loading.
 - [Mail Resend](/mail-resend/) &mdash; Resend sending through a typed contract, with reusable HTML and plain-text templates that share one layout.
 
-## Core
+## Utils
 
-- [Core](/core/) &mdash; the shared building blocks: assembly scanning for DI registration, typed configuration binding, JSON deserialization helpers, and small console utilities.
+- [Utils](/utils/) &mdash; the shared building blocks: assembly scanning for DI registration, typed configuration binding, JSON deserialization helpers, and small console utilities.
