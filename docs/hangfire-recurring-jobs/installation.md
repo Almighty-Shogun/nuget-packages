@@ -10,7 +10,7 @@ dotnet add package AlmightyShogun.Hangfire.RecurringJobs
 
 ### Package references
 
-- `Hangfire` `1.8.24` &mdash; provides the background job server, recurring job manager, and job metadata types.
+- `Hangfire` `1.8.25` &mdash; provides the background job server, recurring job manager, and job metadata types.
 - `Hangfire.InMemory` `1.0.0` &mdash; backs the default storage [`AddCustomHangfire`](./extensions/add-custom-hangfire) selects. It stays referenced even when another provider is used, which the consuming project's dependency graph shows.
 - `Newtonsoft.Json` `13.0.4` &mdash; Hangfire's serializer, which arrives transitively and shows up in the consuming project's dependency graph.
 - `Cronos` `0.13.0` &mdash; validates cron expressions on recurring-job attributes when the host starts.
