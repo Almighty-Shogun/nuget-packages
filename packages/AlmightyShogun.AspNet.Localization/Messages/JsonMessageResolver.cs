@@ -6,9 +6,9 @@ namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
 /// Resolves HTTP messages by negotiating one language for the request, the first candidate in the fallback chain whose
-/// directory holds any messages, then looking every key up in that language alone. Never throws and never returns
-/// blank: an unresolvable key comes back as itself, so a missing translation shows up in the response instead of taking
-/// the request down.
+/// directory holds any messages, then looking every key up in that language alone. Never throws: an unresolvable key
+/// comes back as itself, so a missing translation shows up in the response instead of taking the request down. A key a
+/// message file defines as an empty string still resolves to one.
 /// </summary>
 ///
 /// <param name="messageStore">
