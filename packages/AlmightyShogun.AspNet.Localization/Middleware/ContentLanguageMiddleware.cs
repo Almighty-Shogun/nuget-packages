@@ -27,9 +27,9 @@ internal sealed class ContentLanguageMiddleware(RequestDelegate next)
     ///
     /// <remarks>
     /// The language is resolved in an <c>OnStarting</c> callback rather than up front, because the negotiated language
-    /// is only settled once something has actually been resolved during the request. A header the application set
-    /// itself is left alone: the callback runs after the request has finished, so overwriting would silently defeat
-    /// every deliberate <c>TrySetContentLanguage</c> call in the pipeline.
+    /// is only settled once something has actually been resolved during the request. The callback runs as the response
+    /// headers are about to be sent, so it sees whatever the pipeline set and leaves an existing header alone rather
+    /// than defeating a deliberate <c>TrySetContentLanguage</c> call.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
