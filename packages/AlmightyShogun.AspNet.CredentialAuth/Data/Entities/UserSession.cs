@@ -131,7 +131,7 @@ public sealed class UserSession
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    [MaxLength(255)]
+    [MaxLength(256)]
     public string? Os { get; set; }
 
     /// <summary>
