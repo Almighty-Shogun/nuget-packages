@@ -29,8 +29,9 @@ internal static partial class LanguageTag
     /// <param name="language">The tag to check, from a request header, from configuration, or from a custom provider.</param>
     ///
     /// <returns>
-    /// <c>true</c> for a tag built only from letters, digits, and hyphens; otherwise <c>false</c>, which includes an
-    /// empty value and anything carrying a path separator, a drive letter, or a relative segment.
+    /// <c>true</c> for a two or three letter primary subtag followed by any number of two to eight character
+    /// alphanumeric subtags; otherwise <c>false</c>, which includes an empty value, a longer primary subtag such as
+    /// <c>english</c>, and anything carrying a path separator, a drive letter, or a relative segment.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
