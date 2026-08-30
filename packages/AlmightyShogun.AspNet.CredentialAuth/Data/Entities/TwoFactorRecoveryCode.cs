@@ -32,8 +32,8 @@ public sealed class TwoFactorRecoveryCode
     public int UserTwoFactorId { get; set; }
 
     /// <summary>
-    /// Gets or sets the hash of the code. Hashed like a password, so the codes cannot be read back out of a database
-    /// copy and reused.
+    /// Gets or sets the hash of the code, produced by <see cref="TokenHasher"/>. A plain digest rather than a password
+    /// hash, which suffices because a recovery code is long and random rather than something a person chose.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
