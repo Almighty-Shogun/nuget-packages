@@ -1,8 +1,9 @@
 namespace AlmightyShogun.AspNet.MaintenanceMode;
 
 /// <summary>
-/// The <c>Maintenance</c> configuration section. Every value is a default for the windows an operator opens later, so a request that sets
-/// the same field wins for that window while the rest still come from here.
+/// The <c>Maintenance</c> configuration section. Most values are defaults for the windows an operator opens later, so a request that sets
+/// the same field wins for that window while the rest still come from here. <see cref="MaintenancePath"/> is the exception: it is fixed for
+/// the application and no window can override it.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
