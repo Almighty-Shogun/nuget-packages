@@ -12,6 +12,9 @@ internal sealed class NamedConditionalStateValidationRule<TRequest, TProperty>(
     string comparePropertyName
 ) : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
+    /// <inheritdoc />
+    public ValidationRulePriority Priority => ValidationRulePriority.Required;
+
     private readonly ValidationField<TRequest> _field = ValidationField<TRequest>.FromPropertyName(comparePropertyName);
 
     /// <inheritdoc />

@@ -14,6 +14,9 @@ internal sealed class ConditionalStateValidationRule<TRequest, TProperty, TCompa
     Expression<Func<TRequest, TCompare>> compareExpression
 ) : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
+    /// <inheritdoc />
+    public ValidationRulePriority Priority => ValidationRulePriority.Required;
+
     private readonly ValidationField<TRequest> _field = ValidationField<TRequest>.From(compareExpression);
 
     /// <inheritdoc />

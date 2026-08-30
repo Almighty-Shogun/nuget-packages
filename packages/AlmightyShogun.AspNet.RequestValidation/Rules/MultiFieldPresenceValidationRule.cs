@@ -14,6 +14,9 @@ internal sealed class MultiFieldPresenceValidationRule<TRequest, TProperty>(
     params Expression<Func<TRequest, object?>>[] compareExpressions
 ) : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
+    /// <inheritdoc />
+    public ValidationRulePriority Priority => ValidationRulePriority.Required;
+
     private readonly IReadOnlyList<ValidationField<TRequest>> _fields = ValidationField<TRequest>.FromMany(compareExpressions);
 
     /// <inheritdoc />

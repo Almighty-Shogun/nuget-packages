@@ -13,6 +13,9 @@ internal sealed class NamedConditionalValidationRule<TRequest, TProperty>(
     IReadOnlyList<object?> values
 ) : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
+    /// <inheritdoc />
+    public ValidationRulePriority Priority => ValidationRulePriority.Required;
+
     private readonly NamedValidationFieldCondition<TRequest> _condition = new(comparePropertyName, values);
 
     /// <inheritdoc />

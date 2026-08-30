@@ -11,8 +11,8 @@ internal sealed class PresenceValidationRule<TRequest, TProperty>(
     PresenceMode mode
 ) : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
-    public ValidationRulePriority Priority
-        => mode == PresenceMode.Required ? ValidationRulePriority.Required : ValidationRulePriority.Normal;
+    /// <inheritdoc />
+    public ValidationRulePriority Priority => ValidationRulePriority.Required;
 
     /// <inheritdoc />
     public ValueTask<ValidationRuleResult> ValidateAsync(
