@@ -17,6 +17,12 @@ internal sealed class ConditionalStateValidationRule<TRequest, TProperty, TCompa
     /// <inheritdoc />
     public ValidationRulePriority Priority => ValidationRulePriority.Required;
 
+    /// <summary>
+    /// The controlling field this rule watches, resolved once when the rule is built so each request only reads its value.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly ValidationField<TRequest> _field = ValidationField<TRequest>.From(compareExpression);
 
     /// <inheritdoc />

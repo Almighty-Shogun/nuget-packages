@@ -12,12 +12,36 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <since>Unreleased</since>
 internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule<TRequest> where TRequest : class
 {
+    /// <summary>
+    /// The name failures are reported under, camel-cased from the property so it matches what a JSON client sent.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     public string FieldName { get; }
 
+    /// <summary>
+    /// Reads the property's value, compiled from the expression or built from reflection so the two paths are the same afterwards.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly Func<TRequest, TProperty> _getter;
 
+    /// <summary>
+    /// The rules for this field, in the order they will run once merging and the priority sort have finished with them.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly List<IPropertyValidationRule<TRequest, TProperty>> _rules = [];
 
+    /// <summary>
+    /// Exposes the rules for the grouped composition rule, which gathers a nested set rather than running them itself.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     internal IReadOnlyList<IPropertyValidationRule<TRequest, TProperty>> Rules => _rules;
 
     /// <summary>
@@ -105,8 +129,8 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     }
 
     /// <summary>
-    /// Drops rules identical to one already held and reorders so the presence band runs first. Both happen once at startup rather than per
-    /// request.
+    /// Drops rules identical to one already held and reorders so the presence band runs first. Both happen once per request type, when
+    /// its rules are first built, rather than on every request.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -160,6 +184,10 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// </param>
     ///
     /// <returns>The camel-cased property name.</returns>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// The expression is not a property access, such as a method call or a literal, so there is no property to name the field after.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

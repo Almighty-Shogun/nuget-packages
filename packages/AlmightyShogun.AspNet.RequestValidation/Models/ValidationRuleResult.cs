@@ -12,6 +12,12 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <since>Unreleased</since>
 public sealed record ValidationRuleResult(bool IsValid, string Key, object?[] Parameters)
 {
+    /// <summary>
+    /// The one success value, shared because a passing rule carries no message and every success is therefore identical.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private static readonly ValidationRuleResult Successful = new(true, string.Empty, []);
 
     /// <summary>

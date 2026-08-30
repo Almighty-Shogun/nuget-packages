@@ -14,6 +14,12 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <since>Unreleased</since>
 internal static class ModelStateValidationResponseFactory
 {
+    /// <summary>
+    /// The status a binding failure is reported with, the same one a rule failure uses.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private const int _statusCode = StatusCodes.Status422UnprocessableEntity;
 
     /// <summary>

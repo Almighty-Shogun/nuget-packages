@@ -8,14 +8,44 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <since>Unreleased</since>
 internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
+    /// <summary>
+    /// Which date check this rule performs, set by whichever constructor was used rather than passed in on its own.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly DateMode _mode;
 
+    /// <summary>
+    /// The exact format a value must parse under, set only for the exact-format check and left null for every other mode.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly string? _format;
 
+    /// <summary>
+    /// The comparison target as it was written, kept for the failure message so a client is told what the date was measured against.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly string? _target;
 
+    /// <summary>
+    /// The comparison target as a fixed moment, set when the target was a literal rather than another field on the request.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly DateTimeOffset? _targetDate;
 
+    /// <summary>
+    /// The field the comparison target is read from, set when the target names another property rather than a literal date.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly ValidationField<TRequest>? _targetField;
 
     /// <summary>

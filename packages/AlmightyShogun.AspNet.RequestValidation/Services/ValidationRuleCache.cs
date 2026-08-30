@@ -11,10 +11,28 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <since>Unreleased</since>
 internal sealed class ValidationRuleCache
 {
+    /// <summary>
+    /// The merged attribute and fluent rules per request type, boxed because the value is generic in the type it is keyed by.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly ConcurrentDictionary<Type, object> _requestRules = new();
 
+    /// <summary>
+    /// The attribute-only rules per request type, kept apart from the merged set since a request may be validated either way.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly ConcurrentDictionary<Type, object> _attributeRules = new();
 
+    /// <summary>
+    /// Whether a type declares any attribute rules, cached so a request carrying none skips the reflection every time, not just once.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly ConcurrentDictionary<Type, bool> _hasAttributeRules = new();
 
     /// <summary>
@@ -23,7 +41,10 @@ internal sealed class ValidationRuleCache
     ///
     /// <param name="requestType">The request type.</param>
     ///
-    /// <returns><c>true</c> when the request type has attribute rules; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    /// <c>true</c> when the request type is a class carrying at least one validation attribute; otherwise, <c>false</c>. A struct reports
+    /// <c>false</c> whatever its properties declare, since only reference types are validated.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

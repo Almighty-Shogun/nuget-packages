@@ -18,6 +18,12 @@ internal sealed class ConditionalValidationRule<TRequest, TProperty, TCompare>(
     /// <inheritdoc />
     public ValidationRulePriority Priority => ValidationRulePriority.Required;
 
+    /// <summary>
+    /// The condition deciding whether this rule applies, built once from the controlling field and the values it is matched against.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly ValidationFieldCondition<TRequest, TCompare> _condition = new(compareExpression, values);
 
     /// <inheritdoc />

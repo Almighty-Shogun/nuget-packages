@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// What a response factory is given: the failures and the context they arose in, so a replacement can shape the body however it needs.
+/// What a response factory is given: the failures and the request they arose in, which is everything the body is built from.
 /// </summary>
 ///
 /// <param name="HttpContext">The HTTP context for the current request.</param>

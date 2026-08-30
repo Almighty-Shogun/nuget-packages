@@ -5,7 +5,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
 /// Base attribute every validation attribute derives from. It carries the arguments an attribute may legally hold and turns them into a
-/// rule at startup, so each derived attribute is a declaration rather than an implementation.
+/// rule the first time its request type is validated, so each derived attribute is a declaration rather than an implementation.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -382,13 +382,18 @@ public abstract class ValidationRuleAttribute : Attribute
     }
 
     /// <summary>
-    /// Builds the rule this attribute declares, once per request type at startup rather than per request. An attribute whose family was
-    /// never set reaches the default branch and throws, which catches a derived attribute that forgot to call a base constructor.
+    /// Builds the rule this attribute declares, once per request type on its first validation rather than per request. An attribute whose
+    /// family was never set reaches the default branch and throws, which catches a derived attribute that forgot to call a base
+    /// constructor.
     /// </summary>
     ///
     /// <param name="property">The property decorated with the validation attribute.</param>
     ///
     /// <returns>The configured property validation rule.</returns>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// The attribute never set a rule family, which happens when a derived attribute does not call one of the base constructors.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

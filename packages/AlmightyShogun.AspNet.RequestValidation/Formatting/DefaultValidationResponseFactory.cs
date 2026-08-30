@@ -4,7 +4,8 @@ using AlmightyShogun.AspNet.Core;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Builds the standard error body for a validation failure, which is what an application replaces to change the shape it returns.
+/// Builds the standard error body for a validation failure, delegating the shape to <see cref="ValidationResponseWriter"/> so every path
+/// that reports a failure produces the same envelope.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

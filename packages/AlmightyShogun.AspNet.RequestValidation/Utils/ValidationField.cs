@@ -12,8 +12,20 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <since>Unreleased</since>
 internal sealed class ValidationField<TRequest> where TRequest : class
 {
+    /// <summary>
+    /// The field's public name, which failures are reported under and which a client sees.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     public string Name { get; }
 
+    /// <summary>
+    /// Reads the field's value, compiled from the expression or built from reflection so both spellings behave identically afterwards.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly Func<TRequest, object?> _getter;
 
     /// <summary>
@@ -89,8 +101,8 @@ internal sealed class ValidationField<TRequest> where TRequest : class
         => propertyNames.Select(FromPropertyName).ToArray();
 
     /// <summary>
-    /// Builds a field from a name, resolving the property by reflection. A name that matches nothing yields a field that always reads as
-    /// absent, so a mistyped name fails the rule rather than the request.
+    /// Builds a field from a name, resolving the property by reflection. A name matching no property throws rather than yielding a field
+    /// that reads as absent, so a mistyped name surfaces as a fault instead of a quietly passing rule.
     /// </summary>
     ///
     /// <param name="propertyName">The property name.</param>
@@ -127,6 +139,10 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     ///
     /// <returns>The resolved property metadata.</returns>
     ///
+    /// <exception cref="InvalidOperationException">
+    /// No public instance property on the request type carries that name, which a mistyped field name in a rule produces.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private static PropertyInfo ResolveProperty(string propertyName)
@@ -148,6 +164,10 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     /// </param>
     ///
     /// <returns>The camel-cased property name.</returns>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// The expression is not a property access, such as a method call or a literal, so there is no property to name the field after.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

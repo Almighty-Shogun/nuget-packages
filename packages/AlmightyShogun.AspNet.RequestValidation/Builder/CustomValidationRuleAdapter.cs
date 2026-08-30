@@ -11,6 +11,13 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <since>Unreleased</since>
 internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
+    /// <summary>
+    /// The rule type to resolve per invocation, held as a <see cref="Type"/> because the generic-attribute spelling only knows it
+    /// at runtime.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly Type _ruleType;
 
     /// <summary>
@@ -24,6 +31,11 @@ internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValid
     public CustomValidationRuleAdapter(Type ruleType) => _ruleType = ruleType;
 
     /// <inheritdoc />
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// The configured rule type does not implement <see cref="ICustomValidationRule{TRequest, TProperty}"/> for this request and property
+    /// type. Detected when the rule first runs rather than when it is registered, so a mismatch surfaces on a request.
+    /// </exception>
     public async ValueTask<ValidationRuleResult> ValidateAsync(
         TRequest request,
         TProperty? value,
@@ -53,7 +65,8 @@ internal sealed class CustomValidationRuleAdapter<TRequest, TProperty, TRule> : 
     where TRequest : class where TRule : class
 {
     /// <summary>
-    /// Adapts a rule type known at compile time, which is the case for the fluent and generic-attribute spellings.
+    /// Adapts a rule type known at compile time, which is the fluent spelling. The generic attribute reaches the runtime-type constructor
+    /// instead, passing its own type argument through as a <see cref="Type"/>.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

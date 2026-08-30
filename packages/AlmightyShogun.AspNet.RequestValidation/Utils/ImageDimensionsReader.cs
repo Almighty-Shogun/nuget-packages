@@ -56,7 +56,7 @@ internal static class ImageDimensionsReader
     ];
 
     /// <summary>
-    /// Reads the dimensions of an uploaded file, reading only as much of it as the header needs.
+    /// Reads the dimensions of an uploaded file from its header, taking the first megabyte of it, or the whole file when it is smaller.
     /// </summary>
     ///
     /// <param name="file">The upload to inspect. A zero-length file is refused before any stream is opened.</param>

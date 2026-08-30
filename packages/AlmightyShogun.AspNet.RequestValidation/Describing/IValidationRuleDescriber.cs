@@ -15,8 +15,8 @@ public interface IValidationRuleDescriber
     /// </summary>
     ///
     /// <typeparam name="TRequest">
-    /// The request type to describe. Taken as a type argument rather than a <see cref="Type"/> so a caller cannot ask
-    /// for something that was never a request, and so the compiler resolves the type instead of a runtime lookup.
+    /// The request type to describe. Taken as a type argument rather than a <see cref="Type"/> so the compiler resolves it instead of a
+    /// runtime lookup. Nothing constrains it to a type that carries rules: one that declares none simply describes as empty.
     /// </typeparam>
     ///
     /// <returns>

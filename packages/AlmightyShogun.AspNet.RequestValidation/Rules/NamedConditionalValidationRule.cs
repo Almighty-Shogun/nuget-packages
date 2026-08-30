@@ -16,6 +16,12 @@ internal sealed class NamedConditionalValidationRule<TRequest, TProperty>(
     /// <inheritdoc />
     public ValidationRulePriority Priority => ValidationRulePriority.Required;
 
+    /// <summary>
+    /// The condition deciding whether this rule applies, built once from the controlling field and the values it is matched against.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly NamedValidationFieldCondition<TRequest> _condition = new(comparePropertyName, values);
 
     /// <inheritdoc />

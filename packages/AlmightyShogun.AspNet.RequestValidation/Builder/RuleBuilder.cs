@@ -9,6 +9,12 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <since>Unreleased</since>
 public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : class
 {
+    /// <summary>
+    /// The rule the chain appends to. Every builder method adds to this one instance, which is what lets a chain read as one statement.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly PropertyRule<TRequest, TProperty> _propertyRule;
 
     /// <summary>

@@ -3,7 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Turns the validation attributes declared on a request type into rules, once at startup, so a request pays reflection no cost per call.
+/// Turns the validation attributes declared on a request type into rules, once per type on its first validation, so only the first request
+/// of each type pays for the reflection.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

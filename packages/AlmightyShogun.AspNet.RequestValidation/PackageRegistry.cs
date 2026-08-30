@@ -26,14 +26,15 @@ public static class PackageRegistry
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Registers ASP.NET validation services, filters, middleware, and controller integration.
+        /// Registers the validation services, the MVC filters, and the controller integration. The middleware is separate: add it with
+        /// <c>UseAspNetValidation</c> on the application builder.
         /// </summary>
         ///
         /// <returns>The service collection.</returns>
         ///
         /// <remarks>
-        /// Requires <c>AddHttpErrorResponseWriter</c> from <c>AlmightyShogun.AspNet.Core</c> and <c>AddMessageLocalization</c> from
-        /// <c>AlmightyShogun.AspNet.Localization</c> , both of which the validation response writer uses.
+        /// Requires <c>AddMessageLocalization</c> from <c>AlmightyShogun.AspNet.Localization</c> , which every failure message is
+        /// resolved through.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>

@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Builds the result a failed validation returns. Registered so an application can substitute its own shape without touching the rules that
-/// produced the failures.
+/// Builds the result a failed validation returns, keeping the shape decision away from the rules that produced the failures. Internal to
+/// the package: the shape is not a substitution point an application can replace.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -15,7 +15,7 @@ internal interface IValidationResponseFactory
     /// Builds the result for a set of field failures, including the status code it should be sent with.
     /// </summary>
     ///
-    /// <param name="context">The failures and the context they arose in, so a replacement factory can shape the body as it needs.</param>
+    /// <param name="context">The failures and the request they arose in, which is everything the body is built from.</param>
     ///
     /// <returns>The action result containing the validation error response.</returns>
     ///

@@ -50,10 +50,31 @@ internal sealed class DoesNotValidationRule<TRequest, TProperty>(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
+    /// <summary>
+    /// Reports whether a collection value holds none of the configured values, which is how <c>DoesNotContain</c> reads a value that is
+    /// not text.
+    /// </summary>
+    ///
+    /// <param name="value">The property value, already known not to be a string.</param>
+    ///
+    /// <returns><c>true</c> when the value is a collection and no element equals a configured value; otherwise <c>false</c>.</returns>
+    ///
+    /// <remarks>
+    /// Membership rather than substring matching, mirroring <c>Contains</c>: an element counts when it equals a configured value in full.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private bool CollectionHoldsNoneOf(TProperty? value)
         => ValidationCollection.TryGetValues(value, out IReadOnlyList<object?> elements)
            && values.All(forbidden => elements.All(element => !string.Equals(element?.ToString(), forbidden, StringComparison.Ordinal)));
 
+    /// <summary>
+    /// Picks the message key for the spelling this rule was built with, so a rejected value names the check it broke.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private string GetMessageKey() => mode switch
     {
         StringMatchMode.Contain => "validation.does-not.contain",

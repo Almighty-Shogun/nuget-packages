@@ -157,8 +157,8 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field to match a confirmation field. Without an explicit target, the validator uses the property name with
-    /// <c>Confirmation</c> appended.
+    /// Requires the field to match a confirmation field. Without an explicit target, the validator looks for the property name with
+    /// <c>Confirmation</c> appended, then for <c>Confirm</c> prefixed to it.
     /// </summary>
     ///
     /// <returns>
@@ -176,8 +176,8 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field to match a confirmation field. Without an explicit target, the validator uses the property name with
-    /// <c>Confirmation</c> appended.
+    /// Requires the field to match a confirmation field. Without an explicit target, the validator looks for the property name with
+    /// <c>Confirmation</c> appended, then for <c>Confirm</c> prefixed to it.
     /// </summary>
     ///
     /// <param name="compareExpression">Points at the confirmation field, replacing the name this rule would otherwise assume.</param>

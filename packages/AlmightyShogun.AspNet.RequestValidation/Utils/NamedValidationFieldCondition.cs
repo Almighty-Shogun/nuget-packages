@@ -12,6 +12,12 @@ internal sealed class NamedValidationFieldCondition<TRequest>(
     IReadOnlyList<object?> values
 ) where TRequest : class
 {
+    /// <summary>
+    /// The controlling field's public name, surfaced for the failure message so a client is told which field decided the outcome.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     public string FieldName => _field.Name;
 
     /// <summary>
@@ -22,11 +28,17 @@ internal sealed class NamedValidationFieldCondition<TRequest>(
     /// <since>Unreleased</since>
     public string ValuesText => ValidationValue.JoinDisplayValues(values);
 
+    /// <summary>
+    /// The field the condition reads, resolved once so each request only fetches its value.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly ValidationField<TRequest> _field = ValidationField<TRequest>.FromPropertyName(propertyName);
 
     /// <summary>
-    /// Reads the controlling field and reports whether it equals any configured value, comparing on the rendered form so a number and its
-    /// text match.
+    /// Reads the controlling field and reports whether it equals any configured value, compared as objects, so a number and its text
+    /// spelling are not the same value.
     /// </summary>
     ///
     /// <param name="request">The request being validated, so a rule can read another field as well as its own.</param>

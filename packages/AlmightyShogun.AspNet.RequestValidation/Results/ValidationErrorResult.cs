@@ -13,6 +13,12 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <since>Unreleased</since>
 public static class ValidationErrorResult
 {
+    /// <summary>
+    /// The status the result is sent with, matching the one the rule pipeline uses so a pre-pipeline failure looks the same.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private const int StatusCode = StatusCodes.Status422UnprocessableEntity;
 
     /// <summary>
@@ -21,7 +27,9 @@ public static class ValidationErrorResult
     ///
     /// <param name="messageResolver">The message resolver used to resolve error descriptions.</param>
     /// <param name="field">The validation field.</param>
-    /// <param name="key">The message key the failure reports, resolved into a sentence only when the response is written.</param>
+    /// <param name="key">
+    /// The message key the failure reports, resolved into a sentence here rather than deferred until the response is written.
+    /// </param>
     /// <param name="parameters">The values substituted into the message template by position, empty when the message takes none.</param>
     ///
     /// <returns>The validation error object result.</returns>

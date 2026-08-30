@@ -3,11 +3,14 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the field to match a confirmation field. Without an explicit target, the validator uses the property name with
-/// <c>Confirmation</c> appended.
+/// Requires the field to match a confirmation field. Without an explicit target, the validator looks for the property name with
+/// <c>Confirmation</c> appended, then for <c>Confirm</c> prefixed to it.
 /// </summary>
 ///
-/// <param name="field">The confirmation field name. When omitted, the validator uses the property name plus "Confirmation".</param>
+/// <param name="field">
+/// The confirmation field name. When omitted, the validator tries the property name plus <c>Confirmation</c>, then <c>Confirm</c> plus the
+/// property name.
+/// </param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

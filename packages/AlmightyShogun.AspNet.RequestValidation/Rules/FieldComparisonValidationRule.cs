@@ -12,10 +12,28 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompare>
     : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
+    /// <summary>
+    /// Which comparison this rule performs, and with it which message key a failure reports.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly FieldComparisonMode _mode;
 
+    /// <summary>
+    /// The field being compared against, by name. Null when the confirmation convention is used and the name is derived instead.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly string? _compareFieldName;
 
+    /// <summary>
+    /// Reads the compared field's value. Null when the target is resolved by convention at validation time rather than up front.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly Func<TRequest, object?>? _compareGetter;
 
     /// <summary>
@@ -147,6 +165,10 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     /// </param>
     ///
     /// <returns>The camel-cased property name.</returns>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// The expression is not a property access, such as a method call or a literal, so there is no property to name the field after.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

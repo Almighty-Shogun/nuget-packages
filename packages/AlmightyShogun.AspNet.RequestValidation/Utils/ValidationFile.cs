@@ -14,6 +14,13 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 [SuppressMessage("Performance", "CA1865:Use char overload")]
 internal static class ValidationFile
 {
+    /// <summary>
+    /// Maps a file name to the content type its extension implies, so a declared type can be checked against the name rather than
+    /// trusted. Shared because building one walks a sizeable table.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private static readonly FileExtensionContentTypeProvider ContentTypeProvider = new();
 
     /// <summary>
@@ -119,7 +126,8 @@ internal static class ValidationFile
         .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Reduces content types to a comparable form, trimming and lowering so a header's spelling does not decide the outcome.
+    /// Collects the content types into a set compared case-insensitively, so a header's casing does not decide the outcome. Surrounding
+    /// whitespace is not trimmed, so a configured value carrying any will not match.
     /// </summary>
     ///
     /// <param name="mimeTypes">The MIME types to normalize.</param>

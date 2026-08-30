@@ -11,12 +11,36 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal sealed class FileConstraintValidationRule<TRequest, TProperty>
     : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
+    /// <summary>
+    /// Which file constraint this rule enforces, and with it which message key a failure reports.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly FileConstraintMode _mode;
 
+    /// <summary>
+    /// The configured values as written, kept for the failure message so a client is told what was accepted.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly IReadOnlyList<string> _values;
 
+    /// <summary>
+    /// The same values prepared for comparison, so each file is matched without normalising the configured list again per request.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly IReadOnlySet<string> _normalizedValues;
 
+    /// <summary>
+    /// The width and height bounds, set only for the dimension modes and left null for every other constraint.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly ImageDimensionConstraints? _dimensionConstraints;
 
     /// <summary>

@@ -11,8 +11,21 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <since>Unreleased</since>
 internal sealed class ValidationBag
 {
+    /// <summary>
+    /// The failures per field, keyed case-insensitively so a field is recognised however the client spelled it. A list per field, though
+    /// only the first entry is ever rendered.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly Dictionary<string, List<ValidationError>> _errors = new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Whether any field failed, which is what decides between answering with the error body and letting the request proceed.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     public bool HasErrors => _errors.Count > 0;
 
     /// <summary>

@@ -10,6 +10,12 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <since>Unreleased</since>
 internal static class ValidationFormat
 {
+    /// <summary>
+    /// The framework's own address check, reused rather than reimplemented, and shared because it holds no per-call state.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private static readonly EmailAddressAttribute _emailAddressAttribute = new();
 
     /// <summary>

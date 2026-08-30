@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Passes when any one of the grouped rule sets passes. Failures from the losing sets are discarded, so a field reports the requirement it
-/// came closest to meeting rather than every alternative it missed.
+/// Passes when any one of the grouped rule sets passes. Failures from the losing sets are discarded and the field reports a single
+/// <c>validation.any-of</c> failure instead, naming no particular alternative.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

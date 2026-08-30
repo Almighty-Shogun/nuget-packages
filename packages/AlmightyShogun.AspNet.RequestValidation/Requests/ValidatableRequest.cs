@@ -41,6 +41,11 @@ public abstract class ValidatableRequest<TRequest> : IValidatableRequest where T
     ///
     /// <returns>A builder for that property, which the caller chains rules onto.</returns>
     ///
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="expression"/> is not a property access, so there is no property to name the field after. Thrown as the chain is
+    /// built rather than when the request is validated.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     protected RuleBuilder<TRequest, TProperty> RuleFor<TProperty>(Expression<Func<TRequest, TProperty>> expression)

@@ -26,6 +26,13 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider, Validat
         CancellationToken cancellationToken
     );
 
+    /// <summary>
+    /// The compiled entry point per request type. Static, so the delegate a type is bridged through is built once for the process
+    /// rather than once per validator instance.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private static readonly ConcurrentDictionary<Type, AttributeValidator> AttributeValidators = new();
 
     /// <summary>
@@ -53,7 +60,9 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider, Validat
     ///
     /// <param name="request">The request object to inspect.</param>
     ///
-    /// <returns><c>true</c> when the request type has attribute rules; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    /// <c>true</c> when the request type is a class carrying at least one validation attribute; otherwise, <c>false</c>.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

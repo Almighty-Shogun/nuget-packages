@@ -29,8 +29,20 @@ internal sealed class RequestBodyValidationFilter(
     IOptions<MvcOptions> mvcOptions
 ) : IAsyncResourceFilter, IOrderedFilter
 {
+    /// <summary>
+    /// The status an unreadable body is refused with, matching the one a failed rule uses so both arrive as the same kind of failure.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private const int _statusCode = StatusCodes.Status422UnprocessableEntity;
 
+    /// <summary>
+    /// Runs this filter before any other resource filter, so an unreadable body is refused before anything else inspects the request.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     public int Order => int.MinValue;
 
     /// <summary>

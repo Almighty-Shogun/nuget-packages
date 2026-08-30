@@ -1,7 +1,8 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// A request that declares its own rules rather than relying on attributes, for constraints an attribute cannot express.
+/// A request that declares rules in code, for constraints an attribute cannot express. Its attributes still apply: the two sets are merged
+/// per field rather than one replacing the other.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -9,7 +10,8 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal interface IValidatableRequest
 {
     /// <summary>
-    /// Runs the rules this request declares, in the order the configuration added them.
+    /// Runs the rules this request declares together with those its attributes declare, attributes first, merged per field and reordered
+    /// so the presence band runs before the value rules.
     /// </summary>
     ///
     /// <param name="serviceProvider">The service provider used to resolve validation dependencies.</param>

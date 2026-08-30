@@ -17,6 +17,12 @@ internal sealed class MultiFieldPresenceValidationRule<TRequest, TProperty>(
     /// <inheritdoc />
     public ValidationRulePriority Priority => ValidationRulePriority.Required;
 
+    /// <summary>
+    /// The fields this rule watches, resolved once when the rule is built so each request only reads their values.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly IReadOnlyList<ValidationField<TRequest>> _fields = ValidationField<TRequest>.FromMany(compareExpressions);
 
     /// <inheritdoc />
@@ -81,7 +87,7 @@ internal sealed class MultiFieldPresenceValidationRule<TRequest, TProperty>(
     /// </summary>
     ///
     /// <param name="value">
-    /// The value the controlling field is compared against, rendered before comparing so a number and its text match.
+    /// The controlling field's value, tested for presence rather than compared against anything.
     /// </param>
     ///
     /// <returns><c>true</c> when the trigger is present; otherwise, <c>false</c>.</returns>
@@ -93,10 +99,11 @@ internal sealed class MultiFieldPresenceValidationRule<TRequest, TProperty>(
         : ValidationValue.IsPresent(value);
 
     /// <summary>
-    /// Reports whether the trigger is worded around presence or around absence, which decides how the watched fields are read.
+    /// Reports whether the trigger needs every watched field rather than any one of them, which is what decides whether an empty field
+    /// list passes trivially.
     /// </summary>
     ///
-    /// <returns><c>true</c> when related fields are required; otherwise, <c>false</c>.</returns>
+    /// <returns><c>true</c> for the <c>WithAll</c> and <c>WithoutAll</c> triggers; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

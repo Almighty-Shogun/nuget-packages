@@ -6,8 +6,8 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
 /// Builds the validation error response body. Validation carries a per-field error dictionary, which the shared
-/// <see cref="IHttpErrorResponseWriter"/> deliberately does not model, so this package shapes its own body in one place and leaves each
-/// caller to decide how to return it.
+/// <see cref="IHttpErrorResponseWriter"/> deliberately does not model, so this package shapes its own body and leaves each caller to decide
+/// how to return it. <see cref="ValidationErrorResult"/> builds the same shape independently, for callers that fail before the rules run.
 /// </summary>
 ///
 /// <param name="messageResolver">The resolver used to produce the description and the per-field messages.</param>

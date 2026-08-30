@@ -68,6 +68,23 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty>(
     /// <since>Unreleased</since>
     private object?[] GetMessageParameters() => [ValidationValue.JoinValues(values)];
 
+    /// <summary>
+    /// Reports whether a collection value holds one of the configured values, which is how <c>Contains</c> reads a value that is not text.
+    /// </summary>
+    ///
+    /// <param name="value">The property value, already known not to be a string.</param>
+    ///
+    /// <returns>
+    /// <c>true</c> when the value is a collection and one of its elements equals a configured value; otherwise <c>false</c>.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// Membership rather than substring matching: an element counts when it equals a configured value in full, since a collection holds
+    /// values rather than text to search within.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private bool CollectionHoldsOneOf(TProperty? value)
         => ValidationCollection.TryGetValues(value, out IReadOnlyList<object?> elements)
            && values.Any(required => elements.Any(element => string.Equals(element?.ToString(), required, StringComparison.Ordinal)));
