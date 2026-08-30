@@ -120,14 +120,15 @@ public static class PackageRegistry
         });
 
         /// <summary>
-        /// Registers the standardized error response writer, which every other helper here produces its body through.
+        /// Registers the standardized error response writer, which the exception handlers and the error response
+        /// middleware produce their body through.
         /// </summary>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the response writer registered.</returns>
         ///
         /// <remarks>
         /// Takes no configuration: the body shape is fixed, so there is nothing to bind. Register it once, before the
-        /// handlers, filter, or middleware that resolve it.
+        /// handlers or middleware that resolve it. The MVC filter does not use it and needs no registration here.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
@@ -164,9 +165,10 @@ public static class PackageRegistry
         /// <returns>The <see cref="IServiceCollection"/> instance with the error response filter registered.</returns>
         ///
         /// <remarks>
-        /// Requires <c>AddMessageLocalization</c> and <see cref="AddHttpErrorResponseWriter"/>, neither of which
-        /// this registers. It covers only results MVC produces; an error raised below MVC is left to
-        /// <c>UseHttpErrorResponses</c>, which is why the two are normally used together.
+        /// Requires <c>AddMessageLocalization</c>, which this does not register. It writes through
+        /// <see cref="HttpErrorResult"/> and MVC's own formatters rather than <see cref="IHttpErrorResponseWriter"/>,
+        /// so that writer is not needed for this helper on its own. It covers only results MVC produces; an error
+        /// raised below MVC is left to <c>UseHttpErrorResponses</c>, which is why the two are normally used together.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
