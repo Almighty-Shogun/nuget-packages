@@ -6,8 +6,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// One issued password reset. Rows are kept after use rather than deleted, so presenting a spent token is recognised as
-/// a replay instead of looking like a token that never existed.
+/// One issued password reset. A spent row is kept rather than deleted, so the resets issued against an account stay
+/// auditable; redeeming a spent token is refused exactly as an unknown one is.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -63,8 +63,8 @@ public sealed class PasswordResetToken
     public DateTimeOffset ExpiresAt { get; set; }
 
     /// <summary>
-    /// Gets or sets when the token was spent, or <c>null</c> while it is still usable. Set instead of deleting the row,
-    /// so a second attempt with the same value is answered as a replay.
+    /// Gets or sets when the token was spent, or <c>null</c> while it is still usable. Set instead of deleting the row, so
+    /// the redemption stays visible afterwards; a second attempt with the same value is refused as if unknown.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

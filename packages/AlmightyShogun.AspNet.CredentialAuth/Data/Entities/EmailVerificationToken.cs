@@ -5,8 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// One issued email verification. Rows are kept after use, so a spent token is recognised as a replay rather than as one
-/// that never existed.
+/// One issued email verification. The package defines the table and issues nothing into it, so whether a spent token is
+/// kept and how a replay is answered are decided by the application's own verification flow.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

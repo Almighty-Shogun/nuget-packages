@@ -81,8 +81,8 @@ public sealed class UserSession
     public DateTimeOffset LastActiveAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
-    /// Gets or sets whether the session was ended deliberately, by a sign-out or a password change. Kept rather than
-    /// deleted, so a replay of its token is recognised as one.
+    /// Gets or sets whether the session was ended deliberately, by a sign-out or a password change. The row is kept rather
+    /// than deleted, and a refresh presented against it is refused exactly as an unknown token is.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

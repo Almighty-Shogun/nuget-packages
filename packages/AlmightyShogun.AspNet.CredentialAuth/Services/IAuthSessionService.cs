@@ -43,8 +43,8 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     Task<AuthSessionResult<TUser>> RefreshSessionAsync(string refreshToken, HttpContext httpContext);
 
     /// <summary>
-    /// Ends one session, which is what a sign-out on a single device does. The row is kept rather than deleted, so a later
-    /// replay of its token is recognised.
+    /// Ends one session, which is what a sign-out on a single device does. The row is kept rather than deleted, and a
+    /// refresh presented against it afterwards is refused exactly as an unknown token is.
     /// </summary>
     ///
     /// <param name="refreshToken">The token as the client holds it. An unknown token is not an error.</param>
