@@ -24,7 +24,8 @@ internal sealed record PersistedMaintenanceState
     public bool IsEnabled { get; init; }
 
     /// <summary>
-    /// Gets the explanation shown to a blocked caller, falling back to the configured default when the window supplied none.
+    /// Gets the explanation shown to a blocked caller. A window opened through the service falls back to the configured default when it
+    /// supplied none; a hand-edited file omitting this keeps no message, since only the collections are filled in on read.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
