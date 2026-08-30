@@ -31,7 +31,6 @@ internal static class ModelStateValidationResponseFactory
         var messageResolver = context.HttpContext.RequestServices.GetRequiredService<IMessageResolver>();
 
         if (ModelStateValidationExtractor.HasBodyLevelError(context))
-        {
             return HttpErrorResult.Create(new ValidationErrorResponse
             {
                 Code = _statusCode,
@@ -39,7 +38,6 @@ internal static class ModelStateValidationResponseFactory
                 ErrorDescription = messageResolver.Resolve("validation.invalid-body", []),
                 Errors = new Dictionary<string, ValidationRuleError>()
             });
-        }
 
         var validationResponseFactory = context.HttpContext.RequestServices.GetRequiredService<IValidationResponseFactory>();
 
