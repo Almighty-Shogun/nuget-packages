@@ -68,7 +68,8 @@ public interface IAppHostResolver
     /// <returns>The audience the host maps to.</returns>
     ///
     /// <exception cref="UnknownAppException">
-    /// The host is blank, or maps to no configured application and is not a localhost value, carrying the host it failed on.
+    /// The host is blank, maps to no configured application, or is a localhost value with no localhost app configured.
+    /// Carries the host it failed on.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
