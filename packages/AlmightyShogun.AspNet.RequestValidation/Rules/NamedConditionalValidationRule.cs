@@ -54,8 +54,8 @@ internal sealed class NamedConditionalValidationRule<TRequest, TProperty>(
         ConditionalTargetMode.Required => !ValidationValue.IsEmpty(value),
         ConditionalTargetMode.Present => ValidationValue.IsPresent(value),
         ConditionalTargetMode.Prohibited => ValidationValue.IsEmpty(value),
-        ConditionalTargetMode.Accepted => ValidationValue.IsAccepted(value),
-        ConditionalTargetMode.Declined => ValidationValue.IsDeclined(value),
+        ConditionalTargetMode.Accepted => ValidationValue.IsEmpty(value) || ValidationValue.IsAccepted(value),
+        ConditionalTargetMode.Declined => ValidationValue.IsEmpty(value) || ValidationValue.IsDeclined(value),
         _ => false
     };
 
