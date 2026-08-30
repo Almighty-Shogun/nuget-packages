@@ -36,7 +36,10 @@ public interface IMaintenanceService
     /// merging.
     /// </summary>
     ///
-    /// <param name="request">The window to open. Any field it leaves unset is taken from configuration rather than left empty.</param>
+    /// <param name="request">
+    /// The window to open. A field it leaves unset is taken from configuration where there is a configured counterpart; the start and end
+    /// times have none and stay absent.
+    /// </param>
     ///
     /// <returns>A task representing the asynchronous enable operation.</returns>
     ///
