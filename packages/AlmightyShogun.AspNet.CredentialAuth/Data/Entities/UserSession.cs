@@ -52,7 +52,6 @@ public sealed class UserSession
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    [Required]
     [MaxLength(255)]
     public string? App { get; set; }
 
