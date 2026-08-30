@@ -10,10 +10,10 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 /// </summary>
 ///
 /// <typeparam name="TUser">The application's own user entity, read for the claims a token carries.</typeparam>
-/// <param name="databaseContext">The application's context, so auth writes join whatever transaction it is in.</param>
-/// <param name="authOptions">The bound JWT settings, read for token and session lifetimes.</param>
+/// <param name="databaseContext">Required by the base type. This service neither reads nor writes the database.</param>
+/// <param name="authOptions">Required by the base type. Lifetimes are stamped by the generator, not decided here.</param>
 /// <param name="appHostResolver">
-/// The resolver deciding which application the current request belongs to, so what is issued is scoped to it.
+/// Required by the base type. The scope is not resolved here; the application arrives as an argument instead.
 /// </param>
 /// <param name="tokenGenerator">
 /// The JWT package's generator, which signs and stamps issuer, audience, and expiry, so this service only decides the
