@@ -201,8 +201,10 @@ public static class PackageRegistry
         ///
         /// <remarks>
         /// Call it early, before routing and authentication, so a failure in those still produces the standard body.
-        /// The exception handler is given a no-op delegate on purpose: the registered <see cref="IExceptionHandler"/>
-        /// chain writes the response, and a real fallback delegate here would write a second one.
+        /// The exception handler is given a no-op delegate because <c>UseExceptionHandler</c> requires either a
+        /// delegate or an exception-handling path, and a path would re-execute the pipeline. It is reached only when no
+        /// registered <see cref="IExceptionHandler"/> claimed the exception, which the fallback handler does for
+        /// everything except a response that has already started.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
