@@ -25,8 +25,9 @@ internal sealed class HttpErrorResponseMiddleware(RequestDelegate next, IHttpErr
     /// <returns>A task that completes once the pipeline has run and any error body has been written.</returns>
     ///
     /// <remarks>
-    /// Register it inside <c>UseHttpErrorResponses</c> and therefore below the exception handler, so an exception has
-    /// already been turned into a written response by the time the status code is examined here.
+    /// Register it inside <c>UseHttpErrorResponses</c> and therefore below the exception handler. An exception raised
+    /// downstream leaves through the <c>next</c> call and is answered above this middleware, so the inspection that
+    /// follows it never runs for that request and cannot write over a body the handler chain produced.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
