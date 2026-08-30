@@ -91,8 +91,8 @@ internal sealed class AuthPasswordService<TUser>(
     }
 
     /// <summary>
-    /// Issues a reset token and spends any the user already had, so a second request invalidates the first link rather than
-    /// leaving two working at once.
+    /// Issues a reset token and deletes any unspent one the user already had, so a second request invalidates the first
+    /// link rather than leaving two working at once.
     /// </summary>
     ///
     /// <param name="user">The user the reset was requested for, already loaded so the token can be attached to its key.</param>
