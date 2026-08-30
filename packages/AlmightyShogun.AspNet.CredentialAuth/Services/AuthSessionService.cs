@@ -124,8 +124,9 @@ internal sealed class AuthSessionService<TUser>(
     /// <param name="refreshTokenHash">The hash of the token that was presented after already being rotated away.</param>
     ///
     /// <returns>
-    /// A task that completes once every session the user holds is revoked. Revoking all of them is deliberate: the token
-    /// is known to be in two places, and there is no way to tell which holder is the owner.
+    /// A task that completes once a detected reuse has been answered, or immediately when the hash matches no rotated
+    /// session or the rotation is still inside the grace window. A reuse that is detected revokes every session the user
+    /// holds, because the token is known to be in two places and there is no way to tell which holder is the owner.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
