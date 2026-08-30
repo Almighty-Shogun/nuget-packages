@@ -28,7 +28,8 @@ internal sealed class PresenceValidationRule<TRequest, TProperty>(
             PresenceMode.Missing => value is null,
             PresenceMode.Present => ValidationValue.IsPresent(value),
             PresenceMode.Prohibited => ValidationValue.IsEmpty(value),
-            PresenceMode.Required or PresenceMode.Filled => !ValidationValue.IsEmpty(value),
+            PresenceMode.Required => !ValidationValue.IsEmpty(value),
+            PresenceMode.Filled => value is null || !ValidationValue.IsEmpty(value),
             _ => false
         };
 
