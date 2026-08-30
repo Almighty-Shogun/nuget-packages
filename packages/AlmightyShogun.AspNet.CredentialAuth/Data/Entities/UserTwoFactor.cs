@@ -68,7 +68,8 @@ public sealed class UserTwoFactor
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
-    /// Gets or sets the unspent recovery codes issued when the enrolment was confirmed.
+    /// Gets or sets the recovery codes issued when the enrolment was confirmed, spent ones included, since a spent code
+    /// keeps its row. Verification filters them by <see cref="TwoFactorRecoveryCode.UsedAt"/> rather than relying on this.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
