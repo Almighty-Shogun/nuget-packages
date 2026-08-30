@@ -64,7 +64,7 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
 
         bool isValid = _mode switch
         {
-            FileConstraintMode.Uploaded => true,
+            FileConstraintMode.Uploaded => files.All(file => file.Length > 0),
             FileConstraintMode.Image => files.All(ValidationFile.IsImage),
             FileConstraintMode.Extensions => files.All(file => ValidationFile.HasExtension(file, _normalizedValues)),
             FileConstraintMode.Mimes => files.All(file => ValidationFile.HasMimeType(file, _normalizedValues)),

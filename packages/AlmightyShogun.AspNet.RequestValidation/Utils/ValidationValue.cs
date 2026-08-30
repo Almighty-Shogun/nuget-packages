@@ -40,8 +40,8 @@ internal static class ValidationValue
     /// </param>
     ///
     /// <returns>
-    /// <c>true</c> for <c>null</c> , an empty string, and an empty collection. A <c>false</c> boolean and a zero number are values, not
-    /// absences, so both come back <c>false</c> .
+    /// <c>true</c> for <c>null</c> , an empty string, a zero-length uploaded file, and an empty collection. A <c>false</c> boolean and a
+    /// zero number are values, not absences, so both come back <c>false</c> .
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
@@ -50,6 +50,7 @@ internal static class ValidationValue
     {
         null => true,
         string text => text.Length == 0,
+        IFormFile file => file.Length == 0,
         ICollection collection => collection.Count == 0,
         _ => false
     };
