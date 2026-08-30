@@ -46,7 +46,8 @@ public interface IAuthPasswordService
     ///
     /// <returns>
     /// The token in plain text, the only time it exists in that form, or <c>null</c> when no account holds that address.
-    /// Answering the same way either way is what stops the endpoint being used to discover registered addresses.
+    /// The two are distinguishable here on purpose, so the caller has to answer its own client identically either way; an
+    /// unknown address spends a short random delay so that the timing does not separate them either.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
