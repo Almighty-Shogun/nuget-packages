@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.JwtAuth;
 /// </summary>
 ///
 /// <param name="permission">
-/// The permission the caller must hold, compared against the principal's permission claims exactly as written.
+/// The permission the caller must hold, compared against the principal's permission claims case-insensitively.
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
