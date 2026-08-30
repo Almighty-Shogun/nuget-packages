@@ -32,9 +32,6 @@ internal static class ModelStateValidationExtractor
         {
             if (entry.Errors.Count == 0) continue;
 
-            if (entry.Errors.Any(error => error.Exception is not null))
-                return true;
-
             if (IsBodyLevelKey(key, bodyParameterNames))
                 return true;
         }
