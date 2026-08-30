@@ -29,8 +29,9 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
     /// <param name="cancellationToken">Cancels the database work.</param>
     ///
     /// <returns>
-    /// The secret and the <c>otpauth://</c> URI, returned once. Calling this again replaces the secret, which invalidates
-    /// any app already set up from a previous attempt.
+    /// The secret and the <c>otpauth://</c> URI, returned once. Calling this again replaces the secret and invalidates any
+    /// app already set up. On an enrolment that was already confirmed it also discards the recovery codes and turns the
+    /// second factor back off until a new code confirms it, so an abandoned re-enrolment leaves the account without one.
     /// </returns>
     ///
     /// <exception cref="InvalidCredentialsException">The identifier matches no account.</exception>
