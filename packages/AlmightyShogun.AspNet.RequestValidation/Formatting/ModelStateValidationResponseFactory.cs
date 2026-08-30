@@ -32,11 +32,12 @@ internal static class ModelStateValidationResponseFactory
 
         if (ModelStateValidationExtractor.HasBodyLevelError(context))
         {
-            return HttpErrorResult.Create(new HttpErrorResponse
+            return HttpErrorResult.Create(new ValidationErrorResponse
             {
                 Code = StatusCode,
-                Error = "validation_error",
-                ErrorDescription = messageResolver.Resolve("validation.invalid-body", [])
+                Error = ValidationResponseWriter.ErrorCode,
+                ErrorDescription = messageResolver.Resolve("validation.invalid-body", []),
+                Errors = new Dictionary<string, ValidationRuleError>()
             });
         }
 

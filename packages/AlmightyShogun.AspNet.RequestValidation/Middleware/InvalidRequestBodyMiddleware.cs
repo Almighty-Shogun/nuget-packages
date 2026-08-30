@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Http;
-using AlmightyShogun.AspNet.Core;
-using AlmightyShogun.AspNet.Localization;
 
 namespace AlmightyShogun.AspNet.RequestValidation;
 
@@ -10,11 +8,11 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <param name="next">The rest of the pipeline, run before the response is inspected.</param>
-/// <param name="messageResolver">
-/// The resolver the description is read from: <c>validation.invalid-body</c> when the body itself was unreadable, or the key for whichever
-/// status the failure actually carried.
+/// <param name="responseWriter">
+/// The writer that produces the body, so an unreadable body reaches the client in the same envelope a failed rule does. It resolves the
+/// description too: <c>validation.invalid-body</c> when the body itself was unreadable, or the key for whichever status the failure
+/// actually carried.
 /// </param>
-/// <param name="httpErrorResponseWriter">The writer that produces the body, matching every other error the application returns.</param>
 ///
 /// <remarks>
 /// Two paths reach the same response. A malformed body surfaces as <see cref="BadHttpRequestException"/>, which is caught here, while an
@@ -26,8 +24,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <since>Unreleased</since>
 internal sealed class InvalidRequestBodyMiddleware(
     RequestDelegate next,
-    IMessageResolver messageResolver,
-    IHttpErrorResponseWriter httpErrorResponseWriter
+    ValidationResponseWriter responseWriter
 )
 {
     /// <summary>
@@ -80,14 +77,10 @@ internal sealed class InvalidRequestBodyMiddleware(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private Task WriteInvalidBodyResponseAsync(HttpContext context, int statusCode = StatusCode) => httpErrorResponseWriter.WriteAsync(
+    private Task WriteInvalidBodyResponseAsync(HttpContext context, int statusCode = StatusCode) => responseWriter.WriteAsync(
         context,
         statusCode,
-        ValidationResponseWriter.ErrorCode,
-        messageResolver.Resolve(
-            statusCode == StatusCode ? "validation.invalid-body" : $"http-error.{statusCode}",
-            []
-        ),
+        statusCode == StatusCode ? "validation.invalid-body" : $"http-error.{statusCode}",
         context.RequestAborted
     );
 

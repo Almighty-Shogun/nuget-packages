@@ -53,11 +53,12 @@ internal sealed class RequestBodyValidationFilter(
             return;
         }
 
-        context.Result = HttpErrorResult.Create(new HttpErrorResponse
+        context.Result = HttpErrorResult.Create(new ValidationErrorResponse
         {
             Code = StatusCode,
-            Error = "validation_error",
-            ErrorDescription = messageResolver.Resolve("validation.invalid-body", [])
+            Error = ValidationResponseWriter.ErrorCode,
+            ErrorDescription = messageResolver.Resolve("validation.invalid-body", []),
+            Errors = new Dictionary<string, ValidationRuleError>()
         });
     }
 
