@@ -3,8 +3,8 @@ using AlmightyShogun.AspNet.RequestValidation;
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// A password change for the signed-in user. Every field is checked again by the service, so an application posting its
-/// own shape gets the same guarantees as one binding this model.
+/// A password change for the signed-in user. The service re-checks the confirmation, the current password, and reuse, but
+/// not the length and strength rules below, so an application posting its own shape has to enforce those itself.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
