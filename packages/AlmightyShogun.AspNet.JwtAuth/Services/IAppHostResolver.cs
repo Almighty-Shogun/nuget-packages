@@ -11,7 +11,8 @@ public interface IAppHostResolver
 {
     /// <summary>
     /// Resolves the app for the current request without throwing, for code that wants to decide for itself what an
-    /// unknown host means. The result is cached on the request, so repeated calls cost one lookup.
+    /// unknown host means. A successful result is cached on the request, so repeated calls cost one lookup; a failure is
+    /// not cached and is resolved again.
     /// </summary>
     ///
     /// <param name="app">
