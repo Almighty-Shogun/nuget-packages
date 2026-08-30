@@ -7,7 +7,7 @@ namespace AlmightyShogun.AspNet.JwtAuth;
 
 /// <summary>
 /// Mints signed access tokens. The signing credentials are built once and reused, because deriving them per token would
-/// hash the secret on every sign-in.
+/// repeat the secret's byte encoding and its length check on every sign-in.
 /// </summary>
 ///
 /// <param name="authOptions">
