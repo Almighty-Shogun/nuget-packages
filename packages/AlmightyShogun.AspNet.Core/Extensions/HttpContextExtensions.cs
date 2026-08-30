@@ -5,8 +5,8 @@ namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// Reads the caller's identity off the current request: the address it connected from, the client it used, and the
-/// session context those two are captured into. Every value is read from the live request on each call, the one
-/// exception being a session context that something has already seeded into <see cref="HttpContext.Items"/>.
+/// session context those two are captured into. The address and the client are read from the live request on every
+/// call; the session context is built once and kept in <see cref="HttpContext.Items"/> for the rest of the request.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -18,8 +18,9 @@ public static class HttpContextExtensions
     /// </summary>
     ///
     /// <param name="httpContext">
-    /// The context of the request being served. Nothing here mutates it, so the helpers are safe to call at any point
-    /// in the pipeline, including after the response has started.
+    /// The context of the request being served. Only <see cref="HttpContext.Items"/> is written to, where the session
+    /// context caches itself; the request and the response are untouched, so these are safe to call at any point in the
+    /// pipeline, including after the response has started.
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
@@ -36,8 +37,9 @@ public static class HttpContextExtensions
         /// </returns>
         ///
         /// <remarks>
-        /// A built context is not written back to <see cref="HttpContext.Items"/>, so each call reads the request
-        /// again. Seed the entry to pin the values, as a test does when there is no real connection behind them.
+        /// A built context is written back to <see cref="HttpContext.Items"/>, so only the first call in a request
+        /// reads the connection and every later one returns that same instance. Seed the entry beforehand to pin the
+        /// values, as a test does when there is no real connection behind them.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
