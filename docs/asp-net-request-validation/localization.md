@@ -38,7 +38,7 @@ Create `messages/{language}/validation.json` for every language the API should s
     },
     "boolean": "This field must be true or false.",
     "confirmed": "This field confirmation does not match.",
-    "contains": "This field is missing a required value.",
+    "contains": "This field must contain one of the following: {0}.",
     "date": {
         "default": "This field must be a valid date.",
         "equals": "This field must be a date equal to {0}.",
@@ -222,7 +222,7 @@ Create `messages/{language}/validation.json` for every language the API should s
     },
     "boolean": "Dit veld moet true of false zijn.",
     "confirmed": "De bevestiging van dit veld komt niet overeen.",
-    "contains": "Dit veld mist een verplichte waarde.",
+    "contains": "Dit veld moet een van de volgende waarden bevatten: {0}.",
     "date": {
         "default": "Dit veld moet een geldige datum zijn.",
         "equals": "Dit veld moet een datum gelijk aan {0} zijn.",
@@ -406,7 +406,7 @@ Create `messages/{language}/validation.json` for every language the API should s
     },
     "boolean": "Ce champ doit être true ou false.",
     "confirmed": "La confirmation de ce champ ne correspond pas.",
-    "contains": "Ce champ ne contient pas une valeur requise.",
+    "contains": "Ce champ doit contenir l'une des valeurs suivantes : {0}.",
     "date": {
         "default": "Ce champ doit être une date valide.",
         "equals": "Ce champ doit être une date égale à {0}.",
