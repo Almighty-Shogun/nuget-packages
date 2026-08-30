@@ -24,7 +24,9 @@ internal sealed class DoesNotValidationRule<TRequest, TProperty>(
             return ValueTask.FromResult(ValidationRuleResult.Success());
 
         if (!ValidationValue.TryGetText(value, out string text))
-            return ValueTask.FromResult(ValidationRuleResult.Failure(GetMessageKey(), ValidationValue.JoinValues(values)));
+            return ValueTask.FromResult(mode == StringMatchMode.Contain && CollectionHoldsNoneOf(value)
+                ? ValidationRuleResult.Success()
+                : ValidationRuleResult.Failure(GetMessageKey(), ValidationValue.JoinValues(values)));
 
         bool isValid = mode switch
         {
@@ -48,6 +50,10 @@ internal sealed class DoesNotValidationRule<TRequest, TProperty>(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
+    private bool CollectionHoldsNoneOf(TProperty? value)
+        => ValidationCollection.TryGetValues(value, out IReadOnlyList<object?> elements)
+           && values.All(forbidden => elements.All(element => !string.Equals(element?.ToString(), forbidden, StringComparison.Ordinal)));
+
     private string GetMessageKey() => mode switch
     {
         StringMatchMode.Contain => "validation.does-not.contain",

@@ -24,11 +24,13 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty>(
             return ValueTask.FromResult(ValidationRuleResult.Success());
 
         if (!ValidationValue.TryGetText(value, out string text))
-            return ValueTask.FromResult(ValidationRuleResult.Failure(GetMessageKey(), GetMessageParameters()));
+            return ValueTask.FromResult(mode == StringMatchMode.Contain && CollectionHoldsOneOf(value)
+                ? ValidationRuleResult.Success()
+                : ValidationRuleResult.Failure(GetMessageKey(), GetMessageParameters()));
 
         bool isValid = mode switch
         {
-            StringMatchMode.Contain => values.All(requiredValue => text.Contains(requiredValue, StringComparison.Ordinal)),
+            StringMatchMode.Contain => values.Any(requiredValue => text.Contains(requiredValue, StringComparison.Ordinal)),
             StringMatchMode.EndWith => values.Any(suffix => text.EndsWith(suffix, StringComparison.Ordinal)),
             StringMatchMode.StartWith => values.Any(prefix => text.StartsWith(prefix, StringComparison.Ordinal)),
             _ => false
@@ -64,5 +66,9 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty>(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private object?[] GetMessageParameters() => mode == StringMatchMode.Contain ? [] : [ValidationValue.JoinValues(values)];
+    private object?[] GetMessageParameters() => [ValidationValue.JoinValues(values)];
+
+    private bool CollectionHoldsOneOf(TProperty? value)
+        => ValidationCollection.TryGetValues(value, out IReadOnlyList<object?> elements)
+           && values.Any(required => elements.Any(element => string.Equals(element?.ToString(), required, StringComparison.Ordinal)));
 }
