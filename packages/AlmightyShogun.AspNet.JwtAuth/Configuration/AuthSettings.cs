@@ -35,9 +35,9 @@ public sealed record AuthSettings
     public required string Issuer { get; init; }
 
     /// <summary>
-    /// Gets the symmetric signing secret used to sign and validate JWT signatures. Must be at least 32 bytes, which is
-    /// the minimum key length HMAC-SHA256 accepts; the length is checked in bytes rather than characters, so a secret of
-    /// non-ASCII characters is not as long as it looks.
+    /// Gets the symmetric signing secret used to sign and validate JWT signatures. Must be at least 32 characters, which
+    /// is what startup validation enforces. UTF-8 never encodes a character to fewer than one byte, so that also satisfies
+    /// the 32-byte minimum HMAC-SHA256 accepts.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -152,7 +152,9 @@ public sealed record AuthSettings
     /// </returns>
     ///
     /// <exception cref="InvalidOperationException">
-    /// The secret encodes to fewer than <see cref="MinimumSecretBytes"/> bytes, so HMAC-SHA256 would refuse it.
+    /// The secret encodes to fewer than <see cref="MinimumSecretBytes"/> bytes, so HMAC-SHA256 would refuse it. Not
+    /// reachable while startup validation is on, since <see cref="MinLengthAttribute"/> already demands that many
+    /// characters and a character never encodes to less than a byte.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
