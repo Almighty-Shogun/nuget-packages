@@ -52,65 +52,112 @@ internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private static IReadOnlyList<ValidationRuleDescription> DescribeProperty(PropertyInfo property) =>
-        [
-            .. property
-                .GetCustomAttributes<ValidationRuleAttribute>(true)
-                .Select(attribute => new ValidationRuleDescription(GetRuleName(attribute), GetArguments(attribute)))
-        ];
+    [
+        .. GetRuleAttributeData(property)
+            .Select(attributeData => new ValidationRuleDescription(
+                GetRuleName(attributeData.AttributeType),
+                GetArguments(attributeData)
+            ))
+    ];
+
+    /// <summary>
+    /// Collects the validation attributes declared on a property as metadata rather than as constructed instances, walking the base
+    /// declarations the way <see cref="MemberInfo.GetCustomAttributes(bool)"/> would so an inherited rule is described too.
+    /// </summary>
+    ///
+    /// <param name="property">The property whose declared rules are wanted.</param>
+    ///
+    /// <returns>
+    /// One entry per validation attribute, nearest declaration first, so an override hides the base declaration of the same attribute
+    /// rather than being reported twice.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// Metadata rather than instances, because an attribute keeps no record of the arguments it was written with: a primary-constructor
+    /// parameter forwarded straight to the base constructor leaves no field behind to read it back from.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static IEnumerable<CustomAttributeData> GetRuleAttributeData(PropertyInfo property)
+    {
+        HashSet<Type> declared = [];
+
+        for (Type? type = property.DeclaringType; type is not null; type = type.BaseType)
+        {
+            PropertyInfo? candidate = type.GetProperty(
+                property.Name,
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly
+            );
+
+            if (candidate is null) continue;
+
+            foreach (CustomAttributeData attributeData in candidate.GetCustomAttributesData())
+                if (typeof(ValidationRuleAttribute).IsAssignableFrom(attributeData.AttributeType)
+                    && declared.Add(attributeData.AttributeType))
+                    yield return attributeData;
+        }
+    }
 
     /// <summary>
     /// Derives the rule name a client sees from the attribute's type name, which is the same name the rule catalogue documents.
     /// </summary>
     ///
-    /// <param name="attribute">The attribute to describe, read for its type name and the arguments it was declared with.</param>
+    /// <param name="attributeType">The attribute type to name, read for its type name alone.</param>
     ///
     /// <returns>The rule name.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static string GetRuleName(ValidationRuleAttribute attribute)
+    private static string GetRuleName(Type attributeType)
     {
         const string suffix = "Attribute";
-        string name = attribute.GetType().Name;
+        string name = attributeType.Name;
 
         return name.EndsWith(suffix, StringComparison.Ordinal) ? name[..^suffix.Length] : name;
     }
 
     /// <summary>
-    /// Recovers the arguments an attribute was written with, by reading the properties its longest constructor names, since an attribute
-    /// keeps no record of its own call site.
+    /// Reads the arguments an attribute was written with, straight from the metadata the compiler recorded at the call site.
     /// </summary>
     ///
-    /// <param name="attribute">The attribute to describe, read for its type name and the arguments it was declared with.</param>
+    /// <param name="attributeData">The attribute's metadata, carrying its constructor arguments in declaration order.</param>
     ///
-    /// <returns>The declared argument values.</returns>
+    /// <returns>
+    /// The declared argument values, in constructor order. An array argument comes back as an <see cref="object"/> array rather than as
+    /// the metadata wrapper, so a caller reads the values themselves.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// Metadata is the only place these survive. Reading them back off the constructed attribute does not work, because a
+    /// primary-constructor parameter forwarded straight to the base constructor is never captured in a field of the derived type.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static IReadOnlyList<object?> GetArguments(ValidationRuleAttribute attribute)
+    private static IReadOnlyList<object?> GetArguments(CustomAttributeData attributeData) 
+        => [.. attributeData.ConstructorArguments.Select(ToArgumentValue)];
+
+    /// <summary>
+    /// Unwraps one metadata argument into the value it stands for, flattening an array argument into its elements.
+    /// </summary>
+    ///
+    /// <param name="argument">One constructor argument as the metadata records it.</param>
+    ///
+    /// <returns>
+    /// The value, or an <see cref="object"/> array when the argument was itself an array. An enum argument is returned as its enum type
+    /// rather than as the underlying integer metadata stores it in, so a client sees the name it was written with.
+    /// </returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static object? ToArgumentValue(CustomAttributeTypedArgument argument)
     {
-        ConstructorInfo? constructor = attribute.GetType()
-            .GetConstructors()
-            .OrderByDescending(candidate => candidate.GetParameters().Length)
-            .FirstOrDefault();
+        if (argument.Value is IReadOnlyCollection<CustomAttributeTypedArgument> elements)
+            return elements.Select(ToArgumentValue).ToArray();
 
-        if (constructor is null)
-            return [];
-
-        List<object?> arguments =
-        [
-            .. constructor.GetParameters()
-                .Select(parameter => attribute.GetType()
-                    .GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
-                    .FirstOrDefault(candidate =>
-                        candidate.Name.Contains($"<{parameter.Name}>", StringComparison.Ordinal)
-                        || candidate.Name.Equals(parameter.Name, StringComparison.OrdinalIgnoreCase))
-                )
-                .OfType<FieldInfo>()
-                .Select(field => field.GetValue(attribute))
-
-        ];
-
-        return arguments;
+        return argument.ArgumentType.IsEnum && argument.Value is not null
+            ? Enum.ToObject(argument.ArgumentType, argument.Value)
+            : argument.Value;
     }
 }
