@@ -35,8 +35,8 @@ internal sealed class FileMaintenanceStore(
     private readonly SemaphoreSlim _writeLock = new(1, 1);
 
     /// <summary>
-    /// The cached state. Every request reads this rather than the disk; without it the whole application serialized through one semaphore
-    /// and performed a file read plus a deserialize per request, even with maintenance off.
+    /// The cached state. Every request reads this rather than the disk; without it each one would cost a file read and a deserialize even
+    /// with maintenance off. Reads never take <see cref="_writeLock"/>, so they do not contend with each other or with a write.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
