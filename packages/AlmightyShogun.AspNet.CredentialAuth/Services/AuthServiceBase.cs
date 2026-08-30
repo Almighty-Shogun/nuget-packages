@@ -44,7 +44,8 @@ internal abstract class AuthServiceBase<TUser>(
     protected AuthDbContext<TUser> DatabaseContext => databaseContext;
 
     /// <summary>
-    /// The bound JWT settings, snapshotted once rather than resolved per call.
+    /// The bound JWT settings, read through <see cref="IOptions{TOptions}"/> on each access. That returns the instance
+    /// bound once for the process, so the value is stable without this property caching anything itself.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
