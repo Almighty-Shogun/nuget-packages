@@ -92,7 +92,7 @@ internal sealed class MaintenanceMiddleware(
     /// refused.
     /// </summary>
     ///
-    /// <param name="context">The request being considered, read for its path, its accepted media types, and its connecting address.</param>
+    /// <param name="context">The request whose response the details are written to.</param>
     /// <param name="state">The window as it currently stands, with configured defaults and the expiry policy already applied.</param>
     ///
     /// <returns>A task that completes when the response has been written.</returns>
@@ -115,7 +115,7 @@ internal sealed class MaintenanceMiddleware(
     /// Writes the <c>Retry-After</c> header when the end time is known.
     /// </summary>
     ///
-    /// <param name="context">The request being considered, read for its path, its accepted media types, and its connecting address.</param>
+    /// <param name="context">The request whose response header is set, and which is left alone once it has started.</param>
     /// <param name="state">The window as it currently stands, with configured defaults and the expiry policy already applied.</param>
     ///
     /// <remarks>
@@ -151,7 +151,9 @@ internal sealed class MaintenanceMiddleware(
     /// Determines whether a request stays available while maintenance mode is enabled.
     /// </summary>
     ///
-    /// <param name="context">The request being considered, read for its path, its accepted media types, and its connecting address.</param>
+    /// <param name="context">
+    /// The request being considered, read for its path and, through the address check, its connecting address.
+    /// </param>
     /// <param name="state">The window as it currently stands, with configured defaults and the expiry policy already applied.</param>
     ///
     /// <returns><c>true</c> when the request should be served normally.</returns>
@@ -178,7 +180,7 @@ internal sealed class MaintenanceMiddleware(
     /// cannot let itself through by claiming an address.
     /// </summary>
     ///
-    /// <param name="context">The request being considered, read for its path, its accepted media types, and its connecting address.</param>
+    /// <param name="context">The request being considered, read for its connecting address alone.</param>
     /// <param name="state">The window as it currently stands, with configured defaults and the expiry policy already applied.</param>
     ///
     /// <returns><c>true</c> when the address is allowed.</returns>
