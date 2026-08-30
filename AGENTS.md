@@ -34,8 +34,8 @@ Packages currently target `.NET 10` and are versioned together. A release tag is
 ## XML Documentation Style
 
 All XML code documentation follows the **XML Documentation Style** section in my global instructions. Only the
-bindings to this repository are recorded here: `max_line_length` is **140 columns**, counting the indentation and
-the `///` prefix, and calibration is judged across a package rather than a single file.
+binding to this repository is recorded here: `max_line_length` is **140 columns**, counting the indentation and
+the `///` prefix.
 
 ### Checking a package
 
@@ -44,7 +44,13 @@ dotnet build packages/<Package>/<Package>.csproj --no-incremental
 awk 'length($0)>140 {print FILENAME":"FNR}' packages/<Package>/*.cs
 ```
 
-The build covers completeness and cref resolution, since `GenerateDocumentationFile` is on with no `NoWarn`. Neither check can see filler, so read every summary and parameter once and ask what the reader learns from it.
+The build covers completeness and cref resolution, since `GenerateDocumentationFile` is on with no `NoWarn`. Neither
+check can read a sentence, so neither can tell you that a block is false, and a package whose build is clean may still
+be wrong on every claim it makes.
+
+Accuracy is checked by reading. Run `/verify-xml-docs packages/<Package>` for a full pass, which reads each block
+against the implementation and reports what it could not confirm. At minimum, whenever a body changes, re-read that
+member's whole doc block and correct what the change falsified.
 
 ## Build And Validation
 
