@@ -37,7 +37,8 @@ public sealed record MaintenanceSettings
     public bool AutoDisableWhenExpired { get; init; }
 
     /// <summary>
-    /// Gets whether blocked requests are redirected to the maintenance path instead of receiving the maintenance response directly.
+    /// Gets whether a blocked request is redirected to the maintenance path instead of receiving the maintenance response directly. Only a
+    /// client that accepts <c>text/html</c> is redirected; anything else gets the response body whatever this says.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
