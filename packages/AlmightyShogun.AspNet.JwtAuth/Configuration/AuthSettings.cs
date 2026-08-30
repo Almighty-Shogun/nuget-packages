@@ -146,7 +146,10 @@ public sealed record AuthSettings
     /// constrains and what <see cref="MinLengthAttribute"/> on a string cannot express.
     /// </summary>
     ///
-    /// <returns>The symmetric key both signing and validation use, so the two can never disagree.</returns>
+    /// <returns>
+    /// The symmetric key minted tokens are signed with. Validation builds its own from the same secret rather than
+    /// calling this, so the byte check below guards signing alone.
+    /// </returns>
     ///
     /// <exception cref="InvalidOperationException">
     /// The secret encodes to fewer than <see cref="MinimumSecretBytes"/> bytes, so HMAC-SHA256 would refuse it.
