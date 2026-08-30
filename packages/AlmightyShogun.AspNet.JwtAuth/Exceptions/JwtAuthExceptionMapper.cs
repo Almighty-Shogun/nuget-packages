@@ -4,8 +4,9 @@ using AlmightyShogun.AspNet.Core;
 namespace AlmightyShogun.AspNet.JwtAuth;
 
 /// <summary>
-/// Maps this package's exceptions to the responses they produce, so the exceptions themselves stay plain and an
-/// application can override any of them by registering its own mapper afterward.
+/// Maps this package's exceptions to the responses they produce, so the exceptions themselves stay plain. The mappings
+/// cannot be replaced one at a time: an application wanting different ones passes <c>registerExceptionHandler: false</c>
+/// to <c>AddJwtAuth</c> and answers these exceptions from a handler of its own.
 /// </summary>
 ///
 /// <remarks>
