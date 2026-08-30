@@ -34,8 +34,8 @@ public interface IMessageResolver
     ///
     /// <param name="key">The dot-separated key, resolved in the same negotiated language as <see cref="Resolve(string)"/>.</param>
     /// <param name="parameters">
-    /// The values substituted by position, as <c>{0}</c> and onwards. A count that does not match the template leaves
-    /// the template unformatted rather than throwing, so a placeholder can survive into the response.
+    /// The values substituted by position, as <c>{0}</c> and onwards. Too few for the template leaves it unformatted
+    /// rather than throwing, so a placeholder can survive into the response; surplus values are ignored.
     /// </param>
     ///
     /// <returns>The formatted message, or the key itself when the negotiated language does not define it.</returns>
