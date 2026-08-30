@@ -57,8 +57,9 @@ public sealed record AuthSettings
     public int AccessTokenMinutes { get; init; } = 60;
 
     /// <summary>
-    /// Gets how long a refresh token stays valid, in days. This is also the lifetime of the cookie carrying it, so it
-    /// decides how long a returning user stays signed in without re-entering credentials.
+    /// Gets how long a refresh token stays valid, in days, which decides how long a returning user stays signed in
+    /// without re-entering credentials. Pass it to <c>SetRefreshTokenCookie</c> to give the cookie a matching lifetime;
+    /// nothing here does that for you.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
