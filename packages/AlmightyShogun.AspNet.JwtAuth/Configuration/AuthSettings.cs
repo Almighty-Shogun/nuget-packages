@@ -86,8 +86,9 @@ public sealed record AuthSettings
     public string? DefaultApp { get; init; }
 
     /// <summary>
-    /// Gets the <c>SameSite</c> mode applied to the refresh token cookie. <see cref="SameSiteMode.None"/> requires a
-    /// secure connection, which browsers enforce by rejecting the cookie outright.
+    /// Gets the <c>SameSite</c> mode intended for the refresh token cookie. Nothing in this package reads it:
+    /// <c>SetRefreshTokenCookie</c> writes <see cref="SameSiteMode.Lax"/> whatever this says, so an application needing
+    /// another mode has to write the cookie itself.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
