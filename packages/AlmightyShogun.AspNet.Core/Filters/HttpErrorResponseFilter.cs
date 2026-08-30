@@ -6,7 +6,7 @@ using AlmightyShogun.AspNet.Localization;
 namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
-/// Replaces an MVC error result that carries a status code but nobody with the standardized error response, so a bare
+/// Replaces an MVC error result that carries a status code but no body with the standardized error response, so a bare
 /// <c>NotFound()</c> returns the same shape as an exception answered through <see cref="IExceptionMapper"/>.
 /// </summary>
 ///
