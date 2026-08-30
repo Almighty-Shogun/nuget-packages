@@ -213,7 +213,10 @@ internal sealed class MaintenanceMiddleware(
     ///
     /// <param name="request">The current request.</param>
     ///
-    /// <returns><c>true</c> when the client accepts <c>text/html</c>.</returns>
+    /// <returns>
+    /// <c>true</c> when an <c>Accept</c> entry names <c>text/html</c> literally. A client sending only <c>*/*</c> reads as an API client,
+    /// since the wildcard is not expanded.
+    /// </returns>
     ///
     /// <remarks>
     /// Deciding on the header rather than on configuration is what lets one window serve a browser the maintenance page and an API client
