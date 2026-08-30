@@ -214,7 +214,8 @@ internal sealed class JsonMessageStore(
     ///
     /// <returns>
     /// The content root when a web host supplied one, then the directory the assemblies were loaded from, then the
-    /// current working directory. All three are searched; they are not alternatives, and duplicates are not removed.
+    /// current working directory. All are searched rather than being alternatives, and a root repeated between them is
+    /// yielded once, since the content root and the working directory are commonly the same path.
     /// </returns>
     ///
     /// <remarks>
