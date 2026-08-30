@@ -130,7 +130,10 @@ internal sealed class FileMaintenanceStore(
     /// Reads and parses the state file, distinguishing a wrong file from an unreadable one.
     /// </summary>
     ///
-    /// <returns>The persisted state, or <c>null</c> when the file does not exist.</returns>
+    /// <returns>
+    /// The persisted state; <c>null</c> when the file does not exist; the fail-closed state when it exists but cannot be parsed; and the
+    /// last cached value, which may itself be <c>null</c>, when three read attempts all failed.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
