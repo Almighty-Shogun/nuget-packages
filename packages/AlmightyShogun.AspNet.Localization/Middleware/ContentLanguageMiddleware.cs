@@ -19,8 +19,8 @@ internal sealed class ContentLanguageMiddleware(RequestDelegate next)
     ///
     /// <param name="context">The context the callback is registered on and whose response header is set.</param>
     /// <param name="messageResolver">
-    /// The resolver asked which language was served. Injected per invocation rather than through the constructor, since
-    /// middleware is constructed once and the resolver is not a singleton in every configuration.
+    /// The resolver asked which language was served. Middleware is constructed once, so taking it here rather than in
+    /// the constructor is what keeps a replacement registered with a scoped lifetime resolvable.
     /// </param>
     ///
     /// <returns>A task that completes once the rest of the pipeline has finished.</returns>
