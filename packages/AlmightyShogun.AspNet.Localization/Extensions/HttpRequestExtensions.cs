@@ -59,13 +59,13 @@ public static class HttpRequestExtensions
         }
 
         /// <summary>
-        /// Gets the first language listed in the request <c>Accept-Language</c> header, ignoring quality values. Reach
-        /// for <see cref="GetAcceptLanguages"/> when a lower-ranked language is worth trying before the default.
+        /// Gets the language the client ranked highest, which is the first entry <see cref="GetAcceptLanguages"/>
+        /// returns. Reach for that method directly when a lower-ranked language is worth trying before the default.
         /// </summary>
         ///
         /// <returns>
-        /// The first listed language, or <c>null</c> when the header is absent or its first entry is not a well-formed
-        /// language tag, including when that entry is the <c>*</c> wildcard.
+        /// The highest-ranked accepted language, or <c>null</c> when nothing in the header survives negotiation: an
+        /// absent header, only the <c>*</c> wildcard, only refusals at <c>q=0</c>, or nothing that parses as a tag.
         /// </returns>
         ///
         /// <author>Almighty-Shogun</author>
