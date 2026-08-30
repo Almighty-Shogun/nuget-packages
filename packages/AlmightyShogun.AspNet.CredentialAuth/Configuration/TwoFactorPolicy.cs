@@ -13,7 +13,7 @@ public sealed record TwoFactorPolicy
 {
     /// <summary>
     /// Gets the name shown beside the account in an authenticator app, which is how a user tells one code apart from
-    /// another. Falls back to the application name when unset.
+    /// another. Overrides the issuer passed to enrolment; leave it unset to let each call supply its own.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
