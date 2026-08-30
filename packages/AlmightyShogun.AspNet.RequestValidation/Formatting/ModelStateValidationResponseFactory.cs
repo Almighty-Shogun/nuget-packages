@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <since>Unreleased</since>
 internal static class ModelStateValidationResponseFactory
 {
-    private const int StatusCode = StatusCodes.Status422UnprocessableEntity;
+    private const int _statusCode = StatusCodes.Status422UnprocessableEntity;
 
     /// <summary>
     /// Converts model-state entries into field errors and wraps them in the standard body.
@@ -34,7 +34,7 @@ internal static class ModelStateValidationResponseFactory
         {
             return HttpErrorResult.Create(new ValidationErrorResponse
             {
-                Code = StatusCode,
+                Code = _statusCode,
                 Error = ValidationResponseWriter.ErrorCode,
                 ErrorDescription = messageResolver.Resolve("validation.invalid-body", []),
                 Errors = new Dictionary<string, ValidationRuleError>()
@@ -45,6 +45,6 @@ internal static class ModelStateValidationResponseFactory
 
         ValidationBag errors = ModelStateValidationExtractor.Extract(context.ModelState);
 
-        return validationResponseFactory.Create(new ValidationResponseContext(context.HttpContext, StatusCode, errors));
+        return validationResponseFactory.Create(new ValidationResponseContext(context.HttpContext, _statusCode, errors));
     }
 }

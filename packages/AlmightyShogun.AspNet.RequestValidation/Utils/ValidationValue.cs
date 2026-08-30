@@ -20,7 +20,7 @@ internal static class ValidationValue
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static readonly string[] AcceptedTexts = ["yes", "on", "1", "true"];
+    private static readonly string[] _acceptedTexts = ["yes", "on", "1", "true"];
 
     /// <summary>
     /// The textual spellings counted as declined. A value in neither list is neither accepted nor declined, so both checks report
@@ -29,7 +29,7 @@ internal static class ValidationValue
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static readonly string[] DeclinedTexts = ["no", "off", "0", "false"];
+    private static readonly string[] _declinedTexts = ["no", "off", "0", "false"];
 
     /// <summary>
     /// Checks whether a value is empty, which is what every value rule short-circuits on so it never implies the field is required.
@@ -136,7 +136,7 @@ internal static class ValidationValue
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static bool IsAcceptedText(string text) => AcceptedTexts.Contains(text, StringComparer.OrdinalIgnoreCase);
+    private static bool IsAcceptedText(string text) => _acceptedTexts.Contains(text, StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Matches text against the declined vocabulary, case-insensitively, on the same terms as the accepted check.
@@ -148,7 +148,7 @@ internal static class ValidationValue
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static bool IsDeclinedText(string text) => DeclinedTexts.Contains(text, StringComparer.OrdinalIgnoreCase);
+    private static bool IsDeclinedText(string text) => _declinedTexts.Contains(text, StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Compares a non-boolean, non-text value against an exact number, which is how a numeric <c>1</c> or <c>0</c> is read as a yes or a no

@@ -22,10 +22,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-internal sealed class InvalidRequestBodyMiddleware(
-    RequestDelegate next,
-    ValidationResponseWriter responseWriter
-)
+internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, ValidationResponseWriter responseWriter)
 {
     /// <summary>
     /// The status an unreadable body defaults to, shared with the per-field validation response so the two cannot drift apart. A failure
@@ -34,7 +31,7 @@ internal sealed class InvalidRequestBodyMiddleware(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private const int StatusCode = ValidationResponseWriter.StatusCode;
+    private const int _statusCode = ValidationResponseWriter.StatusCode;
 
     /// <summary>
     /// Runs the pipeline and, if an unreadable body escaped it, writes the standard response. Handled after the fact because the failure
@@ -77,10 +74,10 @@ internal sealed class InvalidRequestBodyMiddleware(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private Task WriteInvalidBodyResponseAsync(HttpContext context, int statusCode = StatusCode) => responseWriter.WriteAsync(
+    private Task WriteInvalidBodyResponseAsync(HttpContext context, int statusCode = _statusCode) => responseWriter.WriteAsync(
         context,
         statusCode,
-        statusCode == StatusCode ? "validation.invalid-body" : $"http-error.{statusCode}",
+        statusCode == _statusCode ? "validation.invalid-body" : $"http-error.{statusCode}",
         context.RequestAborted
     );
 

@@ -29,7 +29,7 @@ internal sealed class RequestBodyValidationFilter(
     IOptions<MvcOptions> mvcOptions
 ) : IAsyncResourceFilter, IOrderedFilter
 {
-    private const int StatusCode = StatusCodes.Status422UnprocessableEntity;
+    private const int _statusCode = StatusCodes.Status422UnprocessableEntity;
 
     public int Order => int.MinValue;
 
@@ -55,7 +55,7 @@ internal sealed class RequestBodyValidationFilter(
 
         context.Result = HttpErrorResult.Create(new ValidationErrorResponse
         {
-            Code = StatusCode,
+            Code = _statusCode,
             Error = ValidationResponseWriter.ErrorCode,
             ErrorDescription = messageResolver.Resolve("validation.invalid-body", []),
             Errors = new Dictionary<string, ValidationRuleError>()
