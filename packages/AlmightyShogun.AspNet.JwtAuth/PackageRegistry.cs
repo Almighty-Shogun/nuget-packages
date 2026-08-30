@@ -31,7 +31,7 @@ public static class PackageRegistry
     {
         /// <summary>
         /// Registers bearer authentication, the permission policy provider, and the app-audience requirement, binding the
-        /// <c>Auth</c> section they all read from.
+        /// <c>Auth</c> section they all read from and forcing its audience list to be built while the host starts.
         /// </summary>
         ///
         /// <param name="configuration">
@@ -58,6 +58,11 @@ public static class PackageRegistry
                 .AddAuthorization()
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options => ConfigureJwtBearer(options, configuration));
+
+            serviceCollection.AddOptions<AuthSettings>().Validate(
+                settings => settings.ValidAudiences.Count > 0,
+                "Auth resolved no valid audience. Configure Auth:DefaultApp or at least one Auth:Hosts entry."
+            );
 
             if (registerExceptionHandler)
                 serviceCollection.AddExceptionHandler<JwtAuthExceptionHandler>();

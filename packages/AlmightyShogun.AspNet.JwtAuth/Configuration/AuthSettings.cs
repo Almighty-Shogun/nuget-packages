@@ -6,8 +6,9 @@ using System.ComponentModel.DataAnnotations;
 namespace AlmightyShogun.AspNet.JwtAuth;
 
 /// <summary>
-/// The bound <c>Auth</c> section. Validated while the host starts, so a secret too short to sign with or a configuration
-/// that leaves tokens with no audience stops the application there rather than failing the first request.
+/// The bound <c>Auth</c> section. Validated while the host starts, so a missing issuer, a secret too short to sign with,
+/// or a configuration that leaves tokens with no audience stops the application there rather than failing the first
+/// request.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -110,7 +111,8 @@ public sealed record AuthSettings
     public IReadOnlyDictionary<string, string> Hosts { get; init; } = new Dictionary<string, string>();
 
     /// <summary>
-    /// Gets every audience a token may carry: the host mappings, the localhost fallback, and the default app.
+    /// Gets every audience a token may carry: the host mappings, the localhost fallback, and the default app. Read
+    /// during startup validation, so a configuration that yields none stops the host rather than the first request.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -118,7 +120,8 @@ public sealed record AuthSettings
     public IReadOnlyList<string> ValidAudiences => _validAudiences ??= BuildValidAudiences();
 
     /// <summary>
-    /// The cached audience list. Building it walks the host mapping, and it is read on every token validation.
+    /// The cached audience list. Building it walks the host mapping, and it is read on every token validation, so it is
+    /// built once by startup validation and reused from there.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
