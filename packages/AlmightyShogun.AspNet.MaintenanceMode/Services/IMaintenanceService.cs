@@ -21,7 +21,8 @@ public interface IMaintenanceService
     Task<MaintenanceState> GetAsync();
 
     /// <summary>
-    /// Reports whether requests are being blocked right now, which is narrower than a window existing: a scheduled one is not yet in force.
+    /// Reports whether a window is recorded as open, which is broader than requests being blocked: a window scheduled for later reads as
+    /// enabled here while the middleware still serves everything.
     /// </summary>
     ///
     /// <returns><c>true</c> when maintenance mode is enabled; otherwise, <c>false</c>.</returns>
