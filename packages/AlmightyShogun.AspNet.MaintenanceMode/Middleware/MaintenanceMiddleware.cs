@@ -216,7 +216,8 @@ internal sealed class MaintenanceMiddleware(
     /// <returns><c>true</c> when the client accepts <c>text/html</c>.</returns>
     ///
     /// <remarks>
-    /// A browser gets the maintenance page, an API client gets the error body, with nothing to configure either way.
+    /// Deciding on the header rather than on configuration is what lets one window serve a browser the maintenance page and an API client
+    /// the error body. Whether a redirect happens at all is still governed by <c>RedirectBlockedRequests</c>.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
