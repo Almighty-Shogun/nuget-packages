@@ -9,8 +9,9 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// Signs users in and creates them. The sign-in path is deliberately uniform: an unknown identifier, a wrong password, a
-/// locked account and a disabled one are all refused the same way, and all cost roughly the same time.
+/// Signs users in and creates them. An unknown identifier and a wrong password are refused identically, and an unknown one
+/// still pays a decoy verification so the timing does not separate them. A locked and a disabled account are each refused
+/// distinctly, and a lockout is answered before the password is checked at all.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
