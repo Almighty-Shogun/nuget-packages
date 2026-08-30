@@ -35,7 +35,9 @@ public interface IAppHostResolver
     /// <returns>The resolved app, or <c>null</c> when scoping is off and there is nothing to resolve.</returns>
     ///
     /// <exception cref="UnknownAppException">
-    /// Scoping is active and the request host maps to no configured application, so the request cannot be attributed.
+    /// Scoping is active and the request cannot be attributed: either the host maps to no configured application, or
+    /// there is no request in flight at all, as when a background job mints a token. The second carries a <c>null</c>
+    /// host rather than the one that failed.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
