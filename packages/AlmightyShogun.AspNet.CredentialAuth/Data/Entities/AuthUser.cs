@@ -18,8 +18,8 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 public class AuthUser
 {
     /// <summary>
-    /// Gets or sets the primary key. Internal to the database: foreign keys point at it, but it never leaves the
-    /// application, so a sequential integer cannot be used to count or enumerate accounts from outside.
+    /// Gets or sets the primary key, which the other tables point at. Use <see cref="Identifier"/> in anything a client
+    /// sees: this value is not hidden from serialization, so returning the entity exposes a sequential number.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
