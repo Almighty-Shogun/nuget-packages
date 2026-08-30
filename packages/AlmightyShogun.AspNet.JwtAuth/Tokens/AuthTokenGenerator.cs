@@ -13,7 +13,10 @@ namespace AlmightyShogun.AspNet.JwtAuth;
 /// <param name="authOptions">
 /// The bound settings supplying the issuer, the signing secret, and how long a minted token stays valid.
 /// </param>
-/// <param name="appHostResolver">The resolver used to determine the audience when the caller does not supply one.</param>
+/// <param name="appHostResolver">
+/// The resolver used to determine the audience when the caller supplies none and host scoping is on. Unscoped, the
+/// default app is used and this is never consulted.
+/// </param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
