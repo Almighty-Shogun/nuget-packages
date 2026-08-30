@@ -9,8 +9,8 @@ using AlmightyShogun.AspNet.JwtAuth;
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// Changes passwords and runs the reset flow. Every path here revokes the user's other sessions, because a password that
-/// has changed should not leave access granted under the old one.
+/// Changes passwords and runs the reset flow. Both paths that set a password revoke the user's other sessions, because a
+/// password that has changed should not leave access granted under the old one.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

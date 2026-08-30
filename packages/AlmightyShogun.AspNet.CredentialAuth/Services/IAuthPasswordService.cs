@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// Changes passwords, both for a signed-in user and through a reset link. Every path revokes the user's other sessions,
-/// so a password change actually ends access that used the old one.
+/// Changes passwords, both for a signed-in user and through a reset link. Both paths that set a password revoke the
+/// user's other sessions, so a change actually ends access that used the old one.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
