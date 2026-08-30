@@ -13,7 +13,7 @@ internal interface IMaintenanceStore
     /// Gets the current persisted state, from memory when it has already been read.
     /// </summary>
     ///
-    /// <returns>The persisted state, or <c>null</c> when maintenance mode has never been enabled.</returns>
+    /// <returns>The persisted state, or <c>null</c> when no window is recorded, whether never opened or since closed.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
