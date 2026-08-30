@@ -27,8 +27,8 @@ public static class HttpRequestExtensions
     {
         /// <summary>
         /// Gets every language from the request <c>Accept-Language</c> header, ordered by the quality value the client
-        /// assigned, highest first. Entries that are not well-formed language tags are dropped, and duplicates are
-        /// removed so the first occurrence keeps its position.
+        /// assigned, highest first. Entries that are not well-formed language tags are dropped, as are those the client
+        /// refused with <c>q=0</c>, and duplicates are removed so the first occurrence keeps its position.
         /// </summary>
         ///
         /// <returns>
