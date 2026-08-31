@@ -213,7 +213,8 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
         return obj switch
         {
             string => AnsiColor.White,
-            int or long or float or double or decimal => AnsiColor.Cyan,
+            byte or sbyte or short or ushort or int or uint or long or ulong or nint or nuint => AnsiColor.Cyan,
+            float or double or decimal or Half => AnsiColor.Cyan,
             bool => AnsiColor.Magenta,
             _ => AnsiColor.White
         };
