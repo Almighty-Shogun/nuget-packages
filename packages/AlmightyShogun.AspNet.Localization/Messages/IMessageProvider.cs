@@ -7,7 +7,7 @@ namespace AlmightyShogun.AspNet.Localization;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-internal interface IMessageStore
+internal interface IMessageProvider
 {
     /// <summary>
     /// Gets the flattened messages for one language, without trying any other.

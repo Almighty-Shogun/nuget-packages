@@ -18,8 +18,8 @@ namespace AlmightyShogun.AspNet.Localization;
 /// are the only sign that messages are missing.
 /// </param>
 /// <param name="webHostEnvironment">
-/// The environment supplying the content root, which is searched ahead of the other roots. Optional so the store can be
-/// resolved outside a web host, such as in a test or a console process.
+/// The environment supplying the content root, which is searched ahead of the other roots. Optional so the provider can
+/// be resolved outside a web host, such as in a test or a console process.
 /// </param>
 ///
 /// <remarks>
@@ -31,11 +31,11 @@ namespace AlmightyShogun.AspNet.Localization;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-internal sealed class JsonMessageStore(
+internal sealed class JsonMessageProvider(
     IOptions<LocalizationSettings> localizationOptions,
-    ILogger<JsonMessageStore> logger,
+    ILogger<JsonMessageProvider> logger,
     IWebHostEnvironment? webHostEnvironment = null
-) : IMessageStore, IDisposable
+) : IMessageProvider, IDisposable
 {
     /// <summary>
     /// The directory each search root is expected to contain, holding one subdirectory per language tag.
@@ -43,7 +43,7 @@ internal sealed class JsonMessageStore(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private const string MessagesDirectoryName = "messages";
+    private const string _messagesDirectoryName = "messages";
 
     /// <summary>
     /// The flattened messages per language, keyed case-insensitively so <c>NL-be</c> and <c>nl-BE</c> share an entry.
@@ -85,9 +85,9 @@ internal sealed class JsonMessageStore(
     private readonly Lock _watcherGate = new();
 
     /// <summary>
-    /// Whether setup has already run, or the store has been disposed. Checked before taking the lock so the common path
-    /// costs a field read, and again inside it because the first check is not synchronized. Disposal sets it too, so a
-    /// lookup arriving during shutdown cannot create watchers that nothing will dispose.
+    /// Whether setup has already run, or the provider has been disposed. Checked before taking the lock so the common
+    /// path costs a field read, and again inside it because the first check is not synchronized. Disposal sets it too,
+    /// so a lookup arriving during shutdown cannot create watchers that nothing will dispose.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -158,7 +158,7 @@ internal sealed class JsonMessageStore(
 
         foreach (string root in GetSearchRoots())
         {
-            string directory = Path.Combine(root, MessagesDirectoryName, language);
+            string directory = Path.Combine(root, _messagesDirectoryName, language);
 
             if (!Directory.Exists(directory)) continue;
 
@@ -263,6 +263,12 @@ internal sealed class JsonMessageStore(
     /// no watchers. A root created after this runs is never picked up, since setup happens exactly once.
     /// </remarks>
     ///
+    /// <remarks>
+    /// Each watcher is armed only once its handlers are attached. Setting <c>EnableRaisingEvents</c> in the object
+    /// initializer instead would leave a window in which a file edit raises an event that nothing is subscribed to, and
+    /// the cache generation would not be bumped for it.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private void StartWatchingIfEnabled()
@@ -277,13 +283,12 @@ internal sealed class JsonMessageStore(
 
             foreach (string root in GetSearchRoots())
             {
-                string directory = Path.Combine(root, MessagesDirectoryName);
+                string directory = Path.Combine(root, _messagesDirectoryName);
 
                 if (!Directory.Exists(directory)) continue;
 
                 FileSystemWatcher watcher = new(directory, "*.json")
                 {
-                    EnableRaisingEvents = true,
                     IncludeSubdirectories = true,
                     NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime
                 };
@@ -292,6 +297,8 @@ internal sealed class JsonMessageStore(
                 watcher.Created += OnMessageFileChanged;
                 watcher.Deleted += OnMessageFileChanged;
                 watcher.Renamed += OnMessageFileChanged;
+
+                watcher.EnableRaisingEvents = true;
 
                 _watchers.Add(watcher);
             }
@@ -323,7 +330,8 @@ internal sealed class JsonMessageStore(
     ///
     /// <param name="filePath">The file the element came from. Only its name without extension is used, as the prefix.</param>
     /// <param name="element">
-    /// The document root. Expected to be an object; anything else contributes nothing, since only properties are walked.
+    /// The document root. A root that is not an object, such as a file holding a JSON array, contributes nothing and is
+    /// left behind without a key.
     /// </param>
     /// <param name="messages">The dictionary being built, mutated in place.</param>
     ///
@@ -336,6 +344,8 @@ internal sealed class JsonMessageStore(
     /// <since>Unreleased</since>
     private static void FlattenMessageFile(string filePath, JsonElement element, Dictionary<string, string> messages)
     {
+        if (element.ValueKind != JsonValueKind.Object) return;
+
         string group = Path.GetFileNameWithoutExtension(filePath);
 
         foreach (JsonProperty property in element.EnumerateObject())

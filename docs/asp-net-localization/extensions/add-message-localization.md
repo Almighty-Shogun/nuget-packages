@@ -9,7 +9,7 @@ returns: The same `IServiceCollection` instance with message localization regist
 
 # AddMessageLocalization
 
-Registers message resolution: the language provider that negotiates a language from the request, the store that reads the `messages/` directory, and the resolver that turns a message key into localized text.
+Registers message resolution: the language provider that negotiates a language from the request, the message provider that reads the `messages/` directory, and the resolver that turns a message key into localized text.
 
 Anything that produces localized text depends on it, including the error responses, validation messages, and maintenance notices of the other ASP.NET packages. None of them register it, so an application that uses any of those calls this once itself.
 

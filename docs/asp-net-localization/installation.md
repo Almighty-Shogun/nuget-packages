@@ -18,7 +18,7 @@ dotnet add package AlmightyShogun.AspNet.Localization
 
 ## Startup Registration
 
-[`AddMessageLocalization`](./extensions/add-message-localization) registers the language provider, the message store, and the resolver together, along with the HTTP context accessor the provider reads the request through. [`UseMessageLocalization`](./extensions/use-message-localization) is optional and only adds the middleware that reports the negotiated language on the response.
+[`AddMessageLocalization`](./extensions/add-message-localization) registers the language provider, the message provider, and the resolver together, along with the HTTP context accessor the provider reads the request through. [`UseMessageLocalization`](./extensions/use-message-localization) is optional and only adds the middleware that reports the negotiated language on the response.
 
 ::: warning
 Message files are read from disk at runtime and the package ships none. Lay them out as `messages/{language}/{group}.json`, where the file name becomes the first segment of every key it defines. The content root, the output folder, and the working directory are all searched in that order, and the first to define a key keeps it, so the application's own files are never displaced by whatever directory the process was started from.

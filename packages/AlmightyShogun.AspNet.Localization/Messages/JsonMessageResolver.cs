@@ -11,8 +11,8 @@ namespace AlmightyShogun.AspNet.Localization;
 /// message file defines as an empty string still resolves to one.
 /// </summary>
 ///
-/// <param name="messageStore">
-/// The store the candidates are looked up in. Negotiation queries it once per candidate and stops at the first that
+/// <param name="messageProvider">
+/// The provider the candidates are looked up in. Negotiation queries it once per candidate and stops at the first that
 /// answers anything, and the key is then read from that same language rather than from the rest of the chain.
 /// </param>
 /// <param name="languageProvider">The provider supplying the accepted languages the fallback chain is built from.</param>
@@ -25,7 +25,7 @@ namespace AlmightyShogun.AspNet.Localization;
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class JsonMessageResolver(
-    IMessageStore messageStore,
+    IMessageProvider messageProvider,
     ILanguageProvider languageProvider,
     IOptions<LocalizationSettings> localizationOptions,
     ILogger<JsonMessageResolver> logger
@@ -39,7 +39,7 @@ internal sealed class JsonMessageResolver(
     {
         string language = ResolveLanguage();
 
-        IReadOnlyDictionary<string, string> messages = messageStore.GetMessages(language);
+        IReadOnlyDictionary<string, string> messages = messageProvider.GetMessages(language);
 
         if (messages.TryGetValue(key, out string? template))
             return Format(template, parameters, language);
@@ -53,7 +53,7 @@ internal sealed class JsonMessageResolver(
     public string ResolveLanguage()
     {
         foreach (string language in GetLanguageCandidates())
-            if (messageStore.GetMessages(language).Count > 0)
+            if (messageProvider.GetMessages(language).Count > 0)
                 return language;
 
         return localizationOptions.Value.DefaultLanguage;
@@ -132,7 +132,7 @@ internal sealed class JsonMessageResolver(
     /// </param>
     /// <param name="language">
     /// The language the template was resolved in, used to format the values. Without it a number or a date would be
-    /// written in the server's culture while the words around it are in the caller's.
+    /// written in the server's culture while the surrounding words are in the caller's.
     /// </param>
     ///
     /// <returns>
