@@ -34,8 +34,11 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
     private const int _maxPayloadBytes = 1024 * 1024;
 
     /// <summary>
-    /// The connection, opened on first use and reused afterward. Discarded on any transport failure so the next call
-    /// reconnects rather than writing into a broken socket.
+    /// The connection, opened on first use and reused afterward. Discarded on every path that leaves it unusable or out
+    /// of step: a transport failure, a canceled wait, a server that closed without sending a frame, a framing error, and
+    /// a frame that is not a readable envelope. The next call then reconnects rather than writing into a broken socket.
+    /// A response body that does not bind to the caller's type is not one of those, since the frame was read in full and
+    /// the connection is still in step.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -70,10 +73,23 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
     /// <exception cref="RemoteCommandDisconnectedException">
     /// The connection closed before a response arrived, which usually means this address is not whitelisted.
     /// </exception>
-    /// <exception cref="RemoteCommandProtocolException">A frame arrived that is not a response envelope.</exception>
+    /// <exception cref="RemoteCommandProtocolException">The frame deserialized to <c>null</c>, so it carried no envelope.</exception>
     /// <exception cref="RemoteCommandRefusedException">
     /// The server answered and declined. Its <see cref="RemoteCommandRefusedException.Reason"/> says what it objected to,
     /// and reports <see cref="RemoteCommandRefusal.Other"/> for a reason this client does not know.
+    /// </exception>
+    /// <exception cref="InvalidDataException">
+    /// The frame's declared length is unusable or exceeds the one megabyte cap. The connection is discarded, so the next
+    /// call opens a fresh one.
+    /// </exception>
+    /// <exception cref="JsonException">
+    /// The frame is not valid JSON for an envelope, in which case the connection is discarded, or the envelope's data does
+    /// not bind to <typeparamref name="TResponse"/>, in which case it is kept because the frame was read in full. Neither
+    /// is a <see cref="RemoteCommandException"/>, so a caller catching only that type does not see it.
+    /// </exception>
+    /// <exception cref="OperationCanceledException">
+    /// <paramref name="cancellationToken"/> was signaled. Rethrown as-is rather than wrapped, though the connection is
+    /// discarded first.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -118,6 +134,12 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
 
             throw new RemoteCommandDisconnectedException(exception);
         }
+        catch (InvalidDataException)
+        {
+            await DisposeAsync();
+
+            throw;
+        }
 
         if (frame is null)
         {
@@ -126,10 +148,25 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
             throw new RemoteCommandDisconnectedException();
         }
 
-        var envelope = JsonSerializer.Deserialize<RemoteCommandResponse>(frame, RemoteCommandProtocol.SerializerOptions);
+        RemoteCommandResponse? envelope;
+
+        try
+        {
+            envelope = JsonSerializer.Deserialize<RemoteCommandResponse>(frame, RemoteCommandProtocol.SerializerOptions);
+        }
+        catch (JsonException)
+        {
+            await DisposeAsync();
+
+            throw;
+        }
 
         if (envelope is null)
+        {
+            await DisposeAsync();
+
             throw new RemoteCommandProtocolException("The server sent a frame that is not a response envelope.");
+        }
 
         if (envelope.Refusal is { } refusal)
             throw new RemoteCommandRefusedException(Enum.IsDefined(refusal) ? refusal : RemoteCommandRefusal.Other);
@@ -155,9 +192,16 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
     /// </returns>
     ///
     /// <exception cref="RemoteCommandException">
-    /// The command did not run. Which subclass is thrown says whether the server refused it, could not be reached, or
-    /// closed the connection without answering.
+    /// Which subclass is thrown says whether the server refused the command, could not be reached, or closed the
+    /// connection without answering. Only <see cref="RemoteCommandUnreachableException"/> and
+    /// <see cref="RemoteCommandRefusedException"/> mean the command did not run: the server runs a command before it
+    /// writes, so a disconnection can also mean it ran and the answer never came back.
     /// </exception>
+    /// <exception cref="InvalidDataException">The frame was unusable. Carries the same meaning as on the overload this calls.</exception>
+    /// <exception cref="JsonException">
+    /// The frame was not a valid envelope. Carries the same meaning as on the overload this calls.
+    /// </exception>
+    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
