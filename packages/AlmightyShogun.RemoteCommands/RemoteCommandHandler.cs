@@ -379,9 +379,15 @@ internal sealed class RemoteCommandHandler(
     /// <param name="cancellationToken">Signaled when the read timeout elapses or the listener is stopping.</param>
     ///
     /// <returns>
-    /// A task that completes once exactly one envelope has been sent, whether it carries the command's own response, a
-    /// refusal, or neither, which is how a command that returned without answering is acknowledged.
+    /// A task that completes once one envelope has been sent, whether it carries the command's own response, a refusal, or
+    /// the acknowledgement that stands in for a command which returned without answering. A command that throws is logged
+    /// and answered with a refusal, so a failing command still leaves the client with a frame rather than a silent wait.
     /// </returns>
+    ///
+    /// <exception cref="OperationCanceledException">
+    /// The read timeout elapsed or the listener is stopping while the command was running. This is deliberately not
+    /// answered with a refusal: the connection is going away, so nothing is sent and the caller closes it.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -475,6 +481,19 @@ internal sealed class RemoteCommandHandler(
                 await RemoteCommandProtocol.WriteFrameAsync(
                     stream,
                     RemoteCommandResponse.Refused(RemoteCommandRefusal.InvalidMessage),
+                    cancellationToken
+                );
+
+            return;
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            logger.LogError(exception, "The {Command:y} remote command failed", payload.Command);
+
+            if (!response.HasWritten)
+                await RemoteCommandProtocol.WriteFrameAsync(
+                    stream,
+                    RemoteCommandResponse.Refused(RemoteCommandRefusal.Other),
                     cancellationToken
                 );
 
