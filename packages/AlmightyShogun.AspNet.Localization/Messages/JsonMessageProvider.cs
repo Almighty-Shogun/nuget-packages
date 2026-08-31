@@ -18,8 +18,8 @@ namespace AlmightyShogun.AspNet.Localization;
 /// are the only sign that messages are missing.
 /// </param>
 /// <param name="webHostEnvironment">
-/// The environment supplying the content root, which is searched ahead of the other roots. Optional so the provider can be
-/// resolved outside a web host, such as in a test or a console process.
+/// The environment supplying the content root, which is searched ahead of the other roots. Optional so the provider can
+/// be resolved outside a web host, such as in a test or a console process.
 /// </param>
 ///
 /// <remarks>
@@ -43,7 +43,7 @@ internal sealed class JsonMessageProvider(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private const string MessagesDirectoryName = "messages";
+    private const string _messagesDirectoryName = "messages";
 
     /// <summary>
     /// The flattened messages per language, keyed case-insensitively so <c>NL-be</c> and <c>nl-BE</c> share an entry.
@@ -85,9 +85,9 @@ internal sealed class JsonMessageProvider(
     private readonly Lock _watcherGate = new();
 
     /// <summary>
-    /// Whether setup has already run, or the provider has been disposed. Checked before taking the lock so the common path
-    /// costs a field read, and again inside it because the first check is not synchronized. Disposal sets it too, so a
-    /// lookup arriving during shutdown cannot create watchers that nothing will dispose.
+    /// Whether setup has already run, or the provider has been disposed. Checked before taking the lock so the common
+    /// path costs a field read, and again inside it because the first check is not synchronized. Disposal sets it too,
+    /// so a lookup arriving during shutdown cannot create watchers that nothing will dispose.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -158,7 +158,7 @@ internal sealed class JsonMessageProvider(
 
         foreach (string root in GetSearchRoots())
         {
-            string directory = Path.Combine(root, MessagesDirectoryName, language);
+            string directory = Path.Combine(root, _messagesDirectoryName, language);
 
             if (!Directory.Exists(directory)) continue;
 
@@ -283,7 +283,7 @@ internal sealed class JsonMessageProvider(
 
             foreach (string root in GetSearchRoots())
             {
-                string directory = Path.Combine(root, MessagesDirectoryName);
+                string directory = Path.Combine(root, _messagesDirectoryName);
 
                 if (!Directory.Exists(directory)) continue;
 
