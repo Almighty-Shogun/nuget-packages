@@ -175,18 +175,29 @@ public abstract class BaseMailTemplate
     /// <param name="value">The configured text, which may contain neither, either, nor both placeholders.</param>
     /// <param name="settings">The bound settings the replacements are read from.</param>
     ///
-    /// <returns>The text with both placeholders substituted, an unset URL becoming an empty string.</returns>
+    /// <returns>
+    /// The text with both placeholders substituted. An unset URL, or one whose scheme <see cref="MailUrl.IsAllowed"/>
+    /// rejects, becomes an empty string.
+    /// </returns>
     ///
     /// <remarks>
     /// Matched case-insensitively, so configuration written as <c>{App_Name}</c> still resolves. This runs before encoding,
     /// which is what keeps a brand name containing markup from reaching the document.
+    ///
+    /// The URL is scheme-checked here rather than left to <see cref="EncodeUrl"/>, because this value also reaches the
+    /// plain-text body, which does no encoding at all. Only the check is applied, not the encoding, since the HTML path
+    /// passes the result through <see cref="Encode"/> afterwards and would otherwise double-encode it.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.5.0</since>
     private static string ResolveTemplateValue(string value, EmailSettings settings) => value
         .Replace("{app_name}", settings.BrandName, StringComparison.OrdinalIgnoreCase)
-        .Replace("{app_url}", settings.AppUrl ?? string.Empty, StringComparison.OrdinalIgnoreCase);
+        .Replace(
+            "{app_url}",
+            MailUrl.IsAllowed(settings.AppUrl) ? settings.AppUrl! : string.Empty,
+            StringComparison.OrdinalIgnoreCase
+        );
 
     /// <summary>
     /// Applies the subclass-supplied placeholder values, written as <c>{{Key}}</c> in the template.
