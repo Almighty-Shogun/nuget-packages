@@ -1,6 +1,6 @@
 # LanguageProvider
 
-Decides which languages a request wants. The default implementation reads the `Accept-Language` header, falling back to `DefaultLanguage` from [`LocalizationSettings`](../configuration) when the header is absent or contains no well-formed language tag. [`AddMessageLocalization`](../extensions/add-message-localization) registers that default unconditionally, so a custom provider has to replace it afterwards rather than being registered ahead of it.
+Decides which languages a request wants. The default implementation reads the `Accept-Language` header, falling back to `DefaultLanguage` from [`LocalizationSettings`](../configuration) when the header is absent or contains no well-formed language tag. [`AddMessageLocalization`](../extensions/add-message-localization) registers that default only when nothing has claimed `ILanguageProvider` yet, so register a custom provider before that call and it is kept.
 
 ## Usage
 
