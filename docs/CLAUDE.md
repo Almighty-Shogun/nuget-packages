@@ -364,7 +364,7 @@ public string ApiName(string value);
 Rules:
 
 - Keep a blank line between the closing frontmatter delimiter and the H1.
-- An API whose consequences reach beyond the call site may add one behavior section between `## Usage` and `<FrontmatterDocs/>`, named for what it covers, such as `## Querying` on `ApplyOwned`. Use it when the reader has to know how the configured API behaves afterwards, not to restate a parameter. One such section per page.
+- An API whose consequences reach beyond the call site may add one behavior section between `## Usage` and `<FrontmatterDocs/>`, named for what it covers, such as `## Querying` on an API that changes how later queries behave. Use it when the reader has to know how the configured API behaves afterwards, not to restate a parameter. One such section per page.
 - Omit `params` when the API has no parameters.
 - Omit `returns` only when the API truly returns `void`.
 - Always include `<FrontmatterDocs/>` when `params`, `returns`, or `fields` exists.
