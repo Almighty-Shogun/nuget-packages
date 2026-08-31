@@ -77,14 +77,16 @@ internal sealed class RemoteCommandHandler(
     private readonly IPAddress _address = RemoteServerSettingsParser.ParseAddress(remoteServerSettings.Value.Address);
 
     /// <summary>
-    /// The required key as bytes, or <c>null</c> when the server asks for none. Held encoded so each comparison is a
-    /// fixed-time byte compare rather than a string equality that returns early on the first wrong character.
+    /// The SHA-256 digest of the required key, or <c>null</c> when the server asks for none. Held as a digest rather than
+    /// the key bytes so every comparison is over the same thirty-two bytes: <see cref="CryptographicOperations.FixedTimeEquals"/>
+    /// returns early on a length mismatch, so comparing raw keys would leak the secret's length to a client that varies the
+    /// length it sends.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private readonly byte[]? _secret = remoteServerSettings.Value.Secret is { Length: > 0 } secret
-        ? Encoding.UTF8.GetBytes(secret)
+        ? SHA256.HashData(Encoding.UTF8.GetBytes(secret))
         : null;
 
     /// <summary>
@@ -545,6 +547,7 @@ internal sealed class RemoteCommandHandler(
         if (_secret is null)
             return true;
 
-        return supplied is not null && CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(supplied), _secret);
+        return supplied is not null
+            && CryptographicOperations.FixedTimeEquals(SHA256.HashData(Encoding.UTF8.GetBytes(supplied)), _secret);
     }
 }
