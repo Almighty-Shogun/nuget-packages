@@ -19,7 +19,7 @@ public sealed class WelcomeService(ILanguageProvider languageProvider)
 ```
 
 ::: warning
-The returned value is used as a directory name when message files are resolved, so the message store accepts only a well-formed language tag: two or three letters, then any number of `-` separated parts of two to eight letters or digits. A replacement implementation that returns raw user input therefore resolves no messages at all rather than reading elsewhere on disk.
+The returned value is used as a directory name when message files are resolved, so the message provider accepts only a well-formed language tag: two or three letters, then any number of `-` separated parts of two to eight letters or digits. A replacement implementation that returns raw user input therefore resolves no messages at all rather than reading elsewhere on disk.
 :::
 
 ## GetLanguage
