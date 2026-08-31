@@ -18,9 +18,14 @@ internal static partial class LanguageTag
     /// failing quietly at resolve time.
     /// </summary>
     ///
+    /// <remarks>
+    /// Ends on <c>\z</c> rather than <c>$</c>, which in .NET also matches before a trailing newline and would let
+    /// something like <c>en\n</c> through as a directory name.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    internal const string Pattern = "^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$";
+    internal const string Pattern = @"^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*\z";
 
     /// <summary>
     /// Determines whether a tag is well-formed enough to be trusted as a directory name.
