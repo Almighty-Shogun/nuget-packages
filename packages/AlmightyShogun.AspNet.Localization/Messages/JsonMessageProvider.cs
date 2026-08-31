@@ -323,7 +323,8 @@ internal sealed class JsonMessageProvider(
     ///
     /// <param name="filePath">The file the element came from. Only its name without extension is used, as the prefix.</param>
     /// <param name="element">
-    /// The document root. Expected to be an object; anything else contributes nothing, since only properties are walked.
+    /// The document root. A root that is not an object, such as a file holding a JSON array, contributes nothing and is
+    /// left behind without a key.
     /// </param>
     /// <param name="messages">The dictionary being built, mutated in place.</param>
     ///
@@ -336,6 +337,8 @@ internal sealed class JsonMessageProvider(
     /// <since>Unreleased</since>
     private static void FlattenMessageFile(string filePath, JsonElement element, Dictionary<string, string> messages)
     {
+        if (element.ValueKind != JsonValueKind.Object) return;
+
         string group = Path.GetFileNameWithoutExtension(filePath);
 
         foreach (JsonProperty property in element.EnumerateObject())
