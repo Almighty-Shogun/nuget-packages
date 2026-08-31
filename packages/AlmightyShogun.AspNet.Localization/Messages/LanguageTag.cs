@@ -4,7 +4,7 @@ namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
 /// Decides whether a string may be used as a language tag. Every value that reaches the filesystem as a message
-/// directory name passes through here, so the check lives beside the store rather than at the boundary that happens to
+/// directory name passes through here, so the check lives beside the provider rather than at the boundary that happens to
 /// produce the value.
 /// </summary>
 ///

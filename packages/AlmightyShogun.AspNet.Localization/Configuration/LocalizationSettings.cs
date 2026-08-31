@@ -18,7 +18,7 @@ public sealed record LocalizationSettings
     /// </summary>
     ///
     /// <remarks>
-    /// Validated at startup against the same shape the message store accepts, so a malformed value fails the host
+    /// Validated at startup against the same shape the message provider accepts, so a malformed value fails the host
     /// rather than resolving no messages for the life of the process.
     /// </remarks>
     ///

@@ -28,7 +28,7 @@ public static class PackageRegistry
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Registers message resolution: the language provider that negotiates a language from the request, the store
+        /// Registers message resolution: the language provider that negotiates a language from the request, the provider
         /// that reads the message files, and the resolver that turns a message key into localized text.
         /// </summary>
         ///
@@ -51,7 +51,7 @@ public static class PackageRegistry
             .AddConfiguration<LocalizationSettings>(configuration.GetSection("Localization"))
             .AddHttpContextAccessor()
             .AddSingleton<ILanguageProvider, LanguageProvider>()
-            .AddSingleton<IMessageStore, JsonMessageStore>()
+            .AddSingleton<IMessageProvider, JsonMessageProvider>()
             .AddSingleton<IMessageResolver, JsonMessageResolver>();
     }
 

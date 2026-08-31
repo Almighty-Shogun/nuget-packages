@@ -18,7 +18,7 @@ namespace AlmightyShogun.AspNet.Localization;
 /// are the only sign that messages are missing.
 /// </param>
 /// <param name="webHostEnvironment">
-/// The environment supplying the content root, which is searched ahead of the other roots. Optional so the store can be
+/// The environment supplying the content root, which is searched ahead of the other roots. Optional so the provider can be
 /// resolved outside a web host, such as in a test or a console process.
 /// </param>
 ///
@@ -31,11 +31,11 @@ namespace AlmightyShogun.AspNet.Localization;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-internal sealed class JsonMessageStore(
+internal sealed class JsonMessageProvider(
     IOptions<LocalizationSettings> localizationOptions,
-    ILogger<JsonMessageStore> logger,
+    ILogger<JsonMessageProvider> logger,
     IWebHostEnvironment? webHostEnvironment = null
-) : IMessageStore, IDisposable
+) : IMessageProvider, IDisposable
 {
     /// <summary>
     /// The directory each search root is expected to contain, holding one subdirectory per language tag.
@@ -85,7 +85,7 @@ internal sealed class JsonMessageStore(
     private readonly Lock _watcherGate = new();
 
     /// <summary>
-    /// Whether setup has already run, or the store has been disposed. Checked before taking the lock so the common path
+    /// Whether setup has already run, or the provider has been disposed. Checked before taking the lock so the common path
     /// costs a field read, and again inside it because the first check is not synchronized. Disposal sets it too, so a
     /// lookup arriving during shutdown cannot create watchers that nothing will dispose.
     /// </summary>
