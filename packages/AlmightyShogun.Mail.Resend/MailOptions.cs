@@ -23,8 +23,8 @@ public sealed record MailOptions
     public required IReadOnlyList<string> To { get; init; }
 
     /// <summary>
-    /// Gets the recipients visible to everyone else on the message. Left empty the field is omitted from the request rather
-    /// than sent blank.
+    /// Gets the recipients visible to everyone else on the message. Left empty, nothing is set on the outgoing message, and
+    /// how the Resend client represents an unset field on the wire is its own concern.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

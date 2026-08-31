@@ -1,8 +1,9 @@
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// Exposes the name a command answers to, which is the only thing the dispatcher needs before it decides whether a
-/// request belongs to this command at all. Every command is registered under this type so the table can be built once.
+/// The marker the assembly scan looks for, so a command is found without the scan knowing its message type. Registration
+/// adds each command under its concrete type rather than under this interface, and builds the dispatch table from the
+/// <see cref="RemoteCommandDescriptor"/> singletons it registers alongside them, so nothing resolves this type at all.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -10,8 +11,9 @@ namespace AlmightyShogun.RemoteCommands;
 internal interface IRemoteCommand
 {
     /// <summary>
-    /// Gets the name matched against the <c>command</c> field of an incoming frame, compared with ordinal case
-    /// sensitivity, so the wire name must be written exactly as the attribute declares it.
+    /// Gets the name the command declares, which <see cref="RemoteCommand{T}"/> reads from
+    /// <see cref="RemoteCommandAttribute"/> once per instance. Routing does not read it: the dispatch table is keyed by
+    /// <see cref="RemoteCommandDescriptor.Name"/>, taken from the same attribute at registration.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

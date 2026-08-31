@@ -1,8 +1,12 @@
+using System.Text.Json;
+
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// The base for every failure <see cref="RemoteCommandClient"/> reports, so one <c>catch</c> covers a command that did
-/// not run without having to name each reason it did not.
+/// The base for the failures <see cref="RemoteCommandClient"/> raises itself, so one <c>catch</c> covers a refusal, an
+/// unreachable server, and a disconnection without having to name each. It does not cover everything a send can throw:
+/// a framing error surfaces as <see cref="InvalidDataException"/>, an unreadable envelope as <see cref="JsonException"/>,
+/// and a canceled wait as <see cref="OperationCanceledException"/>, none of which derive from this type.
 /// </summary>
 ///
 /// <param name="message">The explanation, safe to show to whoever ran the command.</param>

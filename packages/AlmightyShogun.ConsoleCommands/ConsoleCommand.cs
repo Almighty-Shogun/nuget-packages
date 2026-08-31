@@ -56,8 +56,9 @@ public sealed class ConsoleCommand
     public IReadOnlyList<string> Aliases { get; }
 
     /// <summary>
-    /// Gets the full line to type, as the name followed by one <c>&lt;name:Type&gt;</c> placeholder per handler parameter.
-    /// A command taking no arguments yields the bare name, never a trailing space.
+    /// Gets the full line to type, as the name followed by one <c>&lt;name:Type&gt;</c> placeholder per handler parameter,
+    /// excluding a trailing <see cref="CancellationToken"/>, which the dispatcher supplies rather than the user. A command
+    /// taking no arguments yields the bare name, never a trailing space.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

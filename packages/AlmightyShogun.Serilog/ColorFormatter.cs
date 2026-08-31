@@ -36,7 +36,9 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
 
     /// <summary>
     /// Writes one event, then a trailing newline. A property named in the template but absent from the event is written back
-    /// as its original <c>{token}</c> rather than dropped, so a template typo is visible in the log instead of silent.
+    /// as <c>{Name}</c>, or <c>{Name:format}</c> where the token carried a format, so a template typo is visible in the log
+    /// instead of silent. Alignment and destructuring hints are not carried through, so the token is recognisable rather
+    /// than identical to what the template held.
     /// </summary>
     ///
     /// <param name="logEvent">The event to render, supplying the level, timestamp, template, properties, and exception.</param>

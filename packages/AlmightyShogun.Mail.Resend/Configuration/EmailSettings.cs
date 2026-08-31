@@ -70,7 +70,8 @@ public sealed record EmailSettings
 
     /// <summary>
     /// Gets the URL behind the footer link and the <c>{app_url}</c> placeholder. Dropped under the same scheme rule as
-    /// <see cref="LogoUrl"/>, which leaves the footer link rendered but inert.
+    /// <see cref="LogoUrl"/>, in which case the placeholder is substituted with nothing and what the footer then looks like
+    /// is up to the application's own base template.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

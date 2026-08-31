@@ -136,8 +136,8 @@ internal static class AnsiColor
     private const string BrightMagenta = "\e[95m";
 
     /// <summary>
-    /// Maps every supported shorthand color code to its ANSI escape code. This is the single source of truth for which
-    /// shorthand codes exist, so recognition and lookup cannot disagree.
+    /// Maps every supported shorthand color code to its ANSI escape code. Adding a shorthand here is all that is needed to
+    /// support it, since a template's color spec is taken as whatever follows the pipe and looked up directly.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

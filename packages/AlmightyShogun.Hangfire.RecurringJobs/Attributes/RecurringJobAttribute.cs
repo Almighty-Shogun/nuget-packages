@@ -9,7 +9,8 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// The id the schedule is stored under. Must be unique across the application, since a second job claiming it stops the host.
 /// </param>
 /// <param name="cronExpression">
-/// The schedule, as a cron expression Cronos accepts. <see cref="CronSchedules"/> holds the common ones.
+/// The schedule, as a cron expression in the standard five-field format. A six-field expression carrying seconds is
+/// rejected while the host starts, even though Hangfire itself accepts one. <see cref="CronSchedules"/> holds the common ones.
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>

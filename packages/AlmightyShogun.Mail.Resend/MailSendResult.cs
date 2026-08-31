@@ -34,8 +34,9 @@ public sealed record MailSendResult
     }
 
     /// <summary>
-    /// Gets whether Resend accepted the message. Acceptance is not delivery, which is reported later by a webhook, so a
-    /// <c>true</c> here means the provider took responsibility for the message and nothing more.
+    /// Gets whether the send succeeded. Acceptance is not delivery, which is reported later by a webhook, so a <c>true</c>
+    /// here means the provider took responsibility for the message and nothing more. A <c>false</c> does not always mean
+    /// Resend declined it: a send with no recipient fails before the provider is contacted.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -43,8 +44,8 @@ public sealed record MailSendResult
     public bool IsSuccess { get; }
 
     /// <summary>
-    /// Gets the Resend id, for correlating with a webhook or the dashboard. Always <c>null</c> when the send failed, and it
-    /// can also be absent on success when the response carried none.
+    /// Gets the Resend id, for correlating with a webhook or the dashboard. Always <c>null</c> when the send failed, and
+    /// always present when it succeeded, since the only success path formats the identifier Resend returns.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -52,8 +53,9 @@ public sealed record MailSendResult
     public string? MessageId { get; }
 
     /// <summary>
-    /// Gets the provider or transport failure message, and <c>null</c> whenever the send succeeded. It is not localized and
-    /// comes from the provider, so it is for logs and diagnostics rather than for showing to a user.
+    /// Gets the failure message, and <c>null</c> whenever the send succeeded. It carries either this package's own
+    /// rejection, such as a send with no recipient, or the text the provider returned. Provider text is not localized, so
+    /// this is for logs and diagnostics rather than for showing to a user.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -64,7 +66,7 @@ public sealed record MailSendResult
     /// Creates the accepted outcome.
     /// </summary>
     ///
-    /// <param name="messageId">The id Resend returned, which is <c>null</c> when the response carried none.</param>
+    /// <param name="messageId">The id Resend returned for the accepted message.</param>
     ///
     /// <returns>A result whose <see cref="IsSuccess"/> is <c>true</c> and whose <see cref="Error"/> is <c>null</c>.</returns>
     ///

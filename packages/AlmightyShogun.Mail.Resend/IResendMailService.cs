@@ -23,8 +23,12 @@ public interface IResendMailService
     /// <returns>The outcome, carrying the Resend message id when the send succeeded.</returns>
     ///
     /// <exception cref="IOException">
-    /// A shared template could not be read. <c>AddResendEmail</c> checks for them at startup, so this means one was removed
-    /// or locked afterward.
+    /// A shared template could not be read. <c>AddResendEmail</c> checks for them while registering, so this means one was
+    /// removed or locked between then and now.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// The process may not read one of the shared templates. This does not derive from <see cref="IOException"/>, so a
+    /// caller guarding only against that does not catch it.
     /// </exception>
     /// <exception cref="OperationCanceledException">
     /// <paramref name="cancellationToken"/> was signaled. Cancellation propagates rather than arriving as a failed result,
@@ -54,8 +58,12 @@ public interface IResendMailService
     /// <returns>The outcome, carrying the Resend message id when the send succeeded.</returns>
     ///
     /// <exception cref="IOException">
-    /// A shared template could not be read. <c>AddResendEmail</c> checks for them at startup, so this means one was removed
-    /// or locked afterwars.
+    /// A shared template could not be read. <c>AddResendEmail</c> checks for them while registering, so this means one was
+    /// removed or locked between then and now.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// The process may not read one of the shared templates. This does not derive from <see cref="IOException"/>, so a
+    /// caller guarding only against that does not catch it.
     /// </exception>
     /// <exception cref="OperationCanceledException">
     /// <paramref name="cancellationToken"/> was signaled. Cancellation propagates rather than arriving as a failed result,
@@ -81,9 +89,14 @@ public interface IResendMailService
     /// <returns>The rendered HTML body and its plain-text alternative.</returns>
     ///
     /// <exception cref="IOException">
-    /// A shared template could not be read. <c>AddResendEmail</c> checks for them at startup, so this means one was removed
-    /// or locked afterwars.
+    /// A shared template could not be read. <c>AddResendEmail</c> checks for them while registering, so this means one was
+    /// removed or locked between then and now.
     /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// The process may not read one of the shared templates. This does not derive from <see cref="IOException"/>, so a
+    /// caller guarding only against that does not catch it.
+    /// </exception>
+    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled during a read.</exception>
     ///
     /// <remarks>
     /// Nothing is sent and Resend is never contacted, so a preview works with an API token that would be rejected by a send.

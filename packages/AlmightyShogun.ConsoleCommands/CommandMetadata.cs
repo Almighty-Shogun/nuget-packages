@@ -4,7 +4,8 @@ namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
 /// Validates that a type is a usable console command, so the base constructor and the assembly scanner agree on what
-/// valid means while differing on what to do about invalid: the constructor throws, the scanner skips.
+/// valid means. Both treat an invalid one as a failure rather than something to pass over: <see cref="Describe"/> throws
+/// for either caller, and nothing filters a malformed command out silently.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -12,7 +13,7 @@ namespace AlmightyShogun.ConsoleCommands;
 internal static class CommandMetadata
 {
     /// <summary>
-    /// Checks a candidate command type against all three rules the dispatcher depends on, and reports the first one it
+    /// Checks a candidate command type against the four rules the dispatcher depends on, and reports the first one it
     /// breaks in a sentence fit to put straight into an exception message.
     /// </summary>
     ///
@@ -114,7 +115,8 @@ internal static class CommandMetadata
     ///
     /// <remarks>
     /// Input is split on spaces before the first token is looked up, so a name containing one can never be matched however
-    /// it is typed. Rejecting it here is what stops such a command registering and then never responding.
+    /// it is typed. Rejecting it here is what stops such a command registering and then never responding. Every other
+    /// whitespace character is rejected with it, which is wider than the split strictly requires.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

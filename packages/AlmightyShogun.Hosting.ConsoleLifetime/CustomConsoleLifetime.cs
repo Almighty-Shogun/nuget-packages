@@ -14,8 +14,8 @@ namespace AlmightyShogun.Hosting.ConsoleLifetime;
 /// </param>
 ///
 /// <remarks>
-/// The host resolves a single <see cref="IHostLifetime"/>, so this type only takes effect when it replaces the default
-/// console lifetime rather than being added alongside it.
+/// The host resolves a single <see cref="IHostLifetime"/> and takes the last registration, so replacing the default rather
+/// than adding alongside it is what makes the outcome independent of the order the registrations were made in.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -32,8 +32,8 @@ internal sealed class CustomConsoleLifetime(IHostApplicationLifetime application
     private readonly bool _runningInIde = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_IDE"));
 
     /// <summary>
-    /// Holds the <c>SIGTERM</c> handler so it can be released with the lifetime. Stays null on Windows, where the signal does
-    /// not exist and no registration is made.
+    /// Holds the <c>SIGTERM</c> handler so it can be released with the lifetime. Stays null on Windows, where no
+    /// registration is made and the host's own shutdown handling is left to deal with termination.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -85,7 +85,9 @@ internal sealed class CustomConsoleLifetime(IHostApplicationLifetime application
     /// Swallows <c>Ctrl+C</c> so an operator cannot stop a long-running process by accident, except when running in an IDE.
     /// </summary>
     ///
-    /// <param name="sender">The console raising the key press. Unused; the decision depends only on the environment.</param>
+    /// <param name="sender">
+    /// Whatever <see cref="Console.CancelKeyPress"/> supplies. Unused; the decision depends only on the environment.
+    /// </param>
     /// <param name="eventArgs">
     /// Carries the cancel flag. Setting it keeps the process running, so it is set in every case except an IDE run.
     /// </param>

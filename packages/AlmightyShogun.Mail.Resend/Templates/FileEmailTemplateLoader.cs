@@ -56,7 +56,11 @@ internal sealed class FileEmailTemplateLoader : IEmailTemplateLoader
     /// <returns>The template contents.</returns>
     ///
     /// <exception cref="ArgumentException">The name would resolve outside the templates' directory.</exception>
-    /// <exception cref="IOException">The file is missing, locked, or otherwise unreadable.</exception>
+    /// <exception cref="IOException">The file is missing, or unreadable for a reason the file system reports as an I/O error.</exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// The process may not read the file. This does not derive from <see cref="IOException"/>, so a caller guarding only
+    /// against that does not catch it.
+    /// </exception>
     ///
     /// <remarks>
     /// The check compares resolved paths rather than scanning for <c>..</c>, so it also covers an absolute path and a name

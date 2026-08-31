@@ -197,8 +197,9 @@ public abstract class BaseMailTemplate
     /// <returns>The HTML with each additional value encoded and substituted, unmatched keys left untouched.</returns>
     ///
     /// <remarks>
-    /// A key naming a built-in placeholder has no effect, since that one was already replaced. Enumeration order decides
-    /// nothing, because each key is substituted independently.
+    /// A key naming a built-in placeholder has no effect, since that one was already replaced. Enumeration order does
+    /// matter: each replacement runs over the result of the last, and <see cref="Encode"/> leaves braces alone, so a value
+    /// containing <c>{{Key}}</c> is itself substituted when that key is enumerated after it.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

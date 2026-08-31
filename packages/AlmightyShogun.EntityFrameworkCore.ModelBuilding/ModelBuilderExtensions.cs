@@ -5,15 +5,19 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 /// <summary>
-/// Collapses the fluent chain a relationship or an index normally takes into a single call, so every mapping
-/// in <c>OnModelCreating</c> is one statement taking the same parameters in the same order whatever its kind.
+/// Collapses the fluent chain a relationship or an index normally takes into a single call, so a mapping in
+/// <c>OnModelCreating</c> is one statement rather than a chain. The three relationship families share one parameter
+/// order, navigation then foreign key then inverse navigation; the index, enum and auto-include helpers take what they
+/// need instead.
 /// </summary>
 ///
 /// <remarks>
-/// Nothing here overrides an EF Core convention. Requiredness and delete behavior are left to be inferred from the
-/// foreign key's nullability, so a mapping written through these helpers behaves exactly as the fluent equivalent
-/// without the matching call would. What is not conventional, such as an alternate principal key, is a separate
-/// overload rather than an argument every caller has to read past.
+/// The relationship helpers override no EF Core convention: requiredness and delete behavior are left to be inferred
+/// from the foreign key's nullability, so a mapping written through them behaves exactly as the fluent equivalent
+/// without the matching call would. The others do override one, deliberately: an enum is stored as text rather than as
+/// its number, a unique index replaces the conventional non-unique one, and a many-to-many names its own join table and
+/// key columns. What is not conventional, such as an alternate principal key, is a separate overload rather than an
+/// argument every caller has to read past.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -39,7 +43,7 @@ public static class ModelBuilderExtensions
         /// </summary>
         ///
         /// <typeparam name="TEntity">The principal, whose key the foreign key points at.</typeparam>
-        /// <typeparam name="TDependent">The dependent, which carries the foreign key and cannot exist alone.</typeparam>
+        /// <typeparam name="TDependent">The dependent, which carries the foreign key.</typeparam>
         /// <param name="navigation">
         /// The property on the principal that reaches the dependent. Which side declares it is what makes that side
         /// the principal, so naming the wrong one puts the foreign key on the wrong table.
@@ -54,6 +58,11 @@ public static class ModelBuilderExtensions
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the relationship configured.</returns>
+        ///
+        /// <exception cref="ArgumentException">
+        /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
+        /// member. EF Core reports the offending expression.
+        /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
@@ -77,7 +86,7 @@ public static class ModelBuilderExtensions
         /// </summary>
         ///
         /// <typeparam name="TEntity">The principal, whose alternate key the foreign key points at.</typeparam>
-        /// <typeparam name="TDependent">The dependent, which carries the foreign key and cannot exist alone.</typeparam>
+        /// <typeparam name="TDependent">The dependent, which carries the foreign key.</typeparam>
         /// <param name="navigation">
         /// The property on the principal that reaches the dependent. Which side declares it is what makes that side
         /// the principal, so naming the wrong one puts the foreign key on the wrong table.
@@ -96,6 +105,11 @@ public static class ModelBuilderExtensions
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the relationship configured.</returns>
+        ///
+        /// <exception cref="ArgumentException">
+        /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
+        /// member. EF Core reports the offending expression.
+        /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
@@ -135,6 +149,11 @@ public static class ModelBuilderExtensions
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the relationship configured.</returns>
+        ///
+        /// <exception cref="ArgumentException">
+        /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
+        /// member. EF Core reports the offending expression.
+        /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
@@ -178,6 +197,11 @@ public static class ModelBuilderExtensions
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the relationship configured.</returns>
         ///
+        /// <exception cref="ArgumentException">
+        /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
+        /// member. EF Core reports the offending expression.
+        /// </exception>
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
         public ModelBuilder ApplyOneToMany<TEntity, TDependent>(
@@ -204,8 +228,8 @@ public static class ModelBuilderExtensions
         /// <typeparam name="TEntity">The principal, at the single end.</typeparam>
         /// <typeparam name="TDependent">The dependent, at the many end, which carries the foreign key.</typeparam>
         /// <param name="navigation">
-        /// The reference property on the dependent. Declaring it on the dependent is what puts the foreign key there,
-        /// which is the difference between this and writing the same relationship from the collection side.
+        /// The reference property on the dependent. The model this produces is the same one the collection-side helper
+        /// produces, foreign key included; only the side the call is written from differs.
         /// </param>
         /// <param name="foreignKey">
         /// The property on the dependent holding the key. Its nullability is what decides whether the reference is
@@ -216,6 +240,11 @@ public static class ModelBuilderExtensions
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the relationship configured.</returns>
+        ///
+        /// <exception cref="ArgumentException">
+        /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
+        /// member. EF Core reports the offending expression.
+        /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
@@ -241,8 +270,8 @@ public static class ModelBuilderExtensions
         /// <typeparam name="TEntity">The principal, at the single end.</typeparam>
         /// <typeparam name="TDependent">The dependent, at the many end, which carries the foreign key.</typeparam>
         /// <param name="navigation">
-        /// The reference property on the dependent. Declaring it on the dependent is what puts the foreign key there,
-        /// which is the difference between this and writing the same relationship from the collection side.
+        /// The reference property on the dependent. The model this produces is the same one the collection-side helper
+        /// produces, foreign key included; only the side the call is written from differs.
         /// </param>
         /// <param name="foreignKey">
         /// The property on the dependent holding the key. Its nullability is what decides whether the reference is
@@ -258,6 +287,11 @@ public static class ModelBuilderExtensions
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the relationship configured.</returns>
+        ///
+        /// <exception cref="ArgumentException">
+        /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
+        /// member. EF Core reports the offending expression.
+        /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
@@ -284,11 +318,16 @@ public static class ModelBuilderExtensions
         ///
         /// <typeparam name="TEntity">The entity the navigation is declared on.</typeparam>
         /// <param name="navigation">
-        /// The navigation to load eagerly. It is loaded by every query against the entity, including ones that only
-        /// need a projection, so reach for it on small related data rather than on a large collection.
+        /// The navigation to load eagerly. Every query returning the entity itself loads it, so reach for it on small
+        /// related data rather than on a large collection.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the navigation set to load eagerly.</returns>
+        ///
+        /// <exception cref="InvalidOperationException">
+        /// <paramref name="navigation"/> names something the model does not hold as a navigation, such as a scalar
+        /// property. Configure the relationship first, then mark it auto-included.
+        /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
@@ -311,6 +350,11 @@ public static class ModelBuilderExtensions
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the index configured.</returns>
         ///
+        /// <exception cref="ArgumentException">
+        /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
+        /// member. EF Core reports the offending expression.
+        /// </exception>
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
         public ModelBuilder ApplyIndex<TEntity>(Expression<Func<TEntity, object?>> index) where TEntity : class
@@ -332,11 +376,17 @@ public static class ModelBuilderExtensions
         /// </param>
         /// <param name="filter">
         /// A provider-specific predicate limiting which rows the constraint covers, such as
-        /// <c>"[Email] IS NOT NULL"</c>. Worth setting over a nullable column, because several providers treat two
-        /// nulls as equal and refuse the second row without it.
+        /// <c>"[Email] IS NOT NULL"</c>. Worth setting over a nullable column on SQL Server, which treats two nulls as
+        /// equal and refuses the second row without it. PostgreSQL, SQLite, MySQL and MariaDB allow repeated nulls, so
+        /// there the filter is only needed to narrow the constraint for its own sake.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the unique index configured.</returns>
+        ///
+        /// <exception cref="ArgumentException">
+        /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
+        /// member. EF Core reports the offending expression.
+        /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
@@ -374,6 +424,12 @@ public static class ModelBuilderExtensions
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the relationship and its join table configured.</returns>
         ///
+        /// <exception cref="ArgumentException">
+        /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
+        /// member. EF Core reports the offending expression.
+        /// </exception>
+        /// <exception cref="ArgumentNullException"><paramref name="joinTableName"/> is <c>null</c>.</exception>
+        ///
         /// <remarks>
         /// Both join columns are non-nullable, so EF Core cascades from either side by convention and a row disappears
         /// with whichever entity it referenced. A model needing different column names or a join entity of its own is
@@ -406,14 +462,22 @@ public static class ModelBuilderExtensions
         /// </summary>
         ///
         /// <typeparam name="TEntity">The entity the property is declared on.</typeparam>
-        /// <typeparam name="TProperty">The enum being stored, constrained to a value type so a nullable column still works.</typeparam>
-        /// <param name="property">The property to convert. A value with no matching member fails on read, not on write.</param>
+        /// <typeparam name="TProperty">
+        /// The enum being stored. The <c>struct</c> constraint excludes <see cref="Nullable{T}"/>, so a nullable enum
+        /// property cannot be configured through this helper and needs the fluent call written out.
+        /// </typeparam>
+        /// <param name="property">The property to convert, stored through EF Core's enum-to-string conversion.</param>
         /// <param name="maxLength">
         /// The column width. It has to fit the longest member name, so raise it before adding a longer one rather than
         /// after a write has already been truncated or refused.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the property stored as text.</returns>
+        ///
+        /// <exception cref="ArgumentException">
+        /// <paramref name="property"/> is not a simple property or field access.
+        /// </exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxLength"/> is negative.</exception>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>

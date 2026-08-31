@@ -56,7 +56,8 @@ public enum RemoteCommandRefusal
 
     /// <summary>
     /// The command exists but the data could not become its message type, because a property carried the wrong JSON type
-    /// or the payload was not an object. A property the payload simply omits binds to the default instead.
+    /// or the payload was not an object. An omitted property binds to its default, unless the message marks it
+    /// <c>required</c>, which is refused here the same way a wrong type is.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

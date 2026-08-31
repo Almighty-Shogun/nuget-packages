@@ -20,6 +20,8 @@ internal interface IEmailTemplateLoader
     ///
     /// <exception cref="IOException">The file could not be read.</exception>
     /// <exception cref="ArgumentException">The name resolves outside the mail directory.</exception>
+    /// <exception cref="UnauthorizedAccessException">The process may not read the file.</exception>
+    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled during the read.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.5.0</since>

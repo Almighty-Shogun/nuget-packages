@@ -2,7 +2,8 @@ namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
 /// Marks a class as a remote command and declares the name clients address it by. Required on every
-/// <see cref="RemoteCommand{T}"/> subclass: a class without it throws as soon as the listener resolves it.
+/// <see cref="RemoteCommand{T}"/> subclass: a class without it stops registration before the host is built, and one
+/// constructed directly throws from the base constructor instead.
 /// </summary>
 ///
 /// <param name="name">

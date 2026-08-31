@@ -1,8 +1,9 @@
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Exposes the dispatch metadata of a command without requiring an instance to be built for it. This is the service type
-/// every command is registered under, so the handler can enumerate them all to fill its name table.
+/// Exposes the dispatch metadata of a command without requiring an instance to be built for it. It is the marker the
+/// assembly scan looks for, not a service type: registration adds each command under its concrete type, and the handler
+/// fills its name table from the <see cref="ConsoleCommandDescriptor"/> singletons registered alongside them.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

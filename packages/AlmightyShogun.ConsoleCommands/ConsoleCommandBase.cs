@@ -83,9 +83,9 @@ public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleComm
     /// </summary>
     ///
     /// <exception cref="InvalidOperationException">
-    /// Thrown when the class carries no <see cref="ConsoleCommandAttribute"/>, declares anything other than exactly one
-    /// public <c>ExecuteAsync</c>, or declares one returning anything other than <see cref="Task"/> or
-    /// <see cref="ValueTask"/>.
+    /// Thrown when the class carries no <see cref="ConsoleCommandAttribute"/>, declares a name that is blank or contains
+    /// whitespace, declares anything other than exactly one public <c>ExecuteAsync</c>, or declares one returning anything
+    /// other than <see cref="Task"/> or <see cref="ValueTask"/>.
     /// </exception>
     ///
     /// <remarks>

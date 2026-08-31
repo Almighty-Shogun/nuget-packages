@@ -219,7 +219,15 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     /// <param name="input">The line as typed, guaranteed non-blank by the caller so the first token always exists.</param>
     /// <param name="cancellationToken">Signalled when the handler is stopping, forwarded to a command that accepts one.</param>
     ///
-    /// <returns>A task that completes when the command has finished, or immediately when no command matched.</returns>
+    /// <returns>
+    /// A task that completes when the command has finished, or immediately when no command matched. A command that fails
+    /// is logged and raises <see cref="CommandFailed"/> rather than faulting the task.
+    /// </returns>
+    ///
+    /// <exception cref="OperationCanceledException">
+    /// The handler is stopping and the command observed it. Rethrown rather than reported, so the read loop that awaited
+    /// this ends instead of prompting again.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>

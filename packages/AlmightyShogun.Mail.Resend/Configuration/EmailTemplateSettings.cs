@@ -28,8 +28,9 @@ public sealed record EmailTemplateSettings
     public string FooterLinkText { get; init; } = "{app_name}";
 
     /// <summary>
-    /// Gets the line telling a recipient to disregard a message they did not expect. Empty by default, which omits it from
-    /// both renderings rather than leaving an empty paragraph in the footer.
+    /// Gets the line telling a recipient to disregard a message they did not expect. Empty by default, which drops the
+    /// line from the text rendering entirely and substitutes nothing for its HTML placeholder. Whether that leaves an empty
+    /// paragraph behind depends on the application's own base template, which this package does not ship.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

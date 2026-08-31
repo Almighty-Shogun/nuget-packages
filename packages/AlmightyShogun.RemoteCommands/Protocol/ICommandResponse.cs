@@ -28,8 +28,11 @@ public interface ICommandResponse
     ///
     /// <exception cref="InvalidOperationException">
     /// A response was already written for this request. The protocol is one frame per request, so a second write would
-    /// be read by the client as the answer to whatever it sends next.
+    /// be read by the client as the answer to whatever it sends next. The slot is claimed before the frame is written, so
+    /// a write that fails still spends it and no retry is possible.
     /// </exception>
+    /// <exception cref="IOException">The connection failed while writing the frame.</exception>
+    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled mid-write.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

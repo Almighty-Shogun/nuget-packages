@@ -2,8 +2,9 @@ namespace AlmightyShogun.Utils;
 
 /// <summary>
 /// Groups the console primitives a long-running command-line application needs: naming the window and taking over what
-/// <c>Ctrl+C</c> means. Every member is static, the type is never registered in a container, and nothing here has an
-/// effect on a process whose output is redirected rather than attached to a terminal.
+/// <c>Ctrl+C</c> means. Every member is static and the type is never registered in a container. Only the cursor rewrite
+/// checks for redirected output and skips itself; the prompt still writes to a redirected stream, so its text appears in
+/// the captured output while the coloring around it does not.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

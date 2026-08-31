@@ -51,9 +51,10 @@ public static class PackageRegistry
         /// </exception>
         ///
         /// <remarks>
-        /// The mail service is transient and the template loader a singleton, so the file cache is shared while nothing holds
-        /// a settings snapshot longer than one message. The Resend client goes through a typed <c>HttpClient</c> with the
-        /// standard resilience handler, meaning a transient provider failure is retried before it reaches a caller.
+        /// The mail service is transient and the template loader a singleton, so the file cache is shared across sends.
+        /// Settings are bound through <see cref="IOptions{TOptions}"/>, so their values are fixed for the life of the process
+        /// and a reload requires a restart. The Resend client goes through a typed <c>HttpClient</c> with the standard
+        /// resilience handler, meaning a transient provider failure is retried before it reaches a caller.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>

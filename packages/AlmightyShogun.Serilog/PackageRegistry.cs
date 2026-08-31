@@ -41,8 +41,9 @@ public static class PackageRegistry
         /// otherwise every line is written twice.
         /// </param>
         /// <param name="enableColors">
-        /// Whether escape codes are written. Left unset, it follows whether the output looks like a terminal, which is the
-        /// right answer for a process that is sometimes piped and sometimes not.
+        /// Whether escape codes are written. Left unset, they are written only when the output is not redirected and the
+        /// <c>NO_COLOR</c> environment variable is unset, which is the right answer for a process that is sometimes piped
+        /// and sometimes not.
         /// </param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with logging configured.</returns>
@@ -92,8 +93,9 @@ public static class PackageRegistry
         /// otherwise every line is written twice.
         /// </param>
         /// <param name="enableColors">
-        /// Whether escape codes are written. Left unset, it follows whether the output looks like a terminal, which is the
-        /// right answer for a process that is sometimes piped and sometimes not.
+        /// Whether escape codes are written. Left unset, they are written only when the output is not redirected and the
+        /// <c>NO_COLOR</c> environment variable is unset, which is the right answer for a process that is sometimes piped
+        /// and sometimes not.
         /// </param>
         ///
         /// <returns>The <see cref="IHostBuilder"/> instance with logging configured.</returns>

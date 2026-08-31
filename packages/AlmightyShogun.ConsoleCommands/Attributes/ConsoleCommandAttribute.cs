@@ -2,12 +2,13 @@ namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
 /// Marks a class as a console command and carries the metadata the dispatcher needs. Required on every
-/// <see cref="ConsoleCommandBase"/> subclass: a class without it fails when the handler resolves it.
+/// <see cref="ConsoleCommandBase"/> subclass: a class without it stops registration before the host is built, and one
+/// constructed directly throws from the base constructor instead.
 /// </summary>
 ///
 /// <param name="name">
 /// The first token typed at the prompt, matched case-insensitively. A name already taken by another command is dropped
-/// with a warning, leaving that command unreachable.
+/// with a warning, so the losing command stays reachable only through whatever aliases it declares.
 /// </param>
 /// <param name="description">The one-line explanation shown in a help listing. Omitted commands simply list no text.</param>
 /// <param name="ignoreExtraArgs">

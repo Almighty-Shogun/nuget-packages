@@ -29,8 +29,9 @@ internal sealed class ResendMailService(
 ) : IResendMailService
 {
     /// <summary>
-    /// The settings snapshot taken at construction. The service is transient, so a reloaded configuration reaches the next
-    /// message without the snapshot having to be refreshed here.
+    /// The settings read once at construction. The dependency is <see cref="IOptions{TOptions}"/> rather than
+    /// <see cref="IOptionsSnapshot{TOptions}"/>, so the value is computed once for the process and a configuration reload
+    /// never reaches a later message, whatever the service's lifetime.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

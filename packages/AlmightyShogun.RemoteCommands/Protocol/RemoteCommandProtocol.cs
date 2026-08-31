@@ -49,6 +49,8 @@ internal static class RemoteCommandProtocol
     /// The declared length was zero, negative, or above the accepted maximum, so the frame is unreadable and the
     /// connection can no longer be trusted to be in sync.
     /// </exception>
+    /// <exception cref="IOException">The connection failed while reading.</exception>
+    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled mid-read.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -97,6 +99,13 @@ internal static class RemoteCommandProtocol
     /// A task that completes once the length prefix and body have both been written and flushed, so a caller awaiting it
     /// knows the whole frame has left rather than half of it.
     /// </returns>
+    ///
+    /// <exception cref="IOException">
+    /// The connection failed while writing. The prefix may already have gone, in which case the peer is left waiting for
+    /// a body that never arrives.
+    /// </exception>
+    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled mid-write.</exception>
+    /// <exception cref="JsonException"><typeparamref name="T"/> could not be serialized, so nothing was written.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

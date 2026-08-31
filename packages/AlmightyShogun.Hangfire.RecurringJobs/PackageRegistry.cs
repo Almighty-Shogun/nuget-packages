@@ -16,8 +16,9 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 public static class PackageRegistry
 {
     /// <summary>
-    /// Adds the package's two startup calls to the service collection. They are ordered: the scan schedules through the
-    /// recurring job manager the Hangfire setup registers, so calling it alone leaves the host unable to resolve the scheduler.
+    /// Adds the package's two startup calls to the service collection. Neither resolves anything, so they may be written in
+    /// either order, but both are needed: the scan only records what to schedule, and the hosted service it registers hands
+    /// those schedules to the recurring job manager the Hangfire setup provides.
     /// </summary>
     ///
     /// <param name="serviceCollection">
@@ -59,8 +60,8 @@ public static class PackageRegistry
         /// </summary>
         ///
         /// <param name="configure">
-        /// Selects the storage provider and data compatibility level. Hangfire throws when either is left unset by the final
-        /// configuration.
+        /// Selects the storage provider and data compatibility level. Hangfire throws when no storage is set by the final
+        /// configuration; the compatibility level has a default and may be left alone.
         /// </param>
         /// <param name="addServer">
         /// Whether to run a background processing server in this application. Set it to <c>false</c> for a client that only

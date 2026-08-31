@@ -7,8 +7,9 @@ namespace AlmightyShogun.RemoteCommands;
 /// </summary>
 ///
 /// <param name="Command">
-/// The name of the command to run, matched with ordinal case sensitivity. A blank name is refused as
-/// <c>missing_command</c> before any command is looked up.
+/// The name of the command to run, matched with ordinal case sensitivity. A blank name is refused with
+/// <see cref="RemoteCommandRefusal.MissingCommandName"/> before any command is looked up, which reaches the client as its
+/// numeric value because the serializer is configured with web defaults and no string enum converter.
 /// </param>
 /// <param name="Data">
 /// The command's own message, left unbound here because only the command it is addressed to knows its type.

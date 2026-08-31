@@ -10,9 +10,9 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// <param name="settings">The bound <c>RecurringJobs</c> section, applied on top of what each attribute declares.</param>
 ///
 /// <exception cref="InvalidOperationException">
-/// A job declares or is overridden with an invalid cron expression or time zone, two jobs share a job id, or an override
-/// names a job id nothing declares. Because the scheduler resolves this type, the failure surfaces while the host starts
-/// and prevents it from starting.
+/// A job declares or is overridden with an empty or invalid job id, an empty or invalid cron expression, or an invalid
+/// time zone; two jobs share a job id; or an override names a job id nothing declares. Because the scheduler resolves this
+/// type, the failure surfaces while the host starts and prevents it from starting.
 /// </exception>
 ///
 /// <remarks>
