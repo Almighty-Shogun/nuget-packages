@@ -19,11 +19,13 @@ public sealed record LocalizationSettings
     ///
     /// <remarks>
     /// Validated at startup against the same shape the message provider accepts, so a malformed value fails the host
-    /// rather than resolving no messages for the life of the process.
+    /// rather than resolving no messages for the life of the process. Blank is rejected separately, since the pattern
+    /// check on its own treats an empty value as valid.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
+    [Required(ErrorMessage = "DefaultLanguage is required.")]
     [RegularExpression(LanguageTag.Pattern, ErrorMessage = "DefaultLanguage must be a language tag such as 'en' or 'nl-BE'.")]
     public string DefaultLanguage { get; init; } = "en";
 
