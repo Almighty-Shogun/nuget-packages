@@ -132,7 +132,7 @@ internal sealed class JsonMessageResolver(
     /// </param>
     /// <param name="language">
     /// The language the template was resolved in, used to format the values. Without it a number or a date would be
-    /// written in the server's culture while the words around it are in the caller's.
+    /// written in the server's culture while the surrounding words are in the caller's.
     /// </param>
     ///
     /// <returns>
