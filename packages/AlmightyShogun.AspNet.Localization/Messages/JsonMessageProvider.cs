@@ -263,6 +263,12 @@ internal sealed class JsonMessageProvider(
     /// no watchers. A root created after this runs is never picked up, since setup happens exactly once.
     /// </remarks>
     ///
+    /// <remarks>
+    /// Each watcher is armed only once its handlers are attached. Setting <c>EnableRaisingEvents</c> in the object
+    /// initializer instead would leave a window in which a file edit raises an event that nothing is subscribed to, and
+    /// the cache generation would not be bumped for it.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private void StartWatchingIfEnabled()
@@ -283,7 +289,6 @@ internal sealed class JsonMessageProvider(
 
                 FileSystemWatcher watcher = new(directory, "*.json")
                 {
-                    EnableRaisingEvents = true,
                     IncludeSubdirectories = true,
                     NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime
                 };
@@ -292,6 +297,8 @@ internal sealed class JsonMessageProvider(
                 watcher.Created += OnMessageFileChanged;
                 watcher.Deleted += OnMessageFileChanged;
                 watcher.Renamed += OnMessageFileChanged;
+
+                watcher.EnableRaisingEvents = true;
 
                 _watchers.Add(watcher);
             }
