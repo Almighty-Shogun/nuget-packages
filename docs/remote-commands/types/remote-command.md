@@ -52,7 +52,7 @@ A class must declare [`RemoteCommandAttribute`](../attributes/remote-command-att
 
 Handles the command after the incoming JSON payload has been deserialized into `T`. Write a reply through [`ICommandResponse`](../services/command-response) when the client expects one; a command that returns nothing simply completes.
 
-Deserialization failure never reaches this method. A payload whose `Data` does not produce a `T` raises a `JsonException` before dispatch, which the handler turns into an `invalid_message` [`RemoteCommandResponse`](../records/remote-command-response).
+Deserialization failure never reaches this method. A payload whose `Data` does not produce a `T` raises a `JsonException` while the command is being dispatched, which the handler answers with a refused [`RemoteCommandResponse`](../records/remote-command-response) carrying `InvalidMessage`, sent on the wire as its underlying number.
 
 ### Type signature
 

@@ -7,7 +7,7 @@ Cron expressions for the common schedules, so a recurring job can avoid a raw st
 ```csharp
 using AlmightyShogun.Hangfire.RecurringJobs;
 
-[RecurringJob("nightly-cleanup", CronSchedules.Daily, "Europe/Amsterdam")]
+[RecurringJob("nightly-cleanup", CronSchedules.Daily, TimeZone = "Europe/Amsterdam")]
 public sealed class NightlyCleanupJob : IRecurringJob
 {
     public Task RunAsync(CancellationToken cancellationToken)

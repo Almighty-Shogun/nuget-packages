@@ -5,7 +5,7 @@ params:
       type: 'Expression<Func<TEntity, object?>>'
 
     - name: filter
-      description: A provider-specific predicate limiting which rows the constraint covers. Worth setting over a nullable column, because several providers treat two nulls as equal and refuse the second row without it.
+      description: A provider-specific predicate limiting which rows the constraint covers. Worth setting over a nullable column on SQL Server, which treats two nulls as equal and refuses the second row without it. PostgreSQL, SQLite, MySQL and MariaDB allow repeated nulls.
       type: string?
       default: 'null'
 

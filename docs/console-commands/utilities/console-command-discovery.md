@@ -15,7 +15,11 @@ foreach (ConsoleCommand command in ConsoleCommandDiscovery.GetAllCommands())
 
 ## GetAllCommands
 
-Builds the metadata for each command class, reading the class attributes and the parameters of its `ExecuteAsync` method. A class that breaks the command rules throws `InvalidOperationException` naming it, the same failure [`RegisterConsoleCommands`](../extensions/register-console-commands) raises, so a help listing and the prompt never disagree about what a command is.
+Builds the metadata for each command class, reading the class attributes and the parameters of its `ExecuteAsync` method. A class that breaks the command rules throws `InvalidOperationException` naming it, the same failure [`RegisterConsoleCommands`](../extensions/register-console-commands) raises.
+
+::: warning
+This does not apply `SkipAutoRegistrationAttribute`, which registration does. A command carrying that attribute appears in a listing built from here while being unreachable at the prompt.
+:::
 
 The overload taking no argument scans the calling assembly. Pass assemblies explicitly when the commands live in another project; an empty array yields nothing.
 

@@ -57,7 +57,7 @@ public Task StartAsync(CancellationToken cancellationToken = default);
 
 ## Stop
 
-Stops accepting new connections and cancels the ones in flight. Connections already serving a request are given five seconds to finish, so a client mid-response is not cut off.
+Stops accepting new connections and cancels the ones in flight. Cancellation reaches a running command immediately, so a client waiting on a response may receive nothing. The five-second wait that follows lets the connection tasks unwind; it is not a grace period for finishing the work in progress.
 
 Calling it when no listener is running logs an error and returns, so it is safe from shutdown code that cannot know.
 

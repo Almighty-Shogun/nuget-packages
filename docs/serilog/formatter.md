@@ -67,7 +67,7 @@ A property with no color code is colored by the type of its value:
 | Value | Color |
 | --- | --- |
 | `string` | White |
-| `int`, `long`, `float`, `double`, `decimal` | Cyan |
+| Any numeric type, including `byte`, `short`, `int`, `long`, their unsigned forms, `nint`, `nuint`, `Half`, `float`, `double`, and `decimal` | Cyan |
 | `bool` | Magenta |
 | `null` | Dark gray |
 | Anything else | White |

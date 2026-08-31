@@ -13,7 +13,7 @@ Registers the Resend email services and binds the `Email` configuration section.
 
 Call it once during startup, then depend on [`IResendMailService`](../services/resend-mail-service) and send classes that inherit from [`BaseMailTemplate`](../types/base-mail-template).
 
-The mail service is registered as transient and the template loader as a singleton, so the file cache is shared while nothing holds a settings snapshot for longer than one message.
+The mail service is registered as transient and the template loader as a singleton, so the file cache is shared across sends. Settings are bound through `IOptions<EmailSettings>`, so their values are fixed for the life of the process and a configuration reload requires a restart.
 
 ## Usage
 

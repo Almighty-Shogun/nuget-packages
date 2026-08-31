@@ -1,18 +1,22 @@
 # Exceptions
 
-[`RemoteCommandClient`](./services/remote-command-client) throws four exceptions, all deriving from `RemoteCommandException` so a single
-`catch` covers a command that did not run. Cancelling the token is the exception to that: it propagates as
+[`RemoteCommandClient`](./services/remote-command-client) throws four exceptions deriving from `RemoteCommandException`, so a single
+`catch` covers an unreachable server, a refusal, and a disconnection. Three further failures escape that base type: a framing error raises
+`InvalidDataException`, an unreadable envelope raises `JsonException`, and cancelling the token propagates as
 `OperationCanceledException` after the connection is disposed, because a caller shutting down asked for it rather than
 suffering it. The listener itself throws none: it answers a bad request with a [
 `RemoteCommandResponse`](./records/remote-command-response) instead.
+
+Note that only `RemoteCommandUnreachableException` and `RemoteCommandRefusedException` prove the command did not run. The server runs a
+command and only then writes its response, so a disconnection may mean it ran and the answer never came back.
 
 Which type is thrown says whether the problem was the connection, the wire format, or the server's own decision.
 
 | Exception                            | Cause                                           | Retry      |
 |--------------------------------------|-------------------------------------------------|------------|
 | `RemoteCommandUnreachableException`  | The connection could not be opened              | Reasonable |
-| `RemoteCommandDisconnectedException` | Closed before a response arrived                | Reasonable |
-| `RemoteCommandProtocolException`     | A frame arrived that is not a response envelope | Pointless  |
+| `RemoteCommandDisconnectedException` | Closed before a response arrived                | See below  |
+| `RemoteCommandProtocolException`     | The frame deserialized to `null`                | Pointless  |
 | `RemoteCommandRefusedException`      | The server answered and declined                | Pointless  |
 
 ## Usage
@@ -79,9 +83,10 @@ public sealed class RemoteCommandDisconnectedException(
 
 ## RemoteCommandProtocolException
 
-A frame arrived that is not a [`RemoteCommandResponse`](./records/remote-command-response) envelope, which means the two ends disagree about
-the wire format rather than that the command failed. Against a server running this package this is a bug; against another implementation it
-means the envelope is not being produced.
+A frame arrived and deserialized to `null`, meaning the server sent the literal `null` where a
+[`RemoteCommandResponse`](./records/remote-command-response) envelope belongs. A frame malformed in any other way fails to deserialize and
+raises `JsonException` instead, so this type does not cover every wire-format disagreement. Against a server running this package this is a
+bug; against another implementation it means the envelope is not being produced.
 
 ### Type signature
 
@@ -113,8 +118,9 @@ The reason on a refusal, and the only place the package names one. It travels on
 code, and a value introduced by a newer server is read as `Other` rather than rejected.
 
 ::: tip
-`InvalidMessage` covers a genuine conflict only. A property the payload omits binds to the default, so a message missing a field reaches the
-command with that field null rather than being refused.
+A property the payload omits binds to its default, so a message missing an optional field reaches the command with that field null. A
+property the message marks `required` is different: its absence makes deserialization throw, which is answered with `InvalidMessage` just as
+a wrong type is.
 :::
 
 | Member               | Value | Meaning                                         |

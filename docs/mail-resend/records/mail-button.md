@@ -13,7 +13,7 @@ fields:
 
 Represents a call-to-action button rendered by [`BaseMailTemplate`](../types/base-mail-template). Derived mail templates return `MailButton` values from the protected `Buttons` member when an email should include one or more prominent links.
 
-The label becomes the visible text and the URL the target, and both are encoded when rendered.
+The label becomes the visible text and the URL the target. Both are encoded in the HTML rendering; the plain-text rendering writes them as given, which is safe because the constructor has already rejected a URL that is not an absolute `http`, `https`, or `mailto` one.
 
 ::: warning
 The constructor throws an `ArgumentException` when the label or URL is blank, or when the URL is not an absolute `http`, `https`, or `mailto` URL. Validating at construction rather than at render time is deliberate: the HTML and plain-text renderers are separate paths, and encoding only the HTML one would leave a `javascript:` URL visible verbatim in the plain-text alternative.

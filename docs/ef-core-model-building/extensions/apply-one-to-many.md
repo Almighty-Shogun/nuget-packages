@@ -24,7 +24,7 @@ returns: The `ModelBuilder` instance with the relationship configured.
 
 Configures a one-to-many relationship where `TEntity` holds a collection of `TDependent`.
 
-Requiredness and delete behavior are left to EF Core, which infers both from the foreign key property: a non-nullable key gives a required relationship whose dependents are deleted with the principal, a nullable one gives an optional relationship whose keys are cleared instead.
+Requiredness and delete behavior are left to EF Core, which infers both from the foreign key property: a non-nullable key gives a required relationship whose dependents are deleted with the principal, a nullable one gives an optional relationship using `ClientSetNull`. That clears the key only on dependents EF is already tracking, and the database constraint it creates does not cascade, so deleting a principal whose dependents are not loaded fails at the database.
 
 ## Usage
 

@@ -51,8 +51,8 @@ dotnet ef migrations add AddAccountEmailIndex
 
 ## Provider support
 
-The relational dependency means these helpers assume a relational provider: SQL Server, PostgreSQL, MySQL, MariaDB, SQLite, and equivalents.
+Only one thing here is relational: the `filter` argument on [`ApplyUniqueIndex`](./extensions/apply-unique-index), which is why the package takes the relational dependency. Everything else uses core EF Core APIs that carry no provider assumption.
 
 One parameter carries provider-specific behavior: `filter` on [`ApplyUniqueIndex`](./extensions/apply-unique-index) is raw SQL, and identifier quoting differs per provider, `[Slug]` on SQL Server, `"Slug"` on PostgreSQL and SQLite, `` `Slug` `` on MySQL and MariaDB.
 
-On a document provider such as Cosmos, it has no effect and the relationship helpers do not apply.
+On a document provider such as Cosmos, whether a filter is honoured and how far these relationship shapes apply is that provider's own business; the helpers do no provider branching of their own.

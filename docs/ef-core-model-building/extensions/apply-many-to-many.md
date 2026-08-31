@@ -5,7 +5,7 @@ params:
       type: 'Expression<Func<TEntity, IEnumerable<TRelated>?>>'
 
     - name: inverseNavigation
-      description: The collection property on `TRelated`. Both sides are required, because a many-to-many with a navigation on one side only has no second collection for EF Core to pair the join rows with.
+      description: The collection property on `TRelated`. This helper requires it because its parameter is not optional. EF Core itself supports a unidirectional many-to-many, which needs the fluent call written out instead.
       type: 'Expression<Func<TRelated, IEnumerable<TEntity>?>>'
 
     - name: joinTableName

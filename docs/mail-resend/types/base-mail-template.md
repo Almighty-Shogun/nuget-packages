@@ -2,7 +2,7 @@
 
 Base class for emails that should be sent through [`IResendMailService`](../services/resend-mail-service). Application code inherits from this class to describe the message subject, title, greeting, paragraphs, and buttons without dealing with the Resend API message object directly.
 
-Every template is rendered twice, as HTML from the base template files and as plain text, with text values HTML encoded and button URLs encoded for attribute output.
+Every template is rendered twice, as HTML from the base template files and as plain text. The HTML rendering encodes text values and encodes button URLs for attribute output. The plain-text rendering writes values as given, so anything placed in a template must be safe to show unencoded.
 
 ## Usage
 
@@ -51,7 +51,7 @@ protected override IReadOnlyDictionary<string, string> AdditionalValues
     };
 ```
 
-Subclass values are applied after the built-in placeholders, so a value cannot inject a placeholder that then gets substituted, and a key naming a built-in placeholder has no effect.
+Subclass values are applied after the built-in placeholders, so a key naming a built-in placeholder has no effect. They are applied one after another over the accumulating text, and HTML encoding leaves braces alone, so a value containing `{{OtherKey}}` is itself substituted when that key is applied later. Enumeration order therefore decides the result.
 
 ::: warning
 Additional values are applied to the HTML body only. The plain-text body has no markup to escape and no placeholders to fill, so a template that relies on an additional value for its wording renders it in the HTML alternative alone.

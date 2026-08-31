@@ -19,7 +19,7 @@ fields:
 
 # RecurringJobInfo
 
-One discovered recurring job, as read from its attribute when the host starts. Exposed through [`RecurringJobRegistry`](../services/recurring-job-registry) so an application can list what is scheduled.
+One discovered recurring job, as its attribute and any matching configuration override resolve together. Only the job id always comes from the attribute. Exposed through [`RecurringJobRegistry`](../services/recurring-job-registry) so an application can list what is scheduled.
 
 ## Usage
 

@@ -2,7 +2,7 @@
 
 Model configuration helpers for `ModelBuilder`, covering the shapes written on almost every model: relationships, indexes, enum storage, and eager loading.
 
-Each helper collapses a fluent-API sequence into one call without overriding a convention: requiredness and delete behavior stay inferred from the foreign key's nullability. Every one is called inside `OnModelCreating` and returns the `ModelBuilder`, so calls chain.
+Each helper collapses a fluent-API sequence into one call. The relationship helpers override no convention: requiredness and delete behavior stay inferred from the foreign key's nullability. The others override one deliberately, storing an enum as text, making an index unique, or naming a many-to-many's own join table and key columns. Every one is called inside `OnModelCreating` and returns the `ModelBuilder`, so calls chain.
 
 ## Categories
 

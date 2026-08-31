@@ -1,7 +1,7 @@
 ---
 params:
     - name: navigation
-      description: The reference property on the dependent. Declaring it on the dependent is what puts the foreign key there, which is the difference between this and writing the same relationship from the collection side.
+      description: The reference property on the dependent. This produces the same model as writing the relationship from the collection side, foreign key included; only the side the call is written from differs.
       type: 'Expression<Func<TDependent, TEntity?>>'
 
     - name: foreignKey
@@ -24,7 +24,7 @@ returns: The `ModelBuilder` instance with the relationship configured.
 
 Configures the same shape as [`ApplyOneToMany`](./apply-one-to-many), written from the dependent's side for a model where the reference reads better than the collection.
 
-Requiredness and delete behavior are left to EF Core, which infers both from the foreign key property: a non-nullable key gives a required reference whose dependents are deleted with the principal, a nullable one gives an optional reference whose keys are cleared instead.
+Requiredness and delete behavior are left to EF Core, which infers both from the foreign key property: a non-nullable key gives a required reference whose dependents are deleted with the principal, a nullable one gives an optional reference using `ClientSetNull`. That clears the key only on dependents EF is already tracking, and the database constraint it creates does not cascade, so deleting a principal whose dependents are not loaded fails at the database.
 
 ## Usage
 

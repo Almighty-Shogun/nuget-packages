@@ -24,7 +24,7 @@ dotnet add package AlmightyShogun.Hangfire.RecurringJobs
 [`AddCustomHangfire`](./extensions/add-custom-hangfire) sets up Hangfire with a processing server, using in-memory storage unless a configuration delegate selects another provider. [`RegisterRecurringJobs`](./extensions/register-recurring-jobs) scans for job classes and adds the hosted service that puts their schedules into Hangfire when the host starts.
 
 ::: warning
-`AddCustomHangfire` must come first. `RegisterRecurringJobs` schedules through the recurring job manager that call registers.
+Both calls are needed, in either order. Neither reads what the other registered: the scan only records what to schedule, and the hosted service it adds hands those schedules to the recurring job manager once the host starts.
 :::
 
 ::: code-group

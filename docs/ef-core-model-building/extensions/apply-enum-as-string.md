@@ -62,7 +62,7 @@ public enum FulfilmentStage
 :::
 
 ::: warning
-Renaming a member changes the stored value, so it needs an `UPDATE` in the migration that renames it.
+Renaming a member changes the stored value. Nothing in the model records member names, so a rename produces an empty migration rather than one that rewrites the rows: the `UPDATE` has to be written by hand.
 :::
 
 <FrontmatterDocs/>

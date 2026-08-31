@@ -1,13 +1,13 @@
 ---
 fields:
     - name: IsSuccess
-      description: Whether Resend accepted the message.
+      description: Whether the send succeeded. A false value does not always mean Resend declined it, since a send with no recipient fails before the provider is contacted.
       type: bool
     - name: MessageId
       description: Resend's identifier for the accepted message. Use it to correlate a send with a webhook or the Resend dashboard.
       type: string?
     - name: Error
-      description: The failure description when the send did not succeed.
+      description: The failure description when the send did not succeed, carrying either this package's own rejection or the text the provider returned.
       type: string?
 ---
 

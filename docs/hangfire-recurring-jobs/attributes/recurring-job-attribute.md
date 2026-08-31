@@ -48,7 +48,7 @@ public sealed class CleanupExpiredSessionsJob : IRecurringJob
 ## Type signature
 
 ```csharp
-[AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public sealed class RecurringJobAttribute(
     string jobId,
     string cronExpression

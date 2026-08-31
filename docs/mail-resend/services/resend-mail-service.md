@@ -170,7 +170,7 @@ public sealed class MailPreviewEndpoint(IResendMailService mailService)
         CancellationToken cancellationToken
     )
     {
-        WelcomeMail mail = new WelcomeMailTemplate("Shogun");
+        WelcomeMailTemplate mail = new("Shogun");
 
         MailPreview preview = await mailService
             .PreviewAsync(mail, cancellationToken);

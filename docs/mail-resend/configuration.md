@@ -27,7 +27,7 @@ fields:
             default: 'null'
 
           - name: AppUrl
-            description: URL behind the footer link and the `{app_url}` placeholder. Dropped under the same scheme rule as `LogoUrl`, which leaves the footer link rendered but inert.
+            description: URL behind the footer link and the `{app_url}` placeholder. Both are dropped under the same scheme rule as `LogoUrl`, leaving the footer link inert and the placeholder empty in the HTML and plain-text bodies alike.
             type: string?
             default: 'null'
 
@@ -55,7 +55,7 @@ fields:
             default: '{app_name}'
 
           - name: IgnoreText
-            description: Line telling a recipient to disregard a message they did not expect. Empty by default, which omits it from both renderings rather than leaving a blank paragraph.
+            description: Line telling a recipient to disregard a message they did not expect. Empty by default, which drops the line from the plain-text rendering and substitutes nothing for its HTML placeholder; whether that leaves a blank paragraph depends on the application's own base template.
             type: string
             default: "''"
 ---

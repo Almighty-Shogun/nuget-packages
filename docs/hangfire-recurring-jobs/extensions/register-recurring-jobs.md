@@ -14,7 +14,7 @@ returns: The `IServiceCollection` instance with recurring jobs and the startup s
 
 # RegisterRecurringJobs
 
-Registers the recurring job classes found in the given assemblies and the hosted service that schedules them. A class is discovered when it implements [`IRecurringJob`](../types/recurring-job) and carries [`RecurringJobAttribute`](../attributes/recurring-job-attribute). Pass an `IConfiguration` to let the [`RecurringJobs`](../configuration) section override what the attributes declare. Call it after [`AddCustomHangfire`](./add-custom-hangfire).
+Registers the recurring job classes found in the given assemblies and the hosted service that schedules them. A class is discovered when it implements [`IRecurringJob`](../types/recurring-job) and carries [`RecurringJobAttribute`](../attributes/recurring-job-attribute). Pass an `IConfiguration` to let the [`RecurringJobs`](../configuration) section override what the attributes declare. Pair it with [`AddCustomHangfire`](./add-custom-hangfire), in either order, since neither reads what the other registered.
 
 ## Usage
 

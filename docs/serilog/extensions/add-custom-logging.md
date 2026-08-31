@@ -18,7 +18,9 @@ returns: The same service collection or host builder instance, with Serilog conf
 
 # AddCustomLogging
 
-Configures Serilog with log-context enrichment and the package's asynchronous colored console sink, and registers it as the `Microsoft.Extensions.Logging` provider. Inject `ILogger<T>` as usual afterwards. The logger is registered for disposal, which flushes the asynchronous sink's buffer during an orderly [shutdown](../installation#flushing-on-shutdown).
+Configures Serilog with log-context enrichment and the package's asynchronous colored console sink. Inject `ILogger<T>` as usual afterwards.
+
+The `IHostBuilder` receiver replaces the host's logging with Serilog. The `IServiceCollection` receiver adds Serilog as an additional provider and leaves any provider the host already registered in place, so a default console provider keeps writing and every line appears twice. The logger is registered for disposal, which flushes the asynchronous sink's buffer during an orderly [shutdown](../installation#flushing-on-shutdown).
 
 ## Usage
 

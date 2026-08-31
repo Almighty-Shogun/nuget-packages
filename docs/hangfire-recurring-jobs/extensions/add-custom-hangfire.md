@@ -1,7 +1,7 @@
 ---
 params:
     - name: configure
-      description: Selects the storage provider and data compatibility level. Hangfire throws when either is left unset by the final configuration.
+      description: Selects the storage provider and data compatibility level. Hangfire throws when no storage is set by the final configuration; the compatibility level has a default and may be left alone.
       type: 'Action<IGlobalConfiguration>'
 
     - name: addServer
@@ -14,7 +14,7 @@ returns: The `IServiceCollection` instance with Hangfire configured.
 
 # AddCustomHangfire
 
-Registers Hangfire with the package's serializer defaults and a background processing server. Called without a delegate it uses in-memory storage and data compatibility level `Version_180`; pass a delegate to select another storage provider and set the compatibility level yourself. Call it before [`RegisterRecurringJobs`](./register-recurring-jobs), which needs the recurring job manager this call provides.
+Registers Hangfire with the package's serializer defaults and a background processing server. Called without a delegate it uses in-memory storage and data compatibility level `Version_180`; pass a delegate to select another storage provider and set the compatibility level yourself. Pair it with [`RegisterRecurringJobs`](./register-recurring-jobs), in either order, since neither reads what the other registered.
 
 ## Usage
 

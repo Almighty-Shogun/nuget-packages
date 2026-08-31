@@ -39,7 +39,7 @@ public sealed record RestartResponse
 :::
 
 ::: warning
-Every failure throws a [`RemoteCommandException`](../exceptions) subclass, one per reason, so a server that refused the command is distinguishable from one that could not be reached or closed the connection without answering. Cancellation is not one of them: it propagates as `OperationCanceledException`, and the connection is disposed first so the next send opens a clean one.
+A refusal, an unreachable server, and a disconnection each throw their own [`RemoteCommandException`](../exceptions) subclass, so the three are distinguishable. Three other failures are not of that family: a framing error raises `InvalidDataException`, an unreadable envelope raises `JsonException`, and cancellation propagates as `OperationCanceledException`. Cancellation disposes the connection first, so the next send opens a clean one; the other two leave it in place, and it is no longer in step with the server.
 :::
 
 ## SendAsync

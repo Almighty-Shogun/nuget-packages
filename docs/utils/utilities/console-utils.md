@@ -1,6 +1,6 @@
 # ConsoleUtils
 
-Console primitives for a command-line application: naming the window, prompting for input, erasing a line, and taking over what `Ctrl+C` means. All members are static and none is registered in the container. Every one of them degrades to a no-op or a plain read when output is redirected rather than attached to a terminal.
+Console primitives for a command-line application: naming the window, prompting for input, erasing a line, and taking over what `Ctrl+C` means. All members are static and none is registered in the container. Only the cursor rewrite checks for redirected output and skips itself. The window title, the prompt write, the colour change, and the cancellation guard all run either way, so a redirected stream still receives the prompt text.
 
 ## Usage
 

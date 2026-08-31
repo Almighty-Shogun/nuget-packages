@@ -27,7 +27,7 @@ This describes the schedule, not the runs. Whether a job is executing, when it l
 
 ## Jobs
 
-The discovered jobs as [`RecurringJobInfo`](../records/recurring-job-info) values, in discovery order. Jobs whose attribute sets `Enabled` to `false` are absent. Built once at startup, so the list is fixed for the lifetime of the application and reading it costs nothing.
+The discovered jobs as [`RecurringJobInfo`](../records/recurring-job-info) values, in discovery order. A job is absent when it resolves to disabled, which is decided by the configuration override first, then what the attribute declares, then `EnabledByDefault`. Built once at startup, so the list is fixed for the lifetime of the application and reading it costs nothing.
 
 ### Type signature
 
