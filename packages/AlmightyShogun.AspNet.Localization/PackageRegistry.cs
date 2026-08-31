@@ -2,6 +2,7 @@ using AlmightyShogun.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AlmightyShogun.AspNet.Localization;
 
@@ -40,19 +41,26 @@ public static class PackageRegistry
         /// <returns>The <see cref="IServiceCollection"/> instance with message localization registered.</returns>
         ///
         /// <remarks>
-        /// Each of the three is registered unconditionally, so a custom <see cref="ILanguageProvider"/> must be
-        /// substituted after this call rather than before it. Also registers the HTTP context accessor, which the
-        /// default provider needs to read the request.
+        /// <see cref="ILanguageProvider"/> and <see cref="IMessageResolver"/> are registered only when nothing has
+        /// claimed them yet, so a custom implementation registered before this call is kept. The message provider is
+        /// internal to the package and is always registered. Also registers the HTTP context accessor, which the
+        /// default language provider needs to read the request.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
-        public IServiceCollection AddMessageLocalization(IConfiguration configuration) => serviceCollection
-            .AddConfiguration<LocalizationSettings>(configuration.GetSection("Localization"))
-            .AddHttpContextAccessor()
-            .AddSingleton<ILanguageProvider, LanguageProvider>()
-            .AddSingleton<IMessageProvider, JsonMessageProvider>()
-            .AddSingleton<IMessageResolver, JsonMessageResolver>();
+        public IServiceCollection AddMessageLocalization(IConfiguration configuration)
+        {
+            serviceCollection
+                .AddConfiguration<LocalizationSettings>(configuration.GetSection("Localization"))
+                .AddHttpContextAccessor()
+                .AddSingleton<IMessageProvider, JsonMessageProvider>();
+
+            serviceCollection.TryAddSingleton<ILanguageProvider, LanguageProvider>();
+            serviceCollection.TryAddSingleton<IMessageResolver, JsonMessageResolver>();
+
+            return serviceCollection;
+        }
     }
 
     /// <summary>
