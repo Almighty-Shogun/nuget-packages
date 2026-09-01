@@ -43,13 +43,22 @@ internal sealed class FileMaintenanceStore(
     private readonly Lock _watcherGate = new();
 
     /// <summary>
-    /// The cached state. Every request reads this rather than the disk; without it each one would cost a file read and a deserialize even
-    /// with maintenance off. Reads never take <see cref="_writeLock"/>, so they do not contend with each other or with a write.
+    /// The cached state together with the generation it was read under. Every request reads this rather than the disk; without it each one
+    /// would cost a file read and a deserialize even with maintenance off.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private volatile CachedState? _cached;
+
+    /// <summary>
+    /// The generation the cache is valid for, incremented by every watcher event and every write. An entry stamped with an earlier
+    /// generation is reloaded rather than trusted, which is what stops a read that overlapped a write from publishing the old value.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private long _cacheVersion;
 
     /// <summary>
     /// Watches the state file so an out-of-band edit is noticed.
@@ -88,12 +97,15 @@ internal sealed class FileMaintenanceStore(
     {
         EnsureWatching();
 
-        if (_cached is { } cached)
+        long version = Volatile.Read(ref _cacheVersion);
+
+        if (_cached is { } cached && cached.Version == version)
             return cached.State;
 
         PersistedMaintenanceState? state = await ReadFromDiskAsync();
 
-        _cached = new CachedState(state);
+        if (Volatile.Read(ref _cacheVersion) == version)
+            _cached = new CachedState(version, state);
 
         return state;
     }
@@ -116,7 +128,7 @@ internal sealed class FileMaintenanceStore(
 
             File.Move(tempFilePath, FilePath, true);
 
-            _cached = new CachedState(state);
+            Publish(state);
         }
         finally
         {
@@ -131,10 +143,9 @@ internal sealed class FileMaintenanceStore(
 
         try
         {
-            if (File.Exists(FilePath))
-                File.Delete(FilePath);
+            DeleteFile();
 
-            _cached = new CachedState(null);
+            Publish(null);
         }
         finally
         {
@@ -152,6 +163,34 @@ internal sealed class FileMaintenanceStore(
             _watcher?.Dispose();
             _watcher = null;
         }
+    }
+
+    /// <summary>
+    /// Publishes a state the caller has just written to disk, retiring every cache entry read before it.
+    /// </summary>
+    ///
+    /// <param name="state">The state now on disk, or <c>null</c> when the file was deleted.</param>
+    ///
+    /// <remarks>
+    /// The generation is bumped before the entry is stored, so a read that started earlier fails its own version check and reloads instead
+    /// of overwriting this. The watcher event this write triggers bumps the generation again, which costs one reload and cannot resurrect
+    /// the old value.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private void Publish(PersistedMaintenanceState? state) => _cached = new CachedState(Interlocked.Increment(ref _cacheVersion), state);
+
+    /// <summary>
+    /// Deletes the state file when it is there, which is what closing a window amounts to on disk.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private void DeleteFile()
+    {
+        if (File.Exists(FilePath))
+            File.Delete(FilePath);
     }
 
     /// <summary>
@@ -284,17 +323,24 @@ internal sealed class FileMaintenanceStore(
     /// <param name="sender">The watcher that raised the change. Unused: any change to the file invalidates the whole cache.</param>
     /// <param name="eventArgs">The file system event arguments.</param>
     ///
+    /// <remarks>
+    /// The generation is bumped rather than the entry removed. A read already in flight was started under the old generation and will
+    /// refuse to store its result, so an edit cannot be overtaken by a read that began before it.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private void OnStateFileChanged(object sender, FileSystemEventArgs eventArgs) => _cached = null;
+    private void OnStateFileChanged(object sender, FileSystemEventArgs eventArgs) => Interlocked.Increment(ref _cacheVersion);
 
     /// <summary>
-    /// Wraps the cached value, so a cached <c>null</c> is distinguishable from nothing cached.
+    /// Wraps the cached value with the generation it was read under, so a cached <c>null</c> is distinguishable from nothing cached and a
+    /// superseded entry is recognizable without the invalidating side having to find and remove it.
     /// </summary>
     ///
+    /// <param name="Version">The cache generation the value was read under.</param>
     /// <param name="State">The cached state.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private sealed record CachedState(PersistedMaintenanceState? State);
+    private sealed record CachedState(long Version, PersistedMaintenanceState? State);
 }

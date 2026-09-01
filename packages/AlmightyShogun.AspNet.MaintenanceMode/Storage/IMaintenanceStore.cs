@@ -20,7 +20,7 @@ internal interface IMaintenanceStore
     ValueTask<PersistedMaintenanceState?> ReadAsync();
 
     /// <summary>
-    /// Writes the window and refreshes the cache in one step, so a read straight after a write cannot see the old value.
+    /// Writes the window and refreshes the cache in one step, so a read that begins after this returns cannot see the old value.
     /// </summary>
     ///
     /// <param name="state">The window to write, replacing whatever the file held rather than merging with it.</param>
