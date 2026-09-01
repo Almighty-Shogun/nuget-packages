@@ -1,74 +1,83 @@
-using Microsoft.AspNetCore.Http;
+using System.Text;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
-/// Maps a status code to the snake-case identifier clients branch on, covering every error status the framework names
-/// plus <c>425 Too Early</c>. These strings are part of the response contract, so an existing mapping must not change
-/// once released, even to correct its wording.
+/// Maps a status code to the snake-case identifier clients branch on, derived from the reason phrase the framework
+/// names the status with. These strings are part of the response contract, so a mapping must not change once released,
+/// even to correct its wording.
 /// </summary>
+///
+/// <remarks>
+/// Deriving from <see cref="ReasonPhrases"/> rather than listing every status means a status the framework learns to
+/// name is covered without an edit here. It also ties the contract to a table this package does not own, which is why
+/// <c>425</c> is pinned below: the derived form is only as stable as the phrase it comes from.
+/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal static class HttpErrorCodes
 {
     /// <summary>
+    /// The status the reason phrase table does not name, kept because clients already branch on the identifier it
+    /// mapped to before the table became the source.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private const int _tooEarly = 425;
+
+    /// <summary>
     /// Looks up the identifier a client sees in the <c>error</c> field, for a status the application is about to return.
     /// </summary>
     ///
-    /// <param name="statusCode">The status code being returned. Only error codes are mapped; anything else falls through.</param>
+    /// <param name="statusCode">
+    /// The status code being returned. Every status the framework names is mapped, not only error statuses, so a
+    /// non-error code passed here yields its own phrase rather than being rejected.
+    /// </param>
     ///
     /// <returns>
-    /// The identifier for a known error status, such as <c>not_found</c>, or <c>http_error_{code}</c> for one this map
-    /// does not name. The fallback keeps the field populated, so a client can always read a code.
+    /// The identifier for a status the framework names, such as <c>not_found</c>, or <c>http_error_{code}</c> for one
+    /// it does not. The fallback keeps the field populated, so a client can always read a code.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    internal static string FromStatusCode(int statusCode) => statusCode switch
+    internal static string FromStatusCode(int statusCode)
     {
-        StatusCodes.Status400BadRequest => "bad_request",
-        StatusCodes.Status401Unauthorized => "unauthorized",
-        StatusCodes.Status402PaymentRequired => "payment_required",
-        StatusCodes.Status403Forbidden => "forbidden",
-        StatusCodes.Status404NotFound => "not_found",
-        StatusCodes.Status405MethodNotAllowed => "method_not_allowed",
-        StatusCodes.Status406NotAcceptable => "not_acceptable",
-        StatusCodes.Status407ProxyAuthenticationRequired => "proxy_authentication_required",
-        StatusCodes.Status408RequestTimeout => "request_timeout",
-        StatusCodes.Status409Conflict => "conflict",
-        StatusCodes.Status410Gone => "gone",
-        StatusCodes.Status411LengthRequired => "length_required",
-        StatusCodes.Status412PreconditionFailed => "precondition_failed",
-        StatusCodes.Status413PayloadTooLarge => "payload_too_large",
-        StatusCodes.Status414UriTooLong => "uri_too_long",
-        StatusCodes.Status415UnsupportedMediaType => "unsupported_media_type",
-        StatusCodes.Status416RangeNotSatisfiable => "range_not_satisfiable",
-        StatusCodes.Status417ExpectationFailed => "expectation_failed",
-        StatusCodes.Status418ImATeapot => "im_a_teapot",
-        StatusCodes.Status419AuthenticationTimeout => "authentication_timeout",
-        StatusCodes.Status421MisdirectedRequest => "misdirected_request",
-        StatusCodes.Status422UnprocessableEntity => "unprocessable_entity",
-        StatusCodes.Status423Locked => "locked",
-        StatusCodes.Status424FailedDependency => "failed_dependency",
-        425 => "too_early",
-        StatusCodes.Status426UpgradeRequired => "upgrade_required",
-        StatusCodes.Status428PreconditionRequired => "precondition_required",
-        StatusCodes.Status429TooManyRequests => "too_many_requests",
-        StatusCodes.Status431RequestHeaderFieldsTooLarge => "request_header_fields_too_large",
-        StatusCodes.Status451UnavailableForLegalReasons => "unavailable_for_legal_reasons",
-        StatusCodes.Status499ClientClosedRequest => "client_closed_request",
-        StatusCodes.Status500InternalServerError => "internal_server_error",
-        StatusCodes.Status501NotImplemented => "not_implemented",
-        StatusCodes.Status502BadGateway => "bad_gateway",
-        StatusCodes.Status503ServiceUnavailable => "service_unavailable",
-        StatusCodes.Status504GatewayTimeout => "gateway_timeout",
-        StatusCodes.Status505HttpVersionNotsupported => "http_version_not_supported",
-        StatusCodes.Status506VariantAlsoNegotiates => "variant_also_negotiates",
-        StatusCodes.Status507InsufficientStorage => "insufficient_storage",
-        StatusCodes.Status508LoopDetected => "loop_detected",
-        StatusCodes.Status510NotExtended => "not_extended",
-        StatusCodes.Status511NetworkAuthenticationRequired => "network_authentication_required",
-        _ => $"http_error_{statusCode}"
-    };
+        if (statusCode is _tooEarly) return "too_early";
+
+        string phrase = ReasonPhrases.GetReasonPhrase(statusCode);
+
+        return string.IsNullOrEmpty(phrase) ? $"http_error_{statusCode}" : ToSnakeCase(phrase);
+    }
+
+    /// <summary>
+    /// Reduces a reason phrase to the lowercase underscore-separated form the <c>error</c> field carries.
+    /// </summary>
+    ///
+    /// <param name="phrase">The reason phrase as the framework spells it, such as <c>Range Not Satisfiable</c>.</param>
+    ///
+    /// <returns>The phrase with its words joined by underscores, such as <c>range_not_satisfiable</c>.</returns>
+    ///
+    /// <remarks>
+    /// Punctuation is dropped rather than replaced, which is what turns <c>I'm a teapot</c> into <c>im_a_teapot</c>
+    /// instead of splitting it at the apostrophe. Only spaces and hyphens become separators.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static string ToSnakeCase(string phrase)
+    {
+        StringBuilder builder = new(phrase.Length);
+
+        foreach (char character in phrase)
+            if (char.IsLetterOrDigit(character))
+                builder.Append(char.ToLowerInvariant(character));
+            else if (character is ' ' or '-')
+                builder.Append('_');
+
+        return builder.ToString();
+    }
 }
