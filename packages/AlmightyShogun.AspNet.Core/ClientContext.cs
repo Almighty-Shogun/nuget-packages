@@ -23,14 +23,4 @@ namespace AlmightyShogun.AspNet.Core;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.2.1</since>
-public sealed record ClientContext(string? IpAddress, string? UserAgent)
-{
-    /// <summary>
-    /// The <c>HttpContext.Items</c> key a context is read from. Exposed so a consumer can seed the entry directly, for
-    /// a test that needs a fixed address without a real connection behind it, or to capture it once per request.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>2.4.0</since>
-    public const string ItemKey = nameof(ClientContext);
-}
+public sealed record ClientContext(string? IpAddress, string? UserAgent);

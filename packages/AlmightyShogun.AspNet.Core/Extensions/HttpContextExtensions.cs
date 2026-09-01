@@ -15,6 +15,15 @@ namespace AlmightyShogun.AspNet.Core;
 public static class HttpContextExtensions
 {
     /// <summary>
+    /// The <see cref="HttpContext.Items"/> key the client context is cached under. A private instance rather than a
+    /// string, so no other middleware or library can pick the same key by accident.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static readonly object _clientContextKey = new();
+
+    /// <summary>
     /// Provides the request-metadata helpers as extensions on the context.
     /// </summary>
     ///
@@ -29,25 +38,27 @@ public static class HttpContextExtensions
     extension(HttpContext httpContext)
     {
         /// <summary>
-        /// Retrieves the current request's <see cref="ClientContext"/> from <see cref="HttpContext.Items"/>.
+        /// Retrieves the current request's <see cref="ClientContext"/>, building it from the live request when nothing
+        /// has been stored yet.
         /// </summary>
         ///
         /// <returns>
-        /// The context seeded under <see cref="ClientContext.ItemKey"/> when there is one, otherwise a context built
-        /// from the live request.
+        /// The context a previous call or <see cref="SetClientContext"/> stored, otherwise one built from the
+        /// connection address and the User-Agent header.
         /// </returns>
         ///
         /// <remarks>
         /// A built context is written back to <see cref="HttpContext.Items"/>, so only the first call in a request
-        /// reads the connection and every later one returns that same instance. Seed the entry beforehand to pin the
-        /// values, as a test does when there is no real connection behind them.
+        /// reads the connection and every later one returns that same instance. Call
+        /// <see cref="SetClientContext"/> beforehand to pin the values, as a test does when there is no real connection
+        /// behind them.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.2.2</since>
         public ClientContext GetClientContext()
         {
-            if (httpContext.Items.TryGetValue(ClientContext.ItemKey, out object? value) && value is ClientContext clientContext)
+            if (httpContext.Items.TryGetValue(_clientContextKey, out object? value) && value is ClientContext clientContext)
                 return clientContext;
 
             ClientContext created = new(
@@ -55,10 +66,29 @@ public static class HttpContextExtensions
                 httpContext.Request.Headers.UserAgent.ToString()
             );
 
-            httpContext.Items[ClientContext.ItemKey] = created;
+            httpContext.Items[_clientContextKey] = created;
 
             return created;
         }
+
+        /// <summary>
+        /// Stores the client context for the current request, so every later <see cref="GetClientContext"/> returns it
+        /// instead of reading the connection.
+        /// </summary>
+        ///
+        /// <param name="clientContext">
+        /// The context to pin. Replaces whatever a previous call stored, including a context
+        /// <see cref="GetClientContext"/> built itself.
+        /// </param>
+        ///
+        /// <remarks>
+        /// For middleware that captures the values once per request, and for a test that needs fixed values with no
+        /// real connection behind them. The key is private, so this is the only supported way to seed the entry.
+        /// </remarks>
+        ///
+        /// <author>Almighty-Shogun</author>
+        /// <since>Unreleased</since>
+        public void SetClientContext(ClientContext clientContext) => httpContext.Items[_clientContextKey] = clientContext;
 
         /// <summary>
         /// Gets the client address for the current request, normalized so an IPv4 address tunneled as IPv4-mapped IPv6
