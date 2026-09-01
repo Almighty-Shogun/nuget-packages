@@ -14,7 +14,8 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenanceOptions, IMaintenanceStore store) : IMaintenanceService
 {
     /// <summary>
-    /// The configured defaults, read once at construction, so a window opened mid-request cannot see a half-changed configuration.
+    /// The configured defaults, resolved once so every member reads the same settings instance rather than going through
+    /// <see cref="IOptions{TOptions}"/> on each call.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

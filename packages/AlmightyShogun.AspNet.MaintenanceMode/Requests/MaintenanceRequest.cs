@@ -17,7 +17,8 @@ public sealed record MaintenanceRequest
     public string? Message { get; init; }
 
     /// <summary>
-    /// Gets the UTC time when maintenance mode should end.
+    /// Gets when the maintenance window should end. Any offset is accepted, since the comparisons that drive expiry and the
+    /// <c>Retry-After</c> header are absolute. Leave it unset for a window with no estimated end.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -34,7 +35,8 @@ public sealed record MaintenanceRequest
     public DateTimeOffset? StartsAt { get; init; }
 
     /// <summary>
-    /// Gets whether this request should override automatic disabling when the end time has passed.
+    /// Gets whether the window lifts itself once <see cref="EndsAt"/> has passed. Left unset, the configured default decides; there is
+    /// nothing to lift when no end time is set.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

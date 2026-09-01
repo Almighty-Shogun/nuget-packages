@@ -33,8 +33,8 @@ public static class PackageRegistry
         /// <returns>The <see cref="IServiceCollection"/> instance with maintenance mode services registered.</returns>
         ///
         /// <remarks>
-        /// Requires <c>AddHttpErrorResponseWriter</c> from <c>AlmightyShogun.AspNet.Core</c> and <c>AddMessageLocalization</c> from
-        /// <c>AlmightyShogun.AspNet.Localization</c> , which together let the middleware write the blocked-request body.
+        /// Requires <c>AddHttpErrorResponseWriter</c> from <c>AlmightyShogun.AspNet.Core</c>, which is what the middleware writes the
+        /// blocked-request body through. Nothing else is needed: the body carries the window's own message rather than a resolved one.
         /// </remarks>
         ///
         /// <remarks>
@@ -64,10 +64,16 @@ public static class PackageRegistry
     {
         /// <summary>
         /// Adds the middleware that blocks requests while a window is open. Place it early, ahead of routing and authentication, so a
-        /// blocked request is answered before anything else runs.
+        /// blocked request is answered before anything else runs, but after <c>UseForwardedHeaders</c>.
         /// </summary>
         ///
         /// <returns>The <see cref="IApplicationBuilder"/> instance with maintenance mode middleware configured.</returns>
+        ///
+        /// <remarks>
+        /// The address bypass reads the connection address, which behind a reverse proxy is the proxy until
+        /// <c>UseForwardedHeaders</c> has run. Calling this before it would compare an allow list against the proxy's address rather than
+        /// the caller's, so run <c>UseForwardedHeaders</c> first and configure its trusted proxies and networks.
+        /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>

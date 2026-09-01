@@ -176,8 +176,8 @@ internal sealed class MaintenanceMiddleware(
     }
 
     /// <summary>
-    /// Reports whether the connecting address is on the allow list. Read from the connection rather than a forwarded header, so a client
-    /// cannot let itself through by claiming an address.
+    /// Reports whether the connecting address is on the allow list, read from the connection so a caller cannot put itself on that list
+    /// by sending a header.
     /// </summary>
     ///
     /// <param name="context">The request being considered, read for its connecting address alone.</param>
@@ -186,8 +186,14 @@ internal sealed class MaintenanceMiddleware(
     /// <returns><c>true</c> when the address is allowed.</returns>
     ///
     /// <remarks>
-    /// Read from the connection, never from a header. A header-derived address is forgeable by the caller, which would make this bypass
-    /// worse than having none.
+    /// Read from the connection, never from a header of this middleware's own reading. A header-derived address is forgeable by the
+    /// caller, which would make this bypass worse than having none.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// That only holds where the connection address is the caller's. Behind a reverse proxy it is the proxy's until
+    /// <c>UseForwardedHeaders</c> has rewritten it, so an application behind one has to run that first and declare its trusted proxies;
+    /// otherwise every caller arrives as the proxy and the allow list either matches all of them or none.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
