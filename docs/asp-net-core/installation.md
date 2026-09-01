@@ -35,8 +35,7 @@ using AlmightyShogun.AspNet.Localization;
 builder.Services
     .AddMessageLocalization(builder.Configuration)
     .AddHttpErrorResponseWriter()
-    .AddExceptionHandling()
-    .AddHttpErrorResponseFilter();
+    .AddExceptionHandling();
 
 WebApplication app = builder.Build();
 
