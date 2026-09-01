@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using IPNetwork = System.Net.IPNetwork;
@@ -140,8 +141,16 @@ public static class PackageRegistry
 
         /// <summary>
         /// Registers the two exception handlers this package owns, in the order they must run: the framework exceptions
-        /// that map to their own status code, then the fallback that turns anything else into a <c>500</c>.
+        /// that map to their own status code, then the fallback that turns anything else into a <c>500</c>. Also decides
+        /// whether MVC is allowed to rewrite a bodiless error result into a <c>ProblemDetails</c> body of its own.
         /// </summary>
+        ///
+        /// <param name="suppressMapClientErrors">
+        /// Whether MVC's client-error mapping is turned off. Left on, a controller marked <c>[ApiController]</c> rewrites
+        /// a bodiless error result such as a bare <c>NotFound()</c> into <c>ProblemDetails</c>, which
+        /// <c>UseHttpErrorResponses</c> then leaves alone. Pass <c>false</c> to keep that, and this package's shape
+        /// applies only to errors raised below MVC.
+        /// </param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the exception handlers registered.</returns>
         ///
@@ -150,12 +159,21 @@ public static class PackageRegistry
         /// does not register, and <c>UseHttpErrorResponses</c> to run the chain. It answers nothing an application threw
         /// deliberately: register your own handler ahead of this call, built on <see cref="IExceptionMapper"/>, or every
         /// domain exception becomes a <c>500</c>. Order is the reason these two are registered together: the fallback
-        /// handles every exception, so anything registered after it never runs.
+        /// claims every exception it is given, so a handler registered after it runs only in the one case the fallback
+        /// declines, which is a response that has already started.
+        /// </remarks>
+        ///
+        /// <remarks>
+        /// <c>SuppressMapClientErrors</c> is configured here because it decides whether an error raised inside MVC
+        /// reaches the client in the same shape as one raised below it. <c>UseStatusCodePages</c> only fills in a
+        /// response that has no body, so a <c>ProblemDetails</c> body MVC already wrote survives untouched and the
+        /// application answers with two different shapes depending on where the failure came from.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
-        public IServiceCollection AddExceptionHandling() => serviceCollection
+        public IServiceCollection AddExceptionHandling(bool suppressMapClientErrors = true) => serviceCollection
+            .Configure<ApiBehaviorOptions>(options => options.SuppressMapClientErrors = suppressMapClientErrors)
             .AddExceptionHandler<FrameworkExceptionHandler>()
             .AddExceptionHandler<UnhandledExceptionHandler>();
     }
