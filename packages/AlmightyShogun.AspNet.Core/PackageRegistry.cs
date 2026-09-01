@@ -42,8 +42,10 @@ public static class PackageRegistry
         /// there is silently inactive.
         /// </param>
         /// <param name="configuration">
-        /// The configuration read for the <c>AllowedOrigins</c> string array. An absent section registers a policy that
-        /// allows no origin at all, which fails closed rather than open.
+        /// The configuration read for the <c>AllowedOrigins</c>, <c>AllowedHeaders</c> and <c>AllowedMethods</c> string
+        /// arrays. An absent <c>AllowedOrigins</c> registers a policy that allows no origin at all, which fails closed
+        /// rather than open; an absent header or method list allows any of them, which is what the policy did before
+        /// either could be configured.
         /// </param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the CORS policy configured.</returns>
@@ -58,22 +60,39 @@ public static class PackageRegistry
         /// than during this call.
         /// </remarks>
         ///
+        /// <remarks>
+        /// Credentials are always allowed, which is what the wildcard check above exists to protect. Narrow the headers
+        /// and methods through configuration for a deployment that should not accept any of them; call <c>AddCors</c>
+        /// directly for a policy this shape cannot express.
+        /// </remarks>
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.2.1</since>
         public IServiceCollection AddCorsPolicy(string name, IConfiguration configuration) => serviceCollection.AddCors(options =>
         {
             string[] allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
+            string[] allowedHeaders = configuration.GetSection("AllowedHeaders").Get<string[]>() ?? [];
+            string[] allowedMethods = configuration.GetSection("AllowedMethods").Get<string[]>() ?? [];
 
             if (allowedOrigins.Contains("*"))
                 throw new InvalidOperationException(
                     "AllowedOrigins contains the '*' wildcard, which browsers reject when credentials are allowed."
                 );
 
-            options.AddPolicy(name, policy => policy
-                .WithOrigins(allowedOrigins)
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials());
+            options.AddPolicy(name, policy =>
+            {
+                policy.WithOrigins(allowedOrigins).AllowCredentials();
+
+                if (allowedHeaders.Length is 0)
+                    policy.AllowAnyHeader();
+                else
+                    policy.WithHeaders(allowedHeaders);
+
+                if (allowedMethods.Length is 0)
+                    policy.AllowAnyMethod();
+                else
+                    policy.WithMethods(allowedMethods);
+            });
         });
 
         /// <summary>
