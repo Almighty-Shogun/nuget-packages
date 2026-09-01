@@ -7,18 +7,30 @@ fields:
             description: Origins permitted by the CORS policy. The `*` wildcard is rejected, because browsers refuse it when credentials are allowed.
             type: 'string[]'
             default: '[]'
+          - name: AllowedHeaders
+            description: Request headers the CORS policy permits. An empty list allows any header.
+            type: 'string[]'
+            default: '[]'
+          - name: AllowedMethods
+            description: HTTP methods the CORS policy permits. An empty list allows any method.
+            type: 'string[]'
+            default: '[]'
 ---
 
 # Configuration
 
-The `AllowedOrigins` section lists the origins the CORS policy permits. It is a bare array read directly rather than bound to a settings record, which is why it has no type of its own, and it is only needed by an application that serves cross-origin callers.
+The `AllowedOrigins` section lists the origins the CORS policy permits, and the optional `AllowedHeaders` and `AllowedMethods` sections narrow what those origins may send. All three are bare arrays read directly rather than bound to a settings record, which is why they have no type of their own, and they are only needed by an application that serves cross-origin callers.
+
+Leaving `AllowedHeaders` or `AllowedMethods` out allows any header or any method.
 
 ```json
 {
     "AllowedOrigins": [
         "https://app.example.com",
         "https://admin.example.com"
-    ]
+    ],
+    "AllowedMethods": ["GET", "POST"],
+    "AllowedHeaders": ["Content-Type", "Authorization"]
 }
 ```
 

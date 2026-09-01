@@ -22,8 +22,8 @@ public static class CloudflareDefaults
     public const string ClientIpHeader = "CF-Connecting-IP";
 
     /// <summary>
-    /// Gets the published Cloudflare IPv4 and IPv6 ranges, in the order Cloudflare lists them. An address outside every
-    /// range reached the application without passing through the edge, so its forwarded headers are not trusted.
+    /// Gets the published Cloudflare IPv4 and IPv6 ranges. An address outside every range reached the application
+    /// without passing through the edge, so its forwarded headers are not trusted.
     /// </summary>
     ///
     /// <remarks>

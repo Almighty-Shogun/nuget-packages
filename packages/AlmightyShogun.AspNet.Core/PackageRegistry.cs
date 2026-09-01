@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using IPNetwork = System.Net.IPNetwork;
 using Microsoft.AspNetCore.Diagnostics;
+using AlmightyShogun.AspNet.Localization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,8 +42,10 @@ public static class PackageRegistry
         /// there is silently inactive.
         /// </param>
         /// <param name="configuration">
-        /// The configuration read for the <c>AllowedOrigins</c> string array. An absent section registers a policy that
-        /// allows no origin at all, which fails closed rather than open.
+        /// The configuration read for the <c>AllowedOrigins</c>, <c>AllowedHeaders</c> and <c>AllowedMethods</c> string
+        /// arrays. An absent <c>AllowedOrigins</c> registers a policy that allows no origin at all, which fails closed
+        /// rather than open; an absent header or method list allows any of them, which is what the policy did before
+        /// either could be configured.
         /// </param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the CORS policy configured.</returns>
@@ -56,22 +60,39 @@ public static class PackageRegistry
         /// than during this call.
         /// </remarks>
         ///
+        /// <remarks>
+        /// Credentials are always allowed, which is what the wildcard check above exists to protect. Narrow the headers
+        /// and methods through configuration for a deployment that should not accept any of them; call <c>AddCors</c>
+        /// directly for a policy this shape cannot express.
+        /// </remarks>
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.2.1</since>
         public IServiceCollection AddCorsPolicy(string name, IConfiguration configuration) => serviceCollection.AddCors(options =>
         {
             string[] allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
+            string[] allowedHeaders = configuration.GetSection("AllowedHeaders").Get<string[]>() ?? [];
+            string[] allowedMethods = configuration.GetSection("AllowedMethods").Get<string[]>() ?? [];
 
             if (allowedOrigins.Contains("*"))
                 throw new InvalidOperationException(
                     "AllowedOrigins contains the '*' wildcard, which browsers reject when credentials are allowed."
                 );
 
-            options.AddPolicy(name, policy => policy
-                .WithOrigins(allowedOrigins)
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials());
+            options.AddPolicy(name, policy =>
+            {
+                policy.WithOrigins(allowedOrigins).AllowCredentials();
+
+                if (allowedHeaders.Length is 0)
+                    policy.AllowAnyHeader();
+                else
+                    policy.WithHeaders(allowedHeaders);
+
+                if (allowedMethods.Length is 0)
+                    policy.AllowAnyMethod();
+                else
+                    policy.WithMethods(allowedMethods);
+            });
         });
 
         /// <summary>
@@ -120,15 +141,16 @@ public static class PackageRegistry
         });
 
         /// <summary>
-        /// Registers the standardized error response writer, which the exception handlers and the error response
-        /// middleware produce their body through.
+        /// Registers the standardized error response writer, which the exception handlers and the status code pages
+        /// callback produce their body through.
         /// </summary>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the response writer registered.</returns>
         ///
         /// <remarks>
         /// Takes no configuration: the body shape is fixed, so there is nothing to bind. Register it once, before the
-        /// handlers or middleware that resolve it. The MVC filter does not use it and needs no registration here.
+        /// handlers or the pipeline helper that resolve it. Every error body the package writes goes through it, so an
+        /// application missing this registration fails when the first error is answered rather than at startup.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
@@ -138,8 +160,16 @@ public static class PackageRegistry
 
         /// <summary>
         /// Registers the two exception handlers this package owns, in the order they must run: the framework exceptions
-        /// that map to their own status code, then the fallback that turns anything else into a <c>500</c>.
+        /// that map to their own status code, then the fallback that turns anything else into a <c>500</c>. Also decides
+        /// whether MVC is allowed to rewrite a bodiless error result into a <c>ProblemDetails</c> body of its own.
         /// </summary>
+        ///
+        /// <param name="suppressMapClientErrors">
+        /// Whether MVC's client-error mapping is turned off. Left on, a controller marked <c>[ApiController]</c> rewrites
+        /// a bodiless error result such as a bare <c>NotFound()</c> into <c>ProblemDetails</c>, which
+        /// <c>UseHttpErrorResponses</c> then leaves alone. Pass <c>false</c> to keep that, and this package's shape
+        /// applies only to errors raised below MVC.
+        /// </param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the exception handlers registered.</returns>
         ///
@@ -148,44 +178,33 @@ public static class PackageRegistry
         /// does not register, and <c>UseHttpErrorResponses</c> to run the chain. It answers nothing an application threw
         /// deliberately: register your own handler ahead of this call, built on <see cref="IExceptionMapper"/>, or every
         /// domain exception becomes a <c>500</c>. Order is the reason these two are registered together: the fallback
-        /// handles every exception, so anything registered after it never runs.
+        /// claims every exception it is given, so a handler registered after it runs only in the one case the fallback
+        /// declines, which is a response that has already started.
         /// </remarks>
-        ///
-        /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
-        public IServiceCollection AddExceptionHandling() => serviceCollection
-            .AddExceptionHandler<FrameworkExceptionHandler>()
-            .AddExceptionHandler<UnhandledExceptionHandler>();
-
-        /// <summary>
-        /// Registers the MVC filter that fills in a standardized body for an error result that carries a status code but
-        /// no content, so a bare <c>NotFound()</c> returns a full error response.
-        /// </summary>
-        ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with the error response filter registered.</returns>
         ///
         /// <remarks>
-        /// Requires <c>AddMessageLocalization</c>, which this does not register. It writes through
-        /// <see cref="HttpErrorResult"/> and MVC's own formatters rather than <see cref="IHttpErrorResponseWriter"/>,
-        /// so that writer is not needed for this helper on its own. It covers only results MVC produces; an error
-        /// raised below MVC is left to <c>UseHttpErrorResponses</c>, which is why the two are normally used together.
+        /// <c>SuppressMapClientErrors</c> is configured here because it decides whether an error raised inside MVC
+        /// reaches the client in the same shape as one raised below it. <c>UseStatusCodePages</c> only fills in a
+        /// response that has no body, so a <c>ProblemDetails</c> body MVC already wrote survives untouched and the
+        /// application answers with two different shapes depending on where the failure came from.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
-        public IServiceCollection AddHttpErrorResponseFilter() => serviceCollection
-            .AddScoped<HttpErrorResponseFilter>()
-            .Configure<MvcOptions>(options => options.Filters.AddService<HttpErrorResponseFilter>());
+        public IServiceCollection AddExceptionHandling(bool suppressMapClientErrors = true) => serviceCollection
+            .Configure<ApiBehaviorOptions>(options => options.SuppressMapClientErrors = suppressMapClientErrors)
+            .AddExceptionHandler<FrameworkExceptionHandler>()
+            .AddExceptionHandler<UnhandledExceptionHandler>();
     }
 
     /// <summary>
-    /// Provides the pipeline helpers as extensions on the builder. Both append middleware, so where they are called
-    /// decides what they cover, and neither registers the services its middleware resolves.
+    /// Provides the pipeline helper as an extension on the builder. It appends middleware, so where it is called
+    /// decides what it covers, and it registers none of the services that middleware resolves.
     /// </summary>
     ///
     /// <param name="applicationBuilder">
-    /// The pipeline the middleware is appended to. Order matters for both helpers, so each should be called at the
-    /// point in <c>Program.cs</c> where its middleware belongs rather than grouped for tidiness.
+    /// The pipeline the middleware is appended to. Order matters, so this should be called at the point in
+    /// <c>Program.cs</c> where the middleware belongs rather than grouped with other registrations for tidiness.
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
@@ -193,11 +212,11 @@ public static class PackageRegistry
     extension(IApplicationBuilder applicationBuilder)
     {
         /// <summary>
-        /// Adds the standardized HTTP error response middleware and the exception handler that runs the registered
-        /// <see cref="IExceptionHandler"/> chain.
+        /// Adds the exception handler that runs the registered <see cref="IExceptionHandler"/> chain, and the status
+        /// code pages handler that gives any bodiless error response the standardized JSON body.
         /// </summary>
         ///
-        /// <returns>The <see cref="IApplicationBuilder"/> instance with HTTP error response middleware configured.</returns>
+        /// <returns>The <see cref="IApplicationBuilder"/> instance with HTTP error responses configured.</returns>
         ///
         /// <remarks>
         /// Call it early, before routing and authentication, so a failure in those still produces the standard body.
@@ -207,10 +226,31 @@ public static class PackageRegistry
         /// everything except a response that has already started.
         /// </remarks>
         ///
+        /// <remarks>
+        /// The body is written from the status code pages callback rather than from middleware of this package's own,
+        /// so every bodiless error the framework produces is covered by the same code path, including the ones MVC
+        /// returns from a bare <c>NotFound()</c>. Requires <c>AddMessageLocalization</c> and
+        /// <see cref="AddHttpErrorResponseWriter"/>, both resolved per request from the callback.
+        /// </remarks>
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
         public IApplicationBuilder UseHttpErrorResponses() => applicationBuilder
             .UseExceptionHandler(new ExceptionHandlerOptions { ExceptionHandler = _ => Task.CompletedTask })
-            .UseMiddleware<HttpErrorResponseMiddleware>();
+            .UseStatusCodePages(async statusCodeContext =>
+            {
+                HttpContext httpContext = statusCodeContext.HttpContext;
+
+                int statusCode = httpContext.Response.StatusCode;
+                var messageResolver = httpContext.RequestServices.GetRequiredService<IMessageResolver>();
+
+                await httpContext.RequestServices.GetRequiredService<IHttpErrorResponseWriter>().WriteAsync(
+                    httpContext,
+                    statusCode,
+                    HttpErrorCodes.FromStatusCode(statusCode),
+                    messageResolver.Resolve($"http-error.{statusCode}"),
+                    httpContext.RequestAborted
+                );
+            });
     }
 }

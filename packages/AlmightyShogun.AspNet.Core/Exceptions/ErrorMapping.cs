@@ -9,8 +9,8 @@ namespace AlmightyShogun.AspNet.Core;
 /// </summary>
 ///
 /// <param name="StatusCode">
-/// The status the response is sent with. It also decides the log level, since <c>500</c> and above are logged with the
-/// stack trace and anything lower without it.
+/// The status the response is sent with, and the value carried into <see cref="HttpErrorResponse.Code"/> so the body
+/// repeats it.
 /// </param>
 /// <param name="Code">
 /// The stable machine-readable identifier a client branches on, such as <c>invalid_credentials</c>. Treat it as public
@@ -22,7 +22,8 @@ namespace AlmightyShogun.AspNet.Core;
 /// </param>
 /// <param name="MessageParameters">
 /// The values substituted into the resolved template by position, as <c>{0}</c> and onwards. Pass an empty list when
-/// the message takes none; a count that disagrees with the template leaves the template unformatted.
+/// the message takes none. Too few for the template leaves it unformatted rather than throwing, so a placeholder can
+/// reach the client; surplus values are ignored.
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>

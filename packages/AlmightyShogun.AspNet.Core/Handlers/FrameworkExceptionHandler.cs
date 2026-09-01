@@ -20,10 +20,12 @@ namespace AlmightyShogun.AspNet.Core;
 /// </param>
 ///
 /// <remarks>
-/// A client disconnect is answered with the non-standard <c>499</c> and no body, since there is no longer a client to
-/// read one; the status exists only so the access log can tell an abort apart from a success. A response that has
-/// already started keeps whatever status it has, and the abort is claimed either way. Registered between the
-/// application and fallback handlers, and declines anything it has no specific mapping for.
+/// A client disconnect is answered with the non-standard <c>499</c> and no body. Nothing transmits that status, since
+/// the connection it would travel on is already gone; it is set for whatever reads
+/// <c>HttpContext.Response.StatusCode</c> after the pipeline unwinds, which is how logging and telemetry tell an abort
+/// apart from a completed request. A response that has already started keeps whatever status it has, and the abort is
+/// claimed either way. Registered between the application and fallback handlers, and declines anything it has no
+/// specific mapping for.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

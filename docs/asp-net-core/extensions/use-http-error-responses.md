@@ -1,14 +1,14 @@
 ---
-returns: The same `IApplicationBuilder` instance with the error response middleware configured.
+returns: The same `IApplicationBuilder` instance with HTTP error responses configured.
 ---
 
 # UseHttpErrorResponses
 
-Adds the middleware that completes the standardized error handling, running the exception handlers registered through [`AddExceptionHandling`](./add-exception-handling) and its siblings.
+Completes the standardized error handling, running the exception handlers registered through [`AddExceptionHandling`](./add-exception-handling) and its siblings.
 
-Two things are added, in order: the exception handler middleware that runs the registered handler chain, and middleware that fills in a body for an error response that has a status code but no content.
+Two things are added, in order: the exception handler middleware that runs the registered handler chain, and a status code pages handler that fills in a body for any error response that has a status code but no content.
 
-The second is what turns a bare `return NotFound();` into a full error body without the endpoint doing anything.
+The second is what turns a bare `return NotFound();` into a full error body without the endpoint doing anything, whether MVC produced the response or something below MVC did.
 
 ## Usage
 
@@ -42,9 +42,13 @@ The empty `NotFound()` above returns:
 {
     "code": 404,
     "error": "not_found",
-    "errorDescription": "http-error.404"
+    "errorDescription": "The requested resource was not found."
 }
 ```
+
+::: tip
+`errorDescription` is resolved from the [`http-error.{status}`](../http-error-messages) message key in the language the caller negotiated. A status with no entry in that language falls back to the key itself, so the client sees `http-error.404`.
+:::
 
 ## Pipeline order
 

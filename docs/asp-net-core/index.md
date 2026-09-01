@@ -25,8 +25,7 @@ using AlmightyShogun.AspNet.Core;
 
 builder.Services
     .AddHttpErrorResponseWriter()
-    .AddExceptionHandling()
-    .AddHttpErrorResponseFilter();
+    .AddExceptionHandling();
 
 WebApplication app = builder.Build();
 

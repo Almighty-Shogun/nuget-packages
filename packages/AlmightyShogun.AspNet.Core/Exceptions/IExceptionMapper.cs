@@ -6,8 +6,9 @@ namespace AlmightyShogun.AspNet.Core;
 /// </summary>
 ///
 /// <remarks>
-/// Called on the exception path of a failing request, and normally registered as a singleton, so an implementation
-/// must be thread-safe and should be a pattern match rather than anything that touches configuration or a database.
+/// Called on the exception path of a failing request, so it runs while a response is being produced rather than at
+/// startup. This package registers no mapper and imposes no lifetime: the consumer chooses one, and an implementation
+/// registered as a singleton has to be safe to call from several requests at once.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
