@@ -16,6 +16,20 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 internal sealed record PersistedMaintenanceState
 {
     /// <summary>
+    /// Gets the identity of this particular window, issued fresh each time one is opened. Compared by
+    /// <see cref="IMaintenanceStore.TryClearAsync"/> so expiring a window cannot close a different one written since it was read.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// A hand-edited file that omits it deserializes as <see cref="Guid.Empty"/>, which still compares equal to itself, so an expired
+    /// window written before this field existed is still closed on read.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public Guid Revision { get; init; }
+
+    /// <summary>
     /// Gets whether a window is recorded as open, which a hand-edited file can set directly.
     /// </summary>
     ///

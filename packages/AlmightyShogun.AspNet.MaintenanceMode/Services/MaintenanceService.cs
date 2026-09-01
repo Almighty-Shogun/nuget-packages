@@ -40,6 +40,7 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     /// <inheritdoc />
     public async Task EnableAsync(MaintenanceRequest request) => await store.WriteAsync(new PersistedMaintenanceState
     {
+        Revision = Guid.NewGuid(),
         IsEnabled = true,
         StartsAt = request.StartsAt,
         EndsAt = request.EndsAt,
@@ -61,6 +62,12 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     ///
     /// <returns>The effective persisted state.</returns>
     ///
+    /// <remarks>
+    /// An expired window is closed through <see cref="IMaintenanceStore.TryClearAsync"/> rather than
+    /// <see cref="IMaintenanceStore.ClearAsync"/>, so a window opened while this was deciding to expire the old one is not closed with it.
+    /// When the revision no longer matches, the read is repeated against whatever is recorded now.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     internal async Task<PersistedMaintenanceState> GetPersistedAsync()
@@ -75,9 +82,7 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
         if (state.EndsAt is null || !state.AutoDisableWhenExpired || state.EndsAt > DateTimeOffset.UtcNow)
             return state;
 
-        await store.ClearAsync();
-
-        return CreateDisabledState();
+        return await store.TryClearAsync(state.Revision) ? CreateDisabledState() : await GetPersistedAsync();
     }
 
     /// <summary>

@@ -27,7 +27,8 @@ internal sealed class FileMaintenanceStore(
     private static readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
 
     /// <summary>
-    /// Serializes writes so two operators opening a window at once cannot interleave into a half-written file.
+    /// Serializes every write, so two operators opening a window at once cannot interleave into a half-written file, and so a conditional
+    /// clear can compare against the file without a write landing in between.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -146,6 +147,30 @@ internal sealed class FileMaintenanceStore(
             DeleteFile();
 
             Publish(null);
+        }
+        finally
+        {
+            _writeLock.Release();
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> TryClearAsync(Guid expectedRevision)
+    {
+        await _writeLock.WaitAsync();
+
+        try
+        {
+            PersistedMaintenanceState? current = await ReadFromDiskAsync();
+
+            if (current?.Revision != expectedRevision)
+                return false;
+
+            DeleteFile();
+
+            Publish(null);
+
+            return true;
         }
         finally
         {
