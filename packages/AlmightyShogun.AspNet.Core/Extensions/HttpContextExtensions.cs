@@ -4,9 +4,10 @@ using Microsoft.AspNetCore.Http;
 namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
-/// Reads the caller's identity off the current request: the address it connected from, the client it used, and the
-/// session context those two are captured into. The address and the client are read from the live request on every
-/// call; the session context is built once and kept in <see cref="HttpContext.Items"/> for the rest of the request.
+/// Reads what the current request says about the client behind it: the address it connected from, the client it names
+/// itself as, and the <see cref="ClientContext"/> those two are captured into. The address and the client are read from
+/// the live request on every call; the client context is built once and kept in <see cref="HttpContext.Items"/> for the
+/// rest of the request.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -18,8 +19,8 @@ public static class HttpContextExtensions
     /// </summary>
     ///
     /// <param name="httpContext">
-    /// The context of the request being served. Only <see cref="HttpContext.Items"/> is written to, where the session
-    /// context caches itself; the request and the response are untouched, so these are safe to call at any point in the
+    /// The context of the request being served. Only <see cref="HttpContext.Items"/> is written to, where the client
+    /// context is cached; the request and the response are untouched, so these are safe to call at any point in the
     /// pipeline, including after the response has started.
     /// </param>
     ///
@@ -28,11 +29,11 @@ public static class HttpContextExtensions
     extension(HttpContext httpContext)
     {
         /// <summary>
-        /// Retrieves the current request's <see cref="SessionContext"/> from <see cref="HttpContext.Items"/>.
+        /// Retrieves the current request's <see cref="ClientContext"/> from <see cref="HttpContext.Items"/>.
         /// </summary>
         ///
         /// <returns>
-        /// The context seeded under <see cref="SessionContext.ItemKey"/> when there is one, otherwise a context built
+        /// The context seeded under <see cref="ClientContext.ItemKey"/> when there is one, otherwise a context built
         /// from the live request.
         /// </returns>
         ///
@@ -44,17 +45,17 @@ public static class HttpContextExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.2.2</since>
-        public SessionContext GetSessionContext()
+        public ClientContext GetClientContext()
         {
-            if (httpContext.Items.TryGetValue(SessionContext.ItemKey, out object? value) && value is SessionContext sessionContext)
-                return sessionContext;
+            if (httpContext.Items.TryGetValue(ClientContext.ItemKey, out object? value) && value is ClientContext clientContext)
+                return clientContext;
 
-            SessionContext created = new(
+            ClientContext created = new(
                 httpContext.GetIpAddress(),
                 httpContext.Request.Headers.UserAgent.ToString()
             );
 
-            httpContext.Items[SessionContext.ItemKey] = created;
+            httpContext.Items[ClientContext.ItemKey] = created;
 
             return created;
         }
