@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using IPNetwork = System.Net.IPNetwork;
 using Microsoft.AspNetCore.Diagnostics;
+using AlmightyShogun.AspNet.Localization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -120,15 +121,16 @@ public static class PackageRegistry
         });
 
         /// <summary>
-        /// Registers the standardized error response writer, which the exception handlers and the error response
-        /// middleware produce their body through.
+        /// Registers the standardized error response writer, which the exception handlers and the status code pages
+        /// callback produce their body through.
         /// </summary>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the response writer registered.</returns>
         ///
         /// <remarks>
         /// Takes no configuration: the body shape is fixed, so there is nothing to bind. Register it once, before the
-        /// handlers or middleware that resolve it. The MVC filter does not use it and needs no registration here.
+        /// handlers or the pipeline helper that resolve it. Every error body the package writes goes through it, so an
+        /// application missing this registration fails when the first error is answered rather than at startup.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
@@ -156,36 +158,16 @@ public static class PackageRegistry
         public IServiceCollection AddExceptionHandling() => serviceCollection
             .AddExceptionHandler<FrameworkExceptionHandler>()
             .AddExceptionHandler<UnhandledExceptionHandler>();
-
-        /// <summary>
-        /// Registers the MVC filter that fills in a standardized body for an error result that carries a status code but
-        /// no content, so a bare <c>NotFound()</c> returns a full error response.
-        /// </summary>
-        ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with the error response filter registered.</returns>
-        ///
-        /// <remarks>
-        /// Requires <c>AddMessageLocalization</c>, which this does not register. It writes through
-        /// <see cref="HttpErrorResult"/> and MVC's own formatters rather than <see cref="IHttpErrorResponseWriter"/>,
-        /// so that writer is not needed for this helper on its own. It covers only results MVC produces; an error
-        /// raised below MVC is left to <c>UseHttpErrorResponses</c>, which is why the two are normally used together.
-        /// </remarks>
-        ///
-        /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
-        public IServiceCollection AddHttpErrorResponseFilter() => serviceCollection
-            .AddScoped<HttpErrorResponseFilter>()
-            .Configure<MvcOptions>(options => options.Filters.AddService<HttpErrorResponseFilter>());
     }
 
     /// <summary>
-    /// Provides the pipeline helpers as extensions on the builder. Both append middleware, so where they are called
-    /// decides what they cover, and neither registers the services its middleware resolves.
+    /// Provides the pipeline helper as an extension on the builder. It appends middleware, so where it is called
+    /// decides what it covers, and it registers none of the services that middleware resolves.
     /// </summary>
     ///
     /// <param name="applicationBuilder">
-    /// The pipeline the middleware is appended to. Order matters for both helpers, so each should be called at the
-    /// point in <c>Program.cs</c> where its middleware belongs rather than grouped for tidiness.
+    /// The pipeline the middleware is appended to. Order matters, so this should be called at the point in
+    /// <c>Program.cs</c> where the middleware belongs rather than grouped with other registrations for tidiness.
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
@@ -193,11 +175,11 @@ public static class PackageRegistry
     extension(IApplicationBuilder applicationBuilder)
     {
         /// <summary>
-        /// Adds the standardized HTTP error response middleware and the exception handler that runs the registered
-        /// <see cref="IExceptionHandler"/> chain.
+        /// Adds the exception handler that runs the registered <see cref="IExceptionHandler"/> chain, and the status
+        /// code pages handler that gives any bodiless error response the standardized JSON body.
         /// </summary>
         ///
-        /// <returns>The <see cref="IApplicationBuilder"/> instance with HTTP error response middleware configured.</returns>
+        /// <returns>The <see cref="IApplicationBuilder"/> instance with HTTP error responses configured.</returns>
         ///
         /// <remarks>
         /// Call it early, before routing and authentication, so a failure in those still produces the standard body.
@@ -207,10 +189,31 @@ public static class PackageRegistry
         /// everything except a response that has already started.
         /// </remarks>
         ///
+        /// <remarks>
+        /// The body is written from the status code pages callback rather than from middleware of this package's own,
+        /// so every bodiless error the framework produces is covered by the same code path, including the ones MVC
+        /// returns from a bare <c>NotFound()</c>. Requires <c>AddMessageLocalization</c> and
+        /// <see cref="AddHttpErrorResponseWriter"/>, both resolved per request from the callback.
+        /// </remarks>
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
         public IApplicationBuilder UseHttpErrorResponses() => applicationBuilder
             .UseExceptionHandler(new ExceptionHandlerOptions { ExceptionHandler = _ => Task.CompletedTask })
-            .UseMiddleware<HttpErrorResponseMiddleware>();
+            .UseStatusCodePages(async statusCodeContext =>
+            {
+                HttpContext httpContext = statusCodeContext.HttpContext;
+
+                int statusCode = httpContext.Response.StatusCode;
+                var messageResolver = httpContext.RequestServices.GetRequiredService<IMessageResolver>();
+
+                await httpContext.RequestServices.GetRequiredService<IHttpErrorResponseWriter>().WriteAsync(
+                    httpContext,
+                    statusCode,
+                    HttpErrorCodes.FromStatusCode(statusCode),
+                    messageResolver.Resolve($"http-error.{statusCode}"),
+                    httpContext.RequestAborted
+                );
+            });
     }
 }
