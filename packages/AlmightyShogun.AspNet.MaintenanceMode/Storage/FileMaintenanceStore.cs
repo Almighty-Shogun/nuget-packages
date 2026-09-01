@@ -24,7 +24,7 @@ internal sealed class FileMaintenanceStore(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
+    private static readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
 
     /// <summary>
     /// Serializes writes so two operators opening a window at once cannot interleave into a half-written file.
@@ -88,7 +88,7 @@ internal sealed class FileMaintenanceStore(
 
             await using (FileStream stream = File.Create(tempFilePath))
             {
-                await JsonSerializer.SerializeAsync(stream, state, JsonOptions);
+                await JsonSerializer.SerializeAsync(stream, state, _jsonOptions);
             }
 
             File.Move(tempFilePath, FilePath, true);
@@ -147,7 +147,7 @@ internal sealed class FileMaintenanceStore(
             {
                 await using FileStream stream = File.OpenRead(FilePath);
 
-                return await JsonSerializer.DeserializeAsync<PersistedMaintenanceState>(stream, JsonOptions) ?? CreateCorruptState();
+                return await JsonSerializer.DeserializeAsync<PersistedMaintenanceState>(stream, _jsonOptions) ?? CreateCorruptState();
             }
             catch (Exception exception) when (exception is JsonException or NotSupportedException)
             {
