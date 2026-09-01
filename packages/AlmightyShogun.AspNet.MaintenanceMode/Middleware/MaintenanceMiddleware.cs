@@ -214,8 +214,8 @@ internal sealed class MaintenanceMiddleware(
     /// <param name="request">The current request.</param>
     ///
     /// <returns>
-    /// <c>true</c> when an <c>Accept</c> entry names <c>text/html</c> literally. A client sending only <c>*/*</c> reads as an API client,
-    /// since the wildcard is not expanded.
+    /// <c>true</c> when an <c>Accept</c> entry names <c>text/html</c> and does not refuse it with <c>q=0</c>. A client sending only
+    /// <c>*/*</c> reads as an API client, since the wildcard is not expanded.
     /// </returns>
     ///
     /// <remarks>
@@ -223,8 +223,15 @@ internal sealed class MaintenanceMiddleware(
     /// the error body. Whether a redirect happens at all is still governed by <c>RedirectBlockedRequests</c>.
     /// </remarks>
     ///
+    /// <remarks>
+    /// The header is parsed rather than searched for a substring, because <c>text/html;q=0</c> contains the media type while explicitly
+    /// refusing it, and a client that refuses HTML should be answered with the error body rather than redirected to a page.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static bool AcceptsHtml(HttpRequest request) => request.Headers.Accept.OfType<string>()
-        .Any(accept => accept.Contains("text/html", StringComparison.OrdinalIgnoreCase));
+    private static bool AcceptsHtml(HttpRequest request) => request.GetTypedHeaders().Accept
+        .Any(accept => accept.Quality.GetValueOrDefault(1) > 0
+                       && accept.MediaType.HasValue
+                       && accept.MediaType.Value.Equals("text/html", StringComparison.OrdinalIgnoreCase));
 }
