@@ -35,6 +35,14 @@ internal sealed class FileMaintenanceStore(
     private readonly SemaphoreSlim _writeLock = new(1, 1);
 
     /// <summary>
+    /// Guards watcher creation. Only the setup path takes it; reads and writes never do.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private readonly Lock _watcherGate = new();
+
+    /// <summary>
     /// The cached state. Every request reads this rather than the disk; without it each one would cost a file read and a deserialize even
     /// with maintenance off. Reads never take <see cref="_writeLock"/>, so they do not contend with each other or with a write.
     /// </summary>
@@ -50,6 +58,21 @@ internal sealed class FileMaintenanceStore(
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private FileSystemWatcher? _watcher;
+
+    /// <summary>
+    /// Whether watcher setup has already run, or the store has been disposed. Read before the lock is taken so the common path costs a
+    /// field read, and checked again inside it because the first read can race a caller that is still in setup.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Declared <c>volatile</c> because that first read happens outside <see cref="_watcherGate"/>. A plain field read may be hoisted or
+    /// answered from a stale cache, in which case a second caller would enter setup after the first had finished it and build a watcher
+    /// that nothing disposes.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private volatile bool _watching;
 
     /// <summary>
     /// Resolves the state file's location under the content root, so the file travels with the deployment rather than the working
@@ -122,8 +145,13 @@ internal sealed class FileMaintenanceStore(
     /// <inheritdoc />
     public void Dispose()
     {
-        _watcher?.Dispose();
-        _watcher = null;
+        lock (_watcherGate)
+        {
+            _watching = true;
+
+            _watcher?.Dispose();
+            _watcher = null;
+        }
     }
 
     /// <summary>
@@ -192,41 +220,60 @@ internal sealed class FileMaintenanceStore(
     };
 
     /// <summary>
-    /// Starts watching the content root for changes to the state file.
+    /// Starts watching the content root for changes to the state file, the first time state is read.
     /// </summary>
+    ///
+    /// <remarks>
+    /// Setup happens once and under a lock, because two requests arriving together would otherwise each build a watcher and only one of
+    /// them would be reachable to dispose. Disposal sets the same flag, so a read arriving during shutdown cannot create a watcher that
+    /// nothing will dispose.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// The watcher is armed only once its handlers are attached. Setting <c>EnableRaisingEvents</c> in the object initializer instead would
+    /// leave a window in which an edit raises an event that nothing is subscribed to, and the cache would keep serving the old state.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private void EnsureWatching()
     {
-        if (_watcher is not null) return;
+        if (_watching) return;
 
-        string directory = Path.GetDirectoryName(FilePath) ?? webHostEnvironment.ContentRootPath;
-
-        if (!Directory.Exists(directory)) return;
-
-        try
+        lock (_watcherGate)
         {
-            FileSystemWatcher watcher = new(directory, "maintenance.json")
+            if (_watching) return;
+
+            _watching = true;
+
+            string directory = Path.GetDirectoryName(FilePath) ?? webHostEnvironment.ContentRootPath;
+
+            if (!Directory.Exists(directory)) return;
+
+            try
             {
-                EnableRaisingEvents = true,
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime
-            };
+                FileSystemWatcher watcher = new(directory, "maintenance.json")
+                {
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime
+                };
 
-            watcher.Changed += OnStateFileChanged;
-            watcher.Created += OnStateFileChanged;
-            watcher.Deleted += OnStateFileChanged;
-            watcher.Renamed += OnStateFileChanged;
+                watcher.Changed += OnStateFileChanged;
+                watcher.Created += OnStateFileChanged;
+                watcher.Deleted += OnStateFileChanged;
+                watcher.Renamed += OnStateFileChanged;
 
-            _watcher = watcher;
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or PlatformNotSupportedException)
-        {
-            logger.LogWarning(
-                exception,
-                "Could not watch {Directory} for maintenance state changes; an out-of-band edit will not be noticed",
-                directory
-            );
+                watcher.EnableRaisingEvents = true;
+
+                _watcher = watcher;
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or PlatformNotSupportedException)
+            {
+                logger.LogWarning(
+                    exception,
+                    "Could not watch {Directory} for maintenance state changes; an out-of-band edit will not be noticed",
+                    directory
+                );
+            }
         }
     }
 
