@@ -37,12 +37,19 @@ public static class PackageRegistry
         /// <c>AlmightyShogun.AspNet.Localization</c> , which together let the middleware write the blocked-request body.
         /// </remarks>
         ///
+        /// <remarks>
+        /// The service is registered under its own type as well as under <see cref="IMaintenanceService"/>, resolving to one instance
+        /// either way. The middleware takes the concrete type because it reads the persisted window, which is internal and deliberately
+        /// absent from the public interface; without that registration <c>UseMaintenanceMode</c> cannot activate the middleware at all.
+        /// </remarks>
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
         public IServiceCollection AddMaintenanceMode(IConfiguration configuration) => serviceCollection
             .AddConfiguration<MaintenanceSettings>(configuration.GetSection("Maintenance"))
             .AddSingleton<IMaintenanceStore, FileMaintenanceStore>()
-            .AddSingleton<IMaintenanceService, MaintenanceService>();
+            .AddSingleton<MaintenanceService>()
+            .AddSingleton<IMaintenanceService>(provider => provider.GetRequiredService<MaintenanceService>());
     }
 
     /// <summary>
