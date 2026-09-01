@@ -3,29 +3,32 @@ using Microsoft.AspNetCore.Mvc;
 namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
-/// Wraps the standardized error body in an MVC result, for a controller that wants to return an error directly rather
-/// than throw a mapped exception and let the handler chain produce it.
+/// The standardized error body as an MVC result, for a controller or a filter that wants to return an error directly
+/// rather than throw a mapped exception and let the handler chain produce it.
 /// </summary>
+///
+/// <remarks>
+/// Serialized by the application's configured MVC formatters rather than by <see cref="IHttpErrorResponseWriter"/>, so
+/// its content type follows MVC's negotiation and its property casing comes from <c>AddJsonOptions</c>. An error
+/// written below MVC goes through the writer instead, which reads the casing configured by
+/// <c>ConfigureHttpJsonOptions</c>; configure both when an application moves either away from the default.
+/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public static class HttpErrorResult
+public sealed class HttpErrorResult : ObjectResult
 {
     /// <summary>
-    /// Wraps an error body in a result that carries its own status code.
+    /// Wraps an error body in a result whose status comes from the body itself.
     /// </summary>
     ///
     /// <param name="response">
-    /// The body to return. Its <see cref="HttpErrorResponse.Code"/> becomes the response status, so the two cannot
-    /// drift apart the way a hand-built <see cref="ObjectResult"/> can.
+    /// The body to return. Its <see cref="HttpErrorResponse.Code"/> becomes
+    /// <see cref="ObjectResult.StatusCode"/>, so the status a client reads in the headers and the one it reads in the
+    /// body cannot drift apart the way a hand-built <see cref="ObjectResult"/> can.
     /// </param>
-    ///
-    /// <returns>
-    /// An <see cref="ObjectResult"/> holding the body, serialized by the application's configured formatters rather
-    /// than by the package writer, so its content type follows MVC's negotiation instead of being fixed.
-    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public static ObjectResult Create(HttpErrorResponse response) => new(response) { StatusCode = response.Code };
+    public HttpErrorResult(HttpErrorResponse response) : base(response) => StatusCode = response.Code;
 }
