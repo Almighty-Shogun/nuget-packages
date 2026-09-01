@@ -38,20 +38,26 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     }
 
     /// <inheritdoc />
-    public async Task EnableAsync(MaintenanceRequest request) => await store.WriteAsync(new PersistedMaintenanceState
+    public async Task EnableAsync(MaintenanceRequest request)
     {
-        Revision = Guid.NewGuid(),
-        IsEnabled = true,
-        StartsAt = request.StartsAt,
-        EndsAt = request.EndsAt,
-        EnabledAt = DateTimeOffset.UtcNow,
-        Message = request.Message ?? _settings.DefaultMessage,
-        AllowedPaths = ResolvePaths(request.AllowedPaths, _settings.AllowedPaths),
-        AllowedPathPrefixes = ResolvePaths(request.AllowedPathPrefixes, _settings.AllowedPathPrefixes),
-        AllowedIpAddresses = Resolve(request.AllowedIpAddresses, _settings.AllowedIpAddresses),
-        AutoDisableWhenExpired = request.AutoDisableWhenExpired ?? _settings.AutoDisableWhenExpired,
-        RedirectBlockedRequests = request.RedirectBlockedRequests ?? _settings.RedirectBlockedRequests
-    });
+        if (request.StartsAt is { } startsAt && request.EndsAt is { } endsAt && endsAt <= startsAt)
+            throw new ArgumentException("A maintenance window must end after it starts.", nameof(request));
+
+        await store.WriteAsync(new PersistedMaintenanceState
+        {
+            Revision = Guid.NewGuid(),
+            IsEnabled = true,
+            StartsAt = request.StartsAt,
+            EndsAt = request.EndsAt,
+            EnabledAt = DateTimeOffset.UtcNow,
+            Message = request.Message ?? _settings.DefaultMessage,
+            AllowedPaths = ResolvePaths(request.AllowedPaths, _settings.AllowedPaths),
+            AllowedPathPrefixes = ResolvePaths(request.AllowedPathPrefixes, _settings.AllowedPathPrefixes),
+            AllowedIpAddresses = Resolve(request.AllowedIpAddresses, _settings.AllowedIpAddresses),
+            AutoDisableWhenExpired = request.AutoDisableWhenExpired ?? _settings.AutoDisableWhenExpired,
+            RedirectBlockedRequests = request.RedirectBlockedRequests ?? _settings.RedirectBlockedRequests
+        });
+    }
 
     /// <inheritdoc />
     public Task DisableAsync() => store.ClearAsync();
