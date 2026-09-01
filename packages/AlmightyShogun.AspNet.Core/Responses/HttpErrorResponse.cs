@@ -6,7 +6,11 @@ namespace AlmightyShogun.AspNet.Core;
 /// </summary>
 ///
 /// <remarks>
-/// Serialized with the application's own JSON options, so property casing follows whatever the host configured.
+/// Serialized with the application's own JSON options, so property casing follows whatever the host configured. Which
+/// options depends on the path: <see cref="IHttpErrorResponseWriter"/> writes with the ones
+/// <c>ConfigureHttpJsonOptions</c> sets, while <see cref="HttpErrorResult"/> goes through MVC's formatters and the ones
+/// <c>AddJsonOptions</c> sets. An application that moves either away from the default should move both, or the same
+/// error will reach clients spelled two ways.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
