@@ -4,7 +4,7 @@ fields:
       description: The optional `Maintenance` section, bound by [`AddMaintenanceMode`](./extensions/add-maintenance-mode). Its values are the defaults for every maintenance window, and any field a [`MaintenanceRequest`](./types/maintenance-request) sets wins for that window.
       fields:
           - name: MaintenancePath
-            description: Request path that returns maintenance details while maintenance mode is enabled.
+            description: Request path that returns maintenance details while maintenance mode is enabled. Validated at startup, so a value carrying whitespace, a query string, or a fragment fails the host.
             type: string
             default: /maintenance
 
