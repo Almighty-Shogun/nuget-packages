@@ -36,7 +36,8 @@ internal sealed class FileMaintenanceStore(
     private readonly SemaphoreSlim _writeLock = new(1, 1);
 
     /// <summary>
-    /// Guards watcher creation. Only the setup path takes it; reads and writes never do.
+    /// Guards watcher setup and disposal, so the watcher is built exactly once and never after the store is disposed. Taken on every read
+    /// through <see cref="EnsureWatching"/>, where it is uncontended once setup has run.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -70,19 +71,13 @@ internal sealed class FileMaintenanceStore(
     private FileSystemWatcher? _watcher;
 
     /// <summary>
-    /// Whether watcher setup has already run, or the store has been disposed. Read before the lock is taken so the common path costs a
-    /// field read, and checked again inside it because the first read can race a caller that is still in setup.
+    /// Whether watcher setup has already run, or the store has been disposed. Read and written only under <see cref="_watcherGate"/>, so
+    /// no second caller can enter setup and no caller can build a watcher after disposal has swept.
     /// </summary>
-    ///
-    /// <remarks>
-    /// Declared <c>volatile</c> because that first read happens outside <see cref="_watcherGate"/>. A plain field read may be hoisted or
-    /// answered from a stale cache, in which case a second caller would enter setup after the first had finished it and build a watcher
-    /// that nothing disposes.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private volatile bool _watching;
+    private bool _watching;
 
     /// <summary>
     /// Resolves the state file's location under the content root, so the file travels with the deployment rather than the working
@@ -288,9 +283,9 @@ internal sealed class FileMaintenanceStore(
     /// </summary>
     ///
     /// <remarks>
-    /// Setup happens once and under a lock, because two requests arriving together would otherwise each build a watcher and only one of
-    /// them would be reachable to dispose. Disposal sets the same flag, so a read arriving during shutdown cannot create a watcher that
-    /// nothing will dispose.
+    /// The flag is checked inside the lock rather than before it, because two requests arriving together would otherwise each build a
+    /// watcher and only one would be reachable to dispose. Disposal takes the same lock and sets the same flag, so a read arriving during
+    /// shutdown cannot create a watcher that nothing will dispose.
     /// </remarks>
     ///
     /// <remarks>
@@ -302,8 +297,6 @@ internal sealed class FileMaintenanceStore(
     /// <since>Unreleased</since>
     private void EnsureWatching()
     {
-        if (_watching) return;
-
         lock (_watcherGate)
         {
             if (_watching) return;
