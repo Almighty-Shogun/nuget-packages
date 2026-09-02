@@ -65,6 +65,8 @@ The `Maintenance` section holds the defaults every maintenance window starts fro
 
 ::: warning
 An allow list supplied on a [`MaintenanceRequest`](./types/maintenance-request) replaces the configured one for that window rather than adding to it. A window that sets `AllowedPaths` loses the configured entries unless it repeats them.
+
+Whatever endpoint disables maintenance mode has to survive that replacement, or the open window blocks the only route that could close it and the state file has to be deleted by hand.
 :::
 
 <FrontmatterDocs/>
