@@ -15,7 +15,6 @@ dotnet add package AlmightyShogun.AspNet.MaintenanceMode
 ### Project references
 
 - `AlmightyShogun.AspNet.Core` &mdash; supplies the shared error response writer, so a blocked request returns the same error body as every other error in the stack.
-- `AlmightyShogun.AspNet.Localization` &mdash; resolves the message shown on the blocked request.
 - `AlmightyShogun.Utils` &mdash; configuration binding and JSON helpers.
 
 ## Startup Registration

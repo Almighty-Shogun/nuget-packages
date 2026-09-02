@@ -14,7 +14,8 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenanceOptions, IMaintenanceStore store) : IMaintenanceService
 {
     /// <summary>
-    /// The configured defaults, read once at construction, so a window opened mid-request cannot see a half-changed configuration.
+    /// The configured defaults, resolved once so every member reads the same settings instance rather than going through
+    /// <see cref="IOptions{TOptions}"/> on each call.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -38,19 +39,26 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     }
 
     /// <inheritdoc />
-    public async Task EnableAsync(MaintenanceRequest request) => await store.WriteAsync(new PersistedMaintenanceState
+    public async Task EnableAsync(MaintenanceRequest request)
     {
-        IsEnabled = true,
-        StartsAt = request.StartsAt,
-        EndsAt = request.EndsAt,
-        EnabledAt = DateTimeOffset.UtcNow,
-        Message = request.Message ?? _settings.DefaultMessage,
-        AllowedPaths = ResolvePaths(request.AllowedPaths, _settings.AllowedPaths),
-        AllowedPathPrefixes = ResolvePaths(request.AllowedPathPrefixes, _settings.AllowedPathPrefixes),
-        AllowedIpAddresses = Resolve(request.AllowedIpAddresses, _settings.AllowedIpAddresses),
-        AutoDisableWhenExpired = request.AutoDisableWhenExpired ?? _settings.AutoDisableWhenExpired,
-        RedirectBlockedRequests = request.RedirectBlockedRequests ?? _settings.RedirectBlockedRequests
-    });
+        if (request.StartsAt is { } startsAt && request.EndsAt is { } endsAt && endsAt <= startsAt)
+            throw new ArgumentException("A maintenance window must end after it starts.", nameof(request));
+
+        await store.WriteAsync(new PersistedMaintenanceState
+        {
+            Revision = Guid.NewGuid(),
+            IsEnabled = true,
+            StartsAt = request.StartsAt,
+            EndsAt = request.EndsAt,
+            EnabledAt = DateTimeOffset.UtcNow,
+            Message = request.Message ?? _settings.DefaultMessage,
+            AllowedPaths = ResolvePaths(request.AllowedPaths, _settings.AllowedPaths),
+            AllowedPathPrefixes = ResolvePaths(request.AllowedPathPrefixes, _settings.AllowedPathPrefixes),
+            AllowedIpAddresses = Resolve(request.AllowedIpAddresses, _settings.AllowedIpAddresses),
+            AutoDisableWhenExpired = request.AutoDisableWhenExpired ?? _settings.AutoDisableWhenExpired,
+            RedirectBlockedRequests = request.RedirectBlockedRequests ?? _settings.RedirectBlockedRequests
+        });
+    }
 
     /// <inheritdoc />
     public Task DisableAsync() => store.ClearAsync();
@@ -60,6 +68,12 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     /// </summary>
     ///
     /// <returns>The effective persisted state.</returns>
+    ///
+    /// <remarks>
+    /// An expired window is closed through <see cref="IMaintenanceStore.TryClearAsync"/> rather than
+    /// <see cref="IMaintenanceStore.ClearAsync"/>, so a window opened while this was deciding to expire the old one is not closed with it.
+    /// When the revision no longer matches, the read is repeated against whatever is recorded now.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -75,9 +89,7 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
         if (state.EndsAt is null || !state.AutoDisableWhenExpired || state.EndsAt > DateTimeOffset.UtcNow)
             return state;
 
-        await store.ClearAsync();
-
-        return CreateDisabledState();
+        return await store.TryClearAsync(state.Revision) ? CreateDisabledState() : await GetPersistedAsync();
     }
 
     /// <summary>

@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace AlmightyShogun.AspNet.MaintenanceMode;
 
 /// <summary>
@@ -12,11 +14,21 @@ public sealed record MaintenanceSettings
 {
     /// <summary>
     /// Gets the path that answers with the maintenance details rather than being blocked, so a blocked visitor has somewhere to be sent and
-    /// a status page has something to poll.
+    /// a status page has something to poll. A leading slash is added when it is missing and a trailing one is dropped.
     /// </summary>
+    ///
+    /// <remarks>
+    /// Validated at startup, so a value carrying whitespace, a query string, or a fragment fails the host rather than producing a path no
+    /// request can ever match. An absent value falls back to the default; a value that is only whitespace is treated as malformed rather
+    /// than as absent.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
+    [RegularExpression(
+        @"^[^\s?#]+$",
+        ErrorMessage = "MaintenancePath must be a path such as '/maintenance', with no whitespace, query string, or fragment."
+    )]
     public string MaintenancePath { get; init; } = "/maintenance";
 
     /// <summary>

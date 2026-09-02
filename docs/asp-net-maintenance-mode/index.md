@@ -7,7 +7,6 @@ It ships no endpoint for controlling maintenance mode, because how that is expos
 ## Categories
 
 - [Configuration](./configuration) &mdash; maintenance path, default message, expiry behavior, redirects, and the allow lists.
-- [Maintenance Controls](./maintenance-controls) &mdash; application-owned endpoints or workflows for reading, enabling, and disabling maintenance mode.
 - [Extensions](./extensions/add-maintenance-mode) &mdash; service and middleware registration.
 - [Services](./services/maintenance-service) &mdash; the DI contract used to read, enable, and disable maintenance mode.
 - [Types](./types/maintenance-request) &mdash; the request, state, and response records.

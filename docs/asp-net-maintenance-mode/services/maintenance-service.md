@@ -82,7 +82,7 @@ public Task<bool> IsEnabledAsync();
 
 Turns maintenance mode on and writes the state file. Values on [`MaintenanceRequest`](../types/maintenance-request) apply to this window; omitted values fall back to [`MaintenanceSettings`](../configuration).
 
-Calling it while a window is already active replaces that window rather than merging with it.
+Calling it while a window is already active replaces that window rather than merging with it. A request whose `EndsAt` is at or before its `StartsAt` throws `ArgumentException`, so a window that could never be open is rejected before anything is written.
 
 ```csharp
 using AlmightyShogun.AspNet.MaintenanceMode;

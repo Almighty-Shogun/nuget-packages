@@ -6,8 +6,7 @@ export const aspNetMaintenanceMode: DefaultTheme.SidebarItem[] = [
         items: [
             { text: 'Introduction', link: '/asp-net-maintenance-mode/' },
             { text: 'Installation', link: '/asp-net-maintenance-mode/installation' },
-            { text: 'Configuration', link: '/asp-net-maintenance-mode/configuration' },
-            { text: 'Maintenance Controls', link: '/asp-net-maintenance-mode/maintenance-controls' }
+            { text: 'Configuration', link: '/asp-net-maintenance-mode/configuration' }
         ]
     },
     {

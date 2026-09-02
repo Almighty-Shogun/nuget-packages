@@ -176,8 +176,8 @@ internal sealed class MaintenanceMiddleware(
     }
 
     /// <summary>
-    /// Reports whether the connecting address is on the allow list. Read from the connection rather than a forwarded header, so a client
-    /// cannot let itself through by claiming an address.
+    /// Reports whether the connecting address is on the allow list, read from the connection so a caller cannot put itself on that list
+    /// by sending a header.
     /// </summary>
     ///
     /// <param name="context">The request being considered, read for its connecting address alone.</param>
@@ -186,8 +186,14 @@ internal sealed class MaintenanceMiddleware(
     /// <returns><c>true</c> when the address is allowed.</returns>
     ///
     /// <remarks>
-    /// Read from the connection, never from a header. A header-derived address is forgeable by the caller, which would make this bypass
-    /// worse than having none.
+    /// Read from the connection, never from a header of this middleware's own reading. A header-derived address is forgeable by the
+    /// caller, which would make this bypass worse than having none.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// That only holds where the connection address is the caller's. Behind a reverse proxy it is the proxy's until
+    /// <c>UseForwardedHeaders</c> has rewritten it, so an application behind one has to run that first and declare its trusted proxies;
+    /// otherwise every caller arrives as the proxy and the allow list either matches all of them or none.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -214,8 +220,8 @@ internal sealed class MaintenanceMiddleware(
     /// <param name="request">The current request.</param>
     ///
     /// <returns>
-    /// <c>true</c> when an <c>Accept</c> entry names <c>text/html</c> literally. A client sending only <c>*/*</c> reads as an API client,
-    /// since the wildcard is not expanded.
+    /// <c>true</c> when an <c>Accept</c> entry names <c>text/html</c> and does not refuse it with <c>q=0</c>. A client sending only
+    /// <c>*/*</c> reads as an API client, since the wildcard is not expanded.
     /// </returns>
     ///
     /// <remarks>
@@ -223,8 +229,15 @@ internal sealed class MaintenanceMiddleware(
     /// the error body. Whether a redirect happens at all is still governed by <c>RedirectBlockedRequests</c>.
     /// </remarks>
     ///
+    /// <remarks>
+    /// The header is parsed rather than searched for a substring, because <c>text/html;q=0</c> contains the media type while explicitly
+    /// refusing it, and a client that refuses HTML should be answered with the error body rather than redirected to a page.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static bool AcceptsHtml(HttpRequest request) => request.Headers.Accept.OfType<string>()
-        .Any(accept => accept.Contains("text/html", StringComparison.OrdinalIgnoreCase));
+    private static bool AcceptsHtml(HttpRequest request) => request.GetTypedHeaders().Accept
+        .Any(accept => accept.Quality.GetValueOrDefault(1) > 0
+                       && accept.MediaType.HasValue
+                       && accept.MediaType.Value.Equals("text/html", StringComparison.OrdinalIgnoreCase));
 }

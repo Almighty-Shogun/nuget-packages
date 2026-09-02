@@ -43,12 +43,18 @@ public interface IMaintenanceService
     ///
     /// <returns>A task representing the asynchronous enable operation.</returns>
     ///
+    /// <exception cref="ArgumentException">
+    /// The request ends at, or before it starts, which describes a window that can never be open. Checked here rather than left to model
+    /// validation, so a caller reaching the service directly is held to the same rule. A window with only one of the two times set is
+    /// accepted: an open-ended window and one that has already begun are both meaningful.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     Task EnableAsync(MaintenanceRequest request);
 
     /// <summary>
-    /// Closes the window and removes the persisted file, so a restart afterwards comes back with the site open.
+    /// Closes the window and removes the persisted file, so a restart afterward comes back with the site open.
     /// </summary>
     ///
     /// <returns>A task representing the asynchronous disable operation.</returns>

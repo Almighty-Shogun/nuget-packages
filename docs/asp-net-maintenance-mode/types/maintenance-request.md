@@ -11,7 +11,7 @@ fields:
       default: 'null'
 
     - name: EndsAt
-      description: When the window should end. Required for the middleware to send a `Retry-After` header, and for `AutoDisableWhenExpired` to have anything to act on.
+      description: When the window should end. Required for the middleware to send a `Retry-After` header, and for `AutoDisableWhenExpired` to have anything to act on. Must be after `StartsAt` when both are set.
       type: DateTimeOffset?
       default: 'null'
 

@@ -24,10 +24,11 @@ internal sealed class FileMaintenanceStore(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
+    private static readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
 
     /// <summary>
-    /// Serializes writes so two operators opening a window at once cannot interleave into a half-written file.
+    /// Serializes every write, so two operators opening a window at once cannot interleave into a half-written file, and so a conditional
+    /// clear can compare against the file without a write landing in between.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -35,13 +36,31 @@ internal sealed class FileMaintenanceStore(
     private readonly SemaphoreSlim _writeLock = new(1, 1);
 
     /// <summary>
-    /// The cached state. Every request reads this rather than the disk; without it each one would cost a file read and a deserialize even
-    /// with maintenance off. Reads never take <see cref="_writeLock"/>, so they do not contend with each other or with a write.
+    /// Guards watcher setup and disposal, so the watcher is built exactly once and never after the store is disposed. Taken on every read
+    /// through <see cref="EnsureWatching"/>, where it is uncontended once setup has run.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private readonly Lock _watcherGate = new();
+
+    /// <summary>
+    /// The cached state together with the generation it was read under. Every request reads this rather than the disk; without it each one
+    /// would cost a file read and a deserialize even with maintenance off.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private volatile CachedState? _cached;
+
+    /// <summary>
+    /// The generation the cache is valid for, incremented by every watcher event and every write. An entry stamped with an earlier
+    /// generation is reloaded rather than trusted, which is what stops a read that overlapped a write from publishing the old value.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private long _cacheVersion;
 
     /// <summary>
     /// Watches the state file so an out-of-band edit is noticed.
@@ -50,6 +69,15 @@ internal sealed class FileMaintenanceStore(
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private FileSystemWatcher? _watcher;
+
+    /// <summary>
+    /// Whether watcher setup has already run, or the store has been disposed. Read and written only under <see cref="_watcherGate"/>, so
+    /// no second caller can enter setup and no caller can build a watcher after disposal has swept.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private bool _watching;
 
     /// <summary>
     /// Resolves the state file's location under the content root, so the file travels with the deployment rather than the working
@@ -65,12 +93,15 @@ internal sealed class FileMaintenanceStore(
     {
         EnsureWatching();
 
-        if (_cached is { } cached)
+        long version = Volatile.Read(ref _cacheVersion);
+
+        if (_cached is { } cached && cached.Version == version)
             return cached.State;
 
         PersistedMaintenanceState? state = await ReadFromDiskAsync();
 
-        _cached = new CachedState(state);
+        if (Volatile.Read(ref _cacheVersion) == version)
+            _cached = new CachedState(version, state);
 
         return state;
     }
@@ -88,12 +119,12 @@ internal sealed class FileMaintenanceStore(
 
             await using (FileStream stream = File.Create(tempFilePath))
             {
-                await JsonSerializer.SerializeAsync(stream, state, JsonOptions);
+                await JsonSerializer.SerializeAsync(stream, state, _jsonOptions);
             }
 
             File.Move(tempFilePath, FilePath, true);
 
-            _cached = new CachedState(state);
+            Publish(state);
         }
         finally
         {
@@ -108,10 +139,33 @@ internal sealed class FileMaintenanceStore(
 
         try
         {
-            if (File.Exists(FilePath))
-                File.Delete(FilePath);
+            DeleteFile();
 
-            _cached = new CachedState(null);
+            Publish(null);
+        }
+        finally
+        {
+            _writeLock.Release();
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> TryClearAsync(Guid expectedRevision)
+    {
+        await _writeLock.WaitAsync();
+
+        try
+        {
+            PersistedMaintenanceState? current = await ReadFromDiskAsync();
+
+            if (current?.Revision != expectedRevision)
+                return false;
+
+            DeleteFile();
+
+            Publish(null);
+
+            return true;
         }
         finally
         {
@@ -122,8 +176,41 @@ internal sealed class FileMaintenanceStore(
     /// <inheritdoc />
     public void Dispose()
     {
-        _watcher?.Dispose();
-        _watcher = null;
+        lock (_watcherGate)
+        {
+            _watching = true;
+
+            _watcher?.Dispose();
+            _watcher = null;
+        }
+    }
+
+    /// <summary>
+    /// Publishes a state the caller has just written to disk, retiring every cache entry read before it.
+    /// </summary>
+    ///
+    /// <param name="state">The state now on disk, or <c>null</c> when the file was deleted.</param>
+    ///
+    /// <remarks>
+    /// The generation is bumped before the entry is stored, so a read that started earlier fails its own version check and reloads instead
+    /// of overwriting this. The watcher event this write triggers bumps the generation again, which costs one reload and cannot resurrect
+    /// the old value.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private void Publish(PersistedMaintenanceState? state) => _cached = new CachedState(Interlocked.Increment(ref _cacheVersion), state);
+
+    /// <summary>
+    /// Deletes the state file when it is there, which is what closing a window amounts to on disk.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private void DeleteFile()
+    {
+        if (File.Exists(FilePath))
+            File.Delete(FilePath);
     }
 
     /// <summary>
@@ -147,7 +234,7 @@ internal sealed class FileMaintenanceStore(
             {
                 await using FileStream stream = File.OpenRead(FilePath);
 
-                return await JsonSerializer.DeserializeAsync<PersistedMaintenanceState>(stream, JsonOptions) ?? CreateCorruptState();
+                return await JsonSerializer.DeserializeAsync<PersistedMaintenanceState>(stream, _jsonOptions) ?? CreateCorruptState();
             }
             catch (Exception exception) when (exception is JsonException or NotSupportedException)
             {
@@ -192,41 +279,58 @@ internal sealed class FileMaintenanceStore(
     };
 
     /// <summary>
-    /// Starts watching the content root for changes to the state file.
+    /// Starts watching the content root for changes to the state file, the first time state is read.
     /// </summary>
+    ///
+    /// <remarks>
+    /// The flag is checked inside the lock rather than before it, because two requests arriving together would otherwise each build a
+    /// watcher and only one would be reachable to dispose. Disposal takes the same lock and sets the same flag, so a read arriving during
+    /// shutdown cannot create a watcher that nothing will dispose.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// The watcher is armed only once its handlers are attached. Setting <c>EnableRaisingEvents</c> in the object initializer instead would
+    /// leave a window in which an edit raises an event that nothing is subscribed to, and the cache would keep serving the old state.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private void EnsureWatching()
     {
-        if (_watcher is not null) return;
-
-        string directory = Path.GetDirectoryName(FilePath) ?? webHostEnvironment.ContentRootPath;
-
-        if (!Directory.Exists(directory)) return;
-
-        try
+        lock (_watcherGate)
         {
-            FileSystemWatcher watcher = new(directory, "maintenance.json")
+            if (_watching) return;
+
+            _watching = true;
+
+            string directory = Path.GetDirectoryName(FilePath) ?? webHostEnvironment.ContentRootPath;
+
+            if (!Directory.Exists(directory)) return;
+
+            try
             {
-                EnableRaisingEvents = true,
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime
-            };
+                FileSystemWatcher watcher = new(directory, "maintenance.json")
+                {
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime
+                };
 
-            watcher.Changed += OnStateFileChanged;
-            watcher.Created += OnStateFileChanged;
-            watcher.Deleted += OnStateFileChanged;
-            watcher.Renamed += OnStateFileChanged;
+                watcher.Changed += OnStateFileChanged;
+                watcher.Created += OnStateFileChanged;
+                watcher.Deleted += OnStateFileChanged;
+                watcher.Renamed += OnStateFileChanged;
 
-            _watcher = watcher;
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or PlatformNotSupportedException)
-        {
-            logger.LogWarning(
-                exception,
-                "Could not watch {Directory} for maintenance state changes; an out-of-band edit will not be noticed",
-                directory
-            );
+                watcher.EnableRaisingEvents = true;
+
+                _watcher = watcher;
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or PlatformNotSupportedException)
+            {
+                logger.LogWarning(
+                    exception,
+                    "Could not watch {Directory} for maintenance state changes; an out-of-band edit will not be noticed",
+                    directory
+                );
+            }
         }
     }
 
@@ -237,17 +341,24 @@ internal sealed class FileMaintenanceStore(
     /// <param name="sender">The watcher that raised the change. Unused: any change to the file invalidates the whole cache.</param>
     /// <param name="eventArgs">The file system event arguments.</param>
     ///
+    /// <remarks>
+    /// The generation is bumped rather than the entry removed. A read already in flight was started under the old generation and will
+    /// refuse to store its result, so an edit cannot be overtaken by a read that began before it.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private void OnStateFileChanged(object sender, FileSystemEventArgs eventArgs) => _cached = null;
+    private void OnStateFileChanged(object sender, FileSystemEventArgs eventArgs) => Interlocked.Increment(ref _cacheVersion);
 
     /// <summary>
-    /// Wraps the cached value, so a cached <c>null</c> is distinguishable from nothing cached.
+    /// Wraps the cached value with the generation it was read under, so a cached <c>null</c> is distinguishable from nothing cached and a
+    /// superseded entry is recognizable without the invalidating side having to find and remove it.
     /// </summary>
     ///
+    /// <param name="Version">The cache generation the value was read under.</param>
     /// <param name="State">The cached state.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private sealed record CachedState(PersistedMaintenanceState? State);
+    private sealed record CachedState(long Version, PersistedMaintenanceState? State);
 }
