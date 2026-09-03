@@ -5,9 +5,12 @@ using System.Collections.Concurrent;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Runs a request's rules, choosing between the fluent rules a request declares itself and the rules built from its attributes. Both paths
-/// read from the same cache, so neither pays reflection per request.
+/// Runs a request's rules. Both sources are merged in the cache, so this deals in one rule set per request type rather than choosing
+/// between an attribute path and a fluent one.
 /// </summary>
+///
+/// <param name="serviceProvider">Resolves what a rule needs of its own, such as a custom rule's dependencies.</param>
+/// <param name="ruleCache">The rules per request type, built on first use and kept for the life of the process.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
@@ -20,10 +23,10 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider, Validat
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private delegate Task<ValidationBag> AttributeValidator(
+    private delegate Task<ValidationBag> TypedValidator(
         RequestValidator validator,
         object request,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken = default
     );
 
     /// <summary>
@@ -33,73 +36,47 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider, Validat
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static readonly ConcurrentDictionary<Type, AttributeValidator> AttributeValidators = new();
+    private static readonly ConcurrentDictionary<Type, TypedValidator> _typedValidators = new();
 
     /// <summary>
-    /// Validates a request, preferring the rules it declares itself and falling back to the ones its attributes declare.
+    /// Validates a request against everything declared for its type, by attribute and by validator alike.
     /// </summary>
     ///
     /// <param name="request">The request object to validate.</param>
     /// <param name="cancellationToken">Cancels the work a rule does on its own, such as reading an uploaded file.</param>
     ///
-    /// <returns>The validation error bag.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    public async Task<ValidationBag> ValidateAsync(object? request, CancellationToken cancellationToken = default) => request switch
-    {
-        null => new ValidationBag(),
-        IValidatableRequest validatableRequest => await validatableRequest.ValidateAsync(serviceProvider, cancellationToken),
-        not null when HasAttributeRules(request) => await ValidateAttributeRulesAsync(request, cancellationToken),
-        _ => new ValidationBag()
-    };
-
-    /// <summary>
-    /// Reports whether a type declares any attribute rules, so a request with none skips rule building rather than building an empty set.
-    /// </summary>
-    ///
-    /// <param name="request">The request object to inspect.</param>
-    ///
     /// <returns>
-    /// <c>true</c> when the request type is a class carrying at least one validation attribute; otherwise, <c>false</c>.
+    /// The failures, empty when the request passed, when it was <c>null</c> , and when its type declares no rules at all.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private bool HasAttributeRules(object request) => ruleCache.HasAttributeRules(request.GetType());
+    public Task<ValidationBag> ValidateAsync(object? request, CancellationToken cancellationToken = default)
+    {
+        if (request is null || !ruleCache.HasRules(request.GetType()))
+            return Task.FromResult(new ValidationBag());
+
+        return _typedValidators.GetOrAdd(request.GetType(), CreateTypedValidator)(this, request, cancellationToken);
+    }
 
     /// <summary>
-    /// Validates a request with cached attribute rules using a compiled type-specific delegate.
-    /// </summary>
-    ///
-    /// <param name="request">The request object to validate.</param>
-    /// <param name="cancellationToken">Cancels the work a rule does on its own, such as reading an uploaded file.</param>
-    ///
-    /// <returns>The validation error bag.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private Task<ValidationBag> ValidateAttributeRulesAsync(object request, CancellationToken cancellationToken)
-        => AttributeValidators.GetOrAdd(request.GetType(), CreateAttributeValidator)(this, request, cancellationToken);
-
-    /// <summary>
-    /// Creates a compiled delegate that calls the generic attribute validator for a request type.
+    /// Creates a compiled delegate that calls the generic validator for a request type.
     /// </summary>
     ///
     /// <param name="requestType">The request type.</param>
     ///
-    /// <returns>The compiled attribute validator delegate.</returns>
+    /// <returns>The compiled validator delegate.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static AttributeValidator CreateAttributeValidator(Type requestType)
+    private static TypedValidator CreateTypedValidator(Type requestType)
     {
         ParameterExpression validatorParameter = Expression.Parameter(typeof(RequestValidator), "validator");
         ParameterExpression requestParameter = Expression.Parameter(typeof(object), "request");
         ParameterExpression cancellationTokenParameter = Expression.Parameter(typeof(CancellationToken), "cancellationToken");
 
         MethodInfo validateMethod = typeof(RequestValidator)
-            .GetMethod(nameof(ValidateTypedAttributeRulesAsync), BindingFlags.Instance | BindingFlags.NonPublic)!
+            .GetMethod(nameof(ValidateTypedAsync), BindingFlags.Instance | BindingFlags.NonPublic)!
             .MakeGenericMethod(requestType);
 
         MethodCallExpression call = Expression.Call(
@@ -109,28 +86,29 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider, Validat
             cancellationTokenParameter
         );
 
-        return Expression.Lambda<AttributeValidator>(call, validatorParameter, requestParameter, cancellationTokenParameter).Compile();
+        return Expression.Lambda<TypedValidator>(call, validatorParameter, requestParameter, cancellationTokenParameter).Compile();
     }
 
     /// <summary>
-    /// Runs the attribute rules for a request whose type is known, which is the generic method the cached delegate invokes.
+    /// Runs the rules for a request whose type is known, which is the generic method the cached delegate invokes.
     /// </summary>
     ///
+    /// <typeparam name="TRequest">The request type, supplied by the compiled delegate for the runtime type.</typeparam>
     /// <param name="request">The typed request to validate.</param>
     /// <param name="cancellationToken">Cancels the work a rule does on its own, such as reading an uploaded file.</param>
     ///
-    /// <returns>The validation error bag.</returns>
+    /// <returns>The failures, at most one per field, since a field's remaining rules are skipped once it has failed.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private async Task<ValidationBag> ValidateTypedAttributeRulesAsync<TRequest>(
+    private async Task<ValidationBag> ValidateTypedAsync<TRequest>(
         TRequest request,
         CancellationToken cancellationToken
     ) where TRequest : class
     {
         ValidationBag errors = new();
 
-        foreach (IRequestValidationRule<TRequest> rule in ruleCache.GetAttributeRules<TRequest>())
+        foreach (IRequestValidationRule<TRequest> rule in ruleCache.GetRules<TRequest>())
         {
             if (errors.HasError(rule.FieldName)) continue;
 
