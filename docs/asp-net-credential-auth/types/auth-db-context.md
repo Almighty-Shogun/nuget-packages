@@ -78,7 +78,7 @@ public DbSet<UserSession> UserSessions { get; }
 
 ## PasswordResetTokens
 
-The issued password resets in `password_reset_tokens`, spent and unspent alike. Rows are marked used rather than deleted, so a cleanup job is what eventually removes them.
+The password resets in `password_reset_tokens`, at most one row per user. A spent row is marked used rather than deleted and stays until that user requests another reset and it is reused, so a cleanup job is what eventually removes the rest.
 
 ```csharp
 using Microsoft.EntityFrameworkCore;

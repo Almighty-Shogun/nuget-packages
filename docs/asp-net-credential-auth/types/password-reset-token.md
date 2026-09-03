@@ -5,7 +5,7 @@ fields:
       type: int
 
     - name: UserId
-      description: The user the reset was issued for. Cascades with the user.
+      description: The user the reset was issued for, uniquely indexed so an account cannot hold two reset tokens at once. Cascades with the user.
       type: int
 
     - name: TokenHash
@@ -13,7 +13,7 @@ fields:
       type: string
 
     - name: CreatedAt
-      description: When the reset was requested. Kept after the token is spent, so a burst of requests against one account stays visible.
+      description: When the reset now held was requested. Rewritten each time the user asks for another link, so it dates the current one rather than the first ever issued.
       type: DateTimeOffset
 
     - name: ExpiresAt
@@ -21,7 +21,7 @@ fields:
       type: DateTimeOffset
 
     - name: UsedAt
-      description: When the token was spent, or null while it is still usable. Set instead of deleting the row, so a second attempt reads as a replay.
+      description: When the token was spent, or null while it is still usable. Set instead of deleting the row, so a second attempt reads as a replay; it returns to null when the row is reused for a new request.
       type: DateTimeOffset?
       default: 'null'
 
@@ -37,7 +37,7 @@ fields:
 
 # PasswordResetToken
 
-One issued password reset. Rows are kept after use rather than deleted, so presenting a spent token is recognised as a replay instead of looking like a token that never existed.
+A user's password reset, at most one row per account. Requesting another rewrites this row rather than adding a second, and a spent row is kept until then, so presenting a spent token is recognised as a replay instead of looking like a token that never existed.
 
 Normal flows go through [`IAuthPasswordService`](../services/auth-password-service), which issues, redeems, and invalidates these consistently. Read the entity directly for audit views and cleanup jobs.
 

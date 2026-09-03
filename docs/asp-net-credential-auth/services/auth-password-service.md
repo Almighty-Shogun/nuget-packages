@@ -22,7 +22,6 @@ public sealed class PasswordController(
 ) : ControllerBase
 {
     [HttpPost("change")]
-    [RequireRefreshToken]
     public async Task<IActionResult> Change(ChangePasswordRequest request)
     {
         Guid identifier = User.GetCurrentUserId();
@@ -45,15 +44,20 @@ public sealed class PasswordController(
 public Task ChangePasswordAsync(
     Guid identifier,
     ChangePasswordRequest request,
-    string? currentRefreshToken = null
+    string? currentRefreshToken = null,
+    CancellationToken cancellationToken = default
 );
 ```
 
 ## RequestForgotPasswordAsync
 
-Issues a reset token for the account with that email address and returns it in plain text for the application to email. Only its hash is stored, so this return value is the single opportunity to send it. Any unspent token the user already had is deleted first, which means the newest link is always the only working one.
+Issues a reset token for the account with that email address and returns it in plain text for the application to email. Only its hash is stored, so this return value is the single opportunity to send it. A user holds one reset token at a time, so issuing a new one overwrites whatever the previous link used and the newest link is always the only working one.
 
-Returns `null` when no account has that address, after a short randomised delay so the response cannot be timed to learn which addresses are registered. Report the same thing to the client either way. The token expires after [`PasswordResetMinutes`](../configuration).
+Returns `null` when no account has that address. Both outcomes are held to [`ForgotPasswordMinimumMilliseconds`](../configuration), so the time taken says nothing about whether the address exists. The token expires after [`PasswordResetMinutes`](../configuration).
+
+::: danger
+The endpoint must answer identically whether or not the address existed. Returning `NotFound()` for `null` and `Ok()` for a token hands an attacker the answer the timing floor was there to hide, so reply with the same status and body in both cases, such as `Ok()` and a message saying a link has been sent if the address is registered.
+:::
 
 ```csharp
 using AlmightyShogun.AspNet.Core;
@@ -74,7 +78,8 @@ if (resetToken is not null)
 ```csharp
 public Task<string?> RequestForgotPasswordAsync(
     ForgotPasswordRequest request,
-    string? requestIpAddress = null
+    string? requestIpAddress = null,
+    CancellationToken cancellationToken = default
 );
 ```
 
@@ -82,7 +87,7 @@ public Task<string?> RequestForgotPasswordAsync(
 
 Redeems a reset token, sets the new password, and marks the token spent. The token identifies the user, so no signed-in caller is needed and nothing about the account has to be supplied alongside it.
 
-Throws [`InvalidPasswordResetTokenException`](../exceptions) when the token is unknown, already spent, or expired, [`PasswordMismatchException`](../exceptions) when the confirmation differs, and [`PasswordReusedException`](../exceptions) when the new password is the one already stored.
+Throws [`InvalidPasswordResetTokenException`](../exceptions) when the token is unknown, already spent, or expired, and also when a concurrent request spends it first, since the token is claimed with a guarded update rather than on the strength of the read that found it. [`PasswordMismatchException`](../exceptions) covers a confirmation that differs, and [`PasswordReusedException`](../exceptions) a new password that is the one already stored.
 
 ```csharp
 using AlmightyShogun.AspNet.CredentialAuth;
@@ -93,5 +98,8 @@ await passwords.CompleteForgotPasswordAsync(request);
 ### Type signature
 
 ```csharp
-public Task CompleteForgotPasswordAsync(CompleteForgotPasswordRequest request);
+public Task CompleteForgotPasswordAsync(
+    CompleteForgotPasswordRequest request,
+    CancellationToken cancellationToken = default
+);
 ```

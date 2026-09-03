@@ -21,6 +21,11 @@ fields:
             type: int
             default: '60'
 
+          - name: ForgotPasswordMinimumMilliseconds
+            description: The floor a forgot-password request is held to, so issuing a token and finding no account take the same time. Raise it above the slower of the two paths on your own hardware, or the difference stays measurable.
+            type: int
+            default: '200'
+
     - name: LockoutPolicy
       description: "The nested `CredentialAuth:Lockout` section. Disabled by default, deliberately: locking on failure count alone lets anyone deny service to a known account by failing logins against it."
       fields:
@@ -61,6 +66,11 @@ fields:
             description: How long one code stays valid. The adjacent windows are also accepted, so the real tolerance is roughly three times this value.
             type: int
             default: '30'
+
+          - name: PendingSecretMinutes
+            description: How long a secret offered by an enrolment stays confirmable before it is refused. An enrolment left unfinished expires without touching the secret already in use, so an interrupted setup cannot cost a user their working authenticator.
+            type: int
+            default: '10'
 ---
 
 # Configuration
@@ -72,6 +82,7 @@ The optional `CredentialAuth` section is bound to `CredentialAuthSettings`, with
     "CredentialAuth": {
         "AbsoluteSessionLifetimeDays": 30,
         "PasswordResetMinutes": 60,
+        "ForgotPasswordMinimumMilliseconds": 200,
         "Lockout": {
             "Enabled": false,
             "MaxFailedAttempts": 5,
@@ -81,7 +92,8 @@ The optional `CredentialAuth` section is bound to `CredentialAuthSettings`, with
             "Issuer": null,
             "RecoveryCodeCount": 10,
             "Digits": 6,
-            "PeriodSeconds": 30
+            "PeriodSeconds": 30,
+            "PendingSecretMinutes": 10
         }
     }
 }

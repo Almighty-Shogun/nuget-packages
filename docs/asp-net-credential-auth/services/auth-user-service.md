@@ -8,7 +8,7 @@ A failed login costs the same time as a successful one: when no user matches the
 
 Matches `Identifier` against both username and email, verifies the password, and creates a refresh-token session for the resolved application. The stored hash is upgraded in place when ASP.NET Core's password hasher reports an outdated format, so raising the work factor takes effect as users sign in.
 
-Throws [`InvalidCredentialsException`](../exceptions) when the identifier matches nothing or the password is wrong, [`AccountLockedException`](../exceptions) while a lockout is in force, and [`AccountDisabledException`](../exceptions) for a deactivated account. The disabled check runs after the password check, so it cannot be used to probe for accounts.
+Throws [`InvalidCredentialsException`](../exceptions) when the identifier matches nothing or the password is wrong, [`AccountLockedException`](../exceptions) while a lockout is in force, and [`AccountDisabledException`](../exceptions) for a deactivated account. The disabled check runs after the password check, so it cannot be used to probe for accounts. A wrong password is counted towards the lockout in a transaction of its own, so the count survives the failure it belongs to.
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
@@ -33,7 +33,8 @@ public sealed class LoginController(IAuthUserService<AppUser> authUsers) : Contr
 ```csharp
 public Task<AuthSessionResult<TUser>> LoginAsync(
     LoginRequest request,
-    HttpContext context
+    HttpContext context,
+    CancellationToken cancellationToken = default
 );
 ```
 
@@ -64,7 +65,8 @@ public sealed class AdminUserService(IAuthUserService<AppUser> authUsers)
 ```csharp
 public Task<TUser> CreateUserAsync(
     TUser user,
-    string password
+    string password,
+    CancellationToken cancellationToken = default
 );
 ```
 
@@ -104,6 +106,7 @@ public sealed class RegisterController(IAuthUserService<AppUser> authUsers) : Co
 public Task<AuthSessionResult<TUser>> RegisterAsync(
     TUser user,
     string password,
-    HttpContext context
+    HttpContext context,
+    CancellationToken cancellationToken = default
 );
 ```
