@@ -5,7 +5,7 @@ namespace AlmightyShogun.Hosting.ConsoleLifetime;
 
 /// <summary>
 /// Keeps a console application alive when <c>Ctrl+C</c> is pressed, while still shutting down in an orderly way on
-/// <c>SIGTERM</c>. Registered through <see cref="PackageRegistry"/>; it is never constructed by consumer code.
+/// <c>SIGTERM</c>. Registered through <see cref="ConsoleLifetimeExtensions"/>; it is never constructed by consumer code.
 /// </summary>
 ///
 /// <param name="applicationLifetime">
