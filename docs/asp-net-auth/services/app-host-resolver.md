@@ -7,7 +7,7 @@ Resolves which application a request belongs to, from its host, which is the map
 ## Usage
 
 ```csharp
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 public sealed class CurrentAppService(IAppHostResolver appHostResolver)
 {
@@ -22,7 +22,7 @@ Resolves the authentication app for the current request. The method returns the 
 When app scoping is active and the current request cannot be resolved, the method throws [`UnknownAppException`](../exceptions), which reaches the client as `403`. Use [`TryResolve`](#tryresolve) when application code wants to decide how to handle an unknown host without an exception.
 
 ```csharp
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 public sealed class TokenAudienceService(IAppHostResolver appHostResolver)
 {
@@ -43,7 +43,7 @@ Attempts to resolve the authentication app for the current request. The method r
 Use this method when application code needs to decide what to do with an unknown host instead of receiving a nullable app value.
 
 ```csharp
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 public sealed class CurrentAppReader(IAppHostResolver appHostResolver)
 {
@@ -65,7 +65,7 @@ Resolves a provided host to its configured application audience name. This metho
 The method returns the configured application name when the host exists in [`AuthSettings.Hosts`](../configuration), or when the host is a localhost value and [`AuthSettings.LocalhostApp`](../configuration) has a value. It throws [`UnknownAppException`](../exceptions), carrying the host it could not resolve, when the host is missing or maps to no configured application.
 
 ```csharp
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 public sealed class AppScopedService(IAppHostResolver appHostResolver)
 {
@@ -87,7 +87,7 @@ Attempts to map a provided host to an application audience name without throwing
 The method returns `false` for `null`, empty, whitespace, unknown hosts, and localhost requests without a configured [`AuthSettings.LocalhostApp`](../configuration). When a host is known, the `app` out parameter receives the configured audience name.
 
 ```csharp
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 public static bool IsKnownAppHost(
     IAppHostResolver appHostResolver,

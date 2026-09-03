@@ -1,4 +1,4 @@
-# ASP.NET JWT Auth
+# ASP.NET Auth
 
 Adds the authentication pieces commonly needed by ASP.NET Core APIs in this package family. It wires JWT bearer authentication, binds the `Auth` configuration section, validates token issuer, signing key, lifetime, and configured audiences, and adds authorization rules that match protected requests to their configured host app.
 
@@ -9,7 +9,7 @@ Use this package when an API should accept JWT access tokens, store refresh toke
 - [Configuration](./configuration) &mdash; the `Auth` section the package binds and validates at startup.
 - [Exceptions](./exceptions) &mdash; what the package throws, and the response each one becomes.
 - [Localization](./localization) &mdash; the message file those responses are worded from.
-- [Extensions](./extensions/add-jwt-auth) &mdash; startup, request, response, and claims-principal extension methods.
+- [Extensions](./extensions/add-auth) &mdash; startup, request, response, and claims-principal extension methods.
 - [Attributes](./attributes/auth-permission) &mdash; endpoint metadata for permission authorization.
 - [Services](./services/app-host-resolver) &mdash; host resolution and access token generation.
 - [Records](./records/auth-token) &mdash; the minted token and its expiry.
@@ -19,14 +19,14 @@ Use this package when an API should accept JWT access tokens, store refresh toke
 
 ```csharp
 using AlmightyShogun.AspNet.Core;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.Localization;
 
 builder.Services
     .AddMessageLocalization(builder.Configuration)
     .AddHttpErrorResponseWriter()
     .AddExceptionHandling()
-    .AddJwtAuth(builder.Configuration);
+    .AddAuth(builder.Configuration);
 
 WebApplication app = builder.Build();
 

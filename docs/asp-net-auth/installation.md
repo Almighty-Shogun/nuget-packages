@@ -1,9 +1,9 @@
 # Installation
 
-Install `AlmightyShogun.AspNet.JwtAuth` in the ASP.NET Core API that needs to validate JWT access tokens and register the package's permission and app-audience authorization services. The package targets `net10.0`, uses ASP.NET Core framework APIs, and expects an `Auth` configuration section to be available when authentication is registered.
+Install `AlmightyShogun.AspNet.Auth` in the ASP.NET Core API that needs to validate JWT access tokens and register the package's permission and app-audience authorization services. The package targets `net10.0`, uses ASP.NET Core framework APIs, and expects an `Auth` configuration section to be available when authentication is registered.
 
 ```sh
-dotnet add package AlmightyShogun.AspNet.JwtAuth
+dotnet add package AlmightyShogun.AspNet.Auth
 ```
 
 ## Dependencies
@@ -26,9 +26,9 @@ dotnet add package AlmightyShogun.AspNet.JwtAuth
 
 ## Startup Registration
 
-Register the package once while configuring application services. [`AddJwtAuth`](./extensions/add-jwt-auth) configures JWT bearer authentication, authorization services, `IHttpContextAccessor`, host-to-application resolution, app-audience authorization, refresh-token support, and the dynamic permission policy provider.
+Register the package once while configuring application services. [`AddAuth`](./extensions/add-auth) configures JWT bearer authentication, authorization services, `IHttpContextAccessor`, host-to-application resolution, app-audience authorization, refresh-token support, and the dynamic permission policy provider.
 
-The helpers and host resolution throw the package's own [exceptions](./exceptions), which [`AddJwtAuth`](./extensions/add-jwt-auth) maps to standardized responses. Add [`UseHttpErrorResponses`](/asp-net-core/extensions/use-http-error-responses) to the pipeline for those responses to reach the client as JSON.
+The helpers and host resolution throw the package's own [exceptions](./exceptions), which [`AddAuth`](./extensions/add-auth) maps to standardized responses. Add [`UseHttpErrorResponses`](/asp-net-core/extensions/use-http-error-responses) to the pipeline for those responses to reach the client as JSON.
 
 ::: warning
 Requires an `Auth` section in application configuration, usually from `appsettings.json`.
@@ -36,14 +36,14 @@ Requires an `Auth` section in application configuration, usually from `appsettin
 
 ```csharp
 using AlmightyShogun.AspNet.Core;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.Localization;
 
 builder.Services
     .AddMessageLocalization(builder.Configuration)
     .AddHttpErrorResponseWriter()
     .AddExceptionHandling()
-    .AddJwtAuth(builder.Configuration);
+    .AddAuth(builder.Configuration);
 
 WebApplication app = builder.Build();
 

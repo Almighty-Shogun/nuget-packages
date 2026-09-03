@@ -1,6 +1,6 @@
 # Localization
 
-JWT Auth resolves the message for each of its [exceptions](./exceptions) through [ASP.NET Localization](/asp-net-localization/localization). The resolver loads JSON files from `messages/{language}`, uses the file name as the message group, and returns the original message key when no language, file, or entry is found.
+Auth resolves the message for each of its [exceptions](./exceptions) through [ASP.NET Localization](/asp-net-localization/localization). The resolver loads JSON files from `messages/{language}`, uses the file name as the message group, and returns the original message key when no language, file, or entry is found.
 
 Every message this package produces lives in the `auth` group. That file is shared with [ASP.NET Credential Auth](/asp-net-credential-auth/localization) when both are installed, so add these keys alongside its own rather than replacing the file.
 

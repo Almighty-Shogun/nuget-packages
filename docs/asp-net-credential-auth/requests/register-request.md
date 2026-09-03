@@ -21,7 +21,7 @@ The three values a user may supply about themselves when signing up. It carries 
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
 public sealed class RegisterController(IAuthUserService<AppUser> authUsers) : ControllerBase

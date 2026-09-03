@@ -2,7 +2,7 @@
 
 Adds username or email and password authentication to ASP.NET Core APIs, storing users, refresh-token sessions, password reset tokens, and TOTP enrolments in the application's own Entity Framework Core context.
 
-Use this package when an API needs first-party accounts instead of an external provider such as Discord or Google. It owns the credential side of that: verifying passwords, rotating refresh sessions, locking accounts after repeated failures, running the forgot-password flow, and enrolling a second factor. Issuing and validating the access token itself is left to [ASP.NET JWT Auth](/asp-net-jwt-auth/), which this package builds on.
+Use this package when an API needs first-party accounts instead of an external provider such as Discord or Google. It owns the credential side of that: verifying passwords, rotating refresh sessions, locking accounts after repeated failures, running the forgot-password flow, and enrolling a second factor. Issuing and validating the access token itself is left to [ASP.NET Auth](/asp-net-auth/), which this package builds on.
 
 Application code depends on small service contracts rather than one aggregate, so a controller only takes the part of the surface it uses. Every credential failure surfaces as a typed exception that maps to a standardized HTTP error through [ASP.NET Core](/asp-net-core/exceptions), with the text resolved per language.
 
@@ -25,7 +25,7 @@ Application code depends on small service contracts rather than one aggregate, s
 ```csharp [Program.cs]
 using AlmightyShogun.AspNet.Core;
 using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.Localization;
 using AlmightyShogun.AspNet.CredentialAuth;
 using AlmightyShogun.AspNet.RequestValidation;
@@ -34,7 +34,7 @@ builder.Services
     .AddMessageLocalization(builder.Configuration)
     .AddHttpErrorResponseWriter()
     .AddExceptionHandling()
-    .AddJwtAuth(builder.Configuration)
+    .AddAuth(builder.Configuration)
     .AddAspNetValidation()
     .AddDbContext<AppDbContext>(options => ...)
     .AddCredentialAuth<AppDbContext, AppUser>(builder.Configuration);
@@ -42,7 +42,7 @@ builder.Services
 
 ```csharp [AuthController.cs]
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
 [ApiController]

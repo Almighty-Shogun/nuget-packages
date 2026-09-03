@@ -7,7 +7,7 @@ nuget-packages/
     packages/
         AlmightyShogun.AspNet.Core/
         AlmightyShogun.AspNet.CredentialAuth/
-        AlmightyShogun.AspNet.JwtAuth/
+        AlmightyShogun.AspNet.Auth/
         AlmightyShogun.AspNet.Localization/
         AlmightyShogun.AspNet.MaintenanceMode/
         AlmightyShogun.AspNet.RequestValidation/
@@ -50,11 +50,11 @@ AlmightyShogun.AspNet.Core
 AlmightyShogun.AspNet.CredentialAuth
     -> AlmightyShogun.Utils
     -> AlmightyShogun.AspNet.Core
-    -> AlmightyShogun.AspNet.JwtAuth
+    -> AlmightyShogun.AspNet.Auth
     -> AlmightyShogun.AspNet.Localization
     -> AlmightyShogun.AspNet.RequestValidation
 
-AlmightyShogun.AspNet.JwtAuth
+AlmightyShogun.AspNet.Auth
     -> AlmightyShogun.Utils
     -> AlmightyShogun.AspNet.Core
     -> AlmightyShogun.AspNet.Localization
@@ -115,7 +115,7 @@ bun run docs:dev
 bun run docs:build
 ```
 
-Package documentation lives directly under `docs/{package-slug}/`. For example, `AlmightyShogun.AspNet.JwtAuth` is documented under `docs/asp-net-jwt-auth/`.
+Package documentation lives directly under `docs/{package-slug}/`. For example, `AlmightyShogun.AspNet.Auth` is documented under `docs/asp-net-auth/`.
 
 ## Versioning
 

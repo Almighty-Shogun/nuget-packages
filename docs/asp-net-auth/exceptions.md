@@ -1,6 +1,6 @@
 # Exceptions
 
-The package throws three plain exceptions. [`AddJwtAuth`](./extensions/add-jwt-auth) registers a mapper and a handler covering all three, built on [`IExceptionMapper`](/asp-net-core/exceptions), so each becomes a standardized error response automatically. Pass `registerExceptionHandler: false` and register your own handler to answer them differently.
+The package throws three plain exceptions. [`AddAuth`](./extensions/add-auth) registers a mapper and a handler covering all three, built on [`IExceptionMapper`](/asp-net-core/exceptions), so each becomes a standardized error response automatically. Pass `registerExceptionHandler: false` and register your own handler to answer them differently.
 
 Catch them by type when an endpoint needs to react differently; otherwise let them propagate. The message each one produces is resolved through [Localization](./localization).
 
@@ -14,7 +14,7 @@ Catch them by type when an endpoint needs to react differently; otherwise let th
 ## Usage
 
 ```csharp
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 try
 {

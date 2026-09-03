@@ -21,7 +21,7 @@ Both values are the secret itself. Return them only to the authenticated user en
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using Microsoft.AspNetCore.Authorization;
 using AlmightyShogun.AspNet.CredentialAuth;
 

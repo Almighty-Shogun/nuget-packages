@@ -5,7 +5,7 @@ The cookie names this package reads and writes. Use these rather than string lit
 ## Usage
 
 ```csharp
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 bool hasRefreshToken = httpContext.Request.Cookies
     .ContainsKey(CookieNames.RefreshToken);

@@ -12,7 +12,7 @@ If neither claim is present, or the value is not a well-formed identifier, it th
 
 ```csharp
 using System.Security.Claims;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 Guid identifier = principal.GetCurrentUserId();
 ```

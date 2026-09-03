@@ -14,7 +14,7 @@ A second factor already in force is left untouched, codes and all, until [`Compl
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using Microsoft.AspNetCore.Authorization;
 using AlmightyShogun.AspNet.CredentialAuth;
 
@@ -48,7 +48,7 @@ Verifies a code against the pending secret, promotes it to the secret in force, 
 Only hashes of the recovery codes are kept, so these are shown to the user once and cannot be produced again. Throws [`InvalidTwoFactorCodeException`](../exceptions) when the code is wrong, when there is no pending enrolment to complete, and when the pending secret has expired. How many codes are issued is set by [`TwoFactorPolicy.RecoveryCodeCount`](../configuration).
 
 ```csharp
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
 IReadOnlyList<string> recoveryCodes = await twoFactor.CompleteEnrolmentAsync(User.GetCurrentUserId(), code);
@@ -93,7 +93,7 @@ Deletes the enrolment along with every recovery code, returning the account to p
 Demand a fresh password or a valid code before calling this. Otherwise a stolen session is enough to strip the second factor off an account.
 
 ```csharp
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
 await twoFactor.DisableAsync(User.GetCurrentUserId());

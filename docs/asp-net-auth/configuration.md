@@ -1,7 +1,7 @@
 ---
 fields:
     -   name: AuthSettings
-        description: The `Auth` section, bound by [`AddJwtAuth`](./extensions/add-jwt-auth). Required, and validated while the host starts, so a short secret or a missing audience stops the application there.
+        description: The `Auth` section, bound by [`AddAuth`](./extensions/add-auth). Required, and validated while the host starts, so a short secret or a missing audience stops the application there.
         fields:
             -   name: Issuer
                 description: The issuer written into minted tokens and required of incoming ones.
@@ -84,7 +84,7 @@ Inject `IOptions<AuthSettings>` wherever application code needs the configured l
 
 ```csharp
 using Microsoft.Extensions.Options;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 public sealed class TokenIssuer(IOptions<AuthSettings> options)
 {

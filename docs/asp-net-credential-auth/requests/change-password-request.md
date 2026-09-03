@@ -21,7 +21,7 @@ What [`ChangePasswordAsync`](../services/auth-password-service#changepasswordasy
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
 public sealed class ChangePasswordController(IAuthPasswordService passwords) : ControllerBase

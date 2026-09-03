@@ -17,7 +17,7 @@ The credentials [`LoginAsync`](../services/auth-user-service#loginasync) takes. 
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
 [ApiController]
