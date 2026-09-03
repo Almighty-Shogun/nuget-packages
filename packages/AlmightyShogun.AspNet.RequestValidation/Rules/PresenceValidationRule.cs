@@ -30,7 +30,7 @@ internal sealed class PresenceValidationRule<TRequest, TProperty>(
             PresenceMode.Prohibited => ValidationValue.IsEmpty(value),
             PresenceMode.Required => !ValidationValue.IsEmpty(value),
             PresenceMode.Filled => value is null || !ValidationValue.IsEmpty(value),
-            _ => false
+            _ => throw new InvalidOperationException($"Unsupported PresenceMode value '{mode}'.")
         };
 
         return ValueTask.FromResult(isValid ? ValidationRuleResult.Success() : ValidationRuleResult.Failure(GetMessageKey()));
@@ -51,6 +51,7 @@ internal sealed class PresenceValidationRule<TRequest, TProperty>(
         PresenceMode.Filled => "validation.filled",
         PresenceMode.Present => "validation.present",
         PresenceMode.Missing => "validation.missing",
-        _ => "validation.prohibited"
+        PresenceMode.Prohibited => "validation.prohibited",
+        _ => throw new InvalidOperationException($"Unsupported PresenceMode value '{mode}'.")
     };
 }

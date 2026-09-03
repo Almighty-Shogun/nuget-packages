@@ -133,7 +133,7 @@ RuleFor(x => x.Price)
 
 ## Digits
 
-Requires the value to contain exactly the provided number of digits.
+Requires the value to contain exactly the provided number of digits, counting the digits as written so a leading zero counts. Only a run of ASCII digits qualifies: a sign, a decimal point, or a thousands separator fails the rule rather than being skipped over.
 
 ::: code-group
 

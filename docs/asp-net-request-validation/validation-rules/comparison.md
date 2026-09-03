@@ -21,7 +21,7 @@ RuleFor(x => x.TermsAccepted)
 
 ## AcceptedIf
 
-Requires the field to contain an accepted value when another field equals one of the provided values.
+Requires the field to contain an accepted value when another field equals one of the provided values. An absent field fails once the condition matches, the same way an unticked checkbox fails [`[Accepted]`](#accepted).
 
 ::: code-group
 
@@ -57,7 +57,7 @@ RuleFor(x => x.AgeRestricted)
 
 ## DeclinedIf
 
-Requires the field to contain a declined value when another field equals one of the provided values.
+Requires the field to contain a declined value when another field equals one of the provided values. An absent field fails once the condition matches, the same way it does for [`[Declined]`](#declined).
 
 ::: code-group
 

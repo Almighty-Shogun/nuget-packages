@@ -48,7 +48,7 @@ internal sealed class PasswordValidationRule<TRequest, TProperty>(
         PasswordRequirement.Numbers => HasNumbers(text),
         PasswordRequirement.Symbols => HasSymbols(text),
         PasswordRequirement.Secure => IsSecure(text),
-        _ => false
+        _ => throw new InvalidOperationException($"Unsupported PasswordRequirement value '{requirement}'.")
     };
 
     /// <summary>
@@ -66,7 +66,8 @@ internal sealed class PasswordValidationRule<TRequest, TProperty>(
         PasswordRequirement.Mixed => "validation.password.mixed",
         PasswordRequirement.Numbers => "validation.password.numbers",
         PasswordRequirement.Symbols => "validation.password.symbols",
-        _ => "validation.password.secure"
+        PasswordRequirement.Secure => "validation.password.secure",
+        _ => throw new InvalidOperationException($"Unsupported PasswordRequirement value '{requirement}'.")
     };
 
     /// <summary>

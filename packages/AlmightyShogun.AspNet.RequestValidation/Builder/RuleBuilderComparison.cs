@@ -50,14 +50,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
         params TCompare?[] values
     )
     {
-        _propertyRule.AddRule(
-            new ConditionalValidationRule<TRequest, TProperty, TCompare>(
-                ConditionalTargetMode.Accepted,
-                ConditionMode.If,
-                compareExpression,
-                values
-            )
-        );
+        _propertyRule.AddRule(new ConditionalValidationRule<TRequest, TProperty, TCompare>(
+            ConditionalTargetMode.Accepted,
+            ConditionMode.If,
+            compareExpression,
+            values
+        ));
 
         return this;
     }
@@ -100,14 +98,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
         params TCompare?[] values
     )
     {
-        _propertyRule.AddRule(
-            new ConditionalValidationRule<TRequest, TProperty, TCompare>(
-                ConditionalTargetMode.Declined,
-                ConditionMode.If,
-                compareExpression,
-                values
-            )
-        );
+        _propertyRule.AddRule(new ConditionalValidationRule<TRequest, TProperty, TCompare>(
+            ConditionalTargetMode.Declined,
+            ConditionMode.If,
+            compareExpression,
+            values
+        ));
 
         return this;
     }
@@ -127,9 +123,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> SameAs<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
-        _propertyRule.AddRule(
-            new FieldComparisonValidationRule<TRequest, TProperty, TCompare>(FieldComparisonMode.Same, compareExpression)
-        );
+        _propertyRule.AddRule(new FieldComparisonValidationRule<TRequest, TProperty, TCompare>(
+            FieldComparisonMode.Same,
+            compareExpression
+        ));
 
         return this;
     }
@@ -149,16 +146,17 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> Different<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
-        _propertyRule.AddRule(
-            new FieldComparisonValidationRule<TRequest, TProperty, TCompare>(FieldComparisonMode.Different, compareExpression)
-        );
+        _propertyRule.AddRule(new FieldComparisonValidationRule<TRequest, TProperty, TCompare>(
+            FieldComparisonMode.Different,
+            compareExpression
+        ));
 
         return this;
     }
 
     /// <summary>
-    /// Requires the field to match a confirmation field. Without an explicit target, the validator looks for the property name with
-    /// <c>Confirmation</c> appended, then for <c>Confirm</c> prefixed to it.
+    /// Requires the field to match a confirmation field, found by appending <c>Confirmation</c> to the property name and then by
+    /// prefixing <c>Confirm</c> to it.
     /// </summary>
     ///
     /// <returns>
@@ -166,11 +164,16 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// that follow it.
     /// </returns>
     ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The request declares neither conventional property, so there is nothing to confirm against. Use the overload naming the field
+    /// explicitly when the pairing does not follow the convention.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> Confirmed()
     {
-        _propertyRule.AddRule(new FieldComparisonValidationRule<TRequest, TProperty, TProperty>());
+        _propertyRule.AddRule(new FieldComparisonValidationRule<TRequest, TProperty, TProperty>(_propertyRule.DeclaredName));
 
         return this;
     }
@@ -191,9 +194,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> Confirmed<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
-        _propertyRule.AddRule(
-            new FieldComparisonValidationRule<TRequest, TProperty, TCompare>(FieldComparisonMode.Confirmed, compareExpression)
-        );
+        _propertyRule.AddRule(new FieldComparisonValidationRule<TRequest, TProperty, TCompare>(
+            FieldComparisonMode.Confirmed,
+            compareExpression
+        ));
 
         return this;
     }

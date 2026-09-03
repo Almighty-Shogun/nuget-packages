@@ -40,12 +40,14 @@ internal static class ModelStateValidationExtractor
     }
 
     /// <summary>
-    /// Rewrites each model-state entry as a field error, keyed by the public field name a client would recognize.
+    /// Rewrites each model-state entry as a field error, keyed by the path a client would recognize rather than by the binder's own key.
     /// </summary>
     ///
     /// <param name="modelState">The model state dictionary.</param>
     ///
-    /// <returns>The extracted validation error bag.</returns>
+    /// <returns>
+    /// The failures keyed by full path, so two nested failures sharing a leaf name stay separate entries rather than merging into one.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -57,7 +59,7 @@ internal static class ModelStateValidationExtractor
         {
             if (entry.Errors.Count == 0) continue;
 
-            string field = ToCamelCase(GetFieldName(key));
+            string field = ToFieldPath(key);
 
             foreach (ModelError error in entry.Errors)
                 errors.Add(field, ResolveErrorKey(error));
@@ -123,6 +125,12 @@ internal static class ModelStateValidationExtractor
     ///
     /// <returns>The validation message key.</returns>
     ///
+    /// <remarks>
+    /// The binder's own message is deliberately not used as the key. It is an unlocalized sentence that often quotes the value sent, so
+    /// adopting it would make the reported code and error identifier change with the payload and leave the description in the framework's
+    /// language rather than the caller's. The reason it carried is lost, which is the cost of an identifier a client can branch on.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private static string ResolveErrorKey(ModelError error)
@@ -130,44 +138,49 @@ internal static class ModelStateValidationExtractor
         if (error.Exception is not null)
             return "validation.json";
 
-        return !string.IsNullOrWhiteSpace(error.ErrorMessage) ? error.ErrorMessage : "validation.required";
+        return string.IsNullOrWhiteSpace(error.ErrorMessage) ? "validation.required" : "validation.invalid";
     }
 
     /// <summary>
-    /// Takes the last segment of a dotted or indexed key, so a nested failure is reported against the field it actually concerns.
+    /// Rewrites a model-state key as the path a client sees, renaming each segment while keeping the path intact.
     /// </summary>
     ///
-    /// <param name="key">The model state key.</param>
+    /// <param name="key">The model state key, which may be dotted, indexed, or both.</param>
     ///
-    /// <returns>The field name.</returns>
+    /// <returns>
+    /// The full path with every segment renamed, so <c>BillingAddress.Street</c> reads as <c>billingAddress.street</c> and
+    /// <c>Items[0].Name</c> as <c>items[0].name</c> . An empty key reports as <c>request</c> , since a failure against the whole payload
+    /// has no field to name.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// The path is kept rather than reduced to its last segment. Two nested failures often share a leaf name, and collapsing them merges
+    /// unrelated errors into one entry that tells the client nothing about which property failed.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static string GetFieldName(string key)
-    {
-        if (string.IsNullOrEmpty(key))
-            return "request";
-
-        int dotIndex = key.LastIndexOf('.');
-
-        return dotIndex >= 0 ? key[(dotIndex + 1)..] : key;
-    }
+    private static string ToFieldPath(string key) => string.IsNullOrEmpty(key)
+        ? "request"
+        : string.Join('.', key.Split('.').Select(ToPathSegment));
 
     /// <summary>
-    /// Converts a name to the camel-cased form failures are reported under, matching what a JSON client sent.
+    /// Renames one segment of a key, leaving any indexer attached to it untouched so the position it names survives the rename.
     /// </summary>
     ///
-    /// <param name="value">The property name to convert, as declared in the type rather than as a client would spell it.</param>
+    /// <param name="segment">One dot-separated segment, such as <c>Street</c> or <c>Items[0]</c> .</param>
     ///
-    /// <returns>The camel-cased field name.</returns>
+    /// <returns>The segment with its name part converted and its indexer, when it has one, reattached.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static string ToCamelCase(string value)
+    private static string ToPathSegment(string segment)
     {
-        if (string.IsNullOrEmpty(value) || char.IsLower(value[0]))
-            return value;
+        int bracketIndex = segment.IndexOf('[', StringComparison.Ordinal);
 
-        return char.ToLowerInvariant(value[0]) + value[1..];
+        if (bracketIndex < 0)
+            return ValidationFieldName.FromDeclaredName(segment);
+
+        return ValidationFieldName.FromDeclaredName(segment[..bracketIndex]) + segment[bracketIndex..];
     }
 }

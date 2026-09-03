@@ -51,14 +51,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
         params TCompare?[] values
     )
     {
-        _propertyRule.AddRule(
-            new ConditionalValidationRule<TRequest, TProperty, TCompare>(
-                ConditionalTargetMode.Required,
-                ConditionMode.If,
-                compareExpression,
-                values
-            )
-        );
+        _propertyRule.AddRule(new ConditionalValidationRule<TRequest, TProperty, TCompare>(
+            ConditionalTargetMode.Required,
+            ConditionMode.If,
+            compareExpression,
+            values
+        ));
 
         return this;
     }
@@ -83,14 +81,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
         params TCompare?[] values
     )
     {
-        _propertyRule.AddRule(
-            new ConditionalValidationRule<TRequest, TProperty, TCompare>(
-                ConditionalTargetMode.Required,
-                ConditionMode.Unless,
-                compareExpression,
-                values
-            )
-        );
+        _propertyRule.AddRule(new ConditionalValidationRule<TRequest, TProperty, TCompare>(
+            ConditionalTargetMode.Required,
+            ConditionMode.Unless,
+            compareExpression,
+            values
+        ));
 
         return this;
     }
@@ -111,13 +107,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> RequiredIfAccepted<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
-        _propertyRule.AddRule(
-            new ConditionalStateValidationRule<TRequest, TProperty, TCompare>(
-                ConditionalStateTargetMode.Required,
-                ConditionalStateMode.Accepted,
-                compareExpression
-            )
-        );
+        _propertyRule.AddRule(new ConditionalStateValidationRule<TRequest, TProperty, TCompare>(
+            ConditionalStateTargetMode.Required,
+            ConditionalStateMode.Accepted,
+            compareExpression
+        ));
 
         return this;
     }
@@ -138,13 +132,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> RequiredIfDeclined<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
-        _propertyRule.AddRule(
-            new ConditionalStateValidationRule<TRequest, TProperty, TCompare>(
-                ConditionalStateTargetMode.Required,
-                ConditionalStateMode.Declined,
-                compareExpression
-            )
-        );
+        _propertyRule.AddRule(new ConditionalStateValidationRule<TRequest, TProperty, TCompare>(
+            ConditionalStateTargetMode.Required,
+            ConditionalStateMode.Declined,
+            compareExpression
+        ));
 
         return this;
     }
@@ -165,13 +157,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> RequiredWith(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
-        _propertyRule.AddRule(
-            new MultiFieldPresenceValidationRule<TRequest, TProperty>(
-                MultiFieldPresenceTargetMode.Required,
-                MultiFieldPresenceTriggerMode.WithAny,
-                compareExpressions
-            )
-        );
+        _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
+            MultiFieldPresenceTargetMode.Required,
+            MultiFieldPresenceTriggerMode.WithAny,
+            compareExpressions
+        ));
 
         return this;
     }
@@ -192,13 +182,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> RequiredWithAll(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
-        _propertyRule.AddRule(
-            new MultiFieldPresenceValidationRule<TRequest, TProperty>(
-                MultiFieldPresenceTargetMode.Required,
-                MultiFieldPresenceTriggerMode.WithAll,
-                compareExpressions
-            )
-        );
+        _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
+            MultiFieldPresenceTargetMode.Required,
+            MultiFieldPresenceTriggerMode.WithAll,
+            compareExpressions
+        ));
 
         return this;
     }
@@ -219,13 +207,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> RequiredWithout(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
-        _propertyRule.AddRule(
-            new MultiFieldPresenceValidationRule<TRequest, TProperty>(
-                MultiFieldPresenceTargetMode.Required,
-                MultiFieldPresenceTriggerMode.WithoutAny,
-                compareExpressions
-            )
-        );
+        _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
+            MultiFieldPresenceTargetMode.Required,
+            MultiFieldPresenceTriggerMode.WithoutAny,
+            compareExpressions
+        ));
 
         return this;
     }
@@ -246,13 +232,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> RequiredWithoutAll(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
-        _propertyRule.AddRule(
-            new MultiFieldPresenceValidationRule<TRequest, TProperty>(
-                MultiFieldPresenceTargetMode.Required,
-                MultiFieldPresenceTriggerMode.WithoutAll,
-                compareExpressions
-            )
-        );
+        _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
+            MultiFieldPresenceTargetMode.Required,
+            MultiFieldPresenceTriggerMode.WithoutAll,
+            compareExpressions
+        ));
 
         return this;
     }
@@ -317,14 +301,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
         params TCompare?[] values
     )
     {
-        _propertyRule.AddRule(
-            new ConditionalValidationRule<TRequest, TProperty, TCompare>(
-                ConditionalTargetMode.Present,
-                ConditionMode.If,
-                compareExpression,
-                values
-            )
-        );
+        _propertyRule.AddRule(new ConditionalValidationRule<TRequest, TProperty, TCompare>(
+            ConditionalTargetMode.Present,
+            ConditionMode.If,
+            compareExpression,
+            values
+        ));
 
         return this;
     }
@@ -349,14 +331,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
         params TCompare?[] values
     )
     {
-        _propertyRule.AddRule(
-            new ConditionalValidationRule<TRequest, TProperty, TCompare>(
-                ConditionalTargetMode.Present,
-                ConditionMode.Unless,
-                compareExpression,
-                values
-            )
-        );
+        _propertyRule.AddRule(new ConditionalValidationRule<TRequest, TProperty, TCompare>(
+            ConditionalTargetMode.Present,
+            ConditionMode.Unless,
+            compareExpression,
+            values
+        ));
 
         return this;
     }
@@ -377,13 +357,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> PresentWith(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
-        _propertyRule.AddRule(
-            new MultiFieldPresenceValidationRule<TRequest, TProperty>(
-                MultiFieldPresenceTargetMode.Present,
-                MultiFieldPresenceTriggerMode.WithAny,
-                compareExpressions
-            )
-        );
+        _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
+            MultiFieldPresenceTargetMode.Present,
+            MultiFieldPresenceTriggerMode.WithAny,
+            compareExpressions
+        ));
 
         return this;
     }
@@ -404,13 +382,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> PresentWithAll(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
-        _propertyRule.AddRule(
-            new MultiFieldPresenceValidationRule<TRequest, TProperty>(
-                MultiFieldPresenceTargetMode.Present,
-                MultiFieldPresenceTriggerMode.WithAll,
-                compareExpressions
-            )
-        );
+        _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
+            MultiFieldPresenceTargetMode.Present,
+            MultiFieldPresenceTriggerMode.WithAll,
+            compareExpressions
+        ));
 
         return this;
     }
@@ -454,14 +430,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
         params TCompare?[] values
     )
     {
-        _propertyRule.AddRule(
-            new ConditionalValidationRule<TRequest, TProperty, TCompare>(
-                ConditionalTargetMode.Missing,
-                ConditionMode.If,
-                compareExpression,
-                values
-            )
-        );
+        _propertyRule.AddRule(new ConditionalValidationRule<TRequest, TProperty, TCompare>(
+            ConditionalTargetMode.Missing,
+            ConditionMode.If,
+            compareExpression,
+            values
+        ));
 
         return this;
     }
@@ -486,14 +460,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
         params TCompare?[] values
     )
     {
-        _propertyRule.AddRule(
-            new ConditionalValidationRule<TRequest, TProperty, TCompare>(
-                ConditionalTargetMode.Missing,
-                ConditionMode.Unless,
-                compareExpression,
-                values
-            )
-        );
+        _propertyRule.AddRule(new ConditionalValidationRule<TRequest, TProperty, TCompare>(
+            ConditionalTargetMode.Missing,
+            ConditionMode.Unless,
+            compareExpression,
+            values
+        ));
 
         return this;
     }
@@ -514,13 +486,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> MissingWith(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
-        _propertyRule.AddRule(
-            new MultiFieldPresenceValidationRule<TRequest, TProperty>(
-                MultiFieldPresenceTargetMode.Missing,
-                MultiFieldPresenceTriggerMode.WithAny,
-                compareExpressions
-            )
-        );
+        _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
+            MultiFieldPresenceTargetMode.Missing,
+            MultiFieldPresenceTriggerMode.WithAny,
+            compareExpressions
+        ));
 
         return this;
     }
@@ -541,13 +511,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> MissingWithAll(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
-        _propertyRule.AddRule(
-            new MultiFieldPresenceValidationRule<TRequest, TProperty>(
-                MultiFieldPresenceTargetMode.Missing,
-                MultiFieldPresenceTriggerMode.WithAll,
-                compareExpressions
-            )
-        );
+        _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
+            MultiFieldPresenceTargetMode.Missing,
+            MultiFieldPresenceTriggerMode.WithAll,
+            compareExpressions
+        ));
 
         return this;
     }
@@ -591,14 +559,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
         params TCompare?[] values
     )
     {
-        _propertyRule.AddRule(
-            new ConditionalValidationRule<TRequest, TProperty, TCompare>(
-                ConditionalTargetMode.Prohibited,
-                ConditionMode.If,
-                compareExpression,
-                values
-            )
-        );
+        _propertyRule.AddRule(new ConditionalValidationRule<TRequest, TProperty, TCompare>(
+            ConditionalTargetMode.Prohibited,
+            ConditionMode.If,
+            compareExpression,
+            values
+        ));
 
         return this;
     }
@@ -623,14 +589,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
         params TCompare?[] values
     )
     {
-        _propertyRule.AddRule(
-            new ConditionalValidationRule<TRequest, TProperty, TCompare>(
-                ConditionalTargetMode.Prohibited,
-                ConditionMode.Unless,
-                compareExpression,
-                values
-            )
-        );
+        _propertyRule.AddRule(new ConditionalValidationRule<TRequest, TProperty, TCompare>(
+            ConditionalTargetMode.Prohibited,
+            ConditionMode.Unless,
+            compareExpression,
+            values
+        ));
 
         return this;
     }
@@ -651,13 +615,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> ProhibitedIfAccepted<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
-        _propertyRule.AddRule(
-            new ConditionalStateValidationRule<TRequest, TProperty, TCompare>(
-                ConditionalStateTargetMode.Prohibited,
-                ConditionalStateMode.Accepted,
-                compareExpression
-            )
-        );
+        _propertyRule.AddRule(new ConditionalStateValidationRule<TRequest, TProperty, TCompare>(
+            ConditionalStateTargetMode.Prohibited,
+            ConditionalStateMode.Accepted,
+            compareExpression
+        ));
 
         return this;
     }
@@ -678,13 +640,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> ProhibitedIfDeclined<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
-        _propertyRule.AddRule(
-            new ConditionalStateValidationRule<TRequest, TProperty, TCompare>(
-                ConditionalStateTargetMode.Prohibited,
-                ConditionalStateMode.Declined,
-                compareExpression
-            )
-        );
+        _propertyRule.AddRule(new ConditionalStateValidationRule<TRequest, TProperty, TCompare>(
+            ConditionalStateTargetMode.Prohibited,
+            ConditionalStateMode.Declined,
+            compareExpression
+        ));
 
         return this;
     }
@@ -705,13 +665,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> Prohibits(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
-        _propertyRule.AddRule(
-            new MultiFieldPresenceValidationRule<TRequest, TProperty>(
-                MultiFieldPresenceTargetMode.Prohibits,
-                MultiFieldPresenceTriggerMode.Prohibits,
-                compareExpressions
-            )
-        );
+        _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
+            MultiFieldPresenceTargetMode.Prohibits,
+            MultiFieldPresenceTriggerMode.Prohibits,
+            compareExpressions
+        ));
 
         return this;
     }

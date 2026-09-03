@@ -45,12 +45,16 @@ internal sealed class NamedConditionalValidationRule<TRequest, TProperty>(
     }
 
     /// <summary>
-    /// Checks whether the target value satisfies the configured conditional target mode.
+    /// Checks whether the target value satisfies the configured conditional target mode, once the condition has already matched.
     /// </summary>
     ///
-    /// <param name="value">The value compared against, which the rule holds from the moment it was declared.</param>
+    /// <param name="value">The value read from the property this rule guards.</param>
     ///
-    /// <returns><c>true</c> when the target value is valid; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    /// <c>true</c> when the value satisfies the mode; otherwise, <c>false</c> . An absent value is not skipped: once the condition
+    /// matches, an accepted or declined requirement is a requirement, and a field left out is exactly the case it has to catch. That
+    /// matches the unconditional accepted and declined rules, which do not skip an empty value either.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -60,9 +64,9 @@ internal sealed class NamedConditionalValidationRule<TRequest, TProperty>(
         ConditionalTargetMode.Required => !ValidationValue.IsEmpty(value),
         ConditionalTargetMode.Present => ValidationValue.IsPresent(value),
         ConditionalTargetMode.Prohibited => ValidationValue.IsEmpty(value),
-        ConditionalTargetMode.Accepted => ValidationValue.IsEmpty(value) || ValidationValue.IsAccepted(value),
-        ConditionalTargetMode.Declined => ValidationValue.IsEmpty(value) || ValidationValue.IsDeclined(value),
-        _ => false
+        ConditionalTargetMode.Accepted => ValidationValue.IsAccepted(value),
+        ConditionalTargetMode.Declined => ValidationValue.IsDeclined(value),
+        _ => throw new InvalidOperationException($"Unsupported ConditionalTargetMode value '{targetMode}'.")
     };
 
     /// <summary>
@@ -84,7 +88,10 @@ internal sealed class NamedConditionalValidationRule<TRequest, TProperty>(
         (ConditionalTargetMode.Missing, ConditionMode.Unless) => "validation.missing.unless",
         (ConditionalTargetMode.Prohibited, ConditionMode.If) => "validation.prohibited.if",
         (ConditionalTargetMode.Prohibited, ConditionMode.Unless) => "validation.prohibited.unless",
-        (ConditionalTargetMode.Accepted, _) => "validation.accepted.if",
-        _ => "validation.declined.if"
+        (ConditionalTargetMode.Accepted, ConditionMode.If) => "validation.accepted.if",
+        (ConditionalTargetMode.Declined, ConditionMode.If) => "validation.declined.if",
+        _ => throw new InvalidOperationException(
+            $"Unsupported ConditionalTargetMode and ConditionMode pairing: ({targetMode}, {conditionMode})."
+        )
     };
 }

@@ -61,6 +61,9 @@ internal sealed class EnumValidationRule<TRequest, TProperty>(
         if (value is string text)
             return Enum.TryParse(_enumType, text, false, out object? parsed) && Enum.IsDefined(_enumType, parsed);
 
+        if (!IsIntegral(value))
+            return false;
+
         try
         {
             Type underlyingType = Enum.GetUnderlyingType(_enumType);
@@ -81,4 +84,22 @@ internal sealed class EnumValidationRule<TRequest, TProperty>(
             return false;
         }
     }
+
+    /// <summary>
+    /// Reports whether a value is a whole number, which is the only shape that stands for an enum's underlying value.
+    /// </summary>
+    ///
+    /// <param name="value">The bound value, of whatever type the property declared.</param>
+    ///
+    /// <returns><c>true</c> for any integral type; otherwise, <c>false</c>.</returns>
+    ///
+    /// <remarks>
+    /// Checked before conversion, because <see cref="Convert.ChangeType(object, Type, IFormatProvider)"/> accepts far more than an enum
+    /// should: a <see cref="bool"/> becomes <c>1</c> or <c>0</c> and a fractional number rounds, so either would validate as a member it
+    /// never named.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static bool IsIntegral(object value) => value is byte or sbyte or short or ushort or int or uint or long or ulong;
 }

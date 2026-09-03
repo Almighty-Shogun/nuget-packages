@@ -21,20 +21,22 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     private readonly FieldComparisonMode _mode;
 
     /// <summary>
-    /// The field being compared against, by name. Null when the confirmation convention is used and the name is derived instead.
+    /// The field being compared against, by the name a client sees, so a must-differ failure can name the other field in its message.
+    /// Always set, the confirmation convention included, since that target is resolved when the rule is built.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private readonly string? _compareFieldName;
+    private readonly string _compareFieldName;
 
     /// <summary>
-    /// Reads the compared field's value. Null when the target is resolved by convention at validation time rather than up front.
+    /// Reads the compared field's value. Always set, including for the confirmation convention, whose target is resolved when the rule is
+    /// built rather than per request.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private readonly Func<TRequest, object?>? _compareGetter;
+    private readonly Func<TRequest, object?> _compareGetter;
 
     /// <summary>
     /// Builds the rule against another property named by expression, which is the fluent spelling the compiler checks.
@@ -47,11 +49,12 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     /// <since>Unreleased</since>
     public FieldComparisonValidationRule(FieldComparisonMode mode, Expression<Func<TRequest, TCompare>> compareExpression)
     {
+        string fieldName = ValidationExpression.GetFieldName(compareExpression);
         Func<TRequest, TCompare> getter = compareExpression.Compile();
 
         _mode = mode;
+        _compareFieldName = fieldName;
         _compareGetter = request => getter(request);
-        _compareFieldName = GetPropertyName(compareExpression);
     }
 
     /// <summary>
@@ -75,12 +78,30 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     }
 
     /// <summary>
-    /// Creates a confirmed field comparison rule that uses conventional confirmation names.
+    /// Builds the confirmation rule against the property the convention names, which is the declared name with <c>Confirmation</c>
+    /// appended or <c>Confirm</c> prefixed.
     /// </summary>
+    ///
+    /// <param name="declaredPropertyName">
+    /// The validated property's name as the type declares it, rather than the name a client sees, since the sibling being looked for is a
+    /// property and not a payload field.
+    /// </param>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Neither conventional property exists on the request type, so the rule could only ever compare against nothing. Thrown as the rule
+    /// is built rather than passing silently whenever the validated value happens to be null too.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public FieldComparisonValidationRule() => _mode = FieldComparisonMode.Confirmed;
+    public FieldComparisonValidationRule(string declaredPropertyName)
+    {
+        PropertyInfo property = ResolveConfirmationProperty(declaredPropertyName);
+
+        _mode = FieldComparisonMode.Confirmed;
+        _compareFieldName = ValidationFieldName.FromProperty(property);
+        _compareGetter = property.GetValue;
+    }
 
     /// <inheritdoc />
     public ValueTask<ValidationRuleResult> ValidateAsync(
@@ -91,14 +112,14 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
         CancellationToken cancellationToken = default
     )
     {
-        object? compareValue = _compareGetter is not null ? _compareGetter(request) : GetConventionalConfirmationValue(request, field);
+        object? compareValue = _compareGetter(request);
 
         bool isValid = _mode switch
         {
             FieldComparisonMode.Same => Equals(value, compareValue),
             FieldComparisonMode.Different => !Equals(value, compareValue),
             FieldComparisonMode.Confirmed => Equals(value, compareValue),
-            _ => false
+            _ => throw new InvalidOperationException($"Unsupported FieldComparisonMode value '{_mode}'.")
         };
 
         return ValueTask.FromResult(isValid
@@ -119,7 +140,8 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     {
         FieldComparisonMode.Same => "validation.same",
         FieldComparisonMode.Different => "validation.different",
-        _ => "validation.confirmed"
+        FieldComparisonMode.Confirmed => "validation.confirmed",
+        _ => throw new InvalidOperationException($"Unsupported FieldComparisonMode value '{_mode}'.")
     };
 
     /// <summary>
@@ -134,84 +156,32 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     private object?[] GetMessageParameters() => _mode == FieldComparisonMode.Confirmed ? [] : [_compareFieldName];
 
     /// <summary>
-    /// Reads the field a confirmation defaults to, which is the property's own name with <c>Confirmation</c> appended rather than a name
-    /// the caller had to supply.
+    /// Finds the property the confirmation convention names, so the rule holds a reader rather than searching per request.
     /// </summary>
     ///
-    /// <param name="request">The request being validated, so a rule can read another field as well as its own.</param>
-    /// <param name="field">The field name being validated.</param>
+    /// <param name="declaredPropertyName">The validated property's declared name, which both conventional spellings are built from.</param>
     ///
-    /// <returns>The conventional confirmation value when found; otherwise, <c>null</c>.</returns>
+    /// <returns>The confirmation property.</returns>
     ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private static object? GetConventionalConfirmationValue(TRequest request, string field)
-    {
-        string pascalField = ToPascalCase(field);
-        Type requestType = typeof(TRequest);
-
-        PropertyInfo? property = requestType.GetProperty($"{pascalField}Confirmation")
-                                 ?? requestType.GetProperty($"Confirm{pascalField}");
-
-        return property?.GetValue(request);
-    }
-
-    /// <summary>
-    /// Reads the property an expression points at and converts it to the public field name.
-    /// </summary>
-    ///
-    /// <param name="expression">
-    /// Points at the property, supplying both its public field name and the reader used to fetch its value.
-    /// </param>
-    ///
-    /// <returns>The camel-cased property name.</returns>
-    ///
-    /// <exception cref="InvalidOperationException">
-    /// The expression is not a property access, such as a method call or a literal, so there is no property to name the field after.
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Neither <c>{Name}Confirmation</c> nor <c>Confirm{Name}</c> exists on the request type. Refused here rather than treated as an
+    /// absent value, since a rule comparing against a property that does not exist passes whenever the validated value is null.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static string GetPropertyName(Expression<Func<TRequest, TCompare>> expression) => expression.Body switch
+    private static PropertyInfo ResolveConfirmationProperty(string declaredPropertyName)
     {
-        MemberExpression { Member: PropertyInfo propertyInfo } => ToCamelCase(propertyInfo.Name),
-        UnaryExpression { Operand: MemberExpression { Member: PropertyInfo unaryPropertyInfo } } => ToCamelCase(unaryPropertyInfo.Name),
-        _ => throw new InvalidOperationException("Field comparison rules only support property access expressions.")
-    };
+        Type requestType = typeof(TRequest);
 
-    /// <summary>
-    /// Converts a property name to the camel-cased form failures are reported under, which is the shape a JSON client sees.
-    /// </summary>
-    ///
-    /// <param name="value">The property name to convert, as declared in the type rather than as a client would spell it.</param>
-    ///
-    /// <returns>The camel-cased value.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private static string ToCamelCase(string value)
-    {
-        if (string.IsNullOrEmpty(value) || char.IsLower(value[0]))
-            return value;
+        PropertyInfo? property = requestType.GetProperty($"{declaredPropertyName}Confirmation")
+                                 ?? requestType.GetProperty($"Confirm{declaredPropertyName}");
 
-        return char.ToLowerInvariant(value[0]) + value[1..];
-    }
-
-    /// <summary>
-    /// Converts a public field name back to the property name, which is the inverse of the camel-casing applied when failures are reported.
-    /// </summary>
-    ///
-    /// <param name="value">The validation field name.</param>
-    ///
-    /// <returns>The Pascal-cased value.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private static string ToPascalCase(string value)
-    {
-        if (string.IsNullOrEmpty(value) || char.IsUpper(value[0]))
-            return value;
-
-        return char.ToUpperInvariant(value[0]) + value[1..];
+        return property ?? throw new ArgumentOutOfRangeException(
+            nameof(declaredPropertyName),
+            declaredPropertyName,
+            $"'{requestType.Name}' declares neither '{declaredPropertyName}Confirmation' nor 'Confirm{declaredPropertyName}', "
+            + "so the confirmation rule has nothing to compare against."
+        );
     }
 }

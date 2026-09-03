@@ -122,7 +122,7 @@ internal static class ValidationCollection
     /// <since>Unreleased</since>
     private static bool SetKeys(IEnumerable values, out IReadOnlySet<string> keys)
     {
-        keys = values.Cast<object?>().Select(ValidationValue.ToDisplayValue).ToHashSet(StringComparer.Ordinal);
+        keys = values.Cast<object?>().Select(ValidationDisplay.ToDisplayValue).ToHashSet(StringComparer.Ordinal);
 
         return true;
     }
@@ -154,10 +154,9 @@ internal static class ValidationCollection
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static bool ImplementsGenericList(object? value)
-        => value?.GetType()
-            .GetInterfaces()
-            .Where(type => type.IsGenericType)
-            .Select(type => type.GetGenericTypeDefinition())
-            .Any(type => type == typeof(IList<>) || type == typeof(IReadOnlyList<>)) == true;
+    private static bool ImplementsGenericList(object? value) => value?.GetType()
+        .GetInterfaces()
+        .Where(type => type.IsGenericType)
+        .Select(type => type.GetGenericTypeDefinition())
+        .Any(type => type == typeof(IList<>) || type == typeof(IReadOnlyList<>)) == true;
 }

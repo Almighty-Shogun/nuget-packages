@@ -33,7 +33,7 @@ internal sealed class NumberValidationRule<TRequest, TProperty>(
                 : ValidationRuleResult.Failure("validation.integer"),
             NumberMode.DecimalPlaces => ValidateDecimalPlaces(propertyValue),
             NumberMode.MultipleOf => ValidateMultipleOf(propertyValue),
-            _ => ValidationRuleResult.Failure("validation.numeric")
+            _ => throw new InvalidOperationException($"Unsupported NumberMode value '{mode}'.")
         };
 
         return ValueTask.FromResult(result);
@@ -45,14 +45,17 @@ internal sealed class NumberValidationRule<TRequest, TProperty>(
     ///
     /// <param name="propertyValue">The property value.</param>
     ///
-    /// <returns>The validation rule result.</returns>
+    /// <returns>
+    /// The result, reporting the scale failure both when the count is wrong and when no scale could be read at all, which is the case for
+    /// text that is not a number and for a floating value no decimal can hold.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private ValidationRuleResult ValidateDecimalPlaces(TProperty? propertyValue)
     {
         if (!ValidationValue.TryGetDecimalPlaces(propertyValue, out int actualPlaces))
-            return ValidationRuleResult.Failure("validation.numeric");
+            return ValidationRuleResult.Failure("validation.decimal", (int)value);
 
         return actualPlaces == (int)value
             ? ValidationRuleResult.Success()
@@ -65,14 +68,18 @@ internal sealed class NumberValidationRule<TRequest, TProperty>(
     ///
     /// <param name="propertyValue">The property value.</param>
     ///
-    /// <returns>The validation rule result.</returns>
+    /// <returns>
+    /// The result. A value no decimal can hold exactly, such as an infinity or a double beyond decimal's range, fails the rule rather
+    /// than being reported as non-numeric: it is a number, and it is not a multiple of anything checkable. A configured divisor of zero
+    /// fails every value, since nothing is a multiple of it.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private ValidationRuleResult ValidateMultipleOf(TProperty? propertyValue)
     {
         if (!ValidationValue.TryGetNumber(propertyValue, out decimal number))
-            return ValidationRuleResult.Failure("validation.numeric");
+            return ValidationRuleResult.Failure("validation.multiple-of", value);
 
         return value != 0 && number % value == 0
             ? ValidationRuleResult.Success()

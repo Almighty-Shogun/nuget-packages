@@ -26,16 +26,26 @@ internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValid
     ///
     /// <param name="ruleType">The custom validation rule type.</param>
     ///
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="ruleType"/> does not implement <see cref="ICustomValidationRule{TRequest, TProperty}"/> for this request and
+    /// property type. Checked as the rule is built rather than when it first runs, so a mismatch surfaces while the application is
+    /// starting instead of on whichever request reaches the property first.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public CustomValidationRuleAdapter(Type ruleType) => _ruleType = ruleType;
+    public CustomValidationRuleAdapter(Type ruleType)
+    {
+        if (!typeof(ICustomValidationRule<TRequest, TProperty>).IsAssignableFrom(ruleType))
+            throw new InvalidOperationException(
+                $"The custom validation rule '{ruleType.Name}' does not implement "
+                + $"ICustomValidationRule<{typeof(TRequest).Name}, {typeof(TProperty).Name}>."
+            );
+
+        _ruleType = ruleType;
+    }
 
     /// <inheritdoc />
-    ///
-    /// <exception cref="InvalidOperationException">
-    /// The configured rule type does not implement <see cref="ICustomValidationRule{TRequest, TProperty}"/> for this request and property
-    /// type. Detected when the rule first runs rather than when it is registered, so a mismatch surfaces on a request.
-    /// </exception>
     public async ValueTask<ValidationRuleResult> ValidateAsync(
         TRequest request,
         TProperty? value,
@@ -46,12 +56,7 @@ internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValid
     {
         object rule = serviceProvider.GetService(_ruleType) ?? ActivatorUtilities.CreateInstance(serviceProvider, _ruleType);
 
-        if (rule is not ICustomValidationRule<TRequest, TProperty> validationRule)
-            throw new InvalidOperationException(
-                $"The custom validation rule '{_ruleType.Name}' is not valid for '{typeof(TRequest).Name}.{field}'."
-            );
-
-        return await validationRule.ValidateAsync(request, value, cancellationToken);
+        return await ((ICustomValidationRule<TRequest, TProperty>)rule).ValidateAsync(request, value, cancellationToken);
     }
 }
 
@@ -61,8 +66,8 @@ internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValid
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-internal sealed class CustomValidationRuleAdapter<TRequest, TProperty, TRule> : CustomValidationRuleAdapter<TRequest, TProperty>
-    where TRequest : class where TRule : class
+internal sealed class CustomValidationRuleAdapter<TRequest, TProperty, TRule>
+    : CustomValidationRuleAdapter<TRequest, TProperty> where TRequest : class where TRule : class
 {
     /// <summary>
     /// Adapts a rule type known at compile time, which is the fluent spelling. The generic attribute reaches the runtime-type constructor

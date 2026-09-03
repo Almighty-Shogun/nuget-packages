@@ -53,7 +53,8 @@ internal sealed class NamedMultiFieldPresenceValidationRule<TRequest, TProperty>
             MultiFieldPresenceTargetMode.Required => !ValidationValue.IsEmpty(value),
             MultiFieldPresenceTargetMode.Present => ValidationValue.IsPresent(value),
             MultiFieldPresenceTargetMode.Missing => value is null,
-            _ => true
+            MultiFieldPresenceTargetMode.Prohibits => true,
+            _ => throw new InvalidOperationException($"Unsupported MultiFieldPresenceTargetMode value '{targetMode}'.")
         };
 
         return ValueTask.FromResult(targetIsValid
@@ -77,7 +78,8 @@ internal sealed class NamedMultiFieldPresenceValidationRule<TRequest, TProperty>
         MultiFieldPresenceTriggerMode.WithAll => _fields.All(field => IsTriggerPresent(field.GetValue(request))),
         MultiFieldPresenceTriggerMode.WithoutAny => _fields.Any(field => !IsTriggerPresent(field.GetValue(request))),
         MultiFieldPresenceTriggerMode.WithoutAll => _fields.All(field => !IsTriggerPresent(field.GetValue(request))),
-        _ => true
+        MultiFieldPresenceTriggerMode.Prohibits => true,
+        _ => throw new InvalidOperationException($"Unsupported MultiFieldPresenceTriggerMode value '{triggerMode}'.")
     };
 
     /// <summary>
@@ -126,6 +128,9 @@ internal sealed class NamedMultiFieldPresenceValidationRule<TRequest, TProperty>
         (MultiFieldPresenceTargetMode.Present, MultiFieldPresenceTriggerMode.WithAny) => "validation.present.with",
         (MultiFieldPresenceTargetMode.Present, MultiFieldPresenceTriggerMode.WithAll) => "validation.present.with-all",
         (MultiFieldPresenceTargetMode.Missing, MultiFieldPresenceTriggerMode.WithAny) => "validation.missing.with",
-        _ => "validation.missing.with-all"
+        (MultiFieldPresenceTargetMode.Missing, MultiFieldPresenceTriggerMode.WithAll) => "validation.missing.with-all",
+        _ => throw new InvalidOperationException(
+            $"Unsupported MultiFieldPresenceTargetMode and MultiFieldPresenceTriggerMode pairing: ({targetMode}, {triggerMode})."
+        )
     };
 }

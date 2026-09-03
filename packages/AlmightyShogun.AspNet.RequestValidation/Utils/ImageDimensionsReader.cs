@@ -20,7 +20,7 @@ internal static class ImageDimensionsReader
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private const int MaximumHeaderBytes = 1024 * 1024;
+    private const int _maximumHeaderBytes = 1024 * 1024;
 
     /// <summary>
     /// The eight bytes every PNG opens with. The non-ASCII first byte and the newline pair exist so a transfer that mangles line endings or
@@ -29,7 +29,7 @@ internal static class ImageDimensionsReader
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static readonly byte[] PngSignature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+    private static readonly byte[] _pngSignature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
 
     /// <summary>
     /// The JPEG markers that carry no length word, so the walk steps over them by two bytes instead of reading a segment size that is not
@@ -38,7 +38,7 @@ internal static class ImageDimensionsReader
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static readonly byte[] StandaloneJpegMarkers = [0xD8, 0xD9, 0x01];
+    private static readonly byte[] _standaloneJpegMarkers = [0xD8, 0xD9, 0x01];
 
     /// <summary>
     /// The start-of-frame markers whose segment carries the dimensions. The gaps in the run are the markers that share the numbering but
@@ -47,7 +47,7 @@ internal static class ImageDimensionsReader
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static readonly byte[] StartOfFrameJpegMarkers =
+    private static readonly byte[] _startOfFrameJpegMarkers =
     [
         0xC0, 0xC1, 0xC2, 0xC3,
         0xC5, 0xC6, 0xC7,
@@ -95,7 +95,7 @@ internal static class ImageDimensionsReader
     /// <since>Unreleased</since>
     private static async Task<byte[]> ReadHeaderAsync(IFormFile file, CancellationToken cancellationToken)
     {
-        var length = (int)Math.Min(file.Length, MaximumHeaderBytes);
+        var length = (int)Math.Min(file.Length, _maximumHeaderBytes);
         var buffer = new byte[length];
 
         await using Stream stream = file.OpenReadStream();
@@ -215,8 +215,7 @@ internal static class ImageDimensionsReader
 
             byte marker = header[offset++];
 
-            if (IsStandaloneJpegMarker(marker))
-                continue;
+            if (IsStandaloneJpegMarker(marker)) continue;
 
             if (offset + 1 >= header.Length)
                 return false;
@@ -278,7 +277,7 @@ internal static class ImageDimensionsReader
             if (TryReadWebPChunk(chunkType, chunk, out dimensions))
                 return true;
 
-            offset = dataOffset + chunkSize + chunkSize % 2;
+            offset = dataOffset + chunkSize + (chunkSize % 2);
         }
 
         return false;
@@ -395,7 +394,7 @@ internal static class ImageDimensionsReader
         if (header.Length < 24)
             return false;
 
-        return header[..8].SequenceEqual(PngSignature) && header.Slice(12, 4).SequenceEqual("IHDR"u8);
+        return header[..8].SequenceEqual(_pngSignature) && header.Slice(12, 4).SequenceEqual("IHDR"u8);
     }
 
     /// <summary>
@@ -449,7 +448,7 @@ internal static class ImageDimensionsReader
     /// <since>Unreleased</since>
     private static bool IsStandaloneJpegMarker(byte marker)
     {
-        if (StandaloneJpegMarkers.Contains(marker))
+        if (_standaloneJpegMarkers.Contains(marker))
             return true;
 
         return marker is >= 0xD0 and <= 0xD7;
@@ -505,6 +504,12 @@ internal static class ImageDimensionsReader
     ///
     /// <returns><c>true</c> when the chunk size is valid; otherwise, <c>false</c>.</returns>
     ///
+    /// <remarks>
+    /// The remaining length is subtracted rather than the offset added, because the declared size comes from the file and adding it can
+    /// overflow to a negative number that passes an addition-based check. A crafted size of <c>int.MaxValue</c> would then reach the slice
+    /// and throw.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private static bool HasValidChunkSize(ReadOnlySpan<byte> header, int dataOffset, int chunkSize)
@@ -512,7 +517,7 @@ internal static class ImageDimensionsReader
         if (chunkSize < 0)
             return false;
 
-        return dataOffset + chunkSize <= header.Length;
+        return chunkSize <= header.Length - dataOffset;
     }
 
     /// <summary>
@@ -604,5 +609,5 @@ internal static class ImageDimensionsReader
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static bool IsStartOfFrameMarker(byte marker) => StartOfFrameJpegMarkers.Contains(marker);
+    private static bool IsStartOfFrameMarker(byte marker) => _startOfFrameJpegMarkers.Contains(marker);
 }

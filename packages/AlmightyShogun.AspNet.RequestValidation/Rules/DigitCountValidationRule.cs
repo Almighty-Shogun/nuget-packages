@@ -1,8 +1,13 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Counts the digits a value is written with, rather than comparing the number it spells, so leading zeroes count and a sign does not.
+/// Counts the digits a value is written with, rather than comparing the number it spells, so a leading zero counts as the digit it is.
 /// </summary>
+///
+/// <remarks>
+/// Only a run of ASCII digits is counted. A sign, a decimal point, or a thousands separator is not skipped over: a value carrying one is
+/// not a digit run at all and fails the rule outright rather than having its digits counted.
+/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
@@ -33,7 +38,7 @@ internal sealed class DigitCountValidationRule<TRequest, TProperty>(
             DigitMode.Between => text.Length >= value && text.Length <= maxValue,
             DigitMode.Min => text.Length >= value,
             DigitMode.Max => text.Length <= value,
-            _ => false
+            _ => throw new InvalidOperationException($"Unsupported DigitMode value '{mode}'.")
         };
 
         return ValueTask.FromResult(isValid
@@ -55,7 +60,8 @@ internal sealed class DigitCountValidationRule<TRequest, TProperty>(
         DigitMode.Exact => "validation.digits",
         DigitMode.Between => "validation.digits.between",
         DigitMode.Min => "validation.min.digits",
-        _ => "validation.max.digits"
+        DigitMode.Max => "validation.max.digits",
+        _ => throw new InvalidOperationException($"Unsupported DigitMode value '{mode}'.")
     };
 
     /// <summary>

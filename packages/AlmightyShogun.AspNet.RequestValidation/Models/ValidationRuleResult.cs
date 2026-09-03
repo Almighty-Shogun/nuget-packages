@@ -4,31 +4,73 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// What one rule reported: either success, or the message key describing why it failed.
 /// </summary>
 ///
-/// <param name="IsValid">Whether the validation rule passed.</param>
-/// <param name="Key">The validation message key returned when the rule fails.</param>
-/// <param name="Parameters">The validation message parameters returned when the rule fails.</param>
+/// <remarks>
+/// Built through <see cref="Success"/> and <see cref="Failure"/> rather than by construction, so the combinations that mean nothing cannot
+/// be written: a pass carrying a failure message, or a failure carrying no message to report.
+/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public sealed record ValidationRuleResult(bool IsValid, string Key, object?[] Parameters)
+public sealed record ValidationRuleResult
 {
+    /// <summary>
+    /// Whether the validation rule passed.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public bool IsValid { get; }
+
+    /// <summary>
+    /// The validation message key returned when the rule fails, and empty when it passed.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public string Key { get; }
+
+    /// <summary>
+    /// The validation message parameters returned when the rule fails, and empty when it passed.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public object?[] Parameters { get; }
+
     /// <summary>
     /// The one success value, shared because a passing rule carries no message and every success is therefore identical.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static readonly ValidationRuleResult Successful = new(true, string.Empty, []);
+    private static readonly ValidationRuleResult _successful = new(true, string.Empty, []);
+
+    /// <summary>
+    /// Builds a result. Private so the only results that exist are the ones the two factories below produce.
+    /// </summary>
+    ///
+    /// <param name="isValid">Whether the rule passed.</param>
+    /// <param name="key">The message key, empty for a pass.</param>
+    /// <param name="parameters">The message parameters, empty for a pass and for a message that takes none.</param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private ValidationRuleResult(bool isValid, string key, object?[] parameters)
+    {
+        IsValid = isValid;
+        Key = key;
+        Parameters = parameters;
+    }
 
     /// <summary>
     /// Reports that the rule passed, carrying no message since none is needed.
     /// </summary>
     ///
-    /// <returns>The successful validation rule result.</returns>
+    /// <returns>The successful validation rule result, which is one shared instance rather than a new one per call.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public static ValidationRuleResult Success() => Successful;
+    public static ValidationRuleResult Success() => _successful;
 
     /// <summary>
     /// Reports a failure by message key and parameters, leaving the wording to be resolved when the response is written.

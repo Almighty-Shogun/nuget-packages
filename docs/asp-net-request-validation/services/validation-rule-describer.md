@@ -4,7 +4,7 @@ Reports the validation rules declared on a request type as structured data, so a
 
 Application code depends on `IValidationRuleDescriber`.
 
-The description is read from the validation attributes themselves, the same input the rule factory builds from, so a description cannot drift from what is actually validated.
+The description is read from the validation attributes themselves, the same input the rule factory builds from, so a described attribute rule cannot drift from the rule built for it. Rules declared in a [`Validator<TRequest>`](../fluent-validation) are enforced but not described, since a built rule keeps neither the name it was written under nor the arguments it was given, so a request using both describes as less than it enforces.
 
 ::: danger
 Exposing this on an unauthenticated endpoint publishes your request shapes, field names, and constraints, including any pattern or length limit that reveals something about the data. Treat it as internal API surface unless you have decided otherwise deliberately.
@@ -44,7 +44,7 @@ public sealed record SignupRequest
 
 ```json [Response.json]
 {
-    "Username": [
+    "username": [
         {
             "rule": "Regex",
             "arguments": ["^[a-z0-9]+$", 0, "lowercase letters and digits only", 1]
@@ -57,7 +57,7 @@ public sealed record SignupRequest
 
 ## Describe
 
-Returns the rules for each property that declares at least one, keyed by property name. Properties with no validation attributes are omitted entirely rather than mapped to an empty list.
+Returns the rules for each property that declares at least one attribute rule, keyed by the field name a client sees, which honours [`[JsonPropertyName]`](https://learn.microsoft.com/dotnet/api/system.text.json.serialization.jsonpropertynameattribute) where a property carries one. Properties with no validation attributes are omitted entirely rather than mapped to an empty list.
 
 Results are cached per request type, so repeated calls do not re-reflect.
 

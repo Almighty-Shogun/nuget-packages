@@ -26,7 +26,7 @@ internal sealed class TypeValidationRule<TRequest, TProperty>(
             TypeMode.Array => ValidationValue.IsEmpty(value) || ValidationCollection.IsArrayLike(value),
             TypeMode.List => ValidationValue.IsEmpty(value) || ValidationCollection.IsListLike(value),
             TypeMode.File => ValidationValue.IsEmpty(value) || ValidationFile.TryGetFiles(value, out _),
-            _ => false
+            _ => throw new InvalidOperationException($"Unsupported TypeMode value '{mode}'.")
         };
 
         return ValueTask.FromResult(isValid ? ValidationRuleResult.Success() : ValidationRuleResult.Failure(GetMessageKey()));
@@ -47,6 +47,7 @@ internal sealed class TypeValidationRule<TRequest, TProperty>(
         TypeMode.Boolean => "validation.boolean",
         TypeMode.Array => "validation.array",
         TypeMode.List => "validation.list",
-        _ => "validation.file"
+        TypeMode.File => "validation.file",
+        _ => throw new InvalidOperationException($"Unsupported TypeMode value '{mode}'.")
     };
 }

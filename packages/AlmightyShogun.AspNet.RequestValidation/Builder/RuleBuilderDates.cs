@@ -111,9 +111,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> After<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
-        _propertyRule.AddRule(
-            new DateValidationRule<TRequest, TProperty>(DateMode.After, ValidationField<TRequest>.From(compareExpression))
-        );
+        _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(
+            DateMode.After,
+            ValidationField<TRequest>.From(compareExpression)
+        ));
 
         return this;
     }
@@ -176,9 +177,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> AfterOrEqual<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
-        _propertyRule.AddRule(
-            new DateValidationRule<TRequest, TProperty>(DateMode.AfterOrEqual, ValidationField<TRequest>.From(compareExpression))
-        );
+        _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(
+            DateMode.AfterOrEqual,
+            ValidationField<TRequest>.From(compareExpression)
+        ));
 
         return this;
     }
@@ -241,9 +243,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> Before<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
-        _propertyRule.AddRule(
-            new DateValidationRule<TRequest, TProperty>(DateMode.Before, ValidationField<TRequest>.From(compareExpression))
-        );
+        _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(
+            DateMode.Before,
+            ValidationField<TRequest>.From(compareExpression)
+        ));
 
         return this;
     }
@@ -306,9 +309,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> BeforeOrEqual<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
-        _propertyRule.AddRule(
-            new DateValidationRule<TRequest, TProperty>(DateMode.BeforeOrEqual, ValidationField<TRequest>.From(compareExpression))
-        );
+        _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(
+            DateMode.BeforeOrEqual,
+            ValidationField<TRequest>.From(compareExpression)
+        ));
 
         return this;
     }
@@ -371,9 +375,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> DateEquals<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
-        _propertyRule.AddRule(
-            new DateValidationRule<TRequest, TProperty>(DateMode.Equals, ValidationField<TRequest>.From(compareExpression))
-        );
+        _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(
+            DateMode.Equals,
+            ValidationField<TRequest>.From(compareExpression)
+        ));
 
         return this;
     }

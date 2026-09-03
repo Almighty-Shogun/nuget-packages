@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace AlmightyShogun.AspNet.RequestValidation;
@@ -11,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <since>Unreleased</since>
 internal sealed class RequestValidationFilter(
     RequestValidator requestValidator,
-    IValidationResponseFactory responseFactory
+    ValidationResponseWriter responseWriter
 ) : IAsyncActionFilter
 {
     /// <summary>
@@ -33,9 +32,7 @@ internal sealed class RequestValidationFilter(
 
             if (!errors.HasErrors) continue;
 
-            context.Result = responseFactory.Create(
-                new ValidationResponseContext(context.HttpContext, StatusCodes.Status422UnprocessableEntity, errors)
-            );
+            context.Result = responseWriter.CreateResult(errors);
 
             return;
         }

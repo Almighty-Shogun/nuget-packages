@@ -34,7 +34,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
             FormatMode.Ulid => IsUlid(value),
             FormatMode.HexColor => IsHexColor(value),
             FormatMode.MacAddress => IsMacAddress(value),
-            _ => false
+            _ => throw new InvalidOperationException($"Unsupported FormatMode value '{mode}'.")
         };
 
         return ValueTask.FromResult(isValid ? ValidationRuleResult.Success() : ValidationRuleResult.Failure(GetMessageKey()));
@@ -232,7 +232,8 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
         FormatMode.Uuid => "validation.uuid",
         FormatMode.Ulid => "validation.ulid",
         FormatMode.HexColor => "validation.hex-color",
-        _ => "validation.mac-address"
+        FormatMode.MacAddress => "validation.mac-address",
+        _ => throw new InvalidOperationException($"Unsupported FormatMode value '{mode}'.")
     };
 
     /// <summary>
@@ -247,7 +248,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     private static partial Regex UlidRegex();
 
     /// <summary>
-    /// The colour pattern, accepting the three-, four-, six-, and eight-digit forms with or without a leading hash.
+    /// The colour pattern, accepting the three-, four-, six-, and eight-digit forms. The leading hash is required, not optional.
     /// </summary>
     ///
     /// <returns>The hex color regular expression.</returns>

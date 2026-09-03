@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Builds the rule set for one request property. Split across several partial files by rule family, so the fluent surface stays one type
-/// while each family's methods sit together.
+/// Builds the rule set for one request property. Every method appends to the same property and returns the builder, so a chain reads as
+/// one statement and declaration order is what decides evaluation order within a priority band.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -65,9 +65,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private IReadOnlyList<IPropertyValidationRule<TRequest, TProperty>> CreateRuleSet(
-        Action<RuleBuilder<TRequest, TProperty>> configure
-    )
+    private IReadOnlyList<IPropertyValidationRule<TRequest, TProperty>> CreateRuleSet(Action<RuleBuilder<TRequest, TProperty>> configure)
     {
         PropertyRule<TRequest, TProperty> ruleSet = PropertyRule<TRequest, TProperty>.CreateRuleSet(_propertyRule.FieldName);
 

@@ -1,6 +1,6 @@
 # ValidationRuleResult
 
-Represents the result returned by a custom validation rule. Built-in rules use the same structure internally, but application code most commonly interacts with this record from [`ICustomValidationRule<TRequest, TProperty>`](../custom-rules).
+Represents the result returned by a custom validation rule. Built-in rules use the same structure internally, but application code most commonly interacts with this record from [`ICustomValidationRule<TRequest, TProperty>`](../custom-rules). It is built through `Success` and `Failure` rather than by construction, so a pass cannot carry a failure message and a failure cannot carry none.
 
 ## Usage
 
@@ -47,11 +47,5 @@ ValidationRuleResult result = ValidationRuleResult.Failure(
 public static ValidationRuleResult Failure(
     string key,
     params object?[] parameters
-);
-
-public sealed record ValidationRuleResult(
-    bool IsValid,
-    string Key,
-    object?[] Parameters
 );
 ```

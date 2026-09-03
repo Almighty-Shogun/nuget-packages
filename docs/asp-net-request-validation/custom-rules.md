@@ -4,7 +4,7 @@ Custom rules let validation use application services while still producing the s
 
 ## CustomRule
 
-Adds a custom validation rule resolved from dependency injection. Use the attribute form when the rule can sit directly on a DTO property. Use the fluent form when the rule belongs in a `ValidatableRequest<TRequest>` chain with other expression-based rules.
+Adds a custom validation rule resolved from dependency injection. Use the attribute form when the rule can sit directly on a DTO property, and the fluent form when it belongs in a [`Validator<TRequest>`](./fluent-validation) chain with other expression-based rules. A rule type that does not implement `ICustomValidationRule<TRequest, TProperty>` for the property it is applied to is refused at startup by [`AddAspNetValidation`](./extensions/add-asp-net-validation), not on the request that reaches it.
 
 ::: code-group
 
@@ -22,18 +22,21 @@ RuleFor(x => x.Email)
 
 ## Create a custom rule type
 
-Use `.CustomRule<TRule>()` from a `ValidatableRequest<TRequest>` when the rule only belongs to that request or when fluent validation reads better than attributes.
+Use `.CustomRule<TRule>()` from a [`Validator<TRequest>`](./fluent-validation) when the rule only belongs to that request or when fluent validation reads better than attributes.
 
 ::: code-group
 
-```csharp [CreateAccountRequest.cs]
+```csharp [CreateAccountRequestValidator.cs]
 using AlmightyShogun.AspNet.RequestValidation;
 
 public sealed class CreateAccountRequest
-    : ValidatableRequest<CreateAccountRequest>
 {
     public string Email { get; init; } = string.Empty;
+}
 
+public sealed class CreateAccountRequestValidator
+    : Validator<CreateAccountRequest>
+{
     protected override void Rules()
     {
         RuleFor(request => request.Email)

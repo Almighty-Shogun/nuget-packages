@@ -35,7 +35,7 @@ internal sealed class ValidationFieldCondition<TRequest, TCompare>(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public string ValuesText => ValidationValue.JoinDisplayValues(values.Select(value => (object?)value));
+    public string ValuesText => ValidationDisplay.JoinDisplayValues(values.Select(value => (object?)value));
 
     /// <summary>
     /// Reads the controlling field and reports whether it equals any configured value, compared as objects, so a number and its text

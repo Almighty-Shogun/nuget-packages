@@ -33,7 +33,7 @@ internal sealed class IpValidationRule<TRequest, TProperty>(
             IpMode.Any => true,
             IpMode.Ipv4 => address.AddressFamily == AddressFamily.InterNetwork,
             IpMode.Ipv6 => address.AddressFamily == AddressFamily.InterNetworkV6,
-            _ => false
+            _ => throw new InvalidOperationException($"Unsupported IpMode value '{mode}'.")
         };
 
         return ValueTask.FromResult(isValid ? ValidationRuleResult.Success() : ValidationRuleResult.Failure(GetMessageKey()));
@@ -52,6 +52,7 @@ internal sealed class IpValidationRule<TRequest, TProperty>(
     {
         IpMode.Ipv4 => "validation.ip.ipv4",
         IpMode.Ipv6 => "validation.ip.ipv6",
-        _ => "validation.ip"
+        IpMode.Any => "validation.ip",
+        _ => throw new InvalidOperationException($"Unsupported IpMode value '{mode}'.")
     };
 }

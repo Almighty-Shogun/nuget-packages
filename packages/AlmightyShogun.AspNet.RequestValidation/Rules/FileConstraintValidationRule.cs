@@ -89,16 +89,36 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
         bool isValid = _mode switch
         {
             FileConstraintMode.Uploaded => files.All(file => file.Length > 0),
-            FileConstraintMode.Image => files.All(ValidationFile.IsImage),
+            FileConstraintMode.Image => await AreAllImagesAsync(files, cancellationToken),
             FileConstraintMode.Extensions => files.All(file => ValidationFile.HasExtension(file, _normalizedValues)),
             FileConstraintMode.Mimes => files.All(file => ValidationFile.HasMimeType(file, _normalizedValues)),
             FileConstraintMode.MimeTypes => files.All(file => ValidationFile.HasMimeType(file, _normalizedValues)),
             FileConstraintMode.Dimensions or FileConstraintMode.MinDimensions or FileConstraintMode.MaxDimensions
                 => await HasValidDimensionsAsync(files, cancellationToken),
-            _ => false
+            _ => throw new InvalidOperationException($"Unsupported FileConstraintMode value '{_mode}'.")
         };
 
         return isValid ? ValidationRuleResult.Success() : ValidationRuleResult.Failure(GetMessageKey(), GetMessageParameters(field));
+    }
+
+    /// <summary>
+    /// Checks whether every upload really is an image, reading each one's leading bytes rather than trusting its name or content type.
+    /// </summary>
+    ///
+    /// <param name="files">The uploaded files.</param>
+    /// <param name="cancellationToken">Cancels the work a rule does on its own, such as reading an uploaded file.</param>
+    ///
+    /// <returns><c>true</c> when every file opens with a recognized image signature; otherwise, <c>false</c>.</returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static async Task<bool> AreAllImagesAsync(IReadOnlyList<IFormFile> files, CancellationToken cancellationToken)
+    {
+        foreach (IFormFile file in files)
+            if (!await ValidationFile.IsImageAsync(file, cancellationToken))
+                return false;
+
+        return true;
     }
 
     /// <summary>
@@ -143,7 +163,7 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
         FileConstraintMode.Dimensions => _dimensionConstraints!.MatchesExact(dimensions),
         FileConstraintMode.MinDimensions => _dimensionConstraints!.MatchesMinimum(dimensions),
         FileConstraintMode.MaxDimensions => _dimensionConstraints!.MatchesMaximum(dimensions),
-        _ => false
+        _ => throw new InvalidOperationException($"Unsupported FileConstraintMode dimension value '{_mode}'.")
     };
 
     /// <summary>
@@ -162,7 +182,9 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
         FileConstraintMode.Extensions => "validation.extensions",
         FileConstraintMode.Mimes => "validation.mimes",
         FileConstraintMode.MimeTypes => "validation.mimetypes",
-        _ => "validation.dimensions"
+        FileConstraintMode.Dimensions or FileConstraintMode.MinDimensions or FileConstraintMode.MaxDimensions
+            => "validation.dimensions",
+        _ => throw new InvalidOperationException($"Unsupported FileConstraintMode value '{_mode}'.")
     };
 
     /// <summary>
@@ -179,7 +201,8 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
     private object?[] GetMessageParameters(string field) => _mode switch
     {
         FileConstraintMode.Uploaded => [field],
-        FileConstraintMode.Extensions or FileConstraintMode.Mimes or FileConstraintMode.MimeTypes => [ValidationValue.JoinValues(_values)],
+        FileConstraintMode.Extensions or FileConstraintMode.Mimes or FileConstraintMode.MimeTypes
+            => [ValidationDisplay.JoinValues(_values)],
         _ => []
     };
 }

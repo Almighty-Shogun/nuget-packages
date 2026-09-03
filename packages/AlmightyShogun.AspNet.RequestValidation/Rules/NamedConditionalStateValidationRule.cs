@@ -62,6 +62,9 @@ internal sealed class NamedConditionalStateValidationRule<TRequest, TProperty>(
         (ConditionalStateTargetMode.Required, ConditionalStateMode.Accepted) => "validation.required.if-accepted",
         (ConditionalStateTargetMode.Required, ConditionalStateMode.Declined) => "validation.required.if-declined",
         (ConditionalStateTargetMode.Prohibited, ConditionalStateMode.Accepted) => "validation.prohibited.if-accepted",
-        _ => "validation.prohibited.if-declined"
+        (ConditionalStateTargetMode.Prohibited, ConditionalStateMode.Declined) => "validation.prohibited.if-declined",
+        _ => throw new InvalidOperationException(
+            $"Unsupported ConditionalStateTargetMode and ConditionalStateMode pairing: ({targetMode}, {stateMode})."
+        )
     };
 }

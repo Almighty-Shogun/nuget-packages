@@ -6,11 +6,44 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-internal sealed class StringMatchValidationRule<TRequest, TProperty>(
-    StringMatchMode mode,
-    IReadOnlyList<string> values
-) : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
+internal sealed class StringMatchValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty>
+    where TRequest : class
 {
+    /// <summary>
+    /// Which part of the text must match, which also decides the message a failure reports.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private readonly StringMatchMode _mode;
+
+    /// <summary>
+    /// The values the text is matched against, held as declared so the failure message can list them.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private readonly IReadOnlyList<string> _values;
+
+    /// <summary>
+    /// Builds the rule, refusing an empty set of values rather than accepting one the rule could not act on.
+    /// </summary>
+    ///
+    /// <param name="mode">Which comparison to perform, which also decides the message a failure reports.</param>
+    /// <param name="values">The values compared against, of which there must be at least one.</param>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="values"/> is empty, which would make the rule pass or fail every value regardless of what it holds.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public StringMatchValidationRule(StringMatchMode mode, IReadOnlyList<string> values)
+    {
+        _mode = mode;
+        _values = ValidationRuleArguments.RequireAny(values, nameof(values));
+    }
+
     /// <inheritdoc />
     public ValueTask<ValidationRuleResult> ValidateAsync(
         TRequest request,
@@ -24,16 +57,16 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty>(
             return ValueTask.FromResult(ValidationRuleResult.Success());
 
         if (!ValidationValue.TryGetText(value, out string text))
-            return ValueTask.FromResult(mode == StringMatchMode.Contain && CollectionHoldsOneOf(value)
+            return ValueTask.FromResult(_mode == StringMatchMode.Contain && CollectionHoldsOneOf(value)
                 ? ValidationRuleResult.Success()
                 : ValidationRuleResult.Failure(GetMessageKey(), GetMessageParameters()));
 
-        bool isValid = mode switch
+        bool isValid = _mode switch
         {
-            StringMatchMode.Contain => values.Any(requiredValue => text.Contains(requiredValue, StringComparison.Ordinal)),
-            StringMatchMode.EndWith => values.Any(suffix => text.EndsWith(suffix, StringComparison.Ordinal)),
-            StringMatchMode.StartWith => values.Any(prefix => text.StartsWith(prefix, StringComparison.Ordinal)),
-            _ => false
+            StringMatchMode.Contain => _values.Any(requiredValue => text.Contains(requiredValue, StringComparison.Ordinal)),
+            StringMatchMode.EndWith => _values.Any(suffix => text.EndsWith(suffix, StringComparison.Ordinal)),
+            StringMatchMode.StartWith => _values.Any(prefix => text.StartsWith(prefix, StringComparison.Ordinal)),
+            _ => throw new InvalidOperationException($"Unsupported StringMatchMode value '{_mode}'.")
         };
 
         return ValueTask.FromResult(isValid
@@ -50,11 +83,12 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty>(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private string GetMessageKey() => mode switch
+    private string GetMessageKey() => _mode switch
     {
         StringMatchMode.Contain => "validation.contains",
         StringMatchMode.EndWith => "validation.ends-with",
-        _ => "validation.starts-with"
+        StringMatchMode.StartWith => "validation.starts-with",
+        _ => throw new InvalidOperationException($"Unsupported StringMatchMode value '{_mode}'.")
     };
 
     /// <summary>
@@ -66,7 +100,7 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty>(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private object?[] GetMessageParameters() => [ValidationValue.JoinValues(values)];
+    private object?[] GetMessageParameters() => [ValidationDisplay.JoinValues(_values)];
 
     /// <summary>
     /// Reports whether a collection value holds one of the configured values, which is how <c>Contains</c> reads a value that is not text.
@@ -75,17 +109,19 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty>(
     /// <param name="value">The property value, already known not to be a string.</param>
     ///
     /// <returns>
-    /// <c>true</c> when the value is a collection and one of its elements equals a configured value; otherwise <c>false</c>.
+    /// <c>true</c> when the value is a collection and one of its elements renders as a configured value in full; otherwise <c>false</c>.
     /// </returns>
     ///
     /// <remarks>
-    /// Membership rather than substring matching: an element counts when it equals a configured value in full, since a collection holds
-    /// values rather than text to search within.
+    /// Membership rather than substring matching, since a collection holds values rather than text to search within. The comparison is
+    /// between an element's <see cref="object.ToString"/> and the configured text, not between the values themselves, so the number
+    /// <c>123</c> matches <c>"123"</c> . An element whose rendering depends on the ambient culture, such as a decimal or a date, is
+    /// therefore compared as that culture writes it.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private bool CollectionHoldsOneOf(TProperty? value)
         => ValidationCollection.TryGetValues(value, out IReadOnlyList<object?> elements)
-           && values.Any(required => elements.Any(element => string.Equals(element?.ToString(), required, StringComparison.Ordinal)));
+           && _values.Any(required => elements.Any(element => string.Equals(element?.ToString(), required, StringComparison.Ordinal)));
 }

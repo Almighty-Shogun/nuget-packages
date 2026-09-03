@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 ///
 /// <param name="field">
 /// The confirmation field name. When omitted, the validator tries the property name plus <c>Confirmation</c>, then <c>Confirm</c> plus the
-/// property name.
+/// property name, and refuses the rule outright when the request declares neither.
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
@@ -20,6 +20,6 @@ public sealed class ConfirmedAttribute(string? field = null) : ValidationRuleAtt
     /// <inheritdoc />
     internal override IPropertyValidationRule<TRequest, TProperty> CreateRule<TRequest, TProperty>(PropertyInfo property)
         => field is null
-            ? new FieldComparisonValidationRule<TRequest, TProperty, TProperty>()
+            ? new FieldComparisonValidationRule<TRequest, TProperty, TProperty>(property.Name)
             : new FieldComparisonValidationRule<TRequest, TProperty, object?>(FieldComparisonMode.Confirmed, field);
 }

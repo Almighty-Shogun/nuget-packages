@@ -34,7 +34,7 @@ Every validation failure returns `422` with the same shape:
 }
 ```
 
-The outer three fields are the standard error body shared with the other packages. `errors` is added by this package, keyed by field name, with one entry per field carrying its first failure.
+The outer three fields are the standard error body shared with the other packages. `errors` is added by this package, keyed by the field name a client sees, with one entry per field carrying its first failure. A field renamed with `[JsonPropertyName]` is reported under that name, and a failure inside a nested object keeps its full path, such as `billingAddress.street` or `items[0].name`.
 
 The per-field `code` is a stable number derived from the message key, so a client can branch on it without matching English text or parsing the key.
 

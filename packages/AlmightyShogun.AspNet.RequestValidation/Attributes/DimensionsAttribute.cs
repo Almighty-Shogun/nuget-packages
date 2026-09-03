@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
@@ -11,4 +13,12 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class DimensionsAttribute(int width, int height) : ValidationRuleAttribute(FileConstraintMode.Dimensions, width, height);
+public sealed class DimensionsAttribute(int width, int height) : ValidationRuleAttribute
+{
+    /// <inheritdoc />
+    internal override IPropertyValidationRule<TRequest, TProperty> CreateRule<TRequest, TProperty>(PropertyInfo property)
+        => new FileConstraintValidationRule<TRequest, TProperty>(
+            FileConstraintMode.Dimensions,
+            dimensionConstraints: new ImageDimensionConstraints(width, height)
+        );
+}
