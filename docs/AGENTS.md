@@ -113,7 +113,7 @@ Rules:
 - If a rule is fluent-only or attribute-only, document the existing public API and call out the missing counterpart as a package parity question before release.
 - Do not add label comments such as `// Real example` inside the code block.
 
-The `docs/asp-net-request-validation/fluent-validation.md` page documents `ValidatableRequest<TRequest>` and general fluent-rule behavior:
+The `docs/asp-net-request-validation/fluent-validation.md` page documents `Validator<TRequest>` and general fluent-rule behavior:
 
 - Keep one main request example near the top.
 - Do not duplicate the full rule catalog on this page.
