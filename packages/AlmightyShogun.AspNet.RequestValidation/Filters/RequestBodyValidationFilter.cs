@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using AlmightyShogun.AspNet.Core;
+using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc.Filters;
 using AlmightyShogun.AspNet.Localization;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -29,14 +30,6 @@ internal sealed class RequestBodyValidationFilter(
     IOptions<MvcOptions> mvcOptions
 ) : IAsyncResourceFilter, IOrderedFilter
 {
-    /// <summary>
-    /// The status an unreadable body is refused with, matching the one a failed rule uses so both arrive as the same kind of failure.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private const int _statusCode = StatusCodes.Status422UnprocessableEntity;
-
     /// <summary>
     /// Runs this filter before any other resource filter, so an unreadable body is refused before anything else inspects the request.
     /// </summary>
@@ -65,13 +58,7 @@ internal sealed class RequestBodyValidationFilter(
             return;
         }
 
-        context.Result = HttpErrorResult.Create(new ValidationErrorResponse
-        {
-            Code = _statusCode,
-            Error = ValidationResponseWriter.ErrorCode,
-            ErrorDescription = messageResolver.Resolve("validation.invalid-body", []),
-            Errors = new Dictionary<string, ValidationRuleError>()
-        });
+        context.Result = new HttpErrorResult(ValidationErrorResponseFactory.Create(messageResolver, "validation.invalid-body"));
     }
 
     /// <summary>
@@ -132,7 +119,8 @@ internal sealed class RequestBodyValidationFilter(
     /// <param name="request">The request whose content type is inspected.</param>
     ///
     /// <returns>
-    /// <c>true</c> when the header is missing, unparseable, or claimed by no configured formatter; otherwise <c>false</c> .
+    /// <c>true</c> when the header is missing, unparseable, or claimed by no configured formatter; otherwise <c>false</c> . A formatter
+    /// that will not say what it reads counts as claiming the request, so binding decides rather than this filter.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
@@ -145,10 +133,58 @@ internal sealed class RequestBodyValidationFilter(
         if (!MediaTypeHeaderValue.TryParse(request.ContentType, out MediaTypeHeaderValue? mediaType))
             return true;
 
-        return !mvcOptions.Value.InputFormatters
-            .OfType<InputFormatter>()
-            .SelectMany(formatter => formatter.SupportedMediaTypes)
-            .Any(supported => MediaTypeHeaderValue.TryParse(supported, out MediaTypeHeaderValue? supportedType)
-                              && mediaType.IsSubsetOf(supportedType));
+        foreach (IInputFormatter formatter in mvcOptions.Value.InputFormatters)
+        {
+            IEnumerable<string>? supportedMediaTypes = GetSupportedMediaTypes(formatter);
+
+            if (supportedMediaTypes is null)
+                return false;
+
+            if (supportedMediaTypes.Any(supported => Reads(mediaType, supported)))
+                return false;
+        }
+
+        return true;
     }
+
+    /// <summary>
+    /// Reads the content types a formatter declares, from whichever of the two places it declares them.
+    /// </summary>
+    ///
+    /// <param name="formatter">One registered formatter, of any implementation shape.</param>
+    ///
+    /// <returns>
+    /// The declared content types, or <c>null</c> when the formatter declares none anywhere. Null is not an empty set: it means unknown,
+    /// and the caller must not conclude the formatter reads nothing from it.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// The collection is typed as <see cref="IInputFormatter"/> , and only the abstract <see cref="InputFormatter"/> carries
+    /// <see cref="InputFormatter.SupportedMediaTypes"/> . A formatter implementing the interface directly is asked through
+    /// <see cref="IApiRequestFormatMetadataProvider"/> instead, and one implementing neither cannot be interrogated at all.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static IEnumerable<string>? GetSupportedMediaTypes(IInputFormatter formatter) => formatter switch
+    {
+        InputFormatter typed => typed.SupportedMediaTypes,
+        IApiRequestFormatMetadataProvider typed => typed.GetSupportedContentTypes(contentType: null, objectType: typeof(object)),
+        _ => null
+    };
+
+    /// <summary>
+    /// Reports whether one declared content type covers the request's, comparing them as media types rather than as strings so a
+    /// parameter such as a charset does not decide the outcome.
+    /// </summary>
+    ///
+    /// <param name="mediaType">The request's parsed content type.</param>
+    /// <param name="supported">One content type a formatter declared, which may be a wildcard such as <c>text/*</c> .</param>
+    ///
+    /// <returns><c>true</c> when the declared type covers the request's; otherwise, <c>false</c>.</returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static bool Reads(MediaTypeHeaderValue mediaType, string supported)
+        => MediaTypeHeaderValue.TryParse(supported, out MediaTypeHeaderValue? supportedType) && mediaType.IsSubsetOf(supportedType);
 }
