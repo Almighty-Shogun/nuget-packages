@@ -5,20 +5,20 @@ This repository contains the `AlmightyShogun.*` NuGet packages and the VitePress
 ```text
 nuget-packages/
     packages/
-        AlmightyShogun.AspNet.Core/
-        AlmightyShogun.AspNet.Auth.Credentials/
         AlmightyShogun.AspNet.Auth/
+        AlmightyShogun.AspNet.Auth.Credentials/
+        AlmightyShogun.AspNet.Core/
         AlmightyShogun.AspNet.Localization/
         AlmightyShogun.AspNet.MaintenanceMode/
         AlmightyShogun.AspNet.RequestValidation/
         AlmightyShogun.ConsoleCommands/
-        AlmightyShogun.Utils/
         AlmightyShogun.EntityFrameworkCore.ModelBuilding/
         AlmightyShogun.Hangfire.RecurringJobs/
         AlmightyShogun.Hosting.ConsoleLifetime/
         AlmightyShogun.Mail.Resend/
         AlmightyShogun.RemoteCommands/
         AlmightyShogun.Serilog/
+        AlmightyShogun.Utils/
     docs/
         .vitepress/
         guide/
