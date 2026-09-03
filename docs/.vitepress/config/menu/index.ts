@@ -1,7 +1,7 @@
 import type { DefaultTheme } from 'vitepress'
 import { guide } from './guide'
 import { aspNetCore } from './asp-net-core'
-import { aspNetCredentialAuth } from './asp-net-credential-auth'
+import { aspNetAuthCredentials } from './asp-net-auth-credentials'
 import { aspNetAuth } from './asp-net-auth'
 import { aspNetLocalization } from './asp-net-localization'
 import { aspNetMaintenanceMode } from './asp-net-maintenance-mode'
@@ -23,7 +23,7 @@ export const nav: DefaultTheme.NavItem[] = [
     },
     {
         text: 'ASP.NET',
-        activeMatch: '^/(asp-net-core|asp-net-credential-auth|asp-net-auth|asp-net-localization|asp-net-maintenance-mode|asp-net-request-validation)/',
+        activeMatch: '^/(asp-net-core|asp-net-auth-credentials|asp-net-auth|asp-net-localization|asp-net-maintenance-mode|asp-net-request-validation)/',
         items: [
             { text: 'Core', activeMatch: '^/asp-net-core/', link: '/asp-net-core/' },
             { text: 'Auth', activeMatch: '^/asp-net-auth/', link: '/asp-net-auth/' },
@@ -33,7 +33,7 @@ export const nav: DefaultTheme.NavItem[] = [
             {
                 text: 'Login Systems',
                 items: [
-                    { text: 'Credential Auth', activeMatch: '^/asp-net-credential-auth/', link: '/asp-net-credential-auth/' }
+                    { text: 'Auth Credentials', activeMatch: '^/asp-net-auth-credentials/', link: '/asp-net-auth-credentials/' }
                 ]
             }
         ]
@@ -67,7 +67,7 @@ export const nav: DefaultTheme.NavItem[] = [
 export const sidebar = {
     "/guide/": guide,
     "/asp-net-core/": aspNetCore,
-    "/asp-net-credential-auth/": aspNetCredentialAuth,
+    "/asp-net-auth-credentials/": aspNetAuthCredentials,
     "/asp-net-auth/": aspNetAuth,
     "/asp-net-localization/": aspNetLocalization,
     "/asp-net-maintenance-mode/": aspNetMaintenanceMode,
