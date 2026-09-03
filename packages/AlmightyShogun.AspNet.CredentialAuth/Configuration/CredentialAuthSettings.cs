@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 /// </summary>
 ///
 /// <remarks>
-/// These settings are separate from <c>Auth</c>, which belongs to <c>AlmightyShogun.AspNet.JwtAuth</c> and describes
+/// These settings are separate from <c>Auth</c>, which belongs to <c>AlmightyShogun.AspNet.Auth</c> and describes
 /// token minting and validation. Credential concerns such as lockout live with the package that owns credentials.
 /// </remarks>
 ///

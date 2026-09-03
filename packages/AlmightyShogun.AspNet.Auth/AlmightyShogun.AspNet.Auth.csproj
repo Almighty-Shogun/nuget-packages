@@ -6,18 +6,18 @@
         <TargetFramework>net10.0</TargetFramework>
 
         <Authors>Almighty-Shogun</Authors>
-        <PackageId>AlmightyShogun.AspNet.CredentialAuth</PackageId>
-        <RootNamespace>AlmightyShogun.AspNet.CredentialAuth</RootNamespace>
+        <PackageId>AlmightyShogun.AspNet.Auth</PackageId>
+        <RootNamespace>AlmightyShogun.AspNet.Auth</RootNamespace>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Description>A C# library that adds username or email password authentication, refresh sessions, and password reset helpers to ASP.NET Core APIs.</Description>
+        <Description>A C# library that adds JWT bearer authentication, refresh-token cookie helpers, and app-scoped permission authorization to ASP.NET Core APIs.</Description>
 
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Almighty-Shogun/nuget-packages</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.AspNet.CredentialAuth</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/Almighty-Shogun/nuget-packages/tree/main/packages/AlmightyShogun.AspNet.Auth</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>
@@ -30,17 +30,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Otp.NET"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational"/>
+        <PackageReference Include="Microsoft.IdentityModel.Tokens"/>
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\AlmightyShogun.Utils\AlmightyShogun.Utils.csproj"/>
         <ProjectReference Include="..\AlmightyShogun.AspNet.Core\AlmightyShogun.AspNet.Core.csproj"/>
-        <ProjectReference Include="..\AlmightyShogun.AspNet.Auth\AlmightyShogun.AspNet.Auth.csproj"/>
         <ProjectReference Include="..\AlmightyShogun.AspNet.Localization\AlmightyShogun.AspNet.Localization.csproj"/>
-        <ProjectReference Include="..\AlmightyShogun.AspNet.RequestValidation\AlmightyShogun.AspNet.RequestValidation.csproj"/>
     </ItemGroup>
-
 </Project>

@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Core"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Localization", "packages\AlmightyShogun.AspNet.Localization\AlmightyShogun.AspNet.Localization.csproj", "{487F3E2B-F1A8-414C-BB08-55D5429267E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.JwtAuth", "packages\AlmightyShogun.AspNet.JwtAuth\AlmightyShogun.AspNet.JwtAuth.csproj", "{064FE957-8883-4422-849A-A75BDD8505EC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Auth", "packages\AlmightyShogun.AspNet.Auth\AlmightyShogun.AspNet.Auth.csproj", "{064FE957-8883-4422-849A-A75BDD8505EC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.Mail.Resend", "packages\AlmightyShogun.Mail.Resend\AlmightyShogun.Mail.Resend.csproj", "{1DE8EC13-7875-4841-9E05-A6B027C1266D}"
 EndProject

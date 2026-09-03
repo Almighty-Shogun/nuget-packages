@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.Core;
 using Microsoft.Extensions.Options;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;

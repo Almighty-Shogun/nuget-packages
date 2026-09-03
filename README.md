@@ -10,7 +10,7 @@ A collection of NuGet packages I use in (personal) projects.
 ## 📦 Packages
 - **[ASP.NET Core](packages/AlmightyShogun.AspNet.Core)**: `AlmightyShogun.AspNet.Core`
 - **[ASP.NET Credential Auth](packages/AlmightyShogun.AspNet.CredentialAuth)**: `AlmightyShogun.AspNet.CredentialAuth`
-- **[ASP.NET JWT Auth](packages/AlmightyShogun.AspNet.JwtAuth)**: `AlmightyShogun.AspNet.JwtAuth`
+- **[ASP.NET Auth](packages/AlmightyShogun.AspNet.Auth)**: `AlmightyShogun.AspNet.Auth`
 - **[ASP.NET Localization](packages/AlmightyShogun.AspNet.Localization)**: `AlmightyShogun.AspNet.Localization`
 - **[ASP.NET Maintenance Mode](packages/AlmightyShogun.AspNet.MaintenanceMode)**: `AlmightyShogun.AspNet.MaintenanceMode`
 - **[ASP.NET Request Validation](packages/AlmightyShogun.AspNet.RequestValidation)**: `AlmightyShogun.AspNet.RequestValidation`
