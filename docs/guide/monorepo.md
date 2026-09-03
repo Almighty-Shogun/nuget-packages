@@ -6,7 +6,7 @@ This repository contains the `AlmightyShogun.*` NuGet packages and the VitePress
 nuget-packages/
     packages/
         AlmightyShogun.AspNet.Core/
-        AlmightyShogun.AspNet.CredentialAuth/
+        AlmightyShogun.AspNet.Auth.Credentials/
         AlmightyShogun.AspNet.Auth/
         AlmightyShogun.AspNet.Localization/
         AlmightyShogun.AspNet.MaintenanceMode/
@@ -47,7 +47,7 @@ Project references are explicit in each `.csproj`. The arrows point from a packa
 AlmightyShogun.AspNet.Core
     -> AlmightyShogun.AspNet.Localization
 
-AlmightyShogun.AspNet.CredentialAuth
+AlmightyShogun.AspNet.Auth.Credentials
     -> AlmightyShogun.Utils
     -> AlmightyShogun.AspNet.Core
     -> AlmightyShogun.AspNet.Auth
