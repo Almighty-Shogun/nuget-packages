@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Maint
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.RequestValidation", "packages\AlmightyShogun.AspNet.RequestValidation\AlmightyShogun.AspNet.RequestValidation.csproj", "{C192A826-26F0-4C42-A2F4-C474B2B4FE7D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.CredentialAuth", "packages\AlmightyShogun.AspNet.CredentialAuth\AlmightyShogun.AspNet.CredentialAuth.csproj", "{13E7324F-3726-43C9-80B5-816C513F75D7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmightyShogun.AspNet.Auth.Credentials", "packages\AlmightyShogun.AspNet.Auth.Credentials\AlmightyShogun.AspNet.Auth.Credentials.csproj", "{13E7324F-3726-43C9-80B5-816C513F75D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
