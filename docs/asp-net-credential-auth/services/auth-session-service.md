@@ -12,7 +12,7 @@ Issues a refresh token for a user and stores the session it belongs to, recordin
 
 ```csharp
 using AlmightyShogun.AspNet.Core;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
 public sealed class SsoSignInService(
@@ -46,7 +46,7 @@ Matches the submitted token against a live session, rotates it, refreshes the re
 Throws [`InvalidSessionException`](../exceptions) when the token matches no usable session, whether unknown, expired, revoked, or scoped to a different application. Two refreshes racing on one session are settled by a concurrency token, so the one that loses is refused the same way. A disabled or locked-out account is refused with [`AccountDisabledException`](../exceptions) or [`AccountLockedException`](../exceptions), so deactivating a user takes effect on their next refresh rather than at the end of their access token.
 
 ```csharp
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
 string refreshToken = httpContext.Request.GetRefreshTokenCookie();
@@ -71,7 +71,7 @@ Revokes the one session the token belongs to, leaving the user's other sessions 
 An unknown, expired, or already revoked token is not an error and nothing is written, which keeps logout idempotent: clearing the browser cookie still succeeds when the stored session is already gone.
 
 ```csharp
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
 string refreshToken = httpContext.Request.GetRefreshTokenCookie();

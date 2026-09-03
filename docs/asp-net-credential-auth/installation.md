@@ -20,17 +20,17 @@ dotnet add package AlmightyShogun.AspNet.CredentialAuth
 
 ### Project references
 
-- `AlmightyShogun.AspNet.JwtAuth` &mdash; supplies [`AuthSettings`](/asp-net-jwt-auth/configuration), [`IAppHostResolver`](/asp-net-jwt-auth/services/app-host-resolver), the token generator, and the refresh-token cookie helpers.
+- `AlmightyShogun.AspNet.Auth` &mdash; supplies [`AuthSettings`](/asp-net-auth/configuration), [`IAppHostResolver`](/asp-net-auth/services/app-host-resolver), the token generator, and the refresh-token cookie helpers.
 - `AlmightyShogun.AspNet.Core` &mdash; supplies [`ClientContext`](/asp-net-core/records/client-context), User-Agent parsing, and the [`IExceptionMapper`](/asp-net-core/exceptions) contract this package's exceptions map through.
 - `AlmightyShogun.AspNet.Localization` &mdash; resolves the message on each failure from the `auth` and `passwords` files described in [Localization](./localization).
 - `AlmightyShogun.AspNet.RequestValidation` &mdash; supplies the `[Required]`, `[Email]`, `[Min]`, and `[PasswordSecure]` rules carried by the [request models](./requests/login-request).
 
 ## Startup Registration
 
-[`AddJwtAuth`](/asp-net-jwt-auth/extensions/add-jwt-auth) binds the token settings and the app resolver that credential flows read; [`AddCredentialAuth`](./extensions/add-credential-auth) maps your context onto the package base context and registers the credential services against your user entity.
+[`AddAuth`](/asp-net-auth/extensions/add-auth) binds the token settings and the app resolver that credential flows read; [`AddCredentialAuth`](./extensions/add-credential-auth) maps your context onto the package base context and registers the credential services against your user entity.
 
 ::: warning
-Register JWT auth first. Credential auth resolves [`AuthSettings`](/asp-net-jwt-auth/configuration) and [`IAppHostResolver`](/asp-net-jwt-auth/services/app-host-resolver) at construction, so a container missing them fails when the first credential service is resolved, not at startup.
+Register JWT auth first. Credential auth resolves [`AuthSettings`](/asp-net-auth/configuration) and [`IAppHostResolver`](/asp-net-auth/services/app-host-resolver) at construction, so a container missing them fails when the first credential service is resolved, not at startup.
 :::
 
 ::: code-group
@@ -38,7 +38,7 @@ Register JWT auth first. Credential auth resolves [`AuthSettings`](/asp-net-jwt-
 ```csharp [Program.cs]
 using AlmightyShogun.AspNet.Core;
 using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.Localization;
 using AlmightyShogun.AspNet.CredentialAuth;
 using AlmightyShogun.AspNet.RequestValidation;
@@ -47,7 +47,7 @@ builder.Services
     .AddMessageLocalization(builder.Configuration)
     .AddHttpErrorResponseWriter()
     .AddExceptionHandling()
-    .AddJwtAuth(builder.Configuration)
+    .AddAuth(builder.Configuration)
     .AddAspNetValidation()
     .AddDbContext<AppDbContext>(options => ...)
     .AddCredentialAuth<AppDbContext, AppUser>(builder.Configuration);

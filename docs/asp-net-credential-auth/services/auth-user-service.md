@@ -12,7 +12,7 @@ Throws [`InvalidCredentialsException`](../exceptions) when the identifier matche
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
 public sealed class LoginController(IAuthUserService<AppUser> authUsers) : ControllerBase
@@ -78,7 +78,7 @@ Build the entity from a [`RegisterRequest`](../requests/register-request) rather
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.CredentialAuth;
 
 public sealed class RegisterController(IAuthUserService<AppUser> authUsers) : ControllerBase

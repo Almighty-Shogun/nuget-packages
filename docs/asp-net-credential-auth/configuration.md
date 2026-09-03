@@ -75,7 +75,7 @@ fields:
 
 # Configuration
 
-The optional `CredentialAuth` section is bound to `CredentialAuthSettings`, with lockout and two-factor values on nested objects. Token issuer, secret, and lifetimes live in the [`Auth`](/asp-net-jwt-auth/configuration) section instead, because they describe token minting rather than credentials.
+The optional `CredentialAuth` section is bound to `CredentialAuthSettings`, with lockout and two-factor values on nested objects. Token issuer, secret, and lifetimes live in the [`Auth`](/asp-net-auth/configuration) section instead, because they describe token minting rather than credentials.
 
 ```json
 {
