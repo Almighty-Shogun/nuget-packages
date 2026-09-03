@@ -38,7 +38,7 @@ internal sealed class AuthTokenGenerator(IOptions<AuthSettings> authOptions, IAp
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private readonly SigningCredentials _signingCredentials = new(
-        authOptions.Value.SigningKey(),
+        AuthSigningKey.Create(authOptions.Value.Secret),
         SecurityAlgorithms.HmacSha256
     );
 

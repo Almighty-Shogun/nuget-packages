@@ -1,5 +1,5 @@
-using System.Text;
 using AlmightyShogun.Utils;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
@@ -57,12 +57,16 @@ public static class PackageRegistry
                 .AddHttpContextAccessor()
                 .AddAuthorization()
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options => ConfigureJwtBearer(options, configuration));
+                .AddJwtBearer();
 
             serviceCollection.AddOptions<AuthSettings>().Validate(
                 settings => settings.ValidAudiences.Count > 0,
                 "Auth resolved no valid audience. Configure Auth:DefaultApp or at least one Auth:Hosts entry."
             );
+
+            serviceCollection
+                .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+                .Configure<IOptions<AuthSettings>>(ConfigureJwtBearer);
 
             if (registerExceptionHandler)
                 serviceCollection.AddExceptionHandler<JwtAuthExceptionHandler>();
@@ -77,19 +81,21 @@ public static class PackageRegistry
     }
 
     /// <summary>
-    /// Applies the bound settings to the bearer options, so issuer, signing key, audience, and lifetime are configured
-    /// from one place rather than independently.
+    /// Applies the bound settings to the bearer options, so issuer, signing key, audience, and lifetime come from the
+    /// same validated instance the rest of the package resolves rather than from a second read of configuration.
     /// </summary>
     ///
     /// <param name="options">The bearer options being built for the authentication scheme.</param>
-    /// <param name="configuration">The configuration the <c>Auth</c> section is read from.</param>
+    /// <param name="authOptions">
+    /// The bound <c>Auth</c> section. Resolving its value runs the data annotations and the audience rule, so a
+    /// configuration that failed validation never reaches the token validation parameters.
+    /// </param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static void ConfigureJwtBearer(JwtBearerOptions options, IConfiguration configuration)
+    private static void ConfigureJwtBearer(JwtBearerOptions options, IOptions<AuthSettings> authOptions)
     {
-        AuthSettings authSettings = configuration.GetSection("Auth").Get<AuthSettings>()
-                                    ?? throw new InvalidOperationException("Missing Auth configuration");
+        AuthSettings authSettings = authOptions.Value;
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -100,7 +106,7 @@ public static class PackageRegistry
             ClockSkew = TimeSpan.FromSeconds(authSettings.ClockSkewSeconds),
             ValidIssuer = authSettings.Issuer,
             ValidAudiences = authSettings.ValidAudiences,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authSettings.Secret))
+            IssuerSigningKey = AuthSigningKey.Create(authSettings.Secret)
         };
     }
 }
