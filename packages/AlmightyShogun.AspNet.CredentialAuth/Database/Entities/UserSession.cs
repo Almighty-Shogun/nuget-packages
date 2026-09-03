@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
@@ -143,6 +144,21 @@ public sealed class UserSession
     /// <since>Unreleased</since>
     [MaxLength(64)]
     public string? PreviousRefreshTokenHash { get; set; }
+
+    /// <summary>
+    /// Gets or sets the value that guards a rotation against a concurrent one. Rewritten on every rotation and mapped as
+    /// the row's concurrency token, so two refreshes that read the same session leave only the first one's write standing
+    /// and the second fails with <see cref="DbUpdateConcurrencyException"/>.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Internal because nothing outside the package may set it: a caller assigning it would either break a rotation in
+    /// flight or defeat the check entirely. It is still a real column, so an application's migration has to create it.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal Guid ConcurrencyToken { get; set; } = Guid.NewGuid();
 
     /// <summary>
     /// Gets whether the session is past its expiry, computed rather than stored so it needs no sweep to stay accurate.
