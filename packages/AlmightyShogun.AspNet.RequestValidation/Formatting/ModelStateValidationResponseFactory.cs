@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.Core;
 using AlmightyShogun.AspNet.Localization;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,20 +14,15 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal static class ModelStateValidationResponseFactory
 {
     /// <summary>
-    /// The status a binding failure is reported with, the same one a rule failure uses.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private const int _statusCode = StatusCodes.Status422UnprocessableEntity;
-
-    /// <summary>
     /// Converts model-state entries into field errors and wraps them in the standard body.
     /// </summary>
     ///
     /// <param name="context">The action context, read for the model state entries a binding failure left behind.</param>
     ///
-    /// <returns>The validation response result.</returns>
+    /// <returns>
+    /// The result. A failure against the body as a whole reports as an unreadable body with no field detail, since there is no field it
+    /// belongs to; anything else reports per field.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -37,18 +31,10 @@ internal static class ModelStateValidationResponseFactory
         var messageResolver = context.HttpContext.RequestServices.GetRequiredService<IMessageResolver>();
 
         if (ModelStateValidationExtractor.HasBodyLevelError(context))
-            return HttpErrorResult.Create(new ValidationErrorResponse
-            {
-                Code = _statusCode,
-                Error = ValidationResponseWriter.ErrorCode,
-                ErrorDescription = messageResolver.Resolve("validation.invalid-body", []),
-                Errors = new Dictionary<string, ValidationRuleError>()
-            });
-
-        var validationResponseFactory = context.HttpContext.RequestServices.GetRequiredService<IValidationResponseFactory>();
+            return new HttpErrorResult(ValidationErrorResponseFactory.Create(messageResolver, "validation.invalid-body"));
 
         ValidationBag errors = ModelStateValidationExtractor.Extract(context.ModelState);
 
-        return validationResponseFactory.Create(new ValidationResponseContext(context.HttpContext, _statusCode, errors));
+        return new HttpErrorResult(ValidationErrorResponseFactory.Create(messageResolver, errors));
     }
 }

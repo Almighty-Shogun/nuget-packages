@@ -22,43 +22,29 @@ internal sealed class EndpointValidationFilter(
     ///
     /// <returns>The handler's own result, or the standard validation body when an argument failed.</returns>
     ///
+    /// <remarks>
+    /// Every argument is offered, the framework values a handler also receives included. Deciding which of them could carry rules is left
+    /// to the rule cache, which answers from what a type actually declares and remembers the answer, rather than to a list of types to
+    /// skip here. Such a list can only ever name a few of them: a logger, a principal, and every injected service would all have to
+    /// appear on it.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
         foreach (object? argument in context.Arguments)
         {
-            if (!CanCarryRules(argument)) continue;
-
             ValidationBag errors = await requestValidator.ValidateAsync(argument, context.HttpContext.RequestAborted);
 
             if (!errors.HasErrors) continue;
 
             return Results.Json(
                 responseWriter.CreateResponse(errors),
-                statusCode: ValidationResponseWriter.StatusCode
+                statusCode: ValidationErrorResponseFactory.StatusCode
             );
         }
 
         return await next(context);
     }
-
-    /// <summary>
-    /// Reports whether an argument is the kind of thing that can carry rules, so the framework values a handler also receives are skipped.
-    /// </summary>
-    ///
-    /// <param name="argument">One bound argument of the endpoint.</param>
-    ///
-    /// <returns>
-    /// <c>false</c> for <c>null</c>, for a value type, for a string, and for the request context and its cancellation token; otherwise
-    /// <c>true</c>. Those are never request models, so validating them only costs a reflection pass to learn they declare nothing.
-    /// </returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private static bool CanCarryRules(object? argument) => argument is not null
-        and not ValueType
-        and not string
-        and not HttpContext
-        and not CancellationToken;
 }

@@ -1,12 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.Core;
 using AlmightyShogun.AspNet.Localization;
 
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Wraps a validation failure in an MVC result, for the code paths that return a result rather than writing the response themselves.
+/// Builds the validation failure result for one field, for the code paths that fail before the rule pipeline is reached and return a
+/// result rather than writing the response themselves.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -14,39 +13,23 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 public static class ValidationErrorResult
 {
     /// <summary>
-    /// The status the result is sent with, matching the one the rule pipeline uses so a pre-pipeline failure looks the same.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private const int StatusCode = StatusCodes.Status422UnprocessableEntity;
-
-    /// <summary>
-    /// Builds a result reporting one field's failure, for the cases that fail before the rule pipeline is reached.
+    /// Builds a result reporting one field's failure, in the same envelope and under the same status a broken rule reports.
     /// </summary>
     ///
     /// <param name="messageResolver">The message resolver used to resolve error descriptions.</param>
-    /// <param name="field">The validation field.</param>
+    /// <param name="field">
+    /// The field the failure is reported against. Spell it as the client sees it, since nothing here converts it: this path has no
+    /// property to read a serialization name from.
+    /// </param>
     /// <param name="key">
     /// The message key the failure reports, resolved into a sentence here rather than deferred until the response is written.
     /// </param>
     /// <param name="parameters">The values substituted into the message template by position, empty when the message takes none.</param>
     ///
-    /// <returns>The validation error object result.</returns>
+    /// <returns>The result carrying the validation body, whose status comes from the body rather than being set separately.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public static ObjectResult Create(IMessageResolver messageResolver, string field, string key, params object?[] parameters)
-    {
-        ValidationBag errors = new();
-        errors.Add(field, key, parameters);
-
-        return HttpErrorResult.Create(new ValidationErrorResponse
-        {
-            Code = StatusCode,
-            Error = "validation_error",
-            ErrorDescription = messageResolver.Resolve($"http-error.{StatusCode}"),
-            Errors = errors.ToErrorDictionary(messageResolver)
-        });
-    }
+    public static HttpErrorResult Create(IMessageResolver messageResolver, string field, string key, params object?[] parameters)
+        => new(ValidationErrorResponseFactory.Create(messageResolver, field, key, parameters));
 }
