@@ -6,11 +6,43 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-internal sealed class ArrayKeysValidationRule<TRequest, TProperty>(
-    ArrayKeyMode mode,
-    IReadOnlyList<string> requiredKeys
-) : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
+internal sealed class ArrayKeysValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
+    /// <summary>
+    /// Whether every named key is required or only one of them, which also decides the message a failure reports.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private readonly ArrayKeyMode _mode;
+
+    /// <summary>
+    /// The keys the value must carry, held as declared so the failure message can list them.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private readonly IReadOnlyList<string> _requiredKeys;
+
+    /// <summary>
+    /// Builds the rule, refusing an empty set of values rather than accepting one the rule could not act on.
+    /// </summary>
+    ///
+    /// <param name="mode">Which comparison to perform, which also decides the message a failure reports.</param>
+    /// <param name="requiredKeys">The values compared against, of which there must be at least one.</param>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="requiredKeys"/> is empty, which would make the rule pass or fail every value regardless of what it holds.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public ArrayKeysValidationRule(ArrayKeyMode mode, IReadOnlyList<string> requiredKeys)
+    {
+        _mode = mode;
+        _requiredKeys = ValidationRuleArguments.RequireAny(requiredKeys, nameof(requiredKeys));
+    }
+
     /// <inheritdoc />
     public ValueTask<ValidationRuleResult> ValidateAsync(
         TRequest request,
@@ -24,13 +56,13 @@ internal sealed class ArrayKeysValidationRule<TRequest, TProperty>(
             return ValueTask.FromResult(ValidationRuleResult.Success());
 
         if (!ValidationCollection.TryGetKeys(value, out IReadOnlySet<string> keys))
-            return ValueTask.FromResult(ValidationRuleResult.Failure(GetMessageKey(), ValidationValue.JoinValues(requiredKeys)));
+            return ValueTask.FromResult(ValidationRuleResult.Failure(GetMessageKey(), ValidationDisplay.JoinValues(_requiredKeys)));
 
-        bool isValid = mode == ArrayKeyMode.AnyRequiredKey ? requiredKeys.Any(keys.Contains) : requiredKeys.All(keys.Contains);
+        bool isValid = _mode == ArrayKeyMode.AnyRequiredKey ? _requiredKeys.Any(keys.Contains) : _requiredKeys.All(keys.Contains);
 
         return ValueTask.FromResult(isValid
             ? ValidationRuleResult.Success()
-            : ValidationRuleResult.Failure(GetMessageKey(), ValidationValue.JoinValues(requiredKeys)));
+            : ValidationRuleResult.Failure(GetMessageKey(), ValidationDisplay.JoinValues(_requiredKeys)));
     }
 
     /// <summary>
@@ -42,5 +74,5 @@ internal sealed class ArrayKeysValidationRule<TRequest, TProperty>(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private string GetMessageKey() => mode == ArrayKeyMode.AnyRequiredKey ? "validation.in.array-keys" : "validation.required.array-keys";
+    private string GetMessageKey() => _mode == ArrayKeyMode.AnyRequiredKey ? "validation.in.array-keys" : "validation.required.array-keys";
 }

@@ -17,7 +17,8 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     private readonly DateMode _mode;
 
     /// <summary>
-    /// The exact format a value must parse under, set only for the exact-format check and left null for every other mode.
+    /// The exact format a value must parse under, set only for the exact-format check and left null for every other mode. Non-empty
+    /// whenever it is set, since the constructor that sets it refuses a blank one.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -62,10 +63,18 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     ///
     /// <param name="format">The required date format.</param>
     ///
+    /// <exception cref="ArgumentException">
+    /// <paramref name="format"/> is empty or whitespace, which no value can ever parse under, so the rule would reject every value it was
+    /// given. Refused here rather than surfacing as a field that cannot be filled in.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public DateValidationRule(string format)
     {
+        if (string.IsNullOrWhiteSpace(format))
+            throw new ArgumentException("A date format rule needs a format.", nameof(format));
+
         _format = format;
         _mode = DateMode.ExactFormat;
     }
@@ -77,11 +86,15 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// <param name="mode">Which ordering the value must satisfy against the target.</param>
     /// <param name="targetDate">The literal target date.</param>
     ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="mode"/> is not an ordering, so pairing it with a target is meaningless.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public DateValidationRule(DateMode mode, DateTimeOffset targetDate)
     {
-        _mode = mode;
+        _mode = RequireOrderingMode(mode);
         _targetDate = targetDate.ToUniversalTime();
         _target = ValidationDate.ToMessageValue(targetDate);
     }
@@ -93,11 +106,15 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// <param name="mode">Which ordering the value must satisfy against the target.</param>
     /// <param name="targetField">The target field.</param>
     ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="mode"/> is not an ordering, so pairing it with a target field is meaningless.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public DateValidationRule(DateMode mode, ValidationField<TRequest> targetField)
     {
-        _mode = mode;
+        _mode = RequireOrderingMode(mode);
         _targetField = targetField;
         _target = targetField.Name;
     }
@@ -108,6 +125,10 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     ///
     /// <param name="mode">Which ordering the value must satisfy against the target.</param>
     /// <param name="targetPropertyName">The target property name.</param>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="mode"/> is not an ordering, or <paramref name="targetPropertyName"/> names no property on the request type.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -127,7 +148,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
             return ValueTask.FromResult(ValidationRuleResult.Success());
 
         if (_mode is DateMode.ExactFormat)
-            return ValueTask.FromResult(ValidationDate.TryGetExactDate(value, _format ?? string.Empty, out _)
+            return ValueTask.FromResult(ValidationDate.TryGetExactDate(value, _format!, out _)
                 ? ValidationRuleResult.Success()
                 : ValidationRuleResult.Failure("validation.date.format", _format));
 
@@ -184,7 +205,29 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
         DateMode.Before => date < targetDate,
         DateMode.BeforeOrEqual => date <= targetDate,
         DateMode.Equals => date == targetDate,
-        _ => false
+        _ => throw new InvalidOperationException($"Unsupported DateMode value '{_mode}'.")
+    };
+
+    /// <summary>
+    /// Accepts only the modes that compare against a target, so a rule cannot be built pairing a target with a mode that ignores it.
+    /// </summary>
+    ///
+    /// <param name="mode">The mode a comparison constructor was handed.</param>
+    ///
+    /// <returns>The mode, once it is known to be an ordering.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The mode is <see cref="DateMode.ValidDate"/> or <see cref="DateMode.ExactFormat"/> , neither of which reads a target. Refused
+    /// here rather than accepted and then ignored, since a comparison rule holding a mode that never compares would report a failure key
+    /// for a check it never made.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static DateMode RequireOrderingMode(DateMode mode) => mode switch
+    {
+        DateMode.After or DateMode.AfterOrEqual or DateMode.Before or DateMode.BeforeOrEqual or DateMode.Equals => mode,
+        _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, "A date comparison rule needs an ordering mode.")
     };
 
     /// <summary>
@@ -202,6 +245,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
         DateMode.AfterOrEqual => "validation.after.or-equal",
         DateMode.Before => "validation.before",
         DateMode.BeforeOrEqual => "validation.before.or-equal",
-        _ => "validation.date.equals"
+        DateMode.Equals => "validation.date.equals",
+        _ => throw new InvalidOperationException($"Unsupported DateMode value '{_mode}'.")
     };
 }
