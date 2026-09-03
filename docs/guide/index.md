@@ -11,7 +11,7 @@ The repository is intentionally practical. Packages are small, .NET-first, depen
 - [ASP.NET Localization](/asp-net-localization/) &mdash; message text in JSON files on disk, resolved in the language the request asks for and reported back through `Content-Language`.
 - [ASP.NET Maintenance Mode](/asp-net-maintenance-mode/) &mdash; file-backed maintenance windows that block traffic and survive a process restart without a database or coordinator.
 - [ASP.NET Request Validation](/asp-net-request-validation/) &mdash; attribute and fluent request rules, collected per field and returned as one localized `422` rather than one failure at a time.
-- [ASP.NET Credential Auth](/asp-net-credential-auth/) &mdash; first-party accounts: password login, refresh sessions, password reset, account lockout, and TOTP two-factor, stored in the application's own EF Core context.
+- [ASP.NET Auth Credentials](/asp-net-auth-credentials/) &mdash; first-party accounts: password login, refresh sessions, password reset, account lockout, and TOTP two-factor, stored in the application's own EF Core context.
 
 ## Operations
 

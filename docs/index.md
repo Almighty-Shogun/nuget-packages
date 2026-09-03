@@ -43,9 +43,9 @@ features:
         link: /asp-net-request-validation/
         linkText: View package
 
-    -   title: ASP.NET Credential Auth
+    -   title: ASP.NET Auth Credentials
         details: Password login, refresh sessions, reset tokens, lockout, and two-factor.
-        link: /asp-net-credential-auth/
+        link: /asp-net-auth-credentials/
         linkText: View package
 
     -   title: Console Commands

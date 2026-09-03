@@ -6,7 +6,7 @@ This guide shows how to install one or more `AlmightyShogun.*` packages and use 
 
 - .NET 10 SDK.
 - ASP.NET Core when using any `AlmightyShogun.AspNet.*` package.
-- Entity Framework Core when using `AlmightyShogun.EntityFrameworkCore.ModelBuilding` or `AlmightyShogun.AspNet.CredentialAuth`.
+- Entity Framework Core when using `AlmightyShogun.EntityFrameworkCore.ModelBuilding` or `AlmightyShogun.AspNet.Auth.Credentials`.
 - Hangfire when using `AlmightyShogun.Hangfire.RecurringJobs`.
 - A Resend account and API key when using `AlmightyShogun.Mail.Resend`.
 - Application configuration from `appsettings.json` when a package reads options through `builder.Configuration`.
@@ -92,10 +92,10 @@ app.UseAspNetValidation();
 
 ## Credential login
 
-Use `AlmightyShogun.AspNet.CredentialAuth` when the API owns username and password accounts. It builds on ASP.NET Auth for access tokens, ASP.NET Core for request metadata and error responses, ASP.NET Request Validation for the request models, and Entity Framework Core for storage.
+Use `AlmightyShogun.AspNet.Auth.Credentials` when the API owns username and password accounts. It builds on ASP.NET Auth for access tokens, ASP.NET Core for request metadata and error responses, ASP.NET Request Validation for the request models, and Entity Framework Core for storage.
 
 ```sh
-dotnet add package AlmightyShogun.AspNet.CredentialAuth
+dotnet add package AlmightyShogun.AspNet.Auth.Credentials
 ```
 
 ```csharp
@@ -103,7 +103,7 @@ using AlmightyShogun.AspNet.Core;
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.Localization;
-using AlmightyShogun.AspNet.CredentialAuth;
+using AlmightyShogun.AspNet.Auth.Credentials;
 using AlmightyShogun.AspNet.RequestValidation;
 
 builder.Services
@@ -113,10 +113,10 @@ builder.Services
     .AddAuth(builder.Configuration)
     .AddAspNetValidation()
     .AddDbContext<AppDbContext>(options => ...)
-    .AddCredentialAuth<AppDbContext, AppUser>(builder.Configuration);
+    .AddAuthCredentials<AppDbContext, AppUser>(builder.Configuration);
 ```
 
-Application code derives its context from [`AuthDbContext<TUser>`](/asp-net-credential-auth/types/auth-db-context) and its user entity from [`AuthUser`](/asp-net-credential-auth/types/auth-user). Use [`IAuthUserService<TUser>`](/asp-net-credential-auth/services/auth-user-service) for login and registration, [`IAuthSessionService<TUser>`](/asp-net-credential-auth/services/auth-session-service) for refresh-token rotation, [`IAuthPasswordService`](/asp-net-credential-auth/services/auth-password-service) for password changes and resets, and [`IAuthTwoFactorService<TUser>`](/asp-net-credential-auth/services/auth-two-factor-service) for two-factor enrolment.
+Application code derives its context from [`AuthDbContext<TUser>`](/asp-net-auth-credentials/types/auth-db-context) and its user entity from [`AuthUser`](/asp-net-auth-credentials/types/auth-user). Use [`IAuthUserService<TUser>`](/asp-net-auth-credentials/services/auth-user-service) for login and registration, [`IAuthSessionService<TUser>`](/asp-net-auth-credentials/services/auth-session-service) for refresh-token rotation, [`IAuthPasswordService`](/asp-net-auth-credentials/services/auth-password-service) for password changes and resets, and [`IAuthTwoFactorService<TUser>`](/asp-net-auth-credentials/services/auth-two-factor-service) for two-factor enrolment.
 
 ## Console commands
 
