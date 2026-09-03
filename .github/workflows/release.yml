@@ -43,7 +43,7 @@ jobs:
                     dotnet build AlmightyShogun.Hangfire.RecurringJobs/AlmightyShogun.Hangfire.RecurringJobs.csproj --configuration Release
                     dotnet build AlmightyShogun.RemoteCommands/AlmightyShogun.RemoteCommands.csproj --configuration Release
                     dotnet build AlmightyShogun.Mail.Resend/AlmightyShogun.Mail.Resend.csproj --configuration Release
-                    dotnet build AlmightyShogun.AspNet.CredentialAuth/AlmightyShogun.AspNet.CredentialAuth.csproj --configuration Release
+                    dotnet build AlmightyShogun.AspNet.Auth.Credentials/AlmightyShogun.AspNet.Auth.Credentials.csproj --configuration Release
 
             -   name: 📦️ Pack packages
                 run: |
@@ -62,7 +62,7 @@ jobs:
                     dotnet pack AlmightyShogun.Hangfire.RecurringJobs/AlmightyShogun.Hangfire.RecurringJobs.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.RemoteCommands/AlmightyShogun.RemoteCommands.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
                     dotnet pack AlmightyShogun.Mail.Resend/AlmightyShogun.Mail.Resend.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
-                    dotnet pack AlmightyShogun.AspNet.CredentialAuth/AlmightyShogun.AspNet.CredentialAuth.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
+                    dotnet pack AlmightyShogun.AspNet.Auth.Credentials/AlmightyShogun.AspNet.Auth.Credentials.csproj --configuration Release --no-build /p:PackageVersion=$env:RELEASE_VERSION --output ..
 
             -   name: 🚀 Publish packages
                 run: dotnet nuget push "*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
