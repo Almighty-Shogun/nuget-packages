@@ -1,3 +1,6 @@
+using System.Reflection;
+using System.Globalization;
+
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
@@ -11,5 +14,14 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class AfterOrEqualAttribute(string target, ComparisonTarget targetType = ComparisonTarget.Value)
-    : ValidationRuleAttribute(DateMode.AfterOrEqual, target, targetType == ComparisonTarget.Field);
+public sealed class AfterOrEqualAttribute(string target, ComparisonTarget targetType = ComparisonTarget.Value) : ValidationRuleAttribute
+{
+    /// <inheritdoc />
+    internal override IPropertyValidationRule<TRequest, TProperty> CreateRule<TRequest, TProperty>(PropertyInfo property)
+        => targetType == ComparisonTarget.Field
+            ? new DateValidationRule<TRequest, TProperty>(DateMode.AfterOrEqual, target)
+            : new DateValidationRule<TRequest, TProperty>(
+                DateMode.AfterOrEqual,
+                DateTimeOffset.Parse(target, CultureInfo.InvariantCulture)
+            );
+}

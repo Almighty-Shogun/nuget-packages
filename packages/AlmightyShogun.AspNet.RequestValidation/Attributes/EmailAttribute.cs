@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
@@ -8,4 +10,9 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class EmailAttribute() : ValidationRuleAttribute(FormatMode.Email);
+public sealed class EmailAttribute : ValidationRuleAttribute
+{
+    /// <inheritdoc />
+    internal override IPropertyValidationRule<TRequest, TProperty> CreateRule<TRequest, TProperty>(PropertyInfo property)
+        => new FormatValidationRule<TRequest, TProperty>(FormatMode.Email);
+}

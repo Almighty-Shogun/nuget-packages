@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
@@ -12,5 +14,9 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class PresentIfAttribute(string field, params object?[] values)
-    : ValidationRuleAttribute(ConditionalTargetMode.Present, ConditionMode.If, field, values);
+public sealed class PresentIfAttribute(string field, params object?[] values) : ValidationRuleAttribute
+{
+    /// <inheritdoc />
+    internal override IPropertyValidationRule<TRequest, TProperty> CreateRule<TRequest, TProperty>(PropertyInfo property)
+        => new NamedConditionalValidationRule<TRequest, TProperty>(ConditionalTargetMode.Present, ConditionMode.If, field, values);
+}

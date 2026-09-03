@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
@@ -10,4 +12,9 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class ExtensionsAttribute(params string[] extensions) : ValidationRuleAttribute(FileConstraintMode.Extensions, extensions);
+public sealed class ExtensionsAttribute(params string[] extensions) : ValidationRuleAttribute
+{
+    /// <inheritdoc />
+    internal override IPropertyValidationRule<TRequest, TProperty> CreateRule<TRequest, TProperty>(PropertyInfo property)
+        => new FileConstraintValidationRule<TRequest, TProperty>(FileConstraintMode.Extensions, extensions);
+}

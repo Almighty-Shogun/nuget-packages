@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
@@ -10,4 +12,9 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class LessThanAttribute(double value) : ValidationRuleAttribute(ComparableSizeMode.LessThan, value);
+public sealed class LessThanAttribute(double value) : ValidationRuleAttribute
+{
+    /// <inheritdoc />
+    internal override IPropertyValidationRule<TRequest, TProperty> CreateRule<TRequest, TProperty>(PropertyInfo property)
+        => new ComparableSizeValidationRule<TRequest, TProperty>(ComparableSizeMode.LessThan, (decimal)value);
+}

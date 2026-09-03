@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
@@ -10,4 +12,9 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class EndsWithAttribute(params string[] values) : ValidationRuleAttribute(StringMatchMode.EndWith, values);
+public sealed class EndsWithAttribute(params string[] values) : ValidationRuleAttribute
+{
+    /// <inheritdoc />
+    internal override IPropertyValidationRule<TRequest, TProperty> CreateRule<TRequest, TProperty>(PropertyInfo property)
+        => new StringMatchValidationRule<TRequest, TProperty>(StringMatchMode.EndWith, values);
+}

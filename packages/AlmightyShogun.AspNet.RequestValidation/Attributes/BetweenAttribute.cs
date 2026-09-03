@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
@@ -11,4 +13,9 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class BetweenAttribute(double min, double max) : ValidationRuleAttribute(ComparableSizeMode.Between, min, max);
+public sealed class BetweenAttribute(double min, double max) : ValidationRuleAttribute
+{
+    /// <inheritdoc />
+    internal override IPropertyValidationRule<TRequest, TProperty> CreateRule<TRequest, TProperty>(PropertyInfo property)
+        => new ComparableSizeValidationRule<TRequest, TProperty>(ComparableSizeMode.Between, (decimal)min, (decimal)max);
+}

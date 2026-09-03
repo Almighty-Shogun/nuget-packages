@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
@@ -11,5 +13,9 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class ProhibitedIfAttribute(string field, params object?[] values)
-    : ValidationRuleAttribute(ConditionalTargetMode.Prohibited, ConditionMode.If, field, values);
+public sealed class ProhibitedIfAttribute(string field, params object?[] values) : ValidationRuleAttribute
+{
+    /// <inheritdoc />
+    internal override IPropertyValidationRule<TRequest, TProperty> CreateRule<TRequest, TProperty>(PropertyInfo property)
+        => new NamedConditionalValidationRule<TRequest, TProperty>(ConditionalTargetMode.Prohibited, ConditionMode.If, field, values);
+}
