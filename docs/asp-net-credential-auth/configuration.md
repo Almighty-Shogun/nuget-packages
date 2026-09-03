@@ -35,7 +35,7 @@ fields:
             default: 'false'
 
           - name: MaxFailedAttempts
-            description: Consecutive failures before the account locks. The counter resets on any successful login, so it measures a run of failures rather than a lifetime total.
+            description: Consecutive failures before the account locks. Every attempt is counted before its password is checked, so this bounds concurrent guesses as well as sequential ones. The counter resets on any successful login, so it measures a run of failures rather than a lifetime total.
             type: int
             default: '5'
 
