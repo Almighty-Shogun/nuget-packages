@@ -2,15 +2,6 @@
 
 These instructions apply to the whole repository. More specific instructions in subdirectories override this file.
 
-## Instruction File Parity
-
-`AGENTS.md` and `CLAUDE.md` in this directory are the same document under two names. Their content must stay identical, 1:1, at all times.
-
-- Any edit to one must be applied to the other in the same change. Never update one and leave the other behind.
-- The same rule applies to `docs/AGENTS.md` and `docs/CLAUDE.md`, which are also a mirrored pair.
-- Root and `docs/` are separate pairs. Mirror within a pair only. Do not copy repository instructions into the documentation pair or the reverse.
-- When asked to change instructions in either file, treat the change as covering both files by default and confirm both were written.
-
 ## Repository
 
 This is the `Almighty-Shogun/nuget-packages` monorepo. It contains multiple C#/.NET NuGet packages under `packages/` and a VitePress documentation site under `docs/`.
@@ -67,12 +58,12 @@ Do not run publish commands locally. NuGet publishing is handled by `.github/wor
 
 ## Documentation
 
-Documentation lives in `docs/` and uses VitePress. Follow `docs/AGENTS.md` for all documentation structure, style, and validation rules.
+Documentation lives in `docs/` and uses VitePress. Follow `docs/CLAUDE.md` for all documentation structure, style, and validation rules.
 
 Important high-level rules:
 
 - Documentation lives directly under `docs/{package-slug}/`.
-- Package slugs are lowercase kebab case, for example `AlmightyShogun.AspNet.JwtAuth` becomes `asp-net-jwt-auth`.
+- Package slugs are lowercase kebab case, for example `AlmightyShogun.AspNet.Auth.Credentials` becomes `asp-net-auth-credentials`.
 - Write documentation manually after inspecting the current package source. Do not use a generation script.
 - Every documented public API page must be reachable from the VitePress sidebar.
 - Do not silently change documentation conventions. Explain broad convention changes before applying them.

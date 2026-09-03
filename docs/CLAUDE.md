@@ -2,15 +2,6 @@
 
 These instructions apply to all VitePress documentation work under `docs/`. Read the current package source and existing documentation before making changes. The source code is authoritative.
 
-## Instruction File Parity
-
-`docs/AGENTS.md` and `docs/CLAUDE.md` are the same document under two names. Their content must stay identical, 1:1, at all times.
-
-- Any edit to one must be applied to the other in the same change. Never update one and leave the other behind.
-- The same rule applies to the repository root pair, `AGENTS.md` and `CLAUDE.md`.
-- Root and `docs/` are separate pairs. Mirror within a pair only. Do not copy documentation instructions into the repository pair or the reverse.
-- When asked to change instructions in either file, treat the change as covering both files by default and confirm both were written.
-
 ## Workflow
 
 - Work package by package in the order under `packages/`.
@@ -29,7 +20,7 @@ Documentation lives directly under `docs/{package-slug}/`, never under `docs/pac
 
 Package slugs use lowercase kebab case:
 
-- `AlmightyShogun.AspNet.JwtAuth` becomes `asp-net-jwt-auth`
+- `AlmightyShogun.AspNet.Auth.Credentials` becomes `asp-net-auth-credentials`
 - `AlmightyShogun.EntityFrameworkCore.ModelBuilding` becomes `ef-core-model-building`
 - `AlmightyShogun.Mail.Resend` becomes `mail-resend`
 
@@ -306,8 +297,8 @@ Grouped example, one group per bound record:
 
 ```yaml
 fields:
-    - name: CredentialAuthSettings
-      description: The `CredentialAuth` section itself. Every value has a default, so the section may be absent.
+    - name: AuthCredentialsSettings
+      description: The `AuthCredentials` section itself. Every value has a default, so the section may be absent.
       fields:
           - name: PasswordResetLifetime
             description: How long a password reset token stays usable after it is issued.
@@ -315,7 +306,7 @@ fields:
             default: 01:00:00
 
     - name: LockoutPolicy
-      description: The nested `CredentialAuth:Lockout` section.
+      description: The nested `AuthCredentials:Lockout` section.
       fields:
           - name: Enabled
             description: Whether repeated login failures lock the account.
