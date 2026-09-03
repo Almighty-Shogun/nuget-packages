@@ -31,9 +31,9 @@ internal sealed class StringCharacterValidationRule<TRequest, TProperty>(
             StringCharacterMode.AlphaNumeric => text.All(char.IsLetterOrDigit),
             StringCharacterMode.AlphaDash => text.All(IsAlphaDashCharacter),
             StringCharacterMode.Ascii => ValidationValue.IsAscii(text),
-            StringCharacterMode.Lowercase => text.All(IsLowercaseCharacter),
-            StringCharacterMode.Uppercase => text.All(IsUppercaseCharacter),
-            _ => false
+            StringCharacterMode.Lowercase => IsLowercase(text),
+            StringCharacterMode.Uppercase => IsUppercase(text),
+            _ => throw new InvalidOperationException($"Unsupported StringCharacterMode value '{mode}'.")
         };
 
         return ValueTask.FromResult(isValid ? ValidationRuleResult.Success() : ValidationRuleResult.Failure(GetMessageKey()));
@@ -55,7 +55,8 @@ internal sealed class StringCharacterValidationRule<TRequest, TProperty>(
         StringCharacterMode.AlphaDash => "validation.alpha.dash",
         StringCharacterMode.Ascii => "validation.ascii",
         StringCharacterMode.Lowercase => "validation.lowercase",
-        _ => "validation.uppercase"
+        StringCharacterMode.Uppercase => "validation.uppercase",
+        _ => throw new InvalidOperationException($"Unsupported StringCharacterMode value '{mode}'.")
     };
 
     /// <summary>
@@ -71,26 +72,48 @@ internal sealed class StringCharacterValidationRule<TRequest, TProperty>(
     private static bool IsAlphaDashCharacter(char character) => char.IsLetterOrDigit(character) || character is '-' or '_';
 
     /// <summary>
-    /// Checks whether a character is lowercase when converted invariantly.
+    /// Checks that text is lowercase, which takes both that nothing in it is uppercase and that something in it has a case at all.
     /// </summary>
     ///
-    /// <param name="character">One character of the value, tested on its own rather than through a culture-aware string comparison.</param>
+    /// <param name="text">The value read as text.</param>
     ///
-    /// <returns><c>true</c> when the character is lowercase; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    /// <c>true</c> when every cased character is lowercase and at least one character is cased; otherwise, <c>false</c> . Digits and
+    /// punctuation neither pass nor fail it on their own, so <c>"abc-1"</c> passes while <c>"123"</c> does not.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// The presence of a cased character is required deliberately. Testing only that lowercasing changes nothing lets a value with no
+    /// letters in it satisfy both this rule and the uppercase one, which is not what either rule's name promises.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static bool IsLowercaseCharacter(char character) => character == char.ToLowerInvariant(character);
+    private static bool IsLowercase(string text) => text.Any(IsCasedCharacter) && !text.Any(char.IsUpper);
 
     /// <summary>
-    /// Checks whether a character is uppercase when converted invariantly.
+    /// Checks that text is uppercase, on the same terms as <see cref="IsLowercase"/> .
     /// </summary>
     ///
-    /// <param name="character">One character of the value, tested on its own rather than through a culture-aware string comparison.</param>
+    /// <param name="text">The value read as text.</param>
     ///
-    /// <returns><c>true</c> when the character is uppercase; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    /// <c>true</c> when every cased character is uppercase and at least one character is cased; otherwise, <c>false</c> .
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static bool IsUppercaseCharacter(char character) => character == char.ToUpperInvariant(character);
+    private static bool IsUppercase(string text) => text.Any(IsCasedCharacter) && !text.Any(char.IsLower);
+
+    /// <summary>
+    /// Reports whether a character has a case to be in, which a digit, a symbol, and a letter from a caseless script do not.
+    /// </summary>
+    ///
+    /// <param name="character">One character of the value.</param>
+    ///
+    /// <returns><c>true</c> when the character's upper and lower forms differ; otherwise, <c>false</c>.</returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static bool IsCasedCharacter(char character) => char.ToLowerInvariant(character) != char.ToUpperInvariant(character);
 }

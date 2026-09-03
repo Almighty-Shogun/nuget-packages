@@ -71,12 +71,14 @@ internal readonly record struct ValidationRuleIdentity(string Value)
         if (type.IsPrimitive || value is decimal or Guid)
         {
             AppendLiteral(builder, Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty);
+            
             return true;
         }
 
         if (type.IsEnum)
         {
             AppendLiteral(builder, $"{type.FullName}.{value}");
+            
             return true;
         }
 
