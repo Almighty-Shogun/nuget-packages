@@ -53,4 +53,16 @@ public sealed record CredentialAuthSettings
     /// <since>Unreleased</since>
     [Range(1, int.MaxValue)]
     public int PasswordResetMinutes { get; init; } = 60;
+
+    /// <summary>
+    /// Gets the floor a forgot-password request is held to, in milliseconds. A request that finishes sooner waits out the
+    /// remainder, so issuing a token and finding no account take the same time and the response cannot be timed to learn
+    /// which addresses are registered. Raise it above the slowest of the two paths on the deployment's own hardware; a
+    /// value below that leaves the difference measurable.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    [Range(1, int.MaxValue)]
+    public int ForgotPasswordMinimumMilliseconds { get; init; } = 200;
 }

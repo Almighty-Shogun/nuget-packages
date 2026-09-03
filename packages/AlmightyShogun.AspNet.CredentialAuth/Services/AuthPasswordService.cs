@@ -1,10 +1,12 @@
+using System.Data;
+using System.Diagnostics;
+using System.Linq.Expressions;
+using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Options;
-using AlmightyShogun.AspNet.JwtAuth;
 
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
@@ -13,118 +15,195 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 /// password that has changed should not leave access granted under the old one.
 /// </summary>
 ///
+/// <typeparam name="TUser">The application's own user entity, whose password column these paths read and write.</typeparam>
+/// <param name="databaseContext">The application's context, so auth writes join whatever transaction it is in.</param>
+/// <param name="credentialOptions">
+/// The bound credential settings, read for how long a reset token lives and for the floor a forgot-password request is
+/// held to.
+/// </param>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class AuthPasswordService<TUser>(
     AuthDbContext<TUser> databaseContext,
-    IOptions<AuthSettings> authOptions,
-    IOptions<CredentialAuthSettings> credentialOptions,
-    IAppHostResolver appHostResolver
-) : AuthServiceBase<TUser>(databaseContext, authOptions, appHostResolver), IAuthPasswordService where TUser : AuthUser
+    IOptions<CredentialAuthSettings> credentialOptions
+) : IAuthPasswordService where TUser : AuthUser
 {
-    /// <inheritdoc />
-    public async Task ChangePasswordAsync(Guid identifier, ChangePasswordRequest request, string? currentRefreshToken = null)
-    {
-        await using IDbContextTransaction transaction = await DatabaseContext.Database.BeginTransactionAsync();
+    /// <summary>
+    /// The hasher used for every password read and write, so hashing and verification cannot end up using different
+    /// parameters.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private readonly PasswordHasher<TUser> _hasher = new();
 
-        TUser user = await GetUserAsync(user => user.Identifier == identifier);
+    /// <inheritdoc />
+    public async Task ChangePasswordAsync(
+        Guid identifier,
+        ChangePasswordRequest request,
+        string? currentRefreshToken = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
+
+        TUser user = await GetUserAsync(user => user.Identifier == identifier, cancellationToken);
 
         if (request.NewPassword != request.ConfirmPassword)
             throw new PasswordMismatchException();
 
-        if (Hasher.VerifyHashedPassword(user, user.Password, request.CurrentPassword) is PasswordVerificationResult.Failed)
+        if (_hasher.VerifyHashedPassword(user, user.Password, request.CurrentPassword) is PasswordVerificationResult.Failed)
             throw new InvalidCredentialsException();
 
-        if (Hasher.VerifyHashedPassword(user, user.Password, request.NewPassword) is not PasswordVerificationResult.Failed)
+        if (_hasher.VerifyHashedPassword(user, user.Password, request.NewPassword) is not PasswordVerificationResult.Failed)
             throw new PasswordReusedException();
 
-        user.Password = Hasher.HashPassword(user, request.NewPassword);
+        user.Password = _hasher.HashPassword(user, request.NewPassword);
 
-        DatabaseContext.Users.Update(user);
+        databaseContext.Users.Update(user);
 
-        await InvalidateActiveTokenAsync(user.Id);
-        await RevokeUserSessionsAsync(user.Id, currentRefreshToken);
+        await InvalidateActiveTokenAsync(user.Id, cancellationToken);
+        await RevokeUserSessionsAsync(user.Id, cancellationToken, currentRefreshToken);
 
-        await DatabaseContext.SaveChangesAsync();
-        await transaction.CommitAsync();
+        await databaseContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<string?> RequestForgotPasswordAsync(ForgotPasswordRequest request, string? requestIpAddress = null)
+    public async Task<string?> RequestForgotPasswordAsync(
+        ForgotPasswordRequest request,
+        string? requestIpAddress = null,
+        CancellationToken cancellationToken = default
+    )
     {
-        TUser? user = await DatabaseContext.Users.FirstOrDefaultAsync(candidate => candidate.Email == request.Email);
+        long startedAt = Stopwatch.GetTimestamp();
 
-        if (user is not null)
-            return await CreatePasswordResetTokenAsync(user, requestIpAddress);
+        TUser? user = await databaseContext.Users
+            .FirstOrDefaultAsync(candidate => candidate.Email == request.Email, cancellationToken);
 
-        await Task.Delay(Random.Shared.Next(80, 160));
+        string? token = user is null ? null : await CreatePasswordResetTokenAsync(user, requestIpAddress, cancellationToken);
 
-        return null;
+        TimeSpan elapsed = Stopwatch.GetElapsedTime(startedAt);
+        TimeSpan minimumDuration = TimeSpan.FromMilliseconds(credentialOptions.Value.ForgotPasswordMinimumMilliseconds);
+
+        if (elapsed < minimumDuration)
+            await Task.Delay(minimumDuration - elapsed, CancellationToken.None);
+
+        return token;
     }
 
     /// <inheritdoc />
-    public async Task CompleteForgotPasswordAsync(CompleteForgotPasswordRequest request)
+    public async Task CompleteForgotPasswordAsync(CompleteForgotPasswordRequest request, CancellationToken cancellationToken = default)
     {
-        await using IDbContextTransaction transaction = await DatabaseContext.Database.BeginTransactionAsync();
+        await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
 
-        PasswordResetToken passwordToken = await FindActiveTokenAsync(request.Token);
+        PasswordResetToken passwordToken = await FindActiveTokenAsync(request.Token, cancellationToken);
 
-        TUser user = await GetUserAsync(user => user.Id == passwordToken.UserId);
+        TUser user = await GetUserAsync(user => user.Id == passwordToken.UserId, cancellationToken);
 
         if (request.NewPassword != request.ConfirmPassword)
             throw new PasswordMismatchException();
 
-        if (Hasher.VerifyHashedPassword(user, user.Password, request.NewPassword) is not PasswordVerificationResult.Failed)
+        if (_hasher.VerifyHashedPassword(user, user.Password, request.NewPassword) is not PasswordVerificationResult.Failed)
             throw new PasswordReusedException();
 
-        passwordToken.UsedAt = DateTimeOffset.UtcNow;
-        user.Password = Hasher.HashPassword(user, request.NewPassword);
+        DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        DatabaseContext.Users.Update(user);
-        DatabaseContext.PasswordResetTokens.Update(passwordToken);
+        int affectedRows = await databaseContext.PasswordResetTokens
+            .Where(token => token.Id == passwordToken.Id && token.UsedAt == null && token.ExpiresAt > now)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(token => token.UsedAt, now), cancellationToken);
 
-        await RevokeUserSessionsAsync(passwordToken.UserId);
-        await InvalidateActiveTokenAsync(passwordToken.UserId);
+        if (affectedRows != 1)
+            throw new InvalidPasswordResetTokenException();
 
-        await DatabaseContext.SaveChangesAsync();
-        await transaction.CommitAsync();
+        user.Password = _hasher.HashPassword(user, request.NewPassword);
+
+        databaseContext.Users.Update(user);
+
+        await RevokeUserSessionsAsync(passwordToken.UserId, cancellationToken);
+
+        await databaseContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 
     /// <summary>
-    /// Issues a reset token and deletes any unspent one the user already had, so a second request invalidates the first
-    /// link rather than leaving two working at once.
+    /// Loads the one user matching a predicate, refusing rather than returning null, so every caller past this point has a
+    /// user to work with.
+    /// </summary>
+    ///
+    /// <param name="predicate">The lookup, by public identifier or by the key a reset token carries.</param>
+    /// <param name="cancellationToken">Cancels the lookup.</param>
+    ///
+    /// <returns>The matching user, tracked so a caller can modify and save it.</returns>
+    ///
+    /// <exception cref="InvalidCredentialsException">Thrown when no user matches the predicate.</exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task<TUser> GetUserAsync(Expression<Func<TUser, bool>> predicate, CancellationToken cancellationToken)
+    {
+        TUser? user = await databaseContext.Users.FirstOrDefaultAsync(predicate, cancellationToken);
+
+        return user ?? throw new InvalidCredentialsException();
+    }
+
+    /// <summary>
+    /// Writes the user's one reset token, replacing whatever that row held, so requesting a second link kills the first.
     /// </summary>
     ///
     /// <param name="user">The user the reset was requested for, already loaded so the token can be attached to its key.</param>
     /// <param name="requestIpAddress">The address the request came from, stored for auditing an unexpected reset.</param>
+    /// <param name="cancellationToken">Cancels the read and the write.</param>
     ///
     /// <returns>The token in plain text, to be emailed; only its hash is stored.</returns>
     ///
+    /// <remarks>
+    /// The transaction is serializable because the read and the insert are one decision: at read-committed, two requests
+    /// for the same address can both find no row and both try to insert one, which the unique key on
+    /// <see cref="PasswordResetToken.UserId"/> then rejects. Serializing them turns that into one insert followed by one
+    /// update, so the loser issues a valid link instead of failing.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private async Task<string> CreatePasswordResetTokenAsync(TUser user, string? requestIpAddress)
+    private async Task<string> CreatePasswordResetTokenAsync(TUser user, string? requestIpAddress, CancellationToken cancellationToken)
     {
-        await using IDbContextTransaction transaction = await DatabaseContext.Database.BeginTransactionAsync();
+        await using IDbContextTransaction transaction =
+            await databaseContext.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
 
-        List<PasswordResetToken> existingTokens = await DatabaseContext.PasswordResetTokens
-            .Where(token => token.UserId == user.Id && token.UsedAt == null)
-            .ToListAsync();
-
-        if (existingTokens.Count > 0)
-            DatabaseContext.PasswordResetTokens.RemoveRange(existingTokens);
+        PasswordResetToken? resetToken = await databaseContext.PasswordResetTokens
+            .SingleOrDefaultAsync(token => token.UserId == user.Id, cancellationToken);
 
         string token = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(48));
 
-        await DatabaseContext.PasswordResetTokens.AddAsync(new PasswordResetToken
-        {
-            UserId = user.Id,
-            TokenHash = TokenHasher.Hash(token),
-            RequestedIpAddress = requestIpAddress,
-            ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(credentialOptions.Value.PasswordResetMinutes)
-        });
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset expiresAt = now.AddMinutes(credentialOptions.Value.PasswordResetMinutes);
 
-        await DatabaseContext.SaveChangesAsync();
-        await transaction.CommitAsync();
+        if (resetToken is null)
+        {
+            resetToken = new PasswordResetToken
+            {
+                UserId = user.Id,
+                CreatedAt = now,
+                ExpiresAt = expiresAt,
+                TokenHash = TokenHasher.Hash(token),
+                RequestedIpAddress = requestIpAddress
+            };
+
+            databaseContext.PasswordResetTokens.Add(resetToken);
+        }
+        else
+        {
+            resetToken.UsedAt = null;
+            resetToken.CreatedAt = now;
+            resetToken.ExpiresAt = expiresAt;
+            resetToken.TokenHash = TokenHasher.Hash(token);
+            resetToken.RequestedIpAddress = requestIpAddress;
+        }
+
+        await databaseContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         return token;
     }
@@ -135,50 +214,57 @@ internal sealed class AuthPasswordService<TUser>(
     /// </summary>
     ///
     /// <param name="userId">The user whose sessions are ending, given as the database key rather than the public identifier.</param>
+    /// <param name="cancellationToken">Cancels the lookup.</param>
     /// <param name="exceptToken">The session to leave alone, or <c>null</c> to end every one.</param>
     ///
-    /// <returns>A task that completes once the sessions can no longer be refreshed.</returns>
+    /// <returns>
+    /// A task that completes once the loaded sessions are marked revoked. Nothing is written until the caller saves, so
+    /// the revocations land in the caller's transaction rather than in one of their own.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private async Task RevokeUserSessionsAsync(int userId, string? exceptToken = null)
+    private async Task RevokeUserSessionsAsync(int userId, CancellationToken cancellationToken, string? exceptToken = null)
     {
         string? exceptTokenHash = exceptToken is null ? null : TokenHasher.Hash(exceptToken);
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        List<UserSession> sessions = await DatabaseContext.UserSessions.Where(session => session.ExpiresAt > now)
+        List<UserSession> sessions = await databaseContext.UserSessions.Where(session => session.ExpiresAt > now)
             .Where(session => !session.IsRevoked && session.UserId == userId)
             .Where(session => exceptTokenHash == null || session.RefreshTokenHash != exceptTokenHash)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         foreach (UserSession session in sessions)
             session.IsRevoked = true;
 
-        DatabaseContext.UserSessions.UpdateRange(sessions);
+        databaseContext.UserSessions.UpdateRange(sessions);
     }
 
     /// <summary>
-    /// Spends every outstanding reset token for a user, so a link issued before a password change cannot still be redeemed
+    /// Spends the user's outstanding reset token, so a link issued before a password change cannot still be redeemed
     /// afterwards.
     /// </summary>
     ///
-    /// <param name="userId">The user whose outstanding tokens are being spent.</param>
+    /// <param name="userId">The user whose outstanding token is being spent.</param>
+    /// <param name="cancellationToken">Cancels the lookup.</param>
     ///
-    /// <returns>A task that completes once no unspent token remains for that user.</returns>
+    /// <returns>
+    /// A task that completes once no unspent token remains for that user. Nothing is written until the caller saves.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private async Task InvalidateActiveTokenAsync(int userId)
+    private async Task InvalidateActiveTokenAsync(int userId, CancellationToken cancellationToken)
     {
-        List<PasswordResetToken> tokens = await DatabaseContext.PasswordResetTokens
+        List<PasswordResetToken> tokens = await databaseContext.PasswordResetTokens
             .Where(token => token.UserId == userId && token.UsedAt == null)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         foreach (PasswordResetToken token in tokens)
             token.UsedAt = DateTimeOffset.UtcNow;
 
-        DatabaseContext.PasswordResetTokens.UpdateRange(tokens);
+        databaseContext.PasswordResetTokens.UpdateRange(tokens);
     }
 
     /// <summary>
@@ -187,25 +273,31 @@ internal sealed class AuthPasswordService<TUser>(
     /// </summary>
     ///
     /// <param name="token">The token as it arrived from the reset link, matched by hash.</param>
+    /// <param name="cancellationToken">Cancels the lookup.</param>
     ///
-    /// <returns>The redeemable token, tracked so the caller can mark it spent.</returns>
+    /// <returns>The redeemable token, tracked so the caller can read the user it belongs to.</returns>
     ///
     /// <exception cref="InvalidPasswordResetTokenException">
     /// No live token matches the hash. Unknown, spent, and expired are not distinguished, so the response cannot be
     /// used to learn which tokens once existed.
     /// </exception>
     ///
+    /// <remarks>
+    /// Finding a token here does not reserve it. Another request may spend it before this one does, which is why the
+    /// caller claims it with a guarded update rather than trusting what this read returned.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private async Task<PasswordResetToken> FindActiveTokenAsync(string token)
+    private async Task<PasswordResetToken> FindActiveTokenAsync(string token, CancellationToken cancellationToken)
     {
         string tokenHash = TokenHasher.Hash(token);
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        PasswordResetToken? passwordResetToken = await DatabaseContext.PasswordResetTokens
+        PasswordResetToken? passwordResetToken = await databaseContext.PasswordResetTokens
             .Where(passwordToken => passwordToken.ExpiresAt > now)
             .Where(passwordToken => passwordToken.UsedAt == null && passwordToken.TokenHash == tokenHash)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
 
         return passwordResetToken ?? throw new InvalidPasswordResetTokenException();
     }
