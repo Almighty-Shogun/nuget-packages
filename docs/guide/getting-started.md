@@ -13,19 +13,19 @@ This guide shows how to install one or more `AlmightyShogun.*` packages and use 
 
 ## Install your first package
 
-Most ASP.NET Core APIs start with `AlmightyShogun.AspNet.JwtAuth`. It registers JWT bearer authentication, permission authorization, refresh-token cookie helpers, and host-to-application audience validation.
+Most ASP.NET Core APIs start with `AlmightyShogun.AspNet.Auth`. It registers JWT bearer authentication, permission authorization, refresh-token cookie helpers, and host-to-application audience validation.
 
 ```sh
-dotnet add package AlmightyShogun.AspNet.JwtAuth
+dotnet add package AlmightyShogun.AspNet.Auth
 ```
 
 ```csharp
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
-builder.Services.AddJwtAuth(builder.Configuration);
+builder.Services.AddAuth(builder.Configuration);
 ```
 
-The package expects an `Auth` section in `appsettings.json`. See the [ASP.NET JWT Auth configuration page](/asp-net-jwt-auth/configuration) for the full JSON shape and field descriptions.
+The package expects an `Auth` section in `appsettings.json`. See the [ASP.NET Auth configuration page](/asp-net-auth/configuration) for the full JSON shape and field descriptions.
 
 ## Common ASP.NET setup
 
@@ -34,12 +34,12 @@ The package expects an `Auth` section in `appsettings.json`. See the [ASP.NET JW
 ```sh
 dotnet add package AlmightyShogun.AspNet.Core
 dotnet add package AlmightyShogun.AspNet.Localization
-dotnet add package AlmightyShogun.AspNet.JwtAuth
+dotnet add package AlmightyShogun.AspNet.Auth
 ```
 
 ```csharp
 using AlmightyShogun.AspNet.Core;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.Localization;
 
 builder.Services
@@ -48,7 +48,7 @@ builder.Services
     .AddExceptionHandling()
     .AddHttpErrorResponseFilter()
     .AddCorsPolicy("DefaultCors", builder.Configuration)
-    .AddJwtAuth(builder.Configuration);
+    .AddAuth(builder.Configuration);
 
 WebApplication app = builder.Build();
 
@@ -60,7 +60,7 @@ Controllers can then use the attributes and helpers from the installed packages:
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 [ApiController]
 [Route("admin/users")]
@@ -92,7 +92,7 @@ app.UseAspNetValidation();
 
 ## Credential login
 
-Use `AlmightyShogun.AspNet.CredentialAuth` when the API owns username and password accounts. It builds on ASP.NET JWT Auth for access tokens, ASP.NET Core for request metadata and error responses, ASP.NET Request Validation for the request models, and Entity Framework Core for storage.
+Use `AlmightyShogun.AspNet.CredentialAuth` when the API owns username and password accounts. It builds on ASP.NET Auth for access tokens, ASP.NET Core for request metadata and error responses, ASP.NET Request Validation for the request models, and Entity Framework Core for storage.
 
 ```sh
 dotnet add package AlmightyShogun.AspNet.CredentialAuth
@@ -101,7 +101,7 @@ dotnet add package AlmightyShogun.AspNet.CredentialAuth
 ```csharp
 using AlmightyShogun.AspNet.Core;
 using Microsoft.EntityFrameworkCore;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.Localization;
 using AlmightyShogun.AspNet.CredentialAuth;
 using AlmightyShogun.AspNet.RequestValidation;
@@ -110,7 +110,7 @@ builder.Services
     .AddMessageLocalization(builder.Configuration)
     .AddHttpErrorResponseWriter()
     .AddExceptionHandling()
-    .AddJwtAuth(builder.Configuration)
+    .AddAuth(builder.Configuration)
     .AddAspNetValidation()
     .AddDbContext<AppDbContext>(options => ...)
     .AddCredentialAuth<AppDbContext, AppUser>(builder.Configuration);

@@ -23,9 +23,9 @@ features:
         link: /asp-net-core/
         linkText: View package
 
-    -   title: ASP.NET JWT Auth
+    -   title: ASP.NET Auth
         details: Bearer authentication, refresh-token cookies, and permission policies.
-        link: /asp-net-jwt-auth/
+        link: /asp-net-auth/
         linkText: View package
 
     -   title: ASP.NET Localization

@@ -34,7 +34,7 @@ dotnet build packages.sln
 For a single-package check during active work, build that package directly:
 
 ```sh
-dotnet build packages/AlmightyShogun.AspNet.JwtAuth/AlmightyShogun.AspNet.JwtAuth.csproj
+dotnet build packages/AlmightyShogun.AspNet.Auth/AlmightyShogun.AspNet.Auth.csproj
 ```
 
 ## Documentation changes

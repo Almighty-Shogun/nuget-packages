@@ -7,7 +7,7 @@ The repository is intentionally practical. Packages are small, .NET-first, depen
 ## ASP.NET
 
 - [ASP.NET Core](/asp-net-core/) &mdash; the layer the other web packages build on: one standardized error body, exception mapping, request metadata, CORS, and forwarded headers for a proxied application.
-- [ASP.NET JWT Auth](/asp-net-jwt-auth/) &mdash; JWT bearer authentication, refresh-token cookies, host-to-application audience checks, and permission-based authorization.
+- [ASP.NET Auth](/asp-net-auth/) &mdash; JWT bearer authentication, refresh-token cookies, host-to-application audience checks, and permission-based authorization.
 - [ASP.NET Localization](/asp-net-localization/) &mdash; message text in JSON files on disk, resolved in the language the request asks for and reported back through `Content-Language`.
 - [ASP.NET Maintenance Mode](/asp-net-maintenance-mode/) &mdash; file-backed maintenance windows that block traffic and survive a process restart without a database or coordinator.
 - [ASP.NET Request Validation](/asp-net-request-validation/) &mdash; attribute and fluent request rules, collected per field and returned as one localized `422` rather than one failure at a time.
