@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 
 namespace AlmightyShogun.AspNet.RequestValidation;
 
@@ -13,7 +14,8 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal sealed class ValidationField<TRequest> where TRequest : class
 {
     /// <summary>
-    /// The field's public name, which failures are reported under and which a client sees.
+    /// The field's public name, resolved through <see cref="ValidationFieldName"/> , so it is the name the client sent rather than the
+    /// name the property was declared with.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -65,13 +67,19 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     ///
     /// <returns>The validation field.</returns>
     ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="expression"/> is not a property read directly off the request, such as a nested read or a method call. Thrown as
+    /// the field is built rather than when a request arrives.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public static ValidationField<TRequest> From<TProperty>(Expression<Func<TRequest, TProperty>> expression)
     {
+        string name = ValidationExpression.GetFieldName(expression);
         Func<TRequest, TProperty> getter = expression.Compile();
 
-        return new ValidationField<TRequest>(GetPropertyName(expression), request => getter(request));
+        return new ValidationField<TRequest>(name, request => getter(request));
     }
 
     /// <summary>
@@ -82,10 +90,14 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     ///
     /// <returns>The validation fields.</returns>
     ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// One of <paramref name="expressions"/> is not a property read directly off the request.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public static IReadOnlyList<ValidationField<TRequest>> FromMany(params Expression<Func<TRequest, object?>>[] expressions)
-        => expressions.Select(From).ToArray();
+        => [.. expressions.Select(From)];
 
     /// <summary>
     /// Builds several fields from names, which is the attribute spelling since an attribute cannot hold expressions.
@@ -98,7 +110,7 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public static IReadOnlyList<ValidationField<TRequest>> FromMany(params string[] propertyNames)
-        => propertyNames.Select(FromPropertyName).ToArray();
+        => [.. propertyNames.Select(FromPropertyName)];
 
     /// <summary>
     /// Builds a field from a name, resolving the property by reflection. A name matching no property throws rather than yielding a field
@@ -115,7 +127,7 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     {
         PropertyInfo property = ResolveProperty(propertyName);
 
-        return new ValidationField<TRequest>(ToCamelCase(property.Name), property.GetValue);
+        return new ValidationField<TRequest>(ValidationFieldName.FromProperty(property), property.GetValue);
     }
 
     /// <summary>
@@ -129,10 +141,11 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public static string JoinNames(IEnumerable<ValidationField<TRequest>> fields)
-        => ValidationValue.JoinValues(fields.Select(field => field.Name));
+        => ValidationDisplay.JoinValues(fields.Select(field => field.Name));
 
     /// <summary>
-    /// Finds a property by its public field name, matching case-insensitively so the camel-cased client spelling resolves.
+    /// Finds a property by name, matching case-insensitively so the camel-cased client spelling resolves, and then by the explicit
+    /// serialization name so a field a client only knows under a <see cref="JsonPropertyNameAttribute"/> resolves too.
     /// </summary>
     ///
     /// <param name="propertyName">The property name.</param>
@@ -151,48 +164,12 @@ internal sealed class ValidationField<TRequest> where TRequest : class
         PropertyInfo? property = requestType
             .GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
 
-        return property
+        property ??= Array.Find(
+            requestType.GetProperties(BindingFlags.Instance | BindingFlags.Public),
+            candidate => string.Equals(ValidationFieldName.FromProperty(candidate), propertyName, StringComparison.OrdinalIgnoreCase)
+        );
+
+        return property 
                ?? throw new InvalidOperationException($"Validation property '{propertyName}' was not found on '{requestType.Name}'.");
-    }
-
-    /// <summary>
-    /// Reads the property an expression points at and converts it to the public field name.
-    /// </summary>
-    ///
-    /// <param name="expression">
-    /// Points at the property, supplying both its public field name and the reader used to fetch its value.
-    /// </param>
-    ///
-    /// <returns>The camel-cased property name.</returns>
-    ///
-    /// <exception cref="InvalidOperationException">
-    /// The expression is not a property access, such as a method call or a literal, so there is no property to name the field after.
-    /// </exception>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private static string GetPropertyName<TProperty>(Expression<Func<TRequest, TProperty>> expression) => expression.Body switch
-    {
-        MemberExpression { Member: PropertyInfo propertyInfo } => ToCamelCase(propertyInfo.Name),
-        UnaryExpression { Operand: MemberExpression { Member: PropertyInfo unaryPropertyInfo } } => ToCamelCase(unaryPropertyInfo.Name),
-        _ => throw new InvalidOperationException("Validation rules only support property access expressions.")
-    };
-
-    /// <summary>
-    /// Converts a property name to the camel-cased form failures are reported under, which is the shape a JSON client sees.
-    /// </summary>
-    ///
-    /// <param name="value">The property name to convert, as declared in the type rather than as a client would spell it.</param>
-    ///
-    /// <returns>The camel-cased value.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private static string ToCamelCase(string value)
-    {
-        if (string.IsNullOrEmpty(value) || char.IsLower(value[0]))
-            return value;
-
-        return char.ToLowerInvariant(value[0]) + value[1..];
     }
 }

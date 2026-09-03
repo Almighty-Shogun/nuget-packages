@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Describes the validation rules declared on a request type, so an application can publish its own rules endpoint or generate client-side
-/// validation from the same declarations the server enforces.
+/// Describes the attribute rules declared on a request type, so an application can publish its own rules endpoint or generate client-side
+/// checks from the same declarations the server enforces.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -20,9 +20,14 @@ public interface IValidationRuleDescriber
     /// </typeparam>
     ///
     /// <returns>
-    /// The rules for each property that declares at least one, keyed by property name. A property with no rules is absent rather than
-    /// present and empty, so the result reads as the rules that exist.
+    /// The rules for each property that declares at least one, keyed by the field name a client sees. A property with no rules is absent
+    /// rather than present and empty, so the result reads as the rules that exist.
     /// </returns>
+    ///
+    /// <remarks>
+    /// Only attribute rules are described. A rule declared in a <see cref="Validator{TRequest}"/> is enforced but cannot be described,
+    /// since a built rule keeps neither its name nor its arguments, so a request using both describes as less than it enforces.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

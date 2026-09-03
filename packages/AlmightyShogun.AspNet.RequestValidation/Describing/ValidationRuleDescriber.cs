@@ -4,9 +4,15 @@ using System.Collections.Concurrent;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Describes validation rules by reading the same attributes the rule factory builds from, so a description cannot drift from what is
-/// actually enforced.
+/// Describes the rules a request type declares through attributes, by reading the same attribute metadata the rule factory builds from, so
+/// a described attribute rule cannot drift from the rule actually built for it.
 /// </summary>
+///
+/// <remarks>
+/// Attribute rules only. A rule declared in a <see cref="Validator{TRequest}"/> is enforced but not described, because a built rule
+/// carries neither the name it was written under nor the arguments it was given. A request using both therefore describes as less than it
+/// enforces, and a client generating its own checks from this must not treat the result as the complete set.
+/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
@@ -31,15 +37,15 @@ internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
     ///
     /// <param name="requestType">The request type to inspect.</param>
     ///
-    /// <returns>The described rules keyed by property name.</returns>
+    /// <returns>The described rules keyed by the field name a client sees rather than by the declared property name.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private static IReadOnlyDictionary<string, IReadOnlyList<ValidationRuleDescription>> BuildDescription(Type requestType)
         => requestType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Select(property => (property.Name, Rules: DescribeProperty(property)))
+            .Select(property => (Field: ValidationFieldName.FromProperty(property), Rules: DescribeProperty(property)))
             .Where(entry => entry.Rules.Count > 0)
-            .ToDictionary(entry => entry.Name, entry => entry.Rules, StringComparer.OrdinalIgnoreCase);
+            .ToDictionary(entry => entry.Field, entry => entry.Rules, StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Describes one property's rules, including those inherited from a base declaration.
@@ -54,10 +60,7 @@ internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
     private static IReadOnlyList<ValidationRuleDescription> DescribeProperty(PropertyInfo property) =>
     [
         .. GetRuleAttributeData(property)
-            .Select(attributeData => new ValidationRuleDescription(
-                GetRuleName(attributeData.AttributeType),
-                GetArguments(attributeData)
-            ))
+            .Select(attributeData => new ValidationRuleDescription(GetRuleName(attributeData.AttributeType), GetArguments(attributeData)))
     ];
 
     /// <summary>
@@ -135,7 +138,7 @@ internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static IReadOnlyList<object?> GetArguments(CustomAttributeData attributeData) 
+    private static IReadOnlyList<object?> GetArguments(CustomAttributeData attributeData)
         => [.. attributeData.ConstructorArguments.Select(ToArgumentValue)];
 
     /// <summary>

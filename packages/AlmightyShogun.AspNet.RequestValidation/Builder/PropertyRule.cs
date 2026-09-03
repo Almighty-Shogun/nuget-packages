@@ -13,12 +13,22 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule<TRequest> where TRequest : class
 {
     /// <summary>
-    /// The name failures are reported under, camel-cased from the property so it matches what a JSON client sent.
+    /// The name failures are reported under, resolved through <see cref="ValidationFieldName"/> , so it is the name the client sent
+    /// rather than the name the property was declared with.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public string FieldName { get; }
+
+    /// <summary>
+    /// The property's name as the type declares it, which the confirmation convention needs so it can look for a sibling property by
+    /// name. Kept apart from <see cref="FieldName"/> , since that one may have been renamed for the client.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal string DeclaredName { get; }
 
     /// <summary>
     /// Reads the property's value, compiled from the expression or built from reflection so the two paths are the same afterwards.
@@ -50,23 +60,43 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     ///
     /// <param name="expression">The property expression to validate.</param>
     ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="expression"/> is not a property read directly off the request, such as a nested read or a method call. Thrown as
+    /// the rule is built rather than when a request arrives.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public PropertyRule(Expression<Func<TRequest, TProperty>> expression) : this(GetPropertyName(expression), expression.Compile()) { }
+    public PropertyRule(Expression<Func<TRequest, TProperty>> expression)
+        : this(ValidationExpression.GetProperty(expression), expression.Compile()) { }
+
+    /// <summary>
+    /// Builds a rule for a property already resolved to metadata, which is where both the field name and the declared name come from.
+    /// </summary>
+    ///
+    /// <param name="property">The property metadata.</param>
+    /// <param name="getter">The property value getter.</param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private PropertyRule(PropertyInfo property, Func<TRequest, TProperty> getter)
+        : this(ValidationFieldName.FromProperty(property), property.Name, getter) { }
 
     /// <summary>
     /// Builds a rule for a field addressed by name and reader, for the cases where no expression exists to point at it.
     /// </summary>
     ///
     /// <param name="fieldName">The public validation field name.</param>
+    /// <param name="declaredName">The property name as declared, which the confirmation convention searches siblings by.</param>
     /// <param name="getter">The property value getter.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private PropertyRule(string fieldName, Func<TRequest, TProperty> getter)
+    private PropertyRule(string fieldName, string declaredName, Func<TRequest, TProperty> getter)
     {
         _getter = getter;
         FieldName = fieldName;
+        DeclaredName = declaredName;
     }
 
     /// <summary>
@@ -80,7 +110,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     internal static PropertyRule<TRequest, TProperty> FromPropertyInfo(PropertyInfo property)
-        => new(ToCamelCase(property.Name), request => (TProperty)property.GetValue(request)!);
+        => new(property, request => (TProperty)property.GetValue(request)!);
 
     /// <summary>
     /// Builds a detached rule used to gather a nested set, as the grouped composition rule needs, so the collected rules never join the
@@ -93,7 +123,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    internal static PropertyRule<TRequest, TProperty> CreateRuleSet(string fieldName) => new(fieldName, _ => default!);
+    internal static PropertyRule<TRequest, TProperty> CreateRuleSet(string fieldName) => new(fieldName, fieldName, _ => default!);
 
     /// <summary>
     /// Appends a rule, keeping declaration order, which is what decides evaluation order within a band.
@@ -173,47 +203,6 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
 
             return;
         }
-    }
-
-    /// <summary>
-    /// Reads the property an expression points at and converts it to the public field name failures are reported under.
-    /// </summary>
-    ///
-    /// <param name="expression">
-    /// Points at the property, supplying both its public field name and the reader used to fetch its value.
-    /// </param>
-    ///
-    /// <returns>The camel-cased property name.</returns>
-    ///
-    /// <exception cref="InvalidOperationException">
-    /// The expression is not a property access, such as a method call or a literal, so there is no property to name the field after.
-    /// </exception>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private static string GetPropertyName(Expression<Func<TRequest, TProperty>> expression) => expression.Body switch
-    {
-        MemberExpression { Member: PropertyInfo propertyInfo } => ToCamelCase(propertyInfo.Name),
-        UnaryExpression { Operand: MemberExpression { Member: PropertyInfo unaryPropertyInfo } } => ToCamelCase(unaryPropertyInfo.Name),
-        _ => throw new InvalidOperationException("RuleFor only supports property access expressions.")
-    };
-
-    /// <summary>
-    /// Converts a property name to the camel-cased form failures are reported under, which is the shape a JSON client sees.
-    /// </summary>
-    ///
-    /// <param name="value">The property name to convert, as declared in the type rather than as a client would spell it.</param>
-    ///
-    /// <returns>The camel-cased value.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private static string ToCamelCase(string value)
-    {
-        if (string.IsNullOrEmpty(value) || char.IsLower(value[0]))
-            return value;
-
-        return char.ToLowerInvariant(value[0]) + value[1..];
     }
 
     /// <summary>
