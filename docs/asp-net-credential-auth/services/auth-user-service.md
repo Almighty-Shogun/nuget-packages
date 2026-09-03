@@ -8,7 +8,7 @@ A failed login costs the same time as a successful one: when no user matches the
 
 Matches `Identifier` against both username and email, verifies the password, and creates a refresh-token session for the resolved application. The stored hash is upgraded in place when ASP.NET Core's password hasher reports an outdated format, so raising the work factor takes effect as users sign in.
 
-Throws [`InvalidCredentialsException`](../exceptions) when the identifier matches nothing or the password is wrong, [`AccountLockedException`](../exceptions) while a lockout is in force, and [`AccountDisabledException`](../exceptions) for a deactivated account. The disabled check runs after the password check, so it cannot be used to probe for accounts. A wrong password is counted towards the lockout in a transaction of its own, so the count survives the failure it belongs to.
+Throws [`InvalidCredentialsException`](../exceptions) when the identifier matches nothing or the password is wrong, [`AccountLockedException`](../exceptions) while a lockout is in force, and [`AccountDisabledException`](../exceptions) for a deactivated account. The disabled check runs after the password check, so it cannot be used to probe for accounts. An attempt is counted against the lockout before the password is verified rather than after, so the limit bounds attempts made at once as well as attempts made one after another; a successful sign-in then clears the run, including the attempt it counted for itself.
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
