@@ -13,7 +13,7 @@ namespace AlmightyShogun.Mail.Resend;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.5.0</since>
-public static class PackageRegistry
+public static class ResendMailExtensions
 {
     /// <summary>
     /// The template files every rendered message is assembled from. The package ships none of them, so this list is what the

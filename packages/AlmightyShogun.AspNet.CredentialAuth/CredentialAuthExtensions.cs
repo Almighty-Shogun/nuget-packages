@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public static class PackageRegistry
+public static class CredentialAuthExtensions
 {
     /// <summary>
     /// Provides the registration helper on the service collection, which is where every registration this package makes

@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public static class PackageRegistry
+public static class ValidationExtensions
 {
     /// <summary>
     /// Provides service-collection extension methods for registering ASP.NET validation services.

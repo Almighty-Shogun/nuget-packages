@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.Auth;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.3.0</since>
-public static class PackageRegistry
+public static class AuthExtensions
 {
     /// <summary>
     /// Provides service-collection extension methods for registering JWT authentication and authorization services.

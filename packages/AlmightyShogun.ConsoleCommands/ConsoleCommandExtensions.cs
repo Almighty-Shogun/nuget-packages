@@ -10,7 +10,7 @@ namespace AlmightyShogun.ConsoleCommands;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.1.0</since>
-public static class PackageRegistry
+public static class ConsoleCommandExtensions
 {
     /// <param name="serviceCollection">
     /// The service collection the console command services and command classes are registered into.

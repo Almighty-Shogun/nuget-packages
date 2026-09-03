@@ -11,7 +11,7 @@ namespace AlmightyShogun.RemoteCommands;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>1.0.0</since>
-public static class PackageRegistry
+public static class RemoteCommandExtensions
 {
     /// <param name="serviceCollection">
     /// The service collection the listener and the discovered command classes are registered into.

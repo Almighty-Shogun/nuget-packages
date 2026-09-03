@@ -17,7 +17,7 @@ namespace AlmightyShogun.AspNet.Core;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.2.1</since>
-public static class PackageRegistry
+public static class AspNetCoreExtensions
 {
     /// <summary>
     /// Provides the startup helpers as extensions on the collection. Each registers one feature and nothing else, so

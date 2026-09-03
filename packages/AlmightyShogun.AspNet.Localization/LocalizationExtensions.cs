@@ -13,7 +13,7 @@ namespace AlmightyShogun.AspNet.Localization;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public static class PackageRegistry
+public static class LocalizationExtensions
 {
     /// <summary>
     /// Provides the registration helper as an extension on the collection.

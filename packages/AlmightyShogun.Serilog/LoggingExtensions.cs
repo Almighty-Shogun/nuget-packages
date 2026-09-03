@@ -13,7 +13,7 @@ namespace AlmightyShogun.Serilog;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.1.0</since>
-public static class PackageRegistry
+public static class LoggingExtensions
 {
     /// <summary>
     /// Provides the logging registration as an extension on the collection being built during startup.

@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public static class PackageRegistry
+public static class MaintenanceModeExtensions
 {
     /// <summary>
     /// Provides maintenance mode registration extension methods for the target service collection.

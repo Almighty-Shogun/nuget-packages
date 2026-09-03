@@ -11,7 +11,7 @@ namespace AlmightyShogun.Hosting.ConsoleLifetime;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.0.0</since>
-public static class PackageRegistry
+public static class ConsoleLifetimeExtensions
 {
     /// <summary>
     /// Provides both helpers on the service collection, which is where the registrations actually land. The two builder

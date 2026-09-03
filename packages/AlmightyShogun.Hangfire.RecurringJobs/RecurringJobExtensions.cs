@@ -13,7 +13,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.2.0</since>
-public static class PackageRegistry
+public static class RecurringJobExtensions
 {
     /// <summary>
     /// Adds the package's two startup calls to the service collection. Neither resolves anything, so they may be written in
