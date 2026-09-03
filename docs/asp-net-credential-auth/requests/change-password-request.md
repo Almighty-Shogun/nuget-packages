@@ -26,7 +26,6 @@ using AlmightyShogun.AspNet.CredentialAuth;
 
 public sealed class ChangePasswordController(IAuthPasswordService passwords) : ControllerBase
 {
-    [RequireRefreshToken]
     public async Task<IActionResult> Change(ChangePasswordRequest request)
     {
         Guid identifier = User.GetCurrentUserId();

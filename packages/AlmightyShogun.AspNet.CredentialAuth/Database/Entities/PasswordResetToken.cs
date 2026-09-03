@@ -6,8 +6,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// One issued password reset. A spent row is kept rather than deleted, so the resets issued against an account stay
-/// auditable; redeeming a spent token is refused exactly as an unknown one is.
+/// A user's password reset, at most one row per account. Requesting another reset rewrites this row in place rather
+/// than adding a second, which is what makes a fresh link invalidate the previous one; redeeming a spent token is
+/// refused exactly as an unknown one is.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -26,7 +27,8 @@ public sealed class PasswordResetToken
     public int Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the user the reset was issued for. Cascades with the user.
+    /// Gets or sets the user the reset was issued for. Unique, so an account cannot hold two reset tokens at once, and
+    /// cascades with the user.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -46,8 +48,8 @@ public sealed class PasswordResetToken
     public string TokenHash { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets when the reset was requested. Kept after the token is spent, so a burst of requests against one
-    /// account is still visible afterwards.
+    /// Gets or sets when the reset now held was requested. Rewritten each time the user requests another, so it dates the
+    /// current link rather than the first one ever issued.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -63,8 +65,9 @@ public sealed class PasswordResetToken
     public DateTimeOffset ExpiresAt { get; set; }
 
     /// <summary>
-    /// Gets or sets when the token was spent, or <c>null</c> while it is still usable. Set instead of deleting the row, so
-    /// the redemption stays visible afterwards; a second attempt with the same value is refused as if unknown.
+    /// Gets or sets when the token was spent, or <c>null</c> while it is still usable. Set instead of deleting the row,
+    /// so a second attempt with the same value is refused as if unknown; it goes back to <c>null</c> when the user
+    /// requests a new reset and this row is reused for it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

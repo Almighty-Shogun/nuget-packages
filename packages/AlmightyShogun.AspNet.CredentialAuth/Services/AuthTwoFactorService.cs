@@ -1,28 +1,27 @@
 using OtpNet;
 using System.Web;
+using System.Linq.Expressions;
 using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
-using AlmightyShogun.AspNet.JwtAuth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
 /// Enrols users in TOTP two-factor authentication and verifies their codes. The secret is protected at rest and the
-/// recovery codes are hashed, so a database copy alone yields neither working codes nor a way to mint them.
+/// recovery codes are hashed, so a database copy alone yields neither working codes nor a way to mint them. A new
+/// enrolment is held aside until a code proves it, so starting one and abandoning it leaves a working second factor
+/// exactly as it was.
 /// </summary>
 ///
 /// <typeparam name="TUser">The application's own user entity, looked up to reach its enrolment.</typeparam>
 /// <param name="databaseContext">The application's context, so auth writes join whatever transaction it is in.</param>
-/// <param name="authOptions">The bound JWT settings, read for token and session lifetimes.</param>
 /// <param name="credentialOptions">
 /// The bound credential settings, read for the two-factor policy that decides the issuer shown, how many recovery codes
 /// are issued, and the shape of a generated code.
-/// </param>
-/// <param name="appHostResolver">
-/// The resolver deciding which application the current request belongs to, so what is issued is scoped to it.
 /// </param>
 /// <param name="dataProtectionProvider">
 /// The provider that encrypts the shared secret before it is stored. Its keys must outlive the enrolments, or every
@@ -33,11 +32,9 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 /// <since>Unreleased</since>
 internal sealed class AuthTwoFactorService<TUser>(
     AuthDbContext<TUser> databaseContext,
-    IOptions<AuthSettings> authOptions,
     IOptions<CredentialAuthSettings> credentialOptions,
-    IAppHostResolver appHostResolver,
     IDataProtectionProvider dataProtectionProvider
-) : AuthServiceBase<TUser>(databaseContext, authOptions, appHostResolver), IAuthTwoFactorService<TUser> where TUser : AuthUser
+) : IAuthTwoFactorService<TUser> where TUser : AuthUser
 {
     /// <summary>
     /// The protector the secret is encrypted with, created once from a fixed purpose string so a secret written by one
@@ -63,20 +60,17 @@ internal sealed class AuthTwoFactorService<TUser>(
         CancellationToken cancellationToken = default
     )
     {
-        TUser user = await GetUserAsync(candidate => candidate.Identifier == identifier);
+        TUser user = await GetUserAsync(candidate => candidate.Identifier == identifier, cancellationToken);
 
         byte[] secret = RandomNumberGenerator.GetBytes(20);
-        var base32Secret = Base32Encoding.ToString(secret);
+        string base32Secret = Base32Encoding.ToString(secret);
 
         UserTwoFactor enrolment = await GetOrCreateEnrolmentAsync(user, cancellationToken);
 
-        enrolment.Secret = _protector.Protect(base32Secret);
-        enrolment.LastWindow = null;
-        enrolment.IsEnabled = false;
+        enrolment.PendingSecret = _protector.Protect(base32Secret);
+        enrolment.PendingSecretExpiresAt = DateTimeOffset.UtcNow.AddMinutes(_policy.PendingSecretMinutes);
 
-        DatabaseContext.TwoFactorRecoveryCodes.RemoveRange(enrolment.RecoveryCodes);
-
-        await DatabaseContext.SaveChangesAsync(cancellationToken);
+        await databaseContext.SaveChangesAsync(cancellationToken);
 
         string label = string.IsNullOrWhiteSpace(_policy.Issuer) ? issuer : _policy.Issuer;
 
@@ -94,12 +88,19 @@ internal sealed class AuthTwoFactorService<TUser>(
         CancellationToken cancellationToken = default
     )
     {
+        await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
+
         UserTwoFactor enrolment = await GetEnrolmentAsync(identifier, cancellationToken);
 
-        if (!TryVerifyTotp(enrolment, code))
+        if (enrolment.PendingSecret is null || enrolment.PendingSecretExpiresAt is not { } expiresAt || expiresAt <= DateTimeOffset.UtcNow)
             throw new InvalidTwoFactorCodeException();
 
-        DatabaseContext.TwoFactorRecoveryCodes.RemoveRange(enrolment.RecoveryCodes);
+        string pendingSecret = enrolment.PendingSecret;
+
+        if (!TryVerifyTotp(pendingSecret, code, out long window))
+            throw new InvalidTwoFactorCodeException();
+
+        databaseContext.TwoFactorRecoveryCodes.RemoveRange(enrolment.RecoveryCodes);
 
         List<string> recoveryCodes = [];
 
@@ -112,9 +113,14 @@ internal sealed class AuthTwoFactorService<TUser>(
             enrolment.RecoveryCodes.Add(new TwoFactorRecoveryCode { CodeHash = TokenHasher.Hash(recoveryCode) });
         }
 
+        enrolment.Secret = pendingSecret;
+        enrolment.PendingSecret = null;
+        enrolment.PendingSecretExpiresAt = null;
+        enrolment.LastWindow = window;
         enrolment.IsEnabled = true;
 
-        await DatabaseContext.SaveChangesAsync(cancellationToken);
+        await databaseContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         return recoveryCodes;
     }
@@ -124,48 +130,70 @@ internal sealed class AuthTwoFactorService<TUser>(
     {
         UserTwoFactor enrolment = await GetEnrolmentAsync(identifier, cancellationToken);
 
-        if (TryVerifyTotp(enrolment, code))
-        {
-            await DatabaseContext.SaveChangesAsync(cancellationToken);
+        if (!enrolment.IsEnabled || string.IsNullOrWhiteSpace(enrolment.Secret))
+            return false;
 
-            return true;
+        if (TryVerifyTotp(enrolment.Secret, code, out long window))
+        {
+            int affected = await databaseContext.UserTwoFactors
+                .Where(twoFactor => twoFactor.Id == enrolment.Id && (twoFactor.LastWindow == null || twoFactor.LastWindow < window))
+                .ExecuteUpdateAsync(setters => setters.SetProperty(twoFactor => twoFactor.LastWindow, window), cancellationToken);
+
+            return affected == 1;
         }
 
         string codeHash = TokenHasher.Hash(code);
+        DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        TwoFactorRecoveryCode? recoveryCode = enrolment.RecoveryCodes
-            .FirstOrDefault(stored => stored.UsedAt is null && stored.CodeHash == codeHash);
+        int recoveryCodeAffected = await databaseContext.TwoFactorRecoveryCodes
+            .Where(recoveryCode => recoveryCode.UserTwoFactorId == enrolment.Id)
+            .Where(recoveryCode => recoveryCode.CodeHash == codeHash && recoveryCode.UsedAt == null)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(recoveryCode => recoveryCode.UsedAt, now), cancellationToken);
 
-        if (recoveryCode is null)
-            return false;
-
-        recoveryCode.UsedAt = DateTimeOffset.UtcNow;
-
-        await DatabaseContext.SaveChangesAsync(cancellationToken);
-
-        return true;
+        return recoveryCodeAffected == 1;
     }
 
     /// <inheritdoc />
     public async Task DisableAsync(Guid identifier, CancellationToken cancellationToken = default)
     {
-        TUser user = await GetUserAsync(candidate => candidate.Identifier == identifier);
+        TUser user = await GetUserAsync(candidate => candidate.Identifier == identifier, cancellationToken);
 
-        UserTwoFactor? enrolment = await DatabaseContext.UserTwoFactors
+        UserTwoFactor? enrolment = await databaseContext.UserTwoFactors
             .Include(twoFactor => twoFactor.RecoveryCodes)
             .FirstOrDefaultAsync(twoFactor => twoFactor.UserId == user.Id, cancellationToken);
 
         if (enrolment is null)
             return;
 
-        DatabaseContext.TwoFactorRecoveryCodes.RemoveRange(enrolment.RecoveryCodes);
-        DatabaseContext.UserTwoFactors.Remove(enrolment);
+        databaseContext.TwoFactorRecoveryCodes.RemoveRange(enrolment.RecoveryCodes);
+        databaseContext.UserTwoFactors.Remove(enrolment);
 
-        await DatabaseContext.SaveChangesAsync(cancellationToken);
+        await databaseContext.SaveChangesAsync(cancellationToken);
     }
 
     /// <summary>
-    /// Loads the enrolment for a user, refusing when there is none, so every caller past this point has a secret to
+    /// Loads the one user matching a predicate, refusing rather than returning null, so every caller past this point has a
+    /// user to work with.
+    /// </summary>
+    ///
+    /// <param name="predicate">The lookup, by public identifier.</param>
+    /// <param name="cancellationToken">Cancels the lookup.</param>
+    ///
+    /// <returns>The matching user, tracked so a caller can modify and save it.</returns>
+    ///
+    /// <exception cref="InvalidCredentialsException">Thrown when no user matches the predicate.</exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task<TUser> GetUserAsync(Expression<Func<TUser, bool>> predicate, CancellationToken cancellationToken)
+    {
+        TUser? user = await databaseContext.Users.FirstOrDefaultAsync(predicate, cancellationToken);
+
+        return user ?? throw new InvalidCredentialsException();
+    }
+
+    /// <summary>
+    /// Loads the enrolment for a user, refusing when there is none, so every caller past this point has a row to
     /// verify against.
     /// </summary>
     ///
@@ -183,28 +211,31 @@ internal sealed class AuthTwoFactorService<TUser>(
     /// <since>Unreleased</since>
     private async Task<UserTwoFactor> GetEnrolmentAsync(Guid identifier, CancellationToken cancellationToken)
     {
-        TUser user = await GetUserAsync(candidate => candidate.Identifier == identifier);
+        TUser user = await GetUserAsync(candidate => candidate.Identifier == identifier, cancellationToken);
 
-        return await DatabaseContext.UserTwoFactors
+        return await databaseContext.UserTwoFactors
             .Include(twoFactor => twoFactor.RecoveryCodes)
             .FirstOrDefaultAsync(twoFactor => twoFactor.UserId == user.Id, cancellationToken) ?? throw new InvalidTwoFactorCodeException();
     }
 
     /// <summary>
-    /// Loads the enrolment for a user, creating an unconfirmed one when there is none, so re-enrolling replaces the
-    /// previous secret rather than failing.
+    /// Loads the enrolment for a user, creating an empty one when there is none, so a first enrolment and a re-enrolment
+    /// both have a row to write the pending secret onto.
     /// </summary>
     ///
     /// <param name="user">The user enrolling, already loaded so the enrolment can be attached to its key.</param>
     /// <param name="cancellationToken">Cancels the lookup.</param>
     ///
-    /// <returns>The enrolment to write the new secret onto, with its recovery codes loaded.</returns>
+    /// <returns>
+    /// The enrolment, with its recovery codes loaded. A row created here carries no secret and is not enabled, so it
+    /// grants nothing until an enrolment is confirmed against it.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private async Task<UserTwoFactor> GetOrCreateEnrolmentAsync(TUser user, CancellationToken cancellationToken)
     {
-        UserTwoFactor? enrolment = await DatabaseContext.UserTwoFactors
+        UserTwoFactor? enrolment = await databaseContext.UserTwoFactors
             .Include(twoFactor => twoFactor.RecoveryCodes)
             .FirstOrDefaultAsync(twoFactor => twoFactor.UserId == user.Id, cancellationToken);
 
@@ -213,35 +244,46 @@ internal sealed class AuthTwoFactorService<TUser>(
 
         enrolment = new UserTwoFactor { UserId = user.Id };
 
-        await DatabaseContext.UserTwoFactors.AddAsync(enrolment, cancellationToken);
+        await databaseContext.UserTwoFactors.AddAsync(enrolment, cancellationToken);
 
         return enrolment;
     }
 
     /// <summary>
-    /// Verifies a TOTP code and records the accepted time step, so the same code cannot be presented twice.
+    /// Verifies a TOTP code against one protected secret and reports the time step it matched, so a caller can check
+    /// either the secret in force or the one an enrolment is offering.
     /// </summary>
     ///
-    /// <param name="enrolment">The enrolment holding the protected secret, and the time step last accepted for it.</param>
+    /// <param name="protectedSecret">The secret in its stored, encrypted form, unprotected here rather than by the caller.</param>
     /// <param name="code">The submitted code, checked against the current time step and its immediate neighbours.</param>
+    /// <param name="window">
+    /// The time step the code matched, or <c>0</c> when it matched none. Only meaningful when this returns <c>true</c>.
+    /// </param>
     ///
     /// <returns>
-    /// <c>true</c> when the code is valid for a step later than the last accepted one. An unreadable secret returns
-    /// <c>false</c> rather than throwing, so a rotated protection key looks like a wrong code instead of a crash.
+    /// <c>true</c> when the code is valid for some step in the accepted window. An unreadable secret returns <c>false</c>
+    /// rather than throwing, so a rotated protection key looks like a wrong code instead of a crash.
     /// </returns>
+    ///
+    /// <remarks>
+    /// Nothing here records that the step was spent. Replay is refused by the caller's guarded update instead, because a
+    /// check made here and a write made later leave a gap two concurrent requests can both pass through.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private bool TryVerifyTotp(UserTwoFactor enrolment, string code)
+    private bool TryVerifyTotp(string protectedSecret, string code, out long window)
     {
-        if (string.IsNullOrWhiteSpace(enrolment.Secret))
+        window = default;
+
+        if (string.IsNullOrWhiteSpace(protectedSecret))
             return false;
 
         byte[] secret;
 
         try
         {
-            secret = Base32Encoding.ToBytes(_protector.Unprotect(enrolment.Secret));
+            secret = Base32Encoding.ToBytes(_protector.Unprotect(protectedSecret));
         }
         catch (CryptographicException)
         {
@@ -250,14 +292,6 @@ internal sealed class AuthTwoFactorService<TUser>(
 
         Totp totp = new(secret, step: _policy.PeriodSeconds, totpSize: _policy.Digits);
 
-        if (!totp.VerifyTotp(code, out long window, VerificationWindow.RfcSpecifiedNetworkDelay))
-            return false;
-
-        if (enrolment.LastWindow >= window)
-            return false;
-
-        enrolment.LastWindow = window;
-
-        return true;
+        return totp.VerifyTotp(code, out window, VerificationWindow.RfcSpecifiedNetworkDelay);
     }
 }

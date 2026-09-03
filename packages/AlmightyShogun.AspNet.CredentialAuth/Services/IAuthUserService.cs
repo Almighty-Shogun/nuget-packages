@@ -23,15 +23,19 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     /// The current request, read for the host that decides the application scope and for the address and user agent
     /// recorded on the session.
     /// </param>
+    /// <param name="cancellationToken">Cancels the database work, rolling the session back with the transaction.</param>
     ///
     /// <returns>The access token, the refresh token, and the user they were issued for.</returns>
     ///
     /// <exception cref="InvalidCredentialsException">
     /// The identifier matches no account, or the password is wrong. One exception covers both, so a caller cannot tell
-    /// them apart and neither can whoever is calling the caller.
+    /// them apart and neither can whoever is calling the caller. A wrong password is counted towards the lockout before
+    /// this is thrown, and that count is committed even though the sign-in fails.
     /// </exception>
     /// <exception cref="AccountLockedException">
-    /// A lockout is in force. Carries the moment it lifts, and is only ever thrown while lockout is enabled.
+    /// A lockout is in force. Carries the moment it lifts, and is only ever thrown while lockout is enabled. Also thrown
+    /// when concurrent failed attempts lock the account after the check that let this sign-in through, so a correct
+    /// password cannot clear a lockout that had already taken effect.
     /// </exception>
     /// <exception cref="AccountDisabledException">
     /// The account is deactivated. Thrown after the password is checked, so it cannot be used to discover which
@@ -40,7 +44,7 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    Task<AuthSessionResult<TUser>> LoginAsync(LoginRequest request, HttpContext context);
+    Task<AuthSessionResult<TUser>> LoginAsync(LoginRequest request, HttpContext context, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates a user without signing them in, for an administrative flow or an import. Refuses a username or email address
@@ -51,15 +55,20 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     /// The user to insert, with whatever additional columns the application's own entity carries.
     /// </param>
     /// <param name="password">The initial password, hashed here and never stored as given.</param>
+    /// <param name="cancellationToken">Cancels the database work.</param>
     ///
     /// <returns>The inserted user, with its generated key and public identifier populated.</returns>
     ///
     /// <exception cref="UsernameTakenException">Another account holds that username under the database's collation.</exception>
     /// <exception cref="EmailTakenException">Another account holds that address under the database's collation.</exception>
     ///
+    /// <remarks>
+    /// This saves but opens no transaction of its own, so it commits on its own unless a caller has already started one.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    Task<TUser> CreateUserAsync(TUser user, string password);
+    Task<TUser> CreateUserAsync(TUser user, string password, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates a user and signs them in, which is what a public sign-up wants. The insert and the session are one
@@ -72,6 +81,7 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     /// The current request, read for the host that decides the application scope and for the address and user agent
     /// recorded on the session.
     /// </param>
+    /// <param name="cancellationToken">Cancels the database work, rolling both the account and the session back.</param>
     ///
     /// <returns>The access token, the refresh token, and the user they were issued for.</returns>
     ///
@@ -80,5 +90,10 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    Task<AuthSessionResult<TUser>> RegisterAsync(TUser user, string password, HttpContext context);
+    Task<AuthSessionResult<TUser>> RegisterAsync(
+        TUser user,
+        string password,
+        HttpContext context,
+        CancellationToken cancellationToken = default
+    );
 }

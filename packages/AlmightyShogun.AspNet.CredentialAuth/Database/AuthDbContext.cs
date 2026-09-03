@@ -34,7 +34,8 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     public DbSet<UserSession> UserSessions => Set<UserSession>();
 
     /// <summary>
-    /// Gets the issued password resets, including spent ones, so a replay can be told from an unknown token.
+    /// Gets the outstanding password resets, at most one row per user. A spent row stays until that user requests
+    /// another reset and it is reused, so a replay can be told from an unknown token in the meantime.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -96,10 +97,14 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
         modelBuilder.Entity<UserSession>()
             .HasIndex(session => new { session.UserId, session.App, session.ExpiresAt });
 
+        modelBuilder.Entity<UserSession>()
+            .Property(session => session.ConcurrencyToken)
+            .IsConcurrencyToken();
+
         modelBuilder.Entity<PasswordResetToken>()
             .HasOne<TUser>()
-            .WithMany()
-            .HasForeignKey(token => token.UserId)
+            .WithOne()
+            .HasForeignKey<PasswordResetToken>(token => token.UserId)
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
 
@@ -150,9 +155,6 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
         modelBuilder.Entity<PasswordResetToken>()
             .HasIndex(token => token.TokenHash)
             .IsUnique();
-
-        modelBuilder.Entity<PasswordResetToken>()
-            .HasIndex(token => new { token.UserId, token.ExpiresAt });
 
         modelBuilder.Entity<EmailVerificationToken>()
             .HasOne<TUser>()

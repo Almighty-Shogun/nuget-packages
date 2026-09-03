@@ -24,7 +24,6 @@ export const aspNetCredentialAuth: DefaultTheme.SidebarItem[] = [
         items: [
             { text: 'AuthPasswordService', link: '/asp-net-credential-auth/services/auth-password-service' },
             { text: 'AuthSessionService', link: '/asp-net-credential-auth/services/auth-session-service' },
-            { text: 'AuthTokenService', link: '/asp-net-credential-auth/services/auth-token-service' },
             { text: 'AuthTwoFactorService', link: '/asp-net-credential-auth/services/auth-two-factor-service' },
             { text: 'AuthUserService', link: '/asp-net-credential-auth/services/auth-user-service' }
         ]

@@ -49,4 +49,15 @@ public sealed record TwoFactorPolicy
     /// <since>Unreleased</since>
     [Range(15, 120)]
     public int PeriodSeconds { get; init; } = 30;
+
+    /// <summary>
+    /// Gets how long a secret offered by an enrolment stays confirmable, in minutes. Long enough to scan a code and wait
+    /// out a time step, short enough that a code left open on a shared screen stops being redeemable. An enrolment that
+    /// expires leaves any existing secret working, since it was never replaced.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    [Range(1, 60)]
+    public int PendingSecretMinutes { get; init; } = 10;
 }

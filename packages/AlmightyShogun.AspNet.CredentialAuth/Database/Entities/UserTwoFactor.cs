@@ -40,8 +40,10 @@ public sealed class UserTwoFactor
     public bool IsEnabled { get; set; }
 
     /// <summary>
-    /// Gets or sets the protected TOTP shared secret. Stored encrypted, so a database copy alone does not let an
-    /// attacker mint valid codes. The column is sized for the protected form, which is several times the secret itself.
+    /// Gets or sets the protected TOTP shared secret currently in force. Stored encrypted, so a database copy alone does
+    /// not let an attacker mint valid codes. The column is sized for the protected form, which is several times the
+    /// secret itself. Empty until an enrolment has been confirmed, and only ever replaced by a confirmed
+    /// <see cref="PendingSecret"/>.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -49,6 +51,27 @@ public sealed class UserTwoFactor
     [Required]
     [MaxLength(512)]
     public string Secret { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the protected secret an enrolment in progress is offering, or <c>null</c> when none is outstanding.
+    /// Written by <c>BeginEnrolmentAsync</c> and promoted to <see cref="Secret"/> only once a code proves the
+    /// authenticator holds it, so an abandoned enrolment leaves a working second factor untouched.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    [MaxLength(512)]
+    public string? PendingSecret { get; set; }
+
+    /// <summary>
+    /// Gets or sets when the outstanding <see cref="PendingSecret"/> stops being confirmable, or <c>null</c> when none is
+    /// outstanding. A confirmation arriving after this is refused as a wrong code, so a QR left on screen does not stay
+    /// redeemable indefinitely.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public DateTimeOffset? PendingSecretExpiresAt { get; set; }
 
     /// <summary>
     /// Gets or sets the last TOTP time step accepted for this user. A code from that step or earlier is refused, which

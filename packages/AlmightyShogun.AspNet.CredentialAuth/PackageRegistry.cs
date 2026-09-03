@@ -64,7 +64,6 @@ public static class PackageRegistry
 
             return serviceCollection
                 .AddScoped<AuthDbContext<TUser>>(serviceProvider => serviceProvider.GetRequiredService<TDbContext>())
-                .AddScoped<IAuthTokenService<TUser>, AuthTokenService<TUser>>()
                 .AddScoped<IAuthUserService<TUser>, AuthUserService<TUser>>()
                 .AddScoped<IAuthSessionService<TUser>, AuthSessionService<TUser>>()
                 .AddScoped<IAuthPasswordService, AuthPasswordService<TUser>>()

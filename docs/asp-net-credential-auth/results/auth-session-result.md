@@ -39,6 +39,10 @@ public sealed class SessionResponseController : ControllerBase
 }
 ```
 
+::: danger
+Do not return this type straight from a controller. `User` is the live database entity, so every column a consumer adds to their own type derived from [`AuthUser`](../types/auth-user) is serialized with it, including ones that were never meant to leave the server. Project the fields the client needs onto a response type of your own instead.
+:::
+
 <FrontmatterDocs/>
 
 ## Type signature

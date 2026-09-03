@@ -15,12 +15,13 @@ dotnet add package AlmightyShogun.AspNet.CredentialAuth
 ### Package references
 
 - `Microsoft.EntityFrameworkCore` `10.0.11` &mdash; supplies the base `DbContext`, model building, and query APIs used for users, sessions, tokens, and two-factor enrolments.
+- `Microsoft.EntityFrameworkCore.Relational` `10.0.11` &mdash; supplies the explicit transactions the credential flows run in, including the serializable ones that make token issuance and lockout counting safe under concurrency. It arrives with any relational provider anyway.
 - `Otp.NET` `1.4.1` &mdash; generates and verifies the TOTP codes behind [`IAuthTwoFactorService<TUser>`](./services/auth-two-factor-service).
 
 ### Project references
 
 - `AlmightyShogun.AspNet.JwtAuth` &mdash; supplies [`AuthSettings`](/asp-net-jwt-auth/configuration), [`IAppHostResolver`](/asp-net-jwt-auth/services/app-host-resolver), the token generator, and the refresh-token cookie helpers.
-- `AlmightyShogun.AspNet.Core` &mdash; supplies [`SessionContext`](/asp-net-core/records/session-context), User-Agent parsing, and the [`IExceptionMapper`](/asp-net-core/exceptions) contract this package's exceptions map through.
+- `AlmightyShogun.AspNet.Core` &mdash; supplies [`ClientContext`](/asp-net-core/records/client-context), User-Agent parsing, and the [`IExceptionMapper`](/asp-net-core/exceptions) contract this package's exceptions map through.
 - `AlmightyShogun.AspNet.Localization` &mdash; resolves the message on each failure from the `auth` and `passwords` files described in [Localization](./localization).
 - `AlmightyShogun.AspNet.RequestValidation` &mdash; supplies the `[Required]`, `[Email]`, `[Min]`, and `[PasswordSecure]` rules carried by the [request models](./requests/login-request).
 
