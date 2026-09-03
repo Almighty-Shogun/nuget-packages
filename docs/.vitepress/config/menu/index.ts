@@ -2,7 +2,7 @@ import type { DefaultTheme } from 'vitepress'
 import { guide } from './guide'
 import { aspNetCore } from './asp-net-core'
 import { aspNetCredentialAuth } from './asp-net-credential-auth'
-import { aspNetJwtAuth } from './asp-net-jwt-auth'
+import { aspNetAuth } from './asp-net-auth'
 import { aspNetLocalization } from './asp-net-localization'
 import { aspNetMaintenanceMode } from './asp-net-maintenance-mode'
 import { aspNetRequestValidation } from './asp-net-request-validation'
@@ -23,10 +23,10 @@ export const nav: DefaultTheme.NavItem[] = [
     },
     {
         text: 'ASP.NET',
-        activeMatch: '^/(asp-net-core|asp-net-credential-auth|asp-net-jwt-auth|asp-net-localization|asp-net-maintenance-mode|asp-net-request-validation)/',
+        activeMatch: '^/(asp-net-core|asp-net-credential-auth|asp-net-auth|asp-net-localization|asp-net-maintenance-mode|asp-net-request-validation)/',
         items: [
             { text: 'Core', activeMatch: '^/asp-net-core/', link: '/asp-net-core/' },
-            { text: 'JWT Auth', activeMatch: '^/asp-net-jwt-auth/', link: '/asp-net-jwt-auth/' },
+            { text: 'Auth', activeMatch: '^/asp-net-auth/', link: '/asp-net-auth/' },
             { text: 'Localization', activeMatch: '^/asp-net-localization/', link: '/asp-net-localization/' },
             { text: 'Maintenance Mode', activeMatch: '^/asp-net-maintenance-mode/', link: '/asp-net-maintenance-mode/' },
             { text: 'Request Validation', activeMatch: '^/asp-net-request-validation/', link: '/asp-net-request-validation/' },
@@ -68,7 +68,7 @@ export const sidebar = {
     "/guide/": guide,
     "/asp-net-core/": aspNetCore,
     "/asp-net-credential-auth/": aspNetCredentialAuth,
-    "/asp-net-jwt-auth/": aspNetJwtAuth,
+    "/asp-net-auth/": aspNetAuth,
     "/asp-net-localization/": aspNetLocalization,
     "/asp-net-maintenance-mode/": aspNetMaintenanceMode,
     "/asp-net-request-validation/": aspNetRequestValidation,

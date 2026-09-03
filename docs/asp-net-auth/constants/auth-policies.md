@@ -5,7 +5,7 @@ The authorization policy naming used by the package.
 ## Usage
 
 ```csharp
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using Microsoft.AspNetCore.Authorization;
 
 AuthorizationResult result = await authorizationService.AuthorizeAsync(

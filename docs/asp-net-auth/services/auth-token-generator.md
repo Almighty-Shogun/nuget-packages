@@ -11,7 +11,7 @@ The generator adds the audience itself, from the request host when host scoping 
 ```csharp [SessionsController.cs]
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 [ApiController]
 [Route("sessions")]
@@ -35,7 +35,7 @@ public sealed class SessionsController(
 
 ```csharp [ExplicitAudience.cs]
 using System.Security.Claims;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 Guid identifier = Guid.Parse("0195f0c8-9a1e-7d3f-8b21-5c9a4e2f7d10");
 

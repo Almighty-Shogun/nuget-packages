@@ -6,7 +6,7 @@ The claim names this package reads and writes. Use these constants rather than s
 
 ```csharp
 using System.Security.Claims;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 Guid identifier = Guid.Parse("0195f0c8-9a1e-7d3f-8b21-5c9a4e2f7d10");
 

@@ -12,7 +12,7 @@ Use it where a signed-out caller is ordinary rather than exceptional. Where the 
 
 ```csharp
 using Microsoft.AspNetCore.Http;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 string? refreshToken = httpContext.Request.TryGetRefreshTokenCookie();
 ```

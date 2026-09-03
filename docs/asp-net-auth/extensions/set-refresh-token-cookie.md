@@ -19,7 +19,7 @@ Pass [`RefreshTokenDays`](../configuration) as the lifetime so the cookie expire
 
 ```csharp
 using Microsoft.AspNetCore.Http;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 httpContext.Response.SetRefreshTokenCookie("refresh-token-value", days: 30);
 ```

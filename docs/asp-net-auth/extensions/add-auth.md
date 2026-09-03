@@ -12,7 +12,7 @@ params:
 returns: The `IServiceCollection` instance with JWT authentication and authorization services configured.
 ---
 
-# AddJwtAuth
+# AddAuth
 
 Registers everything the package needs: the bound [`AuthSettings`](../configuration), JWT bearer authentication, the host resolver, and the app-audience and permission authorization services. It also registers a mapper covering this package's [exceptions](../exceptions), so each becomes a standardized error response.
 
@@ -26,14 +26,14 @@ Requires an `Auth` section in application configuration, usually from `appsettin
 
 ```csharp
 using AlmightyShogun.AspNet.Core;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.Localization;
 
 builder.Services
     .AddMessageLocalization(builder.Configuration)
     .AddHttpErrorResponseWriter()
     .AddExceptionHandling()
-    .AddJwtAuth(builder.Configuration);
+    .AddAuth(builder.Configuration);
 
 WebApplication app = builder.Build();
 
@@ -45,7 +45,7 @@ app.UseHttpErrorResponses();
 ## Type signature
 
 ```csharp
-public IServiceCollection AddJwtAuth(
+public IServiceCollection AddAuth(
     IConfiguration configuration,
     bool registerExceptionHandler = true
 );

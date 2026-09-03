@@ -18,7 +18,7 @@ A minted access token and when it expires, returned by [`IAuthTokenGenerator.Gen
 ## Usage
 
 ```csharp
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 AuthToken token = tokenGenerator.Generate(claims);
 

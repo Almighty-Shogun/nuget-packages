@@ -11,7 +11,7 @@ The attribute builds a policy named `permission:{name}`, resolved and cached by 
 
 ```csharp [UsersController.cs]
 using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 [ApiController]
 [Route("users")]
@@ -28,7 +28,7 @@ public sealed class UsersController : ControllerBase
 ```
 
 ```csharp [MinimalApi.cs]
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 app.MapGet("/users", [AuthPermission("users.read")] () => Results.Ok())
     .RequireAuthorization();
@@ -36,7 +36,7 @@ app.MapGet("/users", [AuthPermission("users.read")] () => Results.Ok())
 
 ```csharp [GrantingClaims.cs]
 using System.Security.Claims;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 AuthToken token = tokenGenerator.Generate([
     new Claim(AuthClaimTypes.Permission, "users.*"),

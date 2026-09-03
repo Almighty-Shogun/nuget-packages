@@ -12,7 +12,7 @@ Use it where an anonymous caller is ordinary rather than exceptional. Where an i
 
 ```csharp
 using System.Security.Claims;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 Guid? identifier = principal.TryGetCurrentUserId();
 ```

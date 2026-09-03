@@ -12,7 +12,7 @@ A missing or empty cookie throws [`MissingRefreshTokenException`](../exceptions)
 
 ```csharp
 using Microsoft.AspNetCore.Http;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 string refreshToken = httpContext.Request.GetRefreshTokenCookie();
 ```
