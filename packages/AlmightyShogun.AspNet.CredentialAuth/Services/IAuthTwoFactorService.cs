@@ -17,8 +17,8 @@ namespace AlmightyShogun.AspNet.CredentialAuth;
 public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
 {
     /// <summary>
-    /// Issues a new TOTP secret and returns what the user needs to add it to an authenticator app. Two-factor is not yet in
-    /// force: it takes effect only once a code proves the app was set up, so an abandoned enrolment cannot lock anyone out.
+    /// Issues a new TOTP secret and returns what the user needs to add it to an authenticator app. The secret is held
+    /// aside rather than put in force, so nothing about the account changes until a code proves the app was set up.
     /// </summary>
     ///
     /// <param name="identifier">The public identifier of the user enrolling.</param>
@@ -29,12 +29,17 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
     /// <param name="cancellationToken">Cancels the database work.</param>
     ///
     /// <returns>
-    /// The secret and the <c>otpauth://</c> URI, returned once. Calling this again replaces the secret and invalidates any
-    /// app already set up. On an enrolment that was already confirmed it also discards the recovery codes and turns the
-    /// second factor back off until a new code confirms it, so an abandoned re-enrolment leaves the account without one.
+    /// The secret and the <c>otpauth://</c> URI, returned once. Calling this again discards the previous unconfirmed
+    /// secret and offers a fresh one, so only the most recent QR can be confirmed.
     /// </returns>
     ///
     /// <exception cref="InvalidCredentialsException">The identifier matches no account.</exception>
+    ///
+    /// <remarks>
+    /// A user who already has a working second factor keeps it, codes and all, until this enrolment is confirmed.
+    /// Abandoning the enrolment therefore costs them nothing, and the offered secret stops being confirmable on its own
+    /// after ten minutes.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -42,12 +47,12 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
 
     /// <summary>
     /// Confirms an enrolment with a code from the app, which is what actually turns two-factor on, and issues the recovery
-    /// codes. Any codes from a previous enrolment are discarded.
+    /// codes. The offered secret replaces whatever was in force, and any codes from a previous enrolment are discarded.
     /// </summary>
     ///
     /// <param name="identifier">The public identifier of the user enrolling.</param>
     /// <param name="code">The current code from the authenticator app, proving it holds the right secret.</param>
-    /// <param name="cancellationToken">Cancels the database work.</param>
+    /// <param name="cancellationToken">Cancels the database work, rolling the whole promotion back with the transaction.</param>
     ///
     /// <returns>
     /// The recovery codes in plain text, the only time they exist in that form. Show them once and tell the user to keep
@@ -56,9 +61,14 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
     ///
     /// <exception cref="InvalidCredentialsException">The identifier matches no account.</exception>
     /// <exception cref="InvalidTwoFactorCodeException">
-    /// The code is wrong, or the user never began an enrolment for it to confirm. Both are reported the same way, so a
-    /// caller cannot use this to discover whether an enrolment is under way.
+    /// The code is wrong, the user never began an enrolment for it to confirm, or the one they began has expired. All are
+    /// reported the same way, so a caller cannot use this to discover whether an enrolment is under way.
     /// </exception>
+    ///
+    /// <remarks>
+    /// Promotion, code replacement, and enabling happen in one transaction, so a failure part-way cannot leave the old
+    /// secret gone with the new one not yet in force.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -76,8 +86,9 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
     /// <param name="cancellationToken">Cancels the database work.</param>
     ///
     /// <returns>
-    /// <c>true</c> when the code was accepted. <c>false</c> covers a wrong code, a code already used in this time step,
-    /// a spent recovery code, and a secret that can no longer be decrypted, none of which are distinguished.
+    /// <c>true</c> when the code was accepted. <c>false</c> covers a wrong code, a code already used in this time step or
+    /// an earlier one, a spent recovery code, a secret that can no longer be decrypted, and an enrolment that was begun
+    /// but never confirmed, none of which are distinguished.
     /// </returns>
     ///
     /// <exception cref="InvalidCredentialsException">The identifier matches no account.</exception>
@@ -85,6 +96,11 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
     /// The user has no enrolment at all. Only a user known to be enrolled should reach this, so call it behind a check
     /// on <see cref="UserTwoFactor.IsEnabled"/> rather than treating it as a way to ask.
     /// </exception>
+    ///
+    /// <remarks>
+    /// The time step and the recovery code are both claimed with a guarded update rather than read and then written, so
+    /// two requests presenting the same code at once cannot both be accepted.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
