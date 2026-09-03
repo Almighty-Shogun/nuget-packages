@@ -8,7 +8,7 @@ export default defineConfig({
     description: 'Documentation for all C#/NuGet packages in the AlmightyShogun.* monorepo.',
     cleanUrls: true,
     lastUpdated: true,
-    srcExclude: ['guide-node/**', 'AGENTS.md', 'CLAUDE.md'],
+    srcExclude: ['guide-node/**', 'CLAUDE.md'],
     sitemap: {
         hostname: 'https://nuget-packages.shogun.ms'
     },
