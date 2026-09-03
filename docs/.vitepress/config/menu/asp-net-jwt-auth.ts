@@ -28,8 +28,7 @@ export const aspNetJwtAuth: DefaultTheme.SidebarItem[] = [
         text: 'Attributes',
         collapsed: false,
         items: [
-            { text: 'AuthPermission', link: '/asp-net-jwt-auth/attributes/auth-permission' },
-            { text: 'RequireRefreshToken', link: '/asp-net-jwt-auth/attributes/require-refresh-token' }
+            { text: 'AuthPermission', link: '/asp-net-jwt-auth/attributes/auth-permission' }
         ]
     },
     {

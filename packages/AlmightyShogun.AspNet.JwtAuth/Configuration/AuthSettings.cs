@@ -1,6 +1,4 @@
-using System.Text;
 using Microsoft.AspNetCore.Http;
-using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
 
 namespace AlmightyShogun.AspNet.JwtAuth;
@@ -15,15 +13,6 @@ namespace AlmightyShogun.AspNet.JwtAuth;
 /// <since>2.3.0</since>
 public sealed record AuthSettings
 {
-    /// <summary>
-    /// The shortest signing key HMAC-SHA256 accepts, in bytes. Anything shorter is refused by the algorithm itself, so
-    /// it is rejected here rather than surfacing as a signing failure on the first request.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    internal const int MinimumSecretBytes = 32;
-
     /// <summary>
     /// Gets the issuer stamped into minted tokens and demanded of incoming ones, which is what stops a token from another
     /// system being accepted here.
@@ -43,7 +32,7 @@ public sealed record AuthSettings
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
     [Required]
-    [MinLength(MinimumSecretBytes)]
+    [MinLength(AuthSigningKey.MinimumSecretBytes)]
     public required string Secret { get; init; }
 
     /// <summary>
@@ -87,9 +76,10 @@ public sealed record AuthSettings
     public string? DefaultApp { get; init; }
 
     /// <summary>
-    /// Gets the <c>SameSite</c> mode intended for the refresh token cookie. Nothing in this package reads it:
-    /// <c>SetRefreshTokenCookie</c> writes <see cref="SameSiteMode.Lax"/> whatever this says, so an application needing
-    /// another mode has to write the cookie itself.
+    /// Gets the <c>SameSite</c> mode written on the refresh token cookie, applied by both <c>SetRefreshTokenCookie</c>
+    /// and <c>DeleteAuthCookies</c> so a cookie is deleted with the same attributes it was written with.
+    /// <see cref="SameSiteMode.None"/> only reaches the browser over HTTPS, because the cookie is marked secure from the
+    /// request scheme rather than from this.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -142,35 +132,6 @@ public sealed record AuthSettings
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public bool IsScoped() => Hosts.Count > 0;
-
-    /// <summary>
-    /// Builds the signing key, checking the secret in bytes rather than characters, which is what the algorithm actually
-    /// constrains and what <see cref="MinLengthAttribute"/> on a string cannot express.
-    /// </summary>
-    ///
-    /// <returns>
-    /// The symmetric key minted tokens are signed with. Validation builds its own from the same secret rather than
-    /// calling this, so the byte check below guards signing alone.
-    /// </returns>
-    ///
-    /// <exception cref="InvalidOperationException">
-    /// The secret encodes to fewer than <see cref="MinimumSecretBytes"/> bytes, so HMAC-SHA256 would refuse it. Not
-    /// reachable while startup validation is on, since <see cref="MinLengthAttribute"/> already demands that many
-    /// characters and a character never encodes to less than a byte.
-    /// </exception>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    internal SymmetricSecurityKey SigningKey()
-    {
-        byte[] key = Encoding.UTF8.GetBytes(Secret);
-
-        return key.Length >= MinimumSecretBytes
-            ? new SymmetricSecurityKey(key)
-            : throw new InvalidOperationException(
-                $"Auth:Secret must encode to at least {MinimumSecretBytes} bytes for HMAC-SHA256 signing, but is {key.Length}."
-            );
-    }
 
     /// <summary>
     /// Collects the distinct configured audiences, refusing a configuration that would leave a token with no audience to

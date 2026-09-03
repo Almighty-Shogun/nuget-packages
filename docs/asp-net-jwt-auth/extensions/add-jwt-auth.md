@@ -4,6 +4,11 @@ params:
       description: Application configuration containing the `Auth` section.
       type: IConfiguration
 
+    - name: registerExceptionHandler
+      description: Whether to register the handler that turns this package's exceptions into standardized error responses. Pass `false` where the application already has an exception handler covering them.
+      type: bool
+      default: 'true'
+
 returns: The `IServiceCollection` instance with JWT authentication and authorization services configured.
 ---
 
@@ -40,5 +45,8 @@ app.UseHttpErrorResponses();
 ## Type signature
 
 ```csharp
-public IServiceCollection AddJwtAuth(IConfiguration configuration);
+public IServiceCollection AddJwtAuth(
+    IConfiguration configuration,
+    bool registerExceptionHandler = true
+);
 ```

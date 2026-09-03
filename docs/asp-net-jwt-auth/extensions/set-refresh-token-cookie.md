@@ -11,7 +11,7 @@ params:
 
 # SetRefreshTokenCookie
 
-Writes the refresh-token cookie after issuing or rotating one. It is `HttpOnly` and scoped to `/`, and the `Secure` flag follows the current request scheme.
+Writes the refresh-token cookie after issuing or rotating one. It is `HttpOnly` and scoped to `/`, the `SameSite` mode comes from [`Auth:SameSite`](../configuration), and the `Secure` flag follows the current request scheme.
 
 Pass [`RefreshTokenDays`](../configuration) as the lifetime so the cookie expires with the token it carries rather than outliving it.
 
@@ -20,8 +20,6 @@ Pass [`RefreshTokenDays`](../configuration) as the lifetime so the cookie expire
 ```csharp
 using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.JwtAuth;
-
-var httpContext = new DefaultHttpContext();
 
 httpContext.Response.SetRefreshTokenCookie("refresh-token-value", days: 30);
 ```
