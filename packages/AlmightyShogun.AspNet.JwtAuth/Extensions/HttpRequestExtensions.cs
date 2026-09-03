@@ -26,11 +26,20 @@ public static class HttpRequestExtensions
         /// as ordinary rather than exceptional, such as an optional session refresh.
         /// </summary>
         ///
-        /// <returns>The cookie value, or <c>null</c> when the request carries no such cookie.</returns>
+        /// <returns>
+        /// The cookie value, or <c>null</c> when the request carries no such cookie or carries an empty one. An empty
+        /// cookie counts as absent, so this agrees with <c>GetRefreshTokenCookie</c> about what a usable token is
+        /// rather than reporting one the other would refuse.
+        /// </returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.3.0</since>
-        public string? TryGetRefreshTokenCookie() => httpRequest.Cookies[CookieNames.RefreshToken] ?? null;
+        public string? TryGetRefreshTokenCookie()
+        {
+            string? refreshToken = httpRequest.Cookies[CookieNames.RefreshToken];
+
+            return string.IsNullOrWhiteSpace(refreshToken) ? null : refreshToken;
+        }
 
         /// <summary>
         /// Reads the refresh-token cookie and fails when it is absent, for a path that cannot proceed without one, such
