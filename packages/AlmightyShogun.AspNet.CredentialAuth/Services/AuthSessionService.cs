@@ -1,23 +1,42 @@
 using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.Core;
-using AlmightyShogun.AspNet.Localization;
+using System.Linq.Expressions;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
+using AlmightyShogun.AspNet.JwtAuth;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 
-using Microsoft.Extensions.Options;
-
-using AlmightyShogun.AspNet.JwtAuth;
-
-using Microsoft.Extensions.Logging;
-
 namespace AlmightyShogun.AspNet.CredentialAuth;
 
 /// <summary>
-/// Creates, renews, and ends refresh-token sessions. Renewal rotates the token every time, which is what turns a stolen
-/// token into something detectable rather than something that quietly works until it expires.
+/// Creates, renews, and ends refresh-token sessions. Renewal rotates the token every time and remembers the one it
+/// replaced, so presenting that spent token afterwards is recognised as a replay and ends every session the user holds.
 /// </summary>
+///
+/// <typeparam name="TUser">The application's own user entity, returned alongside the tokens a session yields.</typeparam>
+/// <param name="databaseContext">The application's context, so auth writes join whatever transaction it is in.</param>
+/// <param name="authOptions">The bound JWT settings, read for how long a refresh token lives.</param>
+/// <param name="credentialOptions">
+/// The bound credential settings, read for the lockout policy and for the absolute lifetime a renewal is capped at.
+/// </param>
+/// <param name="appHostResolver">
+/// The resolver deciding which application the current request belongs to, so a session is scoped to the host the user
+/// actually signed in through.
+/// </param>
+/// <param name="tokenGenerator">
+/// The JWT package's generator, which signs and stamps issuer, audience, and expiry over the claims built here.
+/// </param>
+/// <param name="logger">Where a detected token replay is recorded, since nothing is returned to the caller about it.</param>
+///
+/// <remarks>
+/// Only one step of the chain is remembered. A session that has rotated <c>a</c> to <c>b</c> to <c>c</c> holds
+/// <c>b</c> as its previous token, so replaying <c>b</c> is detected while replaying <c>a</c> reads as an unknown token
+/// and is refused without revoking anything. Detection therefore covers the token most recently spent, which is the one
+/// a thief racing the legitimate client would hold, and not every token the session has ever issued.
+/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
@@ -26,135 +45,250 @@ internal sealed class AuthSessionService<TUser>(
     IOptions<AuthSettings> authOptions,
     IOptions<CredentialAuthSettings> credentialOptions,
     IAppHostResolver appHostResolver,
-    IAuthTokenService<TUser> tokenService,
+    IAuthTokenGenerator tokenGenerator,
     ILogger<AuthSessionService<TUser>> logger
-) : AuthServiceBase<TUser>(databaseContext, authOptions, appHostResolver), IAuthSessionService<TUser> where TUser : AuthUser
+) : IAuthSessionService<TUser> where TUser : AuthUser
 {
     /// <inheritdoc />
-    public async Task<AuthSessionResult<TUser>> RefreshSessionAsync(string refreshToken, HttpContext httpContext)
+    public async Task<AuthSessionResult<TUser>> RefreshSessionAsync(
+        string refreshToken,
+        HttpContext httpContext,
+        CancellationToken cancellationToken = default
+    )
     {
-        await using IDbContextTransaction transaction = await DatabaseContext.Database.BeginTransactionAsync();
+        await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
 
-        string? app = ResolveApp();
+        string? app = appHostResolver.Resolve();
         string refreshTokenHash = TokenHasher.Hash(refreshToken);
 
-        SessionContext sessionContext = httpContext.GetSessionContext();
+        ClientContext clientContext = httpContext.GetClientContext();
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        IQueryable<UserSession> query = DatabaseContext.UserSessions.Where(session => session.RefreshTokenHash == refreshTokenHash)
+        IQueryable<UserSession> query = databaseContext.UserSessions.Where(session => session.RefreshTokenHash == refreshTokenHash)
             .Where(session => !session.IsRevoked && session.ExpiresAt > now);
 
         if (app is not null)
             query = query.Where(session => session.App == app);
 
-        UserSession? session = await query.FirstOrDefaultAsync();
+        UserSession? session = await query.FirstOrDefaultAsync(cancellationToken);
 
         if (session is null || !session.IsActive)
         {
-            await DetectTokenReuseAsync(refreshTokenHash);
+            if (await DetectTokenReuseAsync(refreshTokenHash, cancellationToken))
+            {
+                await databaseContext.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+            }
 
             throw new InvalidSessionException();
         }
 
-        TUser user = await GetUserAsync(user => user.Id == session.UserId);
+        TUser user = await GetUserAsync(user => user.Id == session.UserId, cancellationToken);
 
         if (!user.IsActive)
             throw new AccountDisabledException();
 
-        await EnsureNotLockedOutAsync(user.Id, credentialOptions.Value.Lockout);
+        await EnsureNotLockedOutAsync(user.Id, credentialOptions.Value.Lockout, cancellationToken);
 
         string newRefreshToken = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(64));
 
-        UserAgent userAgent = UserAgent.Parse(sessionContext.UserAgent ?? string.Empty);
+        UserAgent userAgent = UserAgent.Parse(clientContext.UserAgent ?? string.Empty);
 
         session.Os = Truncate(userAgent.Os, 256);
         session.Device = Truncate(userAgent.Device, 256);
         session.Browser = Truncate(userAgent.Browser, 256);
         session.LastActiveAt = DateTimeOffset.UtcNow;
-        session.IpAddress = Truncate(sessionContext.IpAddress, 45);
-        session.UserAgent = Truncate(sessionContext.UserAgent, 512);
+        session.IpAddress = Truncate(clientContext.IpAddress, 45);
+        session.UserAgent = Truncate(clientContext.UserAgent, 512);
         session.PreviousRefreshTokenHash = session.RefreshTokenHash;
         session.RefreshTokenHash = TokenHasher.Hash(newRefreshToken);
-        session.ExpiresAt = CapToAbsoluteLifetime(session, DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(AuthSettings.RefreshTokenDays)));
+        session.ConcurrencyToken = Guid.NewGuid();
+        session.ExpiresAt = CapToAbsoluteLifetime(
+            session, DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(authOptions.Value.RefreshTokenDays))
+        );
 
-        DatabaseContext.UserSessions.Update(session);
+        try
+        {
+            await databaseContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            await transaction.RollbackAsync(cancellationToken);
 
-        await DatabaseContext.SaveChangesAsync();
-        await transaction.CommitAsync();
+            throw new InvalidSessionException();
+        }
 
         return new AuthSessionResult<TUser>
         {
             User = user,
             RefreshToken = newRefreshToken,
-            AccessToken = tokenService.GenerateToken(user, app)
+            AccessToken = tokenGenerator.Generate(AuthClaimFactory.Create(user, app), app).Token
         };
     }
 
     /// <inheritdoc />
-    public async Task RevokeSessionAsync(string refreshToken)
+    public async Task RevokeSessionAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
-        await using IDbContextTransaction transaction = await DatabaseContext.Database.BeginTransactionAsync();
+        await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
 
         string refreshTokenHash = TokenHasher.Hash(refreshToken);
 
-        UserSession? session = await DatabaseContext.UserSessions
+        UserSession? session = await databaseContext.UserSessions
             .Where(session => session.RefreshTokenHash == refreshTokenHash && !session.IsRevoked)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (session is null)
         {
-            await transaction.CommitAsync();
+            await transaction.CommitAsync(cancellationToken);
 
             return;
         }
 
         session.IsRevoked = true;
 
-        DatabaseContext.UserSessions.Update(session);
+        databaseContext.UserSessions.Update(session);
 
-        await DatabaseContext.SaveChangesAsync();
-        await transaction.CommitAsync();
+        await databaseContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<string> CreateSessionAsync(
+        TUser user,
+        string? app,
+        ClientContext context,
+        CancellationToken cancellationToken = default
+    )
+    {
+        string refreshToken = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(64));
+
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+
+        List<UserSession> expired = await databaseContext.UserSessions
+            .Where(session => session.UserId == user.Id && session.ExpiresAt <= now)
+            .ToListAsync(cancellationToken);
+
+        if (expired.Count > 0)
+        {
+            databaseContext.UserSessions.RemoveRange(expired);
+        }
+
+        UserAgent userAgent = UserAgent.Parse(context.UserAgent ?? string.Empty);
+
+        await databaseContext.UserSessions.AddAsync(new UserSession
+        {
+            UserId = user.Id,
+            App = app,
+            Os = Truncate(userAgent.Os, 256),
+            Device = Truncate(userAgent.Device, 256),
+            Browser = Truncate(userAgent.Browser, 256),
+            IpAddress = Truncate(context.IpAddress, 45),
+            UserAgent = Truncate(context.UserAgent, 512),
+            RefreshTokenHash = TokenHasher.Hash(refreshToken),
+            ExpiresAt = DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(authOptions.Value.RefreshTokenDays))
+        }, cancellationToken);
+
+        await databaseContext.SaveChangesAsync(cancellationToken);
+
+        return refreshToken;
     }
 
     /// <summary>
-    /// Treats a refresh token that was already rotated away as stolen, and revokes every session the user holds.
+    /// Loads the one user matching a predicate, refusing rather than returning null, so every caller past this point has a
+    /// user to work with.
     /// </summary>
     ///
-    /// <param name="refreshTokenHash">The hash of the token that was presented after already being rotated away.</param>
+    /// <param name="predicate">The lookup, by the key the session being renewed carries.</param>
+    /// <param name="cancellationToken">Cancels the lookup.</param>
     ///
-    /// <returns>
-    /// A task that completes once a detected reuse has been answered, or immediately when the hash matches no rotated
-    /// session or the rotation is still inside the grace window. A reuse that is detected revokes every session the user
-    /// holds, because the token is known to be in two places and there is no way to tell which holder is the owner.
-    /// </returns>
+    /// <returns>The matching user, tracked so a caller can modify and save it.</returns>
+    ///
+    /// <exception cref="InvalidCredentialsException">Thrown when no user matches the predicate.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private async Task DetectTokenReuseAsync(string refreshTokenHash)
+    private async Task<TUser> GetUserAsync(Expression<Func<TUser, bool>> predicate, CancellationToken cancellationToken)
     {
-        UserSession? rotated = await DatabaseContext.UserSessions
-            .FirstOrDefaultAsync(session => session.PreviousRefreshTokenHash == refreshTokenHash);
+        TUser? user = await databaseContext.Users.FirstOrDefaultAsync(predicate, cancellationToken);
+
+        return user ?? throw new InvalidCredentialsException();
+    }
+
+    /// <summary>
+    /// Loads the lockout row for a user and refuses when it is in force. Does nothing at all when lockout is disabled,
+    /// so a deployment that never uses it pays no query for the check.
+    /// </summary>
+    ///
+    /// <param name="userId">The user being let in, given as the database key rather than the public identifier.</param>
+    /// <param name="policy">The configured policy, read for whether the feature is on at all.</param>
+    /// <param name="cancellationToken">Cancels the lookup.</param>
+    ///
+    /// <returns>A task that completes once the account is known not to be locked.</returns>
+    ///
+    /// <exception cref="AccountLockedException">
+    /// A lockout is in force, so an account locked by failed sign-ins cannot go on renewing a session it opened before
+    /// the lockout began.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task EnsureNotLockedOutAsync(int userId, LockoutPolicy policy, CancellationToken cancellationToken)
+    {
+        if (!policy.Enabled)
+            return;
+
+        UserLockout? lockout = await databaseContext.UserLockouts
+            .FirstOrDefaultAsync(candidate => candidate.UserId == userId, cancellationToken);
+
+        if (lockout is not null && lockout.IsLocked)
+            throw new AccountLockedException(lockout.LockoutEnd!.Value);
+    }
+
+    /// <summary>
+    /// Treats a refresh token that was already rotated away as stolen, and marks every session the user holds revoked.
+    /// </summary>
+    ///
+    /// <param name="refreshTokenHash">The hash of the token that was presented after already being rotated away.</param>
+    /// <param name="cancellationToken">Cancels the lookups.</param>
+    ///
+    /// <returns>
+    /// <c>true</c> when a replay was found and the user's live sessions were marked revoked, <c>false</c> when the hash
+    /// matches no rotated session or the rotation is still inside the grace window.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// Nothing is saved or committed here. The caller runs inside a transaction of its own and is about to throw, so it
+    /// alone decides whether the revocations are written; saving here would commit a partial write on a path that fails.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task<bool> DetectTokenReuseAsync(string refreshTokenHash, CancellationToken cancellationToken)
+    {
+        UserSession? rotated = await databaseContext.UserSessions
+            .FirstOrDefaultAsync(session => session.PreviousRefreshTokenHash == refreshTokenHash, cancellationToken);
 
         if (rotated is null || DateTimeOffset.UtcNow - rotated.LastActiveAt <= AuthSessionDefaults.RotationGrace)
         {
-            return;
+            return false;
         }
 
         logger.LogWarning(
             "Refresh token reuse detected for user {UserId}; revoking every session for that user", rotated.UserId
         );
 
-        List<UserSession> live = await DatabaseContext.UserSessions
+        List<UserSession> live = await databaseContext.UserSessions
             .Where(session => session.UserId == rotated.UserId && !session.IsRevoked)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         foreach (UserSession active in live)
         {
             active.IsRevoked = true;
         }
 
-        await DatabaseContext.SaveChangesAsync();
+        return true;
     }
 
     /// <summary>
@@ -181,54 +315,6 @@ internal sealed class AuthSessionService<TUser>(
         DateTimeOffset absoluteEnd = session.CreatedAt.AddDays(days);
 
         return proposedExpiry > absoluteEnd ? absoluteEnd : proposedExpiry;
-    }
-
-    /// <summary>
-    /// Opens a session and stores only the token's hash, pruning that user's already-expired sessions on the way so the
-    /// table does not grow with rows nothing will ever read.
-    /// </summary>
-    ///
-    /// <param name="user">The user signing in on this device.</param>
-    /// <param name="app">The application the session is scoped to, or <c>null</c> when the deployment is not scoped.</param>
-    /// <param name="context">The request's address and user agent, recorded so a user can recognise their own devices.</param>
-    ///
-    /// <returns>The token in plain text, the only time it exists in that form.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    public async Task<string> CreateSessionAsync(TUser user, string? app, SessionContext context)
-    {
-        string refreshToken = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(64));
-
-        DateTimeOffset now = DateTimeOffset.UtcNow;
-
-        List<UserSession> expired = await DatabaseContext.UserSessions
-            .Where(session => session.UserId == user.Id && session.ExpiresAt <= now)
-            .ToListAsync();
-
-        if (expired.Count > 0)
-        {
-            DatabaseContext.UserSessions.RemoveRange(expired);
-        }
-
-        UserAgent userAgent = UserAgent.Parse(context.UserAgent ?? string.Empty);
-
-        await DatabaseContext.UserSessions.AddAsync(new UserSession
-        {
-            UserId = user.Id,
-            App = app,
-            Os = Truncate(userAgent.Os, 256),
-            Device = Truncate(userAgent.Device, 256),
-            Browser = Truncate(userAgent.Browser, 256),
-            IpAddress = Truncate(context.IpAddress, 45),
-            UserAgent = Truncate(context.UserAgent, 512),
-            RefreshTokenHash = TokenHasher.Hash(refreshToken),
-            ExpiresAt = DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(AuthSettings.RefreshTokenDays))
-        });
-
-        await DatabaseContext.SaveChangesAsync();
-
-        return refreshToken;
     }
 
     /// <summary>
