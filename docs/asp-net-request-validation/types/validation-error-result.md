@@ -1,6 +1,6 @@
 # ValidationErrorResult
 
-Creates MVC `ObjectResult` values for standardized validation error responses. The helper exists for controller actions that need to manually return the same response shape produced by automatic request validation.
+Builds the standardized validation error result for a single field. The helper exists for controller actions that need to return the same response shape produced by automatic request validation, for a failure the rules cannot express, such as a uniqueness check against the database.
 
 ## Usage
 
@@ -17,7 +17,7 @@ public sealed class InvitesController(
 ) : ControllerBase
 {
     [HttpPost]
-    public ObjectResult Create(InviteUserRequest request)
+    public HttpErrorResult Create(InviteUserRequest request)
     {
         return ValidationErrorResult.Create(
             messageResolver,
@@ -30,7 +30,7 @@ public sealed class InvitesController(
 
 ## Create
 
-Creates an `ObjectResult` with status code `422`, the top-level `validation_error` identifier, and a single field error resolved from the supplied validation message key.
+Creates an [`HttpErrorResult`](/asp-net-core/types/http-error-result) with status code `422`, the top-level `validation_error` identifier, and a single field error resolved from the supplied validation message key. The field name is used as given, so spell it the way the client sees it.
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +38,7 @@ using AlmightyShogun.AspNet.Core;
 using AlmightyShogun.AspNet.Localization;
 using AlmightyShogun.AspNet.RequestValidation;
 
-ObjectResult result = ValidationErrorResult.Create(
+HttpErrorResult result = ValidationErrorResult.Create(
     messageResolver,
     "email",
     "validation.unique"
@@ -48,7 +48,7 @@ ObjectResult result = ValidationErrorResult.Create(
 ### Type signature
 
 ```csharp
-public static ObjectResult Create(
+public static HttpErrorResult Create(
     IMessageResolver messageResolver,
     string field,
     string key,

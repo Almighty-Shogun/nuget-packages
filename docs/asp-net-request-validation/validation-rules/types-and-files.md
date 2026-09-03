@@ -72,7 +72,7 @@ RuleFor(x => x.Enabled)
 
 ## Enum
 
-Requires the value to be parseable as the provided enum type. When the enum type is omitted, the validator uses the request property type.
+Requires the value to name a member the enum actually defines. The enum's own type, a case-sensitive member name, and an integral value all qualify; anything else fails rather than being converted first, so a `bool` or a fractional number does not pass as the member its conversion would land on. When the enum type is omitted, the validator uses the request property type.
 
 ::: code-group
 
@@ -185,7 +185,7 @@ RuleFor(x => x.Avatar)
 
 ## Image
 
-Requires the uploaded file to be an image.
+Requires the uploaded file to be an image, decided by the bytes it opens with rather than by its name or content type. PNG, GIF, JPEG, WebP, BMP, TIFF, AVIF, HEIC, and ICO are recognized; anything else is rejected, so a file named `photo.png` holding arbitrary content does not pass.
 
 ::: code-group
 

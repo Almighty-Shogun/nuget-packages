@@ -72,7 +72,7 @@ RuleFor(x => x.LegacyCode)
 
 ## Lowercase
 
-Requires the text value to already be lowercase.
+Requires the text value to already be lowercase, and to contain at least one character that has a case. Digits and punctuation neither pass nor fail it on their own, so `abc-1` passes while `123` does not.
 
 ::: code-group
 
@@ -89,7 +89,7 @@ RuleFor(x => x.Username)
 
 ## Uppercase
 
-Requires the text value to already be uppercase.
+Requires the text value to already be uppercase, and to contain at least one character that has a case. Digits and punctuation neither pass nor fail it on their own, so `ABC-1` passes while `123` does not.
 
 ::: code-group
 

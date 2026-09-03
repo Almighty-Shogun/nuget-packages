@@ -21,7 +21,7 @@ RuleFor(x => x.Email)
 
 ## HexColor
 
-Requires the value to be a hexadecimal color value.
+Requires the value to be a hexadecimal color value in three-, four-, six-, or eight-digit form. The leading `#` is required.
 
 ::: code-group
 

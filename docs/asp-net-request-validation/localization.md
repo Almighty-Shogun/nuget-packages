@@ -87,6 +87,7 @@ Create `messages/{language}/validation.json` for every language the API should s
         "array-keys": "This field must contain at least one of the following keys: {0}."
     },
     "integer": "This field must be an integer.",
+    "invalid": "This field is invalid.",
     "invalid-body": "The request body is missing or invalid.",
     "ip": {
         "default": "This field must be a valid IP address.",
@@ -271,6 +272,7 @@ Create `messages/{language}/validation.json` for every language the API should s
         "array-keys": "Dit veld moet minimaal een van de volgende sleutels bevatten: {0}."
     },
     "integer": "Dit veld moet een geheel getal zijn.",
+    "invalid": "Dit veld is ongeldig.",
     "invalid-body": "De aanvraagbody ontbreekt of is ongeldig.",
     "ip": {
         "default": "Dit veld moet een geldig IP-adres zijn.",
@@ -455,6 +457,7 @@ Create `messages/{language}/validation.json` for every language the API should s
         "array-keys": "Ce champ doit contenir au moins l'une des clés suivantes : {0}."
     },
     "integer": "Ce champ doit être un entier.",
+    "invalid": "Ce champ est invalide.",
     "invalid-body": "Le corps de la requête est manquant ou invalide.",
     "ip": {
         "default": "Ce champ doit être une adresse IP valide.",
