@@ -21,7 +21,7 @@ internal static class ValidationFile
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static readonly FileExtensionContentTypeProvider ContentTypeProvider = new();
+    private static readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
 
     /// <summary>
     /// Reads a value as a set of uploads, so a single-file property and a multi-file one are checked by the same rule.
@@ -88,28 +88,24 @@ internal static class ValidationFile
         => file.ContentType.Length > 0 && allowedMimeTypes.Contains(file.ContentType);
 
     /// <summary>
-    /// Checks whether an upload claims an image content type, which is a claim and not proof; the dimension rules read the header instead.
+    /// Checks whether an upload really is an image, by the bytes it opens with rather than by the name or content type the client sent.
     /// </summary>
     ///
-    /// <param name="file">The upload to inspect. Its metadata is read rather than its bytes, except where dimensions are involved.</param>
+    /// <param name="file">The upload to inspect. Its leading bytes are read, since nothing in its metadata is evidence.</param>
+    /// <param name="cancellationToken">The token cancelling the read.</param>
     ///
-    /// <returns><c>true</c> when the file content type or extension indicates an image; otherwise, <c>false</c>.</returns>
+    /// <returns><c>true</c> when the file opens with a recognized image signature; otherwise, <c>false</c>.</returns>
+    ///
+    /// <remarks>
+    /// The name and the content type are both written by the caller, so a file called <c>photo.png</c> announced as <c>image/png</c>
+    /// proves nothing about what it holds. Only <see cref="ImageSignature"/> decides, which is what stops arbitrary content passing an
+    /// image rule by being named after one.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public static bool IsImage(IFormFile file)
-    {
-        if (file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        string extension = Path.GetExtension(file.FileName);
-
-        if (extension.Length == 0)
-            return false;
-
-        return ContentTypeProvider.TryGetContentType("file" + extension, out string? contentType)
-               && contentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
-    }
+    public static Task<bool> IsImageAsync(IFormFile file, CancellationToken cancellationToken)
+        => ImageSignature.IsImageAsync(file, cancellationToken);
 
     /// <summary>
     /// Reduces extensions to a comparable form, so a set written with or without leading dots and in any case still matches.
@@ -165,7 +161,7 @@ internal static class ValidationFile
 
             string extension = value.StartsWith(".", StringComparison.Ordinal) ? value : "." + value;
 
-            if (ContentTypeProvider.TryGetContentType("file" + extension, out string? contentType))
+            if (_contentTypeProvider.TryGetContentType("file" + extension, out string? contentType))
                 mimeTypes.Add(contentType);
         }
 

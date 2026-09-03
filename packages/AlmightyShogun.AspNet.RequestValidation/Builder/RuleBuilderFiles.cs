@@ -146,13 +146,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> Dimensions(int width, int height)
     {
-        _propertyRule.AddRule(
-            new FileConstraintValidationRule<TRequest, TProperty>(
-                FileConstraintMode.Dimensions,
-                null,
-                new ImageDimensionConstraints(width, height)
-            )
-        );
+        _propertyRule.AddRule(new FileConstraintValidationRule<TRequest, TProperty>(
+            FileConstraintMode.Dimensions,
+            null,
+            new ImageDimensionConstraints(width, height)
+        ));
 
         return this;
     }
@@ -174,13 +172,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> MinDimensions(int width, int height)
     {
-        _propertyRule.AddRule(
-            new FileConstraintValidationRule<TRequest, TProperty>(
-                FileConstraintMode.MinDimensions,
-                null,
-                new ImageDimensionConstraints(width, height)
-            )
-        );
+        _propertyRule.AddRule(new FileConstraintValidationRule<TRequest, TProperty>(
+            FileConstraintMode.MinDimensions,
+            null,
+            new ImageDimensionConstraints(width, height)
+        ));
 
         return this;
     }
@@ -202,13 +198,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <since>Unreleased</since>
     public RuleBuilder<TRequest, TProperty> MaxDimensions(int width, int height)
     {
-        _propertyRule.AddRule(
-            new FileConstraintValidationRule<TRequest, TProperty>(
-                FileConstraintMode.MaxDimensions,
-                null,
-                new ImageDimensionConstraints(width, height)
-            )
-        );
+        _propertyRule.AddRule(new FileConstraintValidationRule<TRequest, TProperty>(
+            FileConstraintMode.MaxDimensions,
+            null,
+            new ImageDimensionConstraints(width, height)
+        ));
 
         return this;
     }

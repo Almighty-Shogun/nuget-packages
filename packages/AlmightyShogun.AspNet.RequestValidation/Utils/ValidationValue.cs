@@ -256,7 +256,16 @@ internal static class ValidationValue
     /// The bound value, of whatever type the property declared, so every branch tests the runtime type rather than a cast.
     /// </param>
     ///
-    /// <returns><c>true</c> for an absent or empty value, or anything <see cref="TryGetNumber"/> can read.</returns>
+    /// <returns>
+    /// <c>true</c> for an absent or empty value, for any numeric type whatever magnitude it holds, and for text that parses under the
+    /// invariant culture.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// The runtime type is tested rather than the value converted, so a double outside decimal's range, an infinity, and <c>NaN</c> all
+    /// report as numeric. They were bound to a numeric property and are numbers; whether they can be <em>compared</em> is a separate
+    /// question, which <see cref="TryGetNumber"/> and <see cref="ValidationSize.TryGetComparableSize"/> answer.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -265,7 +274,9 @@ internal static class ValidationValue
         null => true,
         string { Length: 0 } => true,
         ICollection { Count: 0 } => true,
-        _ => TryGetNumber(value, out _)
+        byte or sbyte or short or ushort or int or uint or long or ulong or float or double or decimal => true,
+        string typed => decimal.TryParse(typed, NumberStyles.Number, CultureInfo.InvariantCulture, out _),
+        _ => false
     };
 
     /// <summary>
@@ -276,9 +287,17 @@ internal static class ValidationValue
     /// <param name="number">The number when one could be read; otherwise zero, which callers must not read as a result.</param>
     ///
     /// <returns>
-    /// <c>true</c> for any numeric type, or text parsed under the invariant culture. Text is deliberately not parsed under the request's
-    /// culture, so the same payload validates identically wherever the application runs.
+    /// <c>true</c> for any numeric type whose value a decimal can hold exactly, or text parsed under the invariant culture. Text is
+    /// deliberately not parsed under the request's culture, so the same payload validates identically wherever the application runs.
+    /// <c>NaN</c> , the infinities, and a floating value beyond decimal's range all report <c>false</c> , since no decimal stands for
+    /// them.
     /// </returns>
+    ///
+    /// <remarks>
+    /// This is the exact read, for the rules that do arithmetic on the result rather than only order it, such as the multiple-of check and
+    /// the decimal-place count. Ordering rules use <see cref="ValidationSize.TryGetComparableSize"/> instead, which accepts values this
+    /// one refuses.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -297,8 +316,8 @@ internal static class ValidationValue
             uint typed => (true, typed),
             long typed => (true, typed),
             ulong typed => (true, typed),
-            float typed => (true, (decimal)typed),
-            double typed => (true, (decimal)typed),
+            float typed => TryFromFloatingPoint(typed),
+            double typed => TryFromFloatingPoint(typed),
             decimal typed => (true, typed),
             _ => (false, 0m)
         };
@@ -422,110 +441,6 @@ internal static class ValidationValue
     }
 
     /// <summary>
-    /// Reduces a value to the single number a size rule compares, and reports which kind of size it is so the failure message can say
-    /// whether it counted characters, items, kilobytes, or the value itself.
-    /// </summary>
-    ///
-    /// <param name="value">The value to measure.</param>
-    /// <param name="size">A file's kilobytes, a string's length, a collection's count, or the number itself.</param>
-    /// <param name="type">Which of those four was measured, which picks the message the rule reports.</param>
-    ///
-    /// <returns><c>true</c> when the value was one of those four shapes; otherwise <c>false</c>.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    public static bool TryGetComparableSize(object? value, out decimal size, out ValidationValueType type) => value switch
-    {
-        IFormFile typed => SetComparableSize(ToKilobytes(typed.Length), ValidationValueType.File, out size, out type),
-        string typed => SetComparableSize(typed.Length, ValidationValueType.String, out size, out type),
-        ICollection typed => SetComparableSize(typed.Count, ValidationValueType.Array, out size, out type),
-        _ => TryGetNumericComparableSize(value, out size, out type)
-    };
-
-    /// <summary>
-    /// Writes both outputs of a size read in one expression, so each arm of the switch above stays a single arm.
-    /// </summary>
-    ///
-    /// <param name="value">The measured size to hand back.</param>
-    /// <param name="valueType">Which quantity was measured, which picks the message the failure reports.</param>
-    /// <param name="size">Receives the size.</param>
-    /// <param name="type">Receives the kind.</param>
-    ///
-    /// <returns>Always <c>true</c>, since reaching here means a size was measured.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private static bool SetComparableSize(decimal value, ValidationValueType valueType, out decimal size, out ValidationValueType type)
-    {
-        size = value;
-        type = valueType;
-
-        return true;
-    }
-
-    /// <summary>
-    /// Maps a measured kind onto its message key segment, so one size rule resolves four sentences without four rules existing.
-    /// </summary>
-    ///
-    /// <param name="type">The kind that was measured.</param>
-    ///
-    /// <returns>The segment appended to the rule's key, such as <c>string</c> or <c>file</c>.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    public static string ToMessageType(ValidationValueType type) => type switch
-    {
-        ValidationValueType.Array => "array",
-        ValidationValueType.File => "file",
-        ValidationValueType.Numeric => "numeric",
-        _ => "string"
-    };
-
-    /// <summary>
-    /// Joins values into the comma-separated list a message template substitutes as one parameter.
-    /// </summary>
-    ///
-    /// <param name="values">The values to list, already in the order the message should read.</param>
-    ///
-    /// <returns>The values separated by a comma and a space.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    public static string JoinValues(IEnumerable<string> values) => string.Join(", ", values);
-
-    /// <summary>
-    /// Joins arbitrary values into a message list, rendering each the way a reader expects rather than the way it prints by default.
-    /// </summary>
-    ///
-    /// <param name="values">The values to list, each passed through the display conversion first.</param>
-    ///
-    /// <returns>The rendered values separated by a comma and a space.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    public static string JoinDisplayValues(IEnumerable<object?> values) => string.Join(", ", values.Select(ToDisplayValue));
-
-    /// <summary>
-    /// Renders one value for a failure message, so a boolean or an absent value reads as a person would write it.
-    /// </summary>
-    ///
-    /// <param name="value">The value to render.</param>
-    ///
-    /// <returns>The text a message shows for it.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    public static string ToDisplayValue(object? value)
-    {
-        if (value is null)
-            return "null";
-
-        return value is IFormattable formattable
-            ? formattable.ToString(null, CultureInfo.InvariantCulture)
-            : value.ToString() ?? string.Empty;
-    }
-
-    /// <summary>
     /// Checks whether text is entirely single-byte, by comparing its UTF-8 byte count against its length rather than inspecting characters.
     /// </summary>
     ///
@@ -552,18 +467,6 @@ internal static class ValidationValue
     /// <since>Unreleased</since>
     private static bool IsAsciiDigit(char character) => character is >= '0' and <= '9';
 
-    /// <summary>
-    /// Converts a byte count to kilobytes as a decimal, so a size limit compares against the same unit a person wrote it in and a part of a
-    /// kilobyte is not truncated away.
-    /// </summary>
-    ///
-    /// <param name="bytes">The file size in bytes, converted so a limit compares against the unit a person wrote it in.</param>
-    ///
-    /// <returns>The kilobyte value.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private static decimal ToKilobytes(long bytes) => bytes / 1024m;
 
     /// <summary>
     /// Reads decimal places from a value that is not text, by widening it to a decimal and reading the scale it carries.
@@ -580,28 +483,34 @@ internal static class ValidationValue
         ? Fail(out places)
         : SetDecimalPlaces(number, out places);
 
+
+
     /// <summary>
-    /// Measures a value that is none of the three sized shapes, by reading the number itself so a numeric limit compares against its
-    /// magnitude rather than its digit count.
+    /// Converts a floating value to a decimal only when one can hold it, so a conversion that would throw reports a failed read instead.
     /// </summary>
     ///
-    /// <param name="value">The bound value to measure, accepted as text or as any numeric type.</param>
-    /// <param name="size">The resolved comparable size.</param>
-    /// <param name="type">The resolved validation value type.</param>
+    /// <param name="value">The floating value to convert, which may be <c>NaN</c> , infinite, or simply too large.</param>
     ///
-    /// <returns><c>true</c> when the numeric size can be read; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    /// The converted number paired with <c>true</c> , or zero paired with <c>false</c> when no decimal stands for the value.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// The bound is compared against rather than the conversion being attempted and caught, and it sits just inside
+    /// <see cref="decimal.MaxValue"/> because the nearest double to that constant rounds above it. A value the check admits therefore
+    /// converts without overflowing.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private static bool TryGetNumericComparableSize(object? value, out decimal size, out ValidationValueType type)
+    private static (bool IsValid, decimal Number) TryFromFloatingPoint(double value)
     {
-        if (TryGetNumber(value, out decimal number))
-            return SetComparableSize(number, ValidationValueType.Numeric, out size, out type);
+        const double maximum = 7.9228162514264337e28;
 
-        size = 0;
-        type = ValidationValueType.String;
+        if (!double.IsFinite(value) || Math.Abs(value) >= maximum)
+            return (false, 0m);
 
-        return false;
+        return (true, (decimal)value);
     }
 
     /// <summary>

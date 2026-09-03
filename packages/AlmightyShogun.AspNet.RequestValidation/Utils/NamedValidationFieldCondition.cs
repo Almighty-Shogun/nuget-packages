@@ -7,10 +7,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-internal sealed class NamedValidationFieldCondition<TRequest>(
-    string propertyName,
-    IReadOnlyList<object?> values
-) where TRequest : class
+internal sealed class NamedValidationFieldCondition<TRequest>(string propertyName, IReadOnlyList<object?> values ) where TRequest : class
 {
     /// <summary>
     /// The controlling field's public name, surfaced for the failure message so a client is told which field decided the outcome.
@@ -26,7 +23,7 @@ internal sealed class NamedValidationFieldCondition<TRequest>(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    public string ValuesText => ValidationValue.JoinDisplayValues(values);
+    public string ValuesText => ValidationDisplay.JoinDisplayValues(values);
 
     /// <summary>
     /// The field the condition reads, resolved once so each request only fetches its value.
