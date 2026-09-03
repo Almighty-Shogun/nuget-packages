@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 
 namespace AlmightyShogun.AspNet.CredentialAuth;
 

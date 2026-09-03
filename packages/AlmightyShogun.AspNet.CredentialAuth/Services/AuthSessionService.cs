@@ -3,7 +3,7 @@ using AlmightyShogun.AspNet.Core;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
-using AlmightyShogun.AspNet.JwtAuth;
+using AlmightyShogun.AspNet.Auth;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.WebUtilities;
