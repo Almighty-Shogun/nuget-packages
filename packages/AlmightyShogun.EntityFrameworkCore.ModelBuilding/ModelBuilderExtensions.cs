@@ -13,14 +13,14 @@ namespace AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 ///
 /// <remarks>
 /// The two-argument relationship overloads call nothing beyond <c>HasOne</c> or <c>HasMany</c>, <c>WithOne</c> or
-/// <c>WithMany</c>, and <c>HasForeignKey</c>: requiredness and delete behavior are left to whatever EF Core infers
-/// from the foreign key's nullability, so a mapping written through them is the fluent chain it expands to and nothing
-/// more. The four-argument overloads add <c>HasPrincipalKey</c>, which EF Core documents as introducing a unique
-/// constraint when the target property is not already the primary key or one. The enum, unique-index and many-to-many
-/// helpers each configure what the fluent chain would not give them by convention: an enum is stored as text rather than as
-/// its number and given a column width, a unique index is marked unique and optionally filtered, and a many-to-many names
-/// its own join entity and key columns. An alternate principal key lives in a separate overload rather than in an argument
-/// every caller has to read past.
+/// <c>WithMany</c>, and <c>HasForeignKey</c>: no helper calls
+/// <see cref="ReferenceCollectionBuilder{TPrincipal,TDependent}.IsRequired(bool)"/> or sets a delete behavior, so both
+/// are left to whatever EF Core infers from the foreign key's nullability, and a mapping written through them is the
+/// fluent chain it expands to and nothing more. The four-argument overloads add <c>HasPrincipalKey</c>. The enum,
+/// unique-index and many-to-many helpers each configure what the fluent chain would not give them by convention: an enum is
+/// stored as text rather than as its number and given a column width, a unique index is marked unique and optionally
+/// filtered, and a many-to-many names its own join entity and key columns. An alternate principal key lives in a separate
+/// overload rather than in an argument every caller has to read past.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -52,8 +52,8 @@ public static class ModelBuilderExtensions
         /// the principal, so naming the wrong one puts the foreign key on the wrong table.
         /// </param>
         /// <param name="foreignKey">
-        /// The property on the dependent holding the key. Its nullability is what decides whether the relationship is
-        /// required, so make it non-nullable for a dependent that must always have a principal.
+        /// The property on the dependent holding the key. Make it non-nullable for a dependent that must always have a
+        /// principal.
         /// </param>
         /// <param name="inverseNavigation">
         /// The property on the dependent pointing back. Leave it unset when the dependent has no such property, which
@@ -65,6 +65,9 @@ public static class ModelBuilderExtensions
         /// <exception cref="ArgumentException">
         /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
         /// member. EF Core reports the offending expression.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="navigation"/> or <paramref name="foreignKey"/> is <c>null</c>.
         /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
@@ -94,15 +97,12 @@ public static class ModelBuilderExtensions
         /// The property on the principal that reaches the dependent. Which side declares it is what makes that side
         /// the principal, so naming the wrong one puts the foreign key on the wrong table.
         /// </param>
-        /// <param name="foreignKey">
-        /// The property on the dependent holding the key. Its nullability is what decides whether the relationship is
-        /// required.
-        /// </param>
+        /// <param name="foreignKey">The property on the dependent holding the key.</param>
         /// <param name="inverseNavigation">The property on the dependent pointing back, or <c>null</c> when it has none.</param>
         /// <param name="principalKey">
-        /// The property on the principal the foreign key targets. EF Core documents <c>HasPrincipalKey</c> as
-        /// introducing a unique constraint over it when it is not already the primary key or one, so it wants no
-        /// <c>ApplyUniqueIndex</c> call of its own; the values behind it still have to stay unique.
+        /// The property on the principal the foreign key targets. It reaches
+        /// <see cref="ReferenceReferenceBuilder{TPrincipal,TDependent}.HasPrincipalKey{TKey}(Expression{Func{TKey,object}})"/>,
+        /// so it wants no <c>ApplyUniqueIndex</c> call of its own; the values behind it still have to stay unique.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the relationship configured.</returns>
@@ -110,6 +110,10 @@ public static class ModelBuilderExtensions
         /// <exception cref="ArgumentException">
         /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
         /// member. EF Core reports the offending expression.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="navigation"/>, <paramref name="foreignKey"/> or <paramref name="principalKey"/> is
+        /// <c>null</c>.
         /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
@@ -141,10 +145,7 @@ public static class ModelBuilderExtensions
         /// The collection property on the principal. Its element type decides which entity is expected to carry the
         /// foreign key, which is the one held in the collection rather than the one holding it.
         /// </param>
-        /// <param name="foreignKey">
-        /// The property on the dependent holding the key. Its nullability is what decides whether a dependent may exist
-        /// without a principal, and with it whether deleting the principal cascades or orphans the rows.
-        /// </param>
+        /// <param name="foreignKey">The property on the dependent holding the key.</param>
         /// <param name="inverseNavigation">
         /// The property on the dependent pointing back at its principal. Leave it unset when the dependent has none.
         /// </param>
@@ -154,6 +155,9 @@ public static class ModelBuilderExtensions
         /// <exception cref="ArgumentException">
         /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
         /// member. EF Core reports the offending expression.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="navigation"/> or <paramref name="foreignKey"/> is <c>null</c>.
         /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
@@ -183,15 +187,12 @@ public static class ModelBuilderExtensions
         /// The collection property on the principal. Its element type decides which entity is expected to carry the
         /// foreign key, which is the one held in the collection rather than the one holding it.
         /// </param>
-        /// <param name="foreignKey">
-        /// The property on the dependent holding the key. Its nullability is what decides whether a dependent may exist
-        /// without a principal.
-        /// </param>
+        /// <param name="foreignKey">The property on the dependent holding the key.</param>
         /// <param name="inverseNavigation">The property on the dependent pointing back, or <c>null</c> when it has none.</param>
         /// <param name="principalKey">
-        /// The property on the principal the foreign key targets. EF Core documents <c>HasPrincipalKey</c> as
-        /// introducing a unique constraint over it when it is not already the primary key or one, so it wants no
-        /// <c>ApplyUniqueIndex</c> call of its own; the values behind it still have to stay unique.
+        /// The property on the principal the foreign key targets. It reaches
+        /// <see cref="ReferenceCollectionBuilder{TPrincipal,TDependent}.HasPrincipalKey(Expression{Func{TPrincipal,object}})"/>,
+        /// so it wants no <c>ApplyUniqueIndex</c> call of its own; the values behind it still have to stay unique.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the relationship configured.</returns>
@@ -199,6 +200,10 @@ public static class ModelBuilderExtensions
         /// <exception cref="ArgumentException">
         /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
         /// member. EF Core reports the offending expression.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="navigation"/>, <paramref name="foreignKey"/> or <paramref name="principalKey"/> is
+        /// <c>null</c>.
         /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
@@ -232,8 +237,8 @@ public static class ModelBuilderExtensions
         /// <paramref name="inverseNavigation"/> is supplied as well.
         /// </param>
         /// <param name="foreignKey">
-        /// The property on the dependent holding the key. Its nullability is what decides whether the reference is
-        /// optional, so a nullable key is how a dependent is allowed to stand alone.
+        /// The property on the dependent holding the key. Make it nullable for a dependent that is allowed to stand
+        /// alone.
         /// </param>
         /// <param name="inverseNavigation">
         /// The collection property on the principal. Leave it unset when the principal exposes no collection.
@@ -244,6 +249,9 @@ public static class ModelBuilderExtensions
         /// <exception cref="ArgumentException">
         /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
         /// member. EF Core reports the offending expression.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="navigation"/> or <paramref name="foreignKey"/> is <c>null</c>.
         /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
@@ -274,15 +282,12 @@ public static class ModelBuilderExtensions
         /// produces, but the navigations are not: this is the only one defined unless
         /// <paramref name="inverseNavigation"/> is non-null as well.
         /// </param>
-        /// <param name="foreignKey">
-        /// The property on the dependent holding the key. Its nullability is what decides whether the reference is
-        /// optional.
-        /// </param>
+        /// <param name="foreignKey">The property on the dependent holding the key.</param>
         /// <param name="inverseNavigation">The collection property on the principal, or <c>null</c> when it exposes none.</param>
         /// <param name="principalKey">
-        /// The property on the principal the foreign key targets. EF Core documents <c>HasPrincipalKey</c> as
-        /// introducing a unique constraint over it when it is not already the primary key or one, so it wants no
-        /// <c>ApplyUniqueIndex</c> call of its own; the values behind it still have to stay unique.
+        /// The property on the principal the foreign key targets. It reaches
+        /// <see cref="ReferenceCollectionBuilder{TPrincipal,TDependent}.HasPrincipalKey(Expression{Func{TPrincipal,object}})"/>,
+        /// so it wants no <c>ApplyUniqueIndex</c> call of its own; the values behind it still have to stay unique.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the relationship configured.</returns>
@@ -290,6 +295,10 @@ public static class ModelBuilderExtensions
         /// <exception cref="ArgumentException">
         /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
         /// member. EF Core reports the offending expression.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="navigation"/>, <paramref name="foreignKey"/> or <paramref name="principalKey"/> is
+        /// <c>null</c>.
         /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
@@ -312,17 +321,23 @@ public static class ModelBuilderExtensions
 
         /// <summary>
         /// Marks a navigation to be loaded with its owner, so the property is not left silently empty because an
-        /// <c>Include</c> was forgotten. A query that calls <c>IgnoreAutoIncludes</c> opts back out of it.
+        /// <c>Include</c> was forgotten. A query that calls
+        /// <see cref="EntityFrameworkQueryableExtensions.IgnoreAutoIncludes{T}(IQueryable{T})"/> opts back out of it.
         /// </summary>
         ///
         /// <typeparam name="TEntity">The entity the navigation is declared on.</typeparam>
         /// <param name="navigation">
-        /// The navigation to load eagerly. Every query returning the entity loads it too unless that query calls
-        /// <c>IgnoreAutoIncludes</c>, so reach for it on small related data rather than on a large collection.
+        /// The navigation to load eagerly. Every query returning the entity loads it too, so reach for it on small
+        /// related data rather than on a large collection.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the navigation set to load eagerly.</returns>
         ///
+        /// <exception cref="ArgumentException">
+        /// <paramref name="navigation"/> is not a simple property or field access. EF Core reports the offending
+        /// expression.
+        /// </exception>
+        /// <exception cref="ArgumentNullException"><paramref name="navigation"/> is <c>null</c>.</exception>
         /// <exception cref="InvalidOperationException">
         /// <paramref name="navigation"/> names something the model does not hold as a navigation, such as a scalar
         /// property. Configure the relationship first, then mark it auto-included.
@@ -343,7 +358,9 @@ public static class ModelBuilderExtensions
         ///
         /// <typeparam name="TEntity">
         /// The entity the index is declared on. That is the table it lands in unless the entity shares one, as a derived
-        /// type does under EF Core's default inheritance mapping.
+        /// type does under EF Core's default inheritance mapping, which
+        /// <see cref="RelationalEntityTypeBuilderExtensions.UseTphMappingStrategy{T}(EntityTypeBuilder{T})"/> configures
+        /// explicitly.
         /// </typeparam>
         /// <param name="index">
         /// The property to index, or an anonymous object of properties for a composite index. Column order in a
@@ -356,6 +373,7 @@ public static class ModelBuilderExtensions
         /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
         /// member. EF Core reports the offending expression.
         /// </exception>
+        /// <exception cref="ArgumentNullException"><paramref name="index"/> is <c>null</c>.</exception>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
@@ -372,8 +390,9 @@ public static class ModelBuilderExtensions
         /// </summary>
         ///
         /// <typeparam name="TEntity">
-        /// The entity the constraint is declared on. That is the table it lands in unless the entity shares one, as a
-        /// derived type does under EF Core's default inheritance mapping.
+        /// The entity the constraint is declared on. Which table that is for a derived type depends on the hierarchy's
+        /// mapping strategy,
+        /// <see cref="RelationalEntityTypeBuilderExtensions.UseTphMappingStrategy{T}(EntityTypeBuilder{T})"/> by default.
         /// </typeparam>
         /// <param name="index">
         /// The property to index, or an anonymous object of properties for a composite index. A composite unique index
@@ -392,6 +411,7 @@ public static class ModelBuilderExtensions
         /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
         /// member. EF Core reports the offending expression.
         /// </exception>
+        /// <exception cref="ArgumentNullException"><paramref name="index"/> is <c>null</c>.</exception>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
@@ -409,7 +429,7 @@ public static class ModelBuilderExtensions
         }
 
         /// <summary>
-        /// Configures a many-to-many relationship over an explicitly named join table, whose columns are named
+        /// Configures a many-to-many relationship over an explicitly named join entity, whose columns are named
         /// <c>{TypeName}Id</c> after the two entities.
         /// </summary>
         ///
@@ -420,12 +440,13 @@ public static class ModelBuilderExtensions
         /// </param>
         /// <param name="inverseNavigation">
         /// The collection property on <typeparamref name="TRelated"/>. This helper's signature requires it, though EF
-        /// Core does not: a many-to-many navigated from one side only is configured by calling <c>WithMany</c> with no
-        /// argument, which is past what this helper covers and needs the fluent call written out.
+        /// Core does not: a many-to-many navigated from one side only goes through
+        /// <see cref="CollectionNavigationBuilder{TEntity,TRelated}.WithMany(string)"/>, which is past what this helper
+        /// covers and needs the fluent call written out.
         /// </param>
         /// <param name="joinTableName">
-        /// The table holding the pairs. Named explicitly because EF Core's generated name concatenates the two entity
-        /// names, which reads poorly in a migration and changes if either type is renamed.
+        /// The name of the join entity holding the pairs. Named explicitly because EF Core's generated name
+        /// concatenates the two entity names, which reads poorly in a migration and changes if either type is renamed.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the relationship and its join table configured.</returns>
@@ -435,7 +456,10 @@ public static class ModelBuilderExtensions
         /// member. EF Core reports the offending expression. Also thrown when <paramref name="joinTableName"/> is empty
         /// or only whitespace, which EF Core rejects with the same emptiness check.
         /// </exception>
-        /// <exception cref="ArgumentNullException"><paramref name="joinTableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="navigation"/>, <paramref name="inverseNavigation"/> or <paramref name="joinTableName"/> is
+        /// <c>null</c>.
+        /// </exception>
         ///
         /// <remarks>
         /// A model needing different column names or a join entity of its own is past what this hides and should call
@@ -474,9 +498,8 @@ public static class ModelBuilderExtensions
         /// </typeparam>
         /// <param name="property">The property to convert, stored through EF Core's enum-to-string conversion.</param>
         /// <param name="maxLength">
-        /// The column width. It should fit the longest member name, though nothing here or in EF Core checks a written
-        /// value against it, so what happens to a longer one is left to the provider. EF Core documents <c>-1</c> as
-        /// meaning no maximum length at all.
+        /// The column width. It should fit the longest member name; nothing here checks a written value against it. The
+        /// value reaches <see cref="PropertyBuilder{T}.HasMaxLength(int)"/> unchanged.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the property stored as text.</returns>
@@ -484,6 +507,7 @@ public static class ModelBuilderExtensions
         /// <exception cref="ArgumentException">
         /// <paramref name="property"/> is not a simple property or field access.
         /// </exception>
+        /// <exception cref="ArgumentNullException"><paramref name="property"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
         /// <paramref name="maxLength"/> is less than <c>-1</c>. <c>-1</c> itself is accepted rather than rejected as
         /// out of range.
