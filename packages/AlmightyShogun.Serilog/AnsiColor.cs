@@ -12,8 +12,7 @@ namespace AlmightyShogun.Serilog;
 internal static class AnsiColor
 {
     /// <summary>
-    /// Returns the terminal to its default colors. Written after every colored span, so a log line never leaks its color
-    /// into whatever the terminal prints next.
+    /// SGR 0, which returns the terminal to its default colors.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -21,7 +20,7 @@ internal static class AnsiColor
     internal const string Reset = "\e[0m";
 
     /// <summary>
-    /// Red foreground, selected by the <c>r</c> shorthand and used for the <c>Error</c> level.
+    /// Red foreground, SGR 31, selected by the <c>r</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -29,7 +28,7 @@ internal static class AnsiColor
     internal const string Red = "\e[31m";
 
     /// <summary>
-    /// Blue foreground, reachable only through the <c>b</c> shorthand. No level or value type uses it by default.
+    /// Blue foreground, SGR 34, reachable only through the <c>b</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -37,7 +36,7 @@ internal static class AnsiColor
     private const string Blue = "\e[34m";
 
     /// <summary>
-    /// Cyan foreground, selected by the <c>c</c> shorthand and used for numeric property values.
+    /// Cyan foreground, SGR 36, selected by the <c>c</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -45,7 +44,7 @@ internal static class AnsiColor
     internal const string Cyan = "\e[36m";
 
     /// <summary>
-    /// Green foreground, selected by the <c>g</c> shorthand and used for the <c>Information</c> level.
+    /// Green foreground, SGR 32, selected by the <c>g</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -53,7 +52,7 @@ internal static class AnsiColor
     internal const string Green = "\e[32m";
 
     /// <summary>
-    /// Yellow foreground, selected by the <c>y</c> shorthand and used for the <c>Warning</c> level.
+    /// Yellow foreground, SGR 33, selected by the <c>y</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -61,7 +60,7 @@ internal static class AnsiColor
     internal const string Yellow = "\e[33m";
 
     /// <summary>
-    /// Magenta foreground, selected by the <c>m</c> shorthand and used for boolean property values.
+    /// Magenta foreground, SGR 35, selected by the <c>m</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -69,8 +68,7 @@ internal static class AnsiColor
     internal const string Magenta = "\e[35m";
 
     /// <summary>
-    /// White foreground, the fallback whenever nothing more specific applies: the <c>Verbose</c> and <c>Debug</c>
-    /// levels, string values, and any shorthand that is not recognized.
+    /// White foreground, SGR 37. No shorthand maps to it, so a template author cannot select it by name.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -78,8 +76,7 @@ internal static class AnsiColor
     internal const string White = "\e[37m";
 
     /// <summary>
-    /// Dark gray foreground, used for null property values and for the exception block appended below a line.
-    /// No shorthand maps to it, so a template author cannot select it by name.
+    /// Dark gray foreground, SGR 90. No shorthand maps to it, so a template author cannot select it by name.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -87,7 +84,7 @@ internal static class AnsiColor
     internal const string DarkGray = "\e[90m";
 
     /// <summary>
-    /// Bright red foreground, selected by the <c>br</c> shorthand and used for the <c>Fatal</c> level.
+    /// Bright red foreground, SGR 91, selected by the <c>br</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -95,7 +92,7 @@ internal static class AnsiColor
     internal const string BrightRed = "\e[91m";
 
     /// <summary>
-    /// Bright blue foreground, reachable only through the <c>bb</c> shorthand.
+    /// Bright blue foreground, SGR 94, reachable only through the <c>bb</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -103,7 +100,7 @@ internal static class AnsiColor
     private const string BrightBlue = "\e[94m";
 
     /// <summary>
-    /// Bright cyan foreground, reachable only through the <c>bc</c> shorthand.
+    /// Bright cyan foreground, SGR 96, reachable only through the <c>bc</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -111,7 +108,7 @@ internal static class AnsiColor
     private const string BrightCyan = "\e[96m";
 
     /// <summary>
-    /// Bright green foreground, reachable only through the <c>bg</c> shorthand.
+    /// Bright green foreground, SGR 92, reachable only through the <c>bg</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -119,7 +116,7 @@ internal static class AnsiColor
     private const string BrightGreen = "\e[92m";
 
     /// <summary>
-    /// Bright yellow foreground, reachable only through the <c>by</c> shorthand.
+    /// Bright yellow foreground, SGR 93, reachable only through the <c>by</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -127,7 +124,7 @@ internal static class AnsiColor
     private const string BrightYellow = "\e[93m";
 
     /// <summary>
-    /// Bright magenta foreground, reachable only through the <c>bm</c> shorthand.
+    /// Bright magenta foreground, SGR 95, reachable only through the <c>bm</c> shorthand.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

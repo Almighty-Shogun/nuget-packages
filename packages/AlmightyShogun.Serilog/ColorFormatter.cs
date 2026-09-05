@@ -20,13 +20,12 @@ namespace AlmightyShogun.Serilog;
 internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
 {
     /// <summary>
-    /// Gets whether escape codes should be written by default: <c>true</c> when the process output is not redirected and
+    /// Whether escape codes should be written by default: <c>true</c> when the process output is not redirected and
     /// <c>NO_COLOR</c> is unset or set to an empty string. Nothing here tests what the receiving terminal can render.
     /// </summary>
     ///
     /// <remarks>
-    /// Evaluated once per process, so a console redirected after start is not noticed. This is the default the registration
-    /// helpers fall back to when the caller expresses no preference.
+    /// Evaluated once per process, so a console redirected after start is not noticed.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -47,8 +46,8 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
     /// <remarks>
     /// A property format specifier may carry a color after a <c>|</c>, as in <c>{Count:N0|c}</c>, where the left side is the
     /// numeric format and the right side is a shorthand from <see cref="AnsiColor"/>. Without a <c>|</c> at all, the color
-    /// follows the
-    /// value's type.
+    /// follows the value's type. Every colored span written here is closed with <see cref="AnsiColor.Reset"/>, so a line
+    /// never leaks its color into whatever the terminal prints next.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
