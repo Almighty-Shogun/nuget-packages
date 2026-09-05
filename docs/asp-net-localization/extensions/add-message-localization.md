@@ -15,9 +15,7 @@ Anything that produces localized text depends on it, including the error respons
 
 ## Usage
 
-::: code-group
-
-```csharp [Program.cs]
+```csharp
 using AlmightyShogun.AspNet.Localization;
 
 builder.Services.AddMessageLocalization(builder.Configuration);
@@ -26,17 +24,6 @@ WebApplication app = builder.Build();
 
 app.UseMessageLocalization();
 ```
-
-```csharp [WelcomeService.cs]
-using AlmightyShogun.AspNet.Localization;
-
-public sealed class WelcomeService(IMessageResolver messageResolver)
-{
-    public string Greeting() => messageResolver.Resolve("welcome.greeting");
-}
-```
-
-:::
 
 <FrontmatterDocs/>
 

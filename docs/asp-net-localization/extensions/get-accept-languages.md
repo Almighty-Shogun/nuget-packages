@@ -1,10 +1,10 @@
 ---
-returns: The accepted languages in client preference order, or an empty list when the header is absent.
+returns: The accepted languages in client preference order, without duplicates, or an empty list when the header is absent or names nothing that parses as a language tag.
 ---
 
 # GetAcceptLanguages
 
-Reads every language from the request `Accept-Language` header, ordered by the quality value the client assigned, highest first, counting a missing weight as `1`. An entry weighted `0` is dropped rather than ranked last, since that is the client saying it will not accept that language, and so are the `*` wildcard and any malformed tag. Repeats are removed case-insensitively, so a header naming a language twice reads its directory once. It reads the whole header rather than only its first entry, which is what lets [language negotiation](../localization#language-negotiation) try a lower-ranked language before falling back to the default. Use [`GetAcceptLanguage`](./get-accept-language) when only the top preference matters.
+Reads every language from the request `Accept-Language` header, ordered by the quality value the client assigned, highest first, counting a missing weight as `1`. An entry weighted `0` is dropped rather than ranked last, since that is the client saying it will not accept that language, and so are the `*` wildcard and any malformed tag. Use [`GetAcceptLanguage`](./get-accept-language) when only the top preference matters, and see [language negotiation](../localization#language-negotiation) for how the full list is walked.
 
 ## Usage
 

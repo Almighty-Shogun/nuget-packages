@@ -32,20 +32,3 @@ The `Localization` section decides which language a message resolves in and whet
 :::
 
 <FrontmatterDocs/>
-
-## Usage
-
-Inject `IOptions<LocalizationSettings>` wherever a service needs the configured fallback language or reload behavior.
-
-```csharp
-using Microsoft.Extensions.Options;
-using AlmightyShogun.AspNet.Localization;
-
-public sealed class LanguageReporter(
-    IOptions<LocalizationSettings> localizationOptions
-)
-{
-    public string GetFallbackLanguage()
-        => localizationOptions.Value.DefaultLanguage;
-}
-```

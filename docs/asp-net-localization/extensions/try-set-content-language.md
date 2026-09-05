@@ -1,5 +1,5 @@
 ---
-returns: '`true` when the header was set; `false` when the response had already started and nothing could be written.'
+returns: '`true` when the header was set; `false` when the response had already started, or the value was blank or carried a control character, and nothing was written.'
 ---
 
 # TrySetContentLanguage
@@ -31,7 +31,5 @@ public sealed class LegalController : ControllerBase
 ## Type signature
 
 ```csharp
-public bool TrySetContentLanguage(
-    string language
-);
+public bool TrySetContentLanguage(string language);
 ```

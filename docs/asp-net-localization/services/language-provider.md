@@ -2,26 +2,6 @@
 
 Decides which languages a request wants. The default implementation reads the `Accept-Language` header, falling back to `DefaultLanguage` from [`LocalizationSettings`](../configuration) when the header is absent or contains no well-formed language tag. [`AddMessageLocalization`](../extensions/add-message-localization) registers that default only when nothing has claimed `ILanguageProvider` yet, so register a custom provider before that call and it is kept.
 
-## Usage
-
-```csharp
-using AlmightyShogun.AspNet.Localization;
-
-public sealed class WelcomeService(ILanguageProvider languageProvider)
-{
-    public string WelcomeMessage() => languageProvider.GetLanguage() switch
-    {
-        "nl" => "Welkom",
-        "fr" => "Bienvenue",
-        _ => "Welcome"
-    };
-}
-```
-
-::: warning
-The returned value is used as a directory name when message files are resolved, so the message provider accepts only a well-formed language tag: two or three letters, then any number of `-` separated parts of two to eight letters or digits. A replacement implementation that returns raw user input therefore resolves no messages at all rather than reading elsewhere on disk.
-:::
-
 ## GetLanguage
 
 Returns the single best language for the current request, ignoring any lower-ranked alternative the caller would accept. Never blank: with nothing to negotiate from it returns the configured default, since the result is looked up as-is.
@@ -39,10 +19,14 @@ public sealed class CurrencyFormatter(ILanguageProvider languageProvider)
 }
 ```
 
+::: warning
+The returned value is used as a directory name when message files are resolved, so the message provider accepts only a well-formed language tag: two or three letters, then any number of `-` separated parts of two to eight letters or digits. A replacement implementation that returns raw user input therefore resolves no messages at all rather than reading elsewhere on disk.
+:::
+
 ### Type signature
 
 ```csharp
-string GetLanguage();
+public string GetLanguage();
 ```
 
 ## GetLanguages
@@ -67,5 +51,5 @@ public sealed class ArticleService(ILanguageProvider languageProvider)
 ### Type signature
 
 ```csharp
-IReadOnlyList<string> GetLanguages();
+public IReadOnlyList<string> GetLanguages() => [GetLanguage()];
 ```
