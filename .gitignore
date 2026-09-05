@@ -6,6 +6,9 @@
 
 !.idea/.idea.packages/.idea/icon.svg
 
+# Tool settings
+.nodeterm/
+
 # Environment settings
 .env
 .env.backup
