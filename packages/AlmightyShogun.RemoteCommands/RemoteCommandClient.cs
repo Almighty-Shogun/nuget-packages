@@ -13,6 +13,11 @@ namespace AlmightyShogun.RemoteCommands;
 /// The pre-shared key to send with every request. Leave it <c>null</c> against a server that requires none; sending one
 /// the server does not ask for is ignored rather than refused.
 /// </param>
+/// <param name="maxPayloadBytes">
+/// The largest response frame accepted, in bytes. Like every limit in the protocol it bounds what is read rather than
+/// what is written, so raise it where a command returns more than the default. The server bounds the requests it reads
+/// with its own <see cref="RemoteServerSettings.MaxPayloadBytes"/> .
+/// </param>
 ///
 /// <remarks>
 /// The connection stays open, so several commands can be sent in sequence without reconnecting. Requests are sequential:
@@ -22,16 +27,13 @@ namespace AlmightyShogun.RemoteCommands;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public sealed class RemoteCommandClient(string host, int port, string? secret = null) : IAsyncDisposable
+public sealed class RemoteCommandClient(
+    string host,
+    int port,
+    string? secret = null,
+    int maxPayloadBytes = 1024 * 1024
+) : IAsyncDisposable
 {
-    /// <summary>
-    /// The largest response frame accepted, matching the server's own default. A server configured to allow more can
-    /// send a response this client will refuse to read.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private const int _maxPayloadBytes = 1024 * 1024;
 
     /// <summary>
     /// The connection, opened on first use and reused afterward. Discarded on every path that leaves it unusable or out
@@ -60,13 +62,13 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
     ///
     /// <typeparam name="TMessage">The message type, which must match what the command declares on the server.</typeparam>
     /// <typeparam name="TResponse">The shape expected back, bound from the response frame.</typeparam>
-    /// <param name="command">The command name, matched case-sensitively by the server.</param>
+    /// <param name="command">The command name, as declared on that command's <see cref="RemoteCommandAttribute"/>.</param>
     /// <param name="message">The message to send as the request's data.</param>
     /// <param name="cancellationToken">Cancels the send and the wait for a response.</param>
     ///
     /// <returns>
-    /// The response, or <c>default</c> in two cases nothing here tells apart: the command wrote nothing of its own and the
-    /// server acknowledged it instead, or the command wrote a value that serialized to JSON <c>null</c>.
+    /// The response, or <c>default</c> in two cases nothing here tells apart: the envelope carried no
+    /// <see cref="RemoteCommandResponse.Data"/>, or the command wrote a value that serialized to JSON <c>null</c>.
     /// </returns>
     ///
     /// <exception cref="RemoteCommandUnreachableException">The connection could not be opened, so nothing was sent.</exception>
@@ -117,7 +119,7 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
 
             await RemoteCommandProtocol.WriteFrameAsync(stream, payload, cancellationToken);
 
-            frame = await RemoteCommandProtocol.ReadFrameAsync(stream, _maxPayloadBytes, cancellationToken);
+            frame = await RemoteCommandProtocol.ReadFrameAsync(stream, maxPayloadBytes, cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -185,7 +187,7 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
     /// </summary>
     ///
     /// <typeparam name="TMessage">The message type, which must match what the command declares on the server.</typeparam>
-    /// <param name="command">The command name, matched case-sensitively by the server.</param>
+    /// <param name="command">The command name, as declared on that command's <see cref="RemoteCommandAttribute"/>.</param>
     /// <param name="message">The message to send as the request's data.</param>
     /// <param name="cancellationToken">Cancels the send and the wait for a response.</param>
     ///
@@ -198,10 +200,9 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
     /// Which subclass is thrown says whether the server refused the command, could not be reached, closed the connection
     /// without answering, or sent a frame that is not an envelope. Only
     /// <see cref="RemoteCommandUnreachableException"/> means nothing was sent. A
-    /// <see cref="RemoteCommandRefusedException"/> means the command did not run for every reason except
-    /// <see cref="RemoteCommandRefusal.Other"/>, which this package's server sends for a command that ran and threw, and a
-    /// disconnection can likewise mean it ran and the answer never came back, because the server runs a command before it
-    /// writes.
+    /// <see cref="RemoteCommandRefusedException"/> carries a <see cref="RemoteCommandRefusal"/> saying what the server
+    /// objected to, and a disconnection can mean the command ran and the answer never came back, because the server runs
+    /// a command before it writes.
     /// </exception>
     /// <exception cref="InvalidDataException">The frame was unusable. Carries the same meaning as on the overload this calls.</exception>
     /// <exception cref="JsonException">
@@ -248,6 +249,10 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
     /// <exception cref="SocketException">
     /// The host could not be reached. Left unwrapped here and turned into a
     /// <see cref="RemoteCommandUnreachableException"/> by the caller, which is the only path that reaches consumers.
+    /// </exception>
+    /// <exception cref="OperationCanceledException">
+    /// <paramref name="cancellationToken"/> was signaled while the socket was connecting. Left unwrapped here, and the
+    /// caller discards the connection before rethrowing it as-is.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
