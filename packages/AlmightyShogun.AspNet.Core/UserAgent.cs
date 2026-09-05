@@ -8,28 +8,48 @@ namespace AlmightyShogun.AspNet.Core;
 /// enough to make an authorization or billing decision on.
 /// </summary>
 ///
-/// <param name="Browser">
-/// The browser family with its major version, such as <c>Chrome 120</c>. The version is dropped when the header does
-/// not carry one, leaving the family alone.
-/// </param>
-/// <param name="Os">
-/// The operating-system family with its major version, such as <c>iOS 17</c>, formatted like <paramref name="Browser"/>.
-/// </param>
-/// <param name="Device">
-/// The device family, such as <c>iPhone</c>. Desktop browsers report <c>Other</c> rather than a name, since a desktop
-/// User-Agent does not identify the machine.
-/// </param>
-/// <param name="IsBot">
-/// Whether the header matched a known crawler or spider. A bot that does not announce itself is reported as
-/// <c>false</c>, so this filters honest traffic rather than defending against dishonest traffic.
-/// </param>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>2.2.1</since>
-public sealed record UserAgent(string Browser, string Os, string Device, bool IsBot)
+public sealed record UserAgent
 {
     /// <summary>
-    /// The placeholder every field takes when there is no header at all, distinct from the parser's own <c>Other</c>,
+    /// Gets the browser family with its major version, such as <c>Chrome 120</c>. The version is dropped when the header
+    /// does not carry one, leaving the family alone.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.2.1</since>
+    public required string Browser { get; init; }
+
+    /// <summary>
+    /// Gets the operating-system family with its major version, such as <c>iOS 17</c>, formatted like
+    /// <see cref="Browser"/>.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.2.1</since>
+    public required string Os { get; init; }
+
+    /// <summary>
+    /// Gets the device family, such as <c>iPhone</c>. Desktop browsers report <c>Other</c> rather than a name, since a
+    /// desktop User-Agent does not identify the machine.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.2.1</since>
+    public required string Device { get; init; }
+
+    /// <summary>
+    /// Gets whether the header matched a known crawler or spider. A bot that does not announce itself is reported as
+    /// <c>false</c>, so this filters honest traffic rather than defending against dishonest traffic.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.2.1</since>
+    public required bool IsBot { get; init; }
+
+    /// <summary>
+    /// The placeholder the three string fields take when there is no header at all, distinct from the parser's own <c>Other</c>,
     /// which means a header was present but matched nothing.
     /// </summary>
     ///
@@ -38,8 +58,9 @@ public sealed record UserAgent(string Browser, string Os, string Device, bool Is
     private const string Unknown = "Unknown";
 
     /// <summary>
-    /// The shared parser instance. Creating one compiles the regular expression set, which is expensive enough that it
-    /// must not happen per request.
+    /// The shared parser instance. Creating one re-reads the embedded pattern set and rebuilds every regular expression,
+    /// which is expensive enough that it must not happen per request. The patterns are interpreted rather than compiled,
+    /// since the parser is built without that option.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -57,7 +78,8 @@ public sealed record UserAgent(string Browser, string Os, string Device, bool Is
     /// </param>
     ///
     /// <returns>
-    /// The parsed value, never <c>null</c>. An empty header yields <c>Unknown</c> throughout; an unrecognized one
+    /// The parsed value, never <c>null</c>. An empty header yields <c>Unknown</c> for all three strings and <c>false</c> for
+    /// <see cref="IsBot"/>; an unrecognized one
     /// yields <c>Other</c> for whichever part failed to match.
     /// </returns>
     ///
@@ -66,15 +88,22 @@ public sealed record UserAgent(string Browser, string Os, string Device, bool Is
     public static UserAgent Parse(string userAgent)
     {
         if (string.IsNullOrEmpty(userAgent))
-            return new UserAgent(Unknown, Unknown, Unknown, false);
+            return new UserAgent
+            {
+                Browser = Unknown,
+                Os = Unknown,
+                Device = Unknown,
+                IsBot = false
+            };
 
         ClientInfo client = Parser.Parse(userAgent);
 
-        return new UserAgent(
-            $"{client.UA.Family} {client.UA.Major}".Trim(),
-            $"{client.OS.Family} {client.OS.Major}".Trim(),
-            client.Device.Family.Trim(),
-            client.Device.IsSpider
-        );
+        return new UserAgent
+        {
+            Browser = $"{client.UA.Family} {client.UA.Major}".Trim(),
+            Os = $"{client.OS.Family} {client.OS.Major}".Trim(),
+            Device = client.Device.Family.Trim(),
+            IsBot = client.Device.IsSpider
+        };
     }
 }
