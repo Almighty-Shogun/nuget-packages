@@ -82,10 +82,10 @@ A request may carry attributes and have a validator. Both sets are merged per fi
 
 ::: code-group
 
-```csharp [InviteRequest.cs]
+```csharp [NoteRequest.cs]
 using AlmightyShogun.AspNet.RequestValidation;
 
-public sealed class InviteRequest
+public sealed class NoteRequest
 {
     [Required]
     [Email]
@@ -95,10 +95,10 @@ public sealed class InviteRequest
 }
 ```
 
-```csharp [InviteRequestValidator.cs]
+```csharp [NoteRequestValidator.cs]
 using AlmightyShogun.AspNet.RequestValidation;
 
-public sealed class InviteRequestValidator : Validator<InviteRequest>
+public sealed class NoteRequestValidator : Validator<NoteRequest>
 {
     protected override void Rules() => RuleFor(x => x.Note).Max(500);
 }

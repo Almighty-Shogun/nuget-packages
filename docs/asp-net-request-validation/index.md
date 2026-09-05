@@ -12,31 +12,9 @@ Works with MVC controllers and minimal API endpoints, discovering rules once at 
 - [Extensions](./extensions/add-asp-net-validation) &mdash; registration and pipeline setup.
 - [Validation Rules](./validation-rules/presence) &mdash; the full rule catalogue, grouped by family.
 - [Services](./services/validation-rule-describer) &mdash; reading the declared rules at runtime.
-- [Types](./types/validation-error-result) &mdash; the result helper and comparison target.
+- [Utilities](./utilities/validation-error-result) &mdash; returning a validation failure from a controller action.
+- [Types](./types/comparison-target) &mdash; how a comparison rule reads its target.
 - [Records](./records/validation-error-response) &mdash; the response shapes.
-
-## The failure response
-
-Every validation failure returns `422` with the same shape:
-
-```json
-{
-    "code": 422,
-    "error": "validation_error",
-    "errorDescription": "The request did not pass validation",
-    "errors": {
-        "username": {
-            "code": 1044866933,
-            "error": "validation_regex",
-            "errorDescription": "Must match the expected shape: lowercase letters and digits only"
-        }
-    }
-}
-```
-
-The outer three fields are the standard error body shared with the other packages. `errors` is added by this package, keyed by the field name a client sees, with one entry per field carrying its first failure. A field renamed with `[JsonPropertyName]` is reported under that name, and a failure inside a nested object keeps its full path, such as `billingAddress.street` or `items[0].name`.
-
-The per-field `code` is a stable number derived from the message key, so a client can branch on it without matching English text or parsing the key.
 
 ## Quick Example
 
@@ -51,8 +29,9 @@ builder.Services
     .AddMessageLocalization(builder.Configuration)
     .AddHttpErrorResponseWriter()
     .AddExceptionHandling()
-    .AddHttpErrorResponseFilter();
-builder.Services.AddAspNetValidation();
+    .AddHttpErrorResponseFilter()
+    .AddAspNetValidation();
+
 builder.Services.AddControllers();
 
 WebApplication app = builder.Build();

@@ -15,18 +15,14 @@ One validation rule declared on a request property, produced by [`IValidationRul
 
 `Rule` matches the attribute name without its suffix, so `MinAttribute` is reported as `Min`. That is the same name used in the [rule catalogue](../validation-rules/presence).
 
-## Usage
+<FrontmatterDocs/>
+
+## Type signature
 
 ```csharp
-using AlmightyShogun.AspNet.RequestValidation;
-
-foreach ((string field, IReadOnlyList<ValidationRuleDescription> rules) in describer.Describe<SignupRequest>())
+public sealed record ValidationRuleDescription
 {
-    foreach (ValidationRuleDescription rule in rules)
-    {
-        Console.WriteLine($"{field}: {rule.Rule}({string.Join(", ", rule.Arguments)})");
-    }
+    public required string Rule { get; init; }
+    public required IReadOnlyList<object?> Arguments { get; init; }
 }
 ```
-
-<FrontmatterDocs/>

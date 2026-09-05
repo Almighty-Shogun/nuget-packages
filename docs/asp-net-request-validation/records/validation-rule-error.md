@@ -1,34 +1,21 @@
 ---
 fields:
     - name: Code
-      description: HTTP status code the error is reported under.
+      description: A stable number derived from the validation message key, so a client can branch on it without matching English text, and adding rules never renumbers the existing ones.
       type: long
     - name: Error
-      description: The validation message key, such as `validation.required.default`.
+      description: The machine-readable identifier derived from the same key, with every run of non-alphanumeric characters replaced by an underscore, such as `validation_required_default`.
       type: string
     - name: ErrorDescription
-      description: The localized message produced by the configured message resolver.
+      description: The localized message produced by the configured message resolver, which falls back to the message key itself when no message file defines it.
       type: string?
 ---
 
 # ValidationRuleError
 
-Represents one field-level validation error inside [`ValidationErrorResponse`](./validation-error-response). The record contains the numeric status code, the validation message key, and the localized message returned by the configured message resolver.
+Represents one field-level validation error inside [`ValidationErrorResponse`](./validation-error-response). It carries the stable numeric code, the machine-readable error identifier, and the message resolved into the request's language, which is the one field that is not safe to branch on.
 
 Use this record when tests need to assert validation response contents or when application code manually builds a [`ValidationErrorResponse`](./validation-error-response).
-
-## Usage
-
-```csharp
-using AlmightyShogun.AspNet.RequestValidation;
-
-var error = new ValidationRuleError
-{
-    Code = 422,
-    Error = "validation.required.default",
-    ErrorDescription = "This field is required."
-};
-```
 
 <FrontmatterDocs/>
 
