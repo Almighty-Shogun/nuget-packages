@@ -1,7 +1,7 @@
 ---
 fields:
     - name: MaintenanceSettings
-      description: The optional `Maintenance` section, bound by [`AddMaintenanceMode`](./extensions/add-maintenance-mode). Its values are the defaults for every maintenance window, and any field a [`MaintenanceRequest`](./types/maintenance-request) sets wins for that window.
+      description: The optional `Maintenance` section, bound by [`AddMaintenanceMode`](./extensions/add-maintenance-mode). Its values are the defaults for every maintenance window, and any field a [`MaintenanceRequest`](./records/maintenance-request) sets wins for that window.
       fields:
           - name: MaintenancePath
             description: Request path that returns maintenance details while maintenance mode is enabled. Validated at startup, so a value carrying whitespace, a query string, or a fragment fails the host.
@@ -64,25 +64,9 @@ The `Maintenance` section holds the defaults every maintenance window starts fro
 ```
 
 ::: warning
-An allow list supplied on a [`MaintenanceRequest`](./types/maintenance-request) replaces the configured one for that window rather than adding to it. A window that sets `AllowedPaths` loses the configured entries unless it repeats them.
+An allow list supplied on a [`MaintenanceRequest`](./records/maintenance-request) replaces the configured one for that window rather than adding to it. A window that sets `AllowedPaths` loses the configured entries unless it repeats them.
 
 Whatever endpoint disables maintenance mode has to survive that replacement, or the open window blocks the only route that could close it and the state file has to be deleted by hand.
 :::
 
 <FrontmatterDocs/>
-
-## Usage
-
-Inject `IOptions<MaintenanceSettings>` wherever a service needs the configured maintenance path or allow lists.
-
-```csharp
-using Microsoft.Extensions.Options;
-using AlmightyShogun.AspNet.MaintenanceMode;
-
-public sealed class MaintenanceLinkBuilder(
-    IOptions<MaintenanceSettings> options
-)
-{
-    public string GetDetailsPath() => options.Value.MaintenancePath;
-}
-```

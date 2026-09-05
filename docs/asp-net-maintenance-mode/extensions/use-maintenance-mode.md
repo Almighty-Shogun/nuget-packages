@@ -27,11 +27,11 @@ app.MapControllers();
 
 ## Request handling
 
-A window is active when maintenance mode is enabled and `StartsAt` has passed or was not set. While no window is active every request is served normally, and the middleware performs no file access.
+A window is active when maintenance mode is enabled and `StartsAt` has passed or was not set. While no window is active every request is served normally, reading the state from the in-memory cache rather than from disk.
 
 While a window is active, each request is handled in this order:
 
-1. A request for `MaintenancePath` returns [`MaintenanceResponse`](../types/maintenance-response) with `503`. Outside an active window that path returns `404`.
+1. A request for `MaintenancePath` returns [`MaintenanceResponse`](../records/maintenance-response) with `503`. Outside an active window that path returns `404`.
 2. A request matching `AllowedPaths` exactly, or `AllowedPathPrefixes` on a segment boundary, or coming from an address in `AllowedIpAddresses`, is passed through to the application.
 3. Every other request is blocked.
 

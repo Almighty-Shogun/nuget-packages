@@ -1,6 +1,6 @@
 # MaintenanceService
 
-Reads and changes maintenance mode. [`AddMaintenanceMode`](../extensions/add-maintenance-mode) registers the implementation for `IMaintenanceService`, and application code depends on the interface.
+Reads and changes maintenance mode. Application code depends on `IMaintenanceService`.
 
 State is held in `maintenance.json` under the application content root and cached in memory, with writes updating the cache directly so a change takes effect on the next request whether or not the file watcher fires.
 
@@ -8,29 +8,9 @@ State is held in `maintenance.json` under the application content root and cache
 Each instance keeps its own file and its own cache. In a multi-instance deployment, either point every instance at a shared content root or call `EnableAsync` on each one, or some instances stay online while others do not. Editing `maintenance.json` by hand relies on the file watcher, which does not fire reliably on container bind mounts or network filesystems.
 :::
 
-## Usage
-
-```csharp
-using AlmightyShogun.AspNet.MaintenanceMode;
-
-public sealed class MaintenanceControls(
-    IMaintenanceService maintenanceService
-)
-{
-    public Task EnableDeploymentWindowAsync()
-        => maintenanceService.EnableAsync(new MaintenanceRequest
-        {
-            Message = "Deployment in progress.",
-            EndsAt = DateTimeOffset.UtcNow.AddMinutes(20),
-            AutoDisableWhenExpired = true,
-            AllowedPaths = ["/health"]
-        });
-}
-```
-
 ## GetAsync
 
-Returns the current [`MaintenanceState`](../types/maintenance-state). With no state file, it returns a disabled state built from the configured defaults.
+Returns the current [`MaintenanceState`](../records/maintenance-state). With no state file, it returns a disabled state built from the configured defaults.
 
 When `AutoDisableWhenExpired` is on and `EndsAt` has passed, the state file is cleared and a disabled state is returned.
 
@@ -80,7 +60,7 @@ public Task<bool> IsEnabledAsync();
 
 ## EnableAsync
 
-Turns maintenance mode on and writes the state file. Values on [`MaintenanceRequest`](../types/maintenance-request) apply to this window; omitted values fall back to [`MaintenanceSettings`](../configuration).
+Turns maintenance mode on and writes the state file. Values on [`MaintenanceRequest`](../records/maintenance-request) apply to this window; omitted values fall back to [`MaintenanceSettings`](../configuration).
 
 Calling it while a window is already active replaces that window rather than merging with it. A request whose `EndsAt` is at or before its `StartsAt` throws `ArgumentException`, so a window that could never be open is rejected before anything is written.
 

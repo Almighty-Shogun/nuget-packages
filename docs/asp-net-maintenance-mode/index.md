@@ -9,16 +9,19 @@ It ships no endpoint for controlling maintenance mode, because how that is expos
 - [Configuration](./configuration) &mdash; maintenance path, default message, expiry behavior, redirects, and the allow lists.
 - [Extensions](./extensions/add-maintenance-mode) &mdash; service and middleware registration.
 - [Services](./services/maintenance-service) &mdash; the DI contract used to read, enable, and disable maintenance mode.
-- [Types](./types/maintenance-request) &mdash; the request, state, and response records.
+- [Records](./records/maintenance-request) &mdash; the request, state, and response records.
 
 ## Quick Example
 
 ::: code-group
 
 ```csharp [Program.cs]
+using AlmightyShogun.AspNet.Core;
 using AlmightyShogun.AspNet.MaintenanceMode;
 
-builder.Services.AddMaintenanceMode(builder.Configuration);
+builder.Services
+    .AddHttpErrorResponseWriter()
+    .AddMaintenanceMode(builder.Configuration);
 
 WebApplication app = builder.Build();
 
