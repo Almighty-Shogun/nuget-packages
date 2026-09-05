@@ -16,7 +16,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompare>
     : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
@@ -25,7 +25,7 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly FieldComparisonMode _mode;
 
     /// <summary>
@@ -34,7 +34,7 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly string _compareFieldName;
 
     /// <summary>
@@ -43,7 +43,7 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly Func<TRequest, object?> _compareGetter;
 
     /// <summary>
@@ -59,7 +59,7 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public FieldComparisonValidationRule(FieldComparisonMode mode, Expression<Func<TRequest, TCompare>> compareExpression)
     {
         string fieldName = ValidationExpression.GetFieldName(compareExpression);
@@ -85,7 +85,7 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public FieldComparisonValidationRule(FieldComparisonMode mode, string comparePropertyName)
     {
         ValidationField<TRequest> field = ValidationField<TRequest>.FromPropertyName(comparePropertyName);
@@ -111,7 +111,7 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public FieldComparisonValidationRule(string declaredPropertyName)
     {
         PropertyInfo property = ResolveConfirmationProperty(declaredPropertyName);
@@ -153,7 +153,7 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey() => _mode switch
     {
         FieldComparisonMode.Same => "validation.same",
@@ -172,7 +172,7 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private object?[] GetMessageParameters() => _mode == FieldComparisonMode.Confirmed ? [] : [_compareFieldName];
 
     /// <summary>
@@ -191,7 +191,7 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static PropertyInfo ResolveConfirmationProperty(string declaredPropertyName)
     {
         Type requestType = typeof(TRequest);

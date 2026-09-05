@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record TwoFactorPolicy
 {
     /// <summary>
@@ -17,7 +17,7 @@ public sealed record TwoFactorPolicy
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? Issuer { get; init; }
 
     /// <summary>
@@ -26,7 +26,7 @@ public sealed record TwoFactorPolicy
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Range(1, 50)]
     public int RecoveryCodeCount { get; init; } = 10;
 
@@ -36,7 +36,7 @@ public sealed record TwoFactorPolicy
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Range(6, 8)]
     public int Digits { get; init; } = 6;
 
@@ -46,7 +46,7 @@ public sealed record TwoFactorPolicy
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Range(15, 120)]
     public int PeriodSeconds { get; init; } = 30;
 
@@ -57,7 +57,7 @@ public sealed record TwoFactorPolicy
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Range(1, 60)]
     public int PendingSecretMinutes { get; init; } = 10;
 }

@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <typeparam name="TProperty">The bound property's type, read as text, or as a collection for the contain mode alone.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class StringMatchValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty>
     where TRequest : class
 {
@@ -18,7 +18,7 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty> : IProperty
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly StringMatchMode _mode;
 
     /// <summary>
@@ -26,7 +26,7 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty> : IProperty
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly IReadOnlyList<string> _values;
 
     /// <summary>
@@ -41,7 +41,7 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty> : IProperty
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public StringMatchValidationRule(StringMatchMode mode, IReadOnlyList<string> values)
     {
         _mode = mode;
@@ -86,7 +86,7 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty> : IProperty
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey() => _mode switch
     {
         StringMatchMode.Contain => "validation.contains",
@@ -103,7 +103,7 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty> : IProperty
     /// <returns>A single element, the configured values joined for display.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private object?[] GetMessageParameters() => [ValidationDisplay.JoinValues(_values)];
 
     /// <summary>
@@ -124,7 +124,7 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty> : IProperty
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool CollectionHoldsOneOf(TProperty? value)
         => ValidationCollection.TryGetValues(value, out IReadOnlyList<object?> elements)
            && _values.Any(required => elements.Any(element => string.Equals(element?.ToString(), required, StringComparison.Ordinal)));

@@ -137,7 +137,7 @@ internal static class AnsiColor
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly FrozenDictionary<string, string> ShortCodes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
         ["r"] = Red,

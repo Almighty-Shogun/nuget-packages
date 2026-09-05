@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record MaintenanceState
 {
     /// <summary>
@@ -18,7 +18,7 @@ public sealed record MaintenanceState
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool IsEnabled { get; init; }
 
     /// <summary>
@@ -26,7 +26,7 @@ public sealed record MaintenanceState
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? Message { get; init; }
 
     /// <summary>
@@ -34,7 +34,7 @@ public sealed record MaintenanceState
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset? StartsAt { get; init; }
 
     /// <summary>
@@ -42,7 +42,7 @@ public sealed record MaintenanceState
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset? EndsAt { get; init; }
 
     /// <summary>
@@ -50,6 +50,6 @@ public sealed record MaintenanceState
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset? EnabledAt { get; init; }
 }

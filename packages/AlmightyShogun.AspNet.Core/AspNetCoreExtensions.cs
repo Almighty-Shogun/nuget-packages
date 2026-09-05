@@ -125,7 +125,7 @@ public static class AspNetCoreExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IServiceCollection AddCloudflareHeaders(
             string clientIpHeader = CloudflareDefaults.ClientIpHeader,
             IEnumerable<IPNetwork>? additionalNetworks = null,
@@ -157,7 +157,7 @@ public static class AspNetCoreExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IServiceCollection AddHttpErrorResponseWriter()
         {
             serviceCollection.TryAddSingleton<IHttpErrorResponseWriter, HttpErrorResponseWriter>();
@@ -196,7 +196,7 @@ public static class AspNetCoreExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IServiceCollection AddExceptionHandling(bool suppressMapClientErrors = true) => serviceCollection
             .Configure<ApiBehaviorOptions>(options => options.SuppressMapClientErrors = suppressMapClientErrors)
             .AddExceptionHandler<FrameworkExceptionHandler>()
@@ -214,7 +214,7 @@ public static class AspNetCoreExtensions
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     extension(IApplicationBuilder applicationBuilder)
     {
         /// <summary>
@@ -242,7 +242,7 @@ public static class AspNetCoreExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IApplicationBuilder UseHttpErrorResponses() => applicationBuilder
             .UseExceptionHandler(new ExceptionHandlerOptions { ExceptionHandler = _ => Task.CompletedTask })
             .UseStatusCodePages(async statusCodeContext =>

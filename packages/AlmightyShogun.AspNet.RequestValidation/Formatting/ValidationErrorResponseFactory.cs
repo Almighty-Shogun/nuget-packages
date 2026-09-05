@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ValidationErrorResponseFactory
 {
     /// <summary>
@@ -18,7 +18,7 @@ internal static class ValidationErrorResponseFactory
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal const int StatusCode = StatusCodes.Status422UnprocessableEntity;
 
     /// <summary>
@@ -27,7 +27,7 @@ internal static class ValidationErrorResponseFactory
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal const string ErrorCode = "validation_error";
 
     /// <summary>
@@ -40,7 +40,7 @@ internal static class ValidationErrorResponseFactory
     /// <returns>The validation error response, whose description names the status rather than any one field.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static ValidationErrorResponse Create(IMessageResolver messageResolver, ValidationBag errors) => new()
     {
         Code = StatusCode,
@@ -67,7 +67,7 @@ internal static class ValidationErrorResponseFactory
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static ValidationErrorResponse Create(
         IMessageResolver messageResolver,
         string messageKey,
@@ -92,7 +92,7 @@ internal static class ValidationErrorResponseFactory
     /// <returns>The validation error response carrying that one field.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static ValidationErrorResponse Create(
         IMessageResolver messageResolver,
         string field,

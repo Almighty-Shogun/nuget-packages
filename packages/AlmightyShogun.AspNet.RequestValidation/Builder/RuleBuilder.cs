@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <typeparam name="TProperty">The property's type, which decides what the rules are able to measure.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
@@ -18,7 +18,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly PropertyRule<TRequest, TProperty> _propertyRule;
 
     /// <summary>
@@ -28,7 +28,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <param name="propertyRule">The property rule that receives configured validation rules.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal RuleBuilder(PropertyRule<TRequest, TProperty> propertyRule) => _propertyRule = propertyRule;
 
     /// <summary>
@@ -43,7 +43,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> AnyOf(params Action<RuleBuilder<TRequest, TProperty>>[] ruleSets)
     {
         IReadOnlyList<IReadOnlyList<IPropertyValidationRule<TRequest, TProperty>>> configuredRuleSets =
@@ -65,7 +65,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The validation rules configured by the callback.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private IReadOnlyList<IPropertyValidationRule<TRequest, TProperty>> CreateRuleSet(Action<RuleBuilder<TRequest, TProperty>> configure)
     {
         PropertyRule<TRequest, TProperty> ruleSet = PropertyRule<TRequest, TProperty>.CreateRuleSet(_propertyRule.FieldName);

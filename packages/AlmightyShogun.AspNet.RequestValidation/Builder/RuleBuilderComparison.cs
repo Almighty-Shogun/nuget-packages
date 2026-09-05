@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
@@ -19,7 +19,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Accepted()
     {
         _propertyRule.AddRule(new AcceptedValidationRule<TRequest, TProperty>());
@@ -47,7 +47,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> AcceptedIf<TCompare>(
         Expression<Func<TRequest, TCompare>> compareExpression,
         params TCompare?[] values
@@ -70,7 +70,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Declined()
     {
         _propertyRule.AddRule(new DeclinedValidationRule<TRequest, TProperty>());
@@ -98,7 +98,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> DeclinedIf<TCompare>(
         Expression<Func<TRequest, TCompare>> compareExpression,
         params TCompare?[] values
@@ -131,7 +131,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> SameAs<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
         _propertyRule.AddRule(new FieldComparisonValidationRule<TRequest, TProperty, TCompare>(
@@ -159,7 +159,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Different<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
         _propertyRule.AddRule(new FieldComparisonValidationRule<TRequest, TProperty, TCompare>(
@@ -183,7 +183,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Confirmed()
     {
         _propertyRule.AddRule(new FieldComparisonValidationRule<TRequest, TProperty, TProperty>(_propertyRule.DeclaredName));
@@ -209,7 +209,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Confirmed<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
         _propertyRule.AddRule(new FieldComparisonValidationRule<TRequest, TProperty, TCompare>(
@@ -234,7 +234,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> In(params TProperty?[] values)
     {
         _propertyRule.AddRule(new SetMembershipValidationRule<TRequest, TProperty>(values, true));
@@ -256,7 +256,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> NotIn(params TProperty?[] values)
     {
         _propertyRule.AddRule(new SetMembershipValidationRule<TRequest, TProperty>(values, false));
@@ -281,7 +281,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> InArray<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
         _propertyRule.AddRule(new InArrayValidationRule<TRequest, TProperty>(ValidationField<TRequest>.From(compareExpression)));
@@ -303,7 +303,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> InArrayKeys(params string[] keys)
     {
         _propertyRule.AddRule(new ArrayKeysValidationRule<TRequest, TProperty>(ArrayKeyMode.AnyRequiredKey, keys));
@@ -325,7 +325,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> RequiredArrayKeys(params string[] keys)
     {
         _propertyRule.AddRule(new ArrayKeysValidationRule<TRequest, TProperty>(ArrayKeyMode.AllRequiredKeys, keys));
@@ -340,7 +340,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Distinct()
     {
         _propertyRule.AddRule(new DistinctValidationRule<TRequest, TProperty>());
@@ -367,7 +367,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Regex(
         string pattern,
         RegexOptions options = RegexOptions.None,
@@ -399,7 +399,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> NotRegex(
         string pattern,
         RegexOptions options = RegexOptions.None,
@@ -425,7 +425,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> CustomRule<TRule>() where TRule : class, ICustomValidationRule<TRequest, TProperty>
     {
         _propertyRule.AddRule(new CustomValidationRuleAdapter<TRequest, TProperty, TRule>());

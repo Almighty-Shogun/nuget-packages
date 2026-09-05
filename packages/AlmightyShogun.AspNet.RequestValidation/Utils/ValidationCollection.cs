@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ValidationCollection
 {
     /// <summary>
@@ -23,7 +23,7 @@ internal static class ValidationCollection
     /// <returns><c>true</c> when the value is array-like; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool IsArrayLike(object? value) => value is IEnumerable and not string;
 
     /// <summary>
@@ -37,7 +37,7 @@ internal static class ValidationCollection
     /// <returns><c>true</c> when the value is list-like; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool IsListLike(object? value) => value is Array or IList || ImplementsGenericList(value);
 
     /// <summary>
@@ -50,7 +50,7 @@ internal static class ValidationCollection
     /// <returns><c>true</c> when the value can be enumerated; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool TryGetValues(object? value, out IReadOnlyList<object?> values)
     {
         (bool isValid, IReadOnlyList<object?> resolvedValues) = value switch
@@ -75,7 +75,7 @@ internal static class ValidationCollection
     /// <returns><c>true</c> when keys can be read; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool TryGetKeys(object? value, out IReadOnlySet<string> keys) => value switch
     {
         IDictionary typed => SetKeys(typed.Keys, out keys),
@@ -93,7 +93,7 @@ internal static class ValidationCollection
     /// <returns><c>true</c> when generic dictionary keys can be read; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryGetGenericDictionaryKeys(object? value, out IReadOnlySet<string> keys)
     {
         Type? dictionaryInterface = value?.GetType()
@@ -119,7 +119,7 @@ internal static class ValidationCollection
     /// <returns><c>true</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool SetKeys(IEnumerable values, out IReadOnlySet<string> keys)
     {
         keys = values.Cast<object?>().Select(ValidationDisplay.ToDisplayValue).ToHashSet(StringComparer.Ordinal);
@@ -136,7 +136,7 @@ internal static class ValidationCollection
     /// <returns><c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool Fail(out IReadOnlySet<string> keys)
     {
         keys = new HashSet<string>(StringComparer.Ordinal);
@@ -153,7 +153,7 @@ internal static class ValidationCollection
     /// <returns><c>true</c> when a generic list interface exists; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool ImplementsGenericList(object? value) => value?.GetType()
         .GetInterfaces()
         .Where(type => type.IsGenericType)

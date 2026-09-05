@@ -6,7 +6,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record RecurringJobInfo
 {
     /// <summary>
@@ -14,7 +14,7 @@ public sealed record RecurringJobInfo
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string JobId { get; init; }
 
     /// <summary>
@@ -22,7 +22,7 @@ public sealed record RecurringJobInfo
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string CronExpression { get; init; }
 
     /// <summary>
@@ -30,7 +30,7 @@ public sealed record RecurringJobInfo
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required Type JobType { get; init; }
 
     /// <summary>
@@ -38,7 +38,7 @@ public sealed record RecurringJobInfo
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string? TimeZone { get; init; }
 
     /// <summary>
@@ -46,6 +46,6 @@ public sealed record RecurringJobInfo
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string? Queue { get; init; }
 }

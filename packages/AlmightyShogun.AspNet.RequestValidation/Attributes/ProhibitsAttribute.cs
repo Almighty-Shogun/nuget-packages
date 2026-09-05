@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="fields">The request fields the rule reads alongside this one.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class ProhibitsAttribute(params string[] fields) : ValidationRuleAttribute
 {

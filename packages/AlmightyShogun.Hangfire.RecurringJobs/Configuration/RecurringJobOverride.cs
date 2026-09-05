@@ -9,7 +9,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record RecurringJobOverride
 {
     /// <summary>
@@ -18,7 +18,7 @@ public sealed record RecurringJobOverride
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool? Enabled { get; init; }
 
     /// <summary>
@@ -27,7 +27,7 @@ public sealed record RecurringJobOverride
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? CronExpression { get; init; }
 
     /// <summary>
@@ -36,7 +36,7 @@ public sealed record RecurringJobOverride
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? TimeZone { get; init; }
 
     /// <summary>
@@ -45,6 +45,6 @@ public sealed record RecurringJobOverride
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? Queue { get; init; }
 }

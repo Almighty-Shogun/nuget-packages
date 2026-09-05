@@ -32,7 +32,7 @@ internal sealed class FileEmailTemplateLoader : IEmailTemplateLoader
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly ConcurrentDictionary<string, string> _templates = new(StringComparer.Ordinal);
 
     /// <inheritdoc />
@@ -77,7 +77,7 @@ internal sealed class FileEmailTemplateLoader : IEmailTemplateLoader
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static Task<string> ReadAsync(string templateName, CancellationToken cancellationToken)
     {
         string root = Path.GetFullPath(TemplatesDirectory);

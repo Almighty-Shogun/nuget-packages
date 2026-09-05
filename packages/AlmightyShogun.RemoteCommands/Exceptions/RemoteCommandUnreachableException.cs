@@ -10,7 +10,7 @@ namespace AlmightyShogun.RemoteCommands;
 /// <param name="innerException">The socket failure underneath, which carries the specific reason.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed class RemoteCommandUnreachableException(string host, int port, Exception innerException)
     : RemoteCommandException($"The server at {host}:{port} could not be reached.", innerException)
 {
@@ -19,7 +19,7 @@ public sealed class RemoteCommandUnreachableException(string host, int port, Exc
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string Host { get; } = host;
 
     /// <summary>
@@ -27,6 +27,6 @@ public sealed class RemoteCommandUnreachableException(string host, int port, Exc
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public int Port { get; } = port;
 }

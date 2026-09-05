@@ -13,7 +13,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [Table("user_lockouts")]
 public sealed class UserLockout
 {
@@ -23,7 +23,7 @@ public sealed class UserLockout
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public int Id { get; set; }
 
     /// <summary>
@@ -31,7 +31,7 @@ public sealed class UserLockout
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public int UserId { get; set; }
 
     /// <summary>
@@ -39,7 +39,7 @@ public sealed class UserLockout
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public int AccessFailedCount { get; set; }
 
     /// <summary>
@@ -48,7 +48,7 @@ public sealed class UserLockout
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset? LockoutEnd { get; set; }
 
     /// <summary>
@@ -57,7 +57,7 @@ public sealed class UserLockout
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [NotMapped]
     public bool IsLocked => LockoutEnd is not null && LockoutEnd > DateTimeOffset.UtcNow;
 }

@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="keys">The keys the field's own keys are checked against.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class RequiredArrayKeysAttribute(params string[] keys) : ValidationRuleAttribute
 {

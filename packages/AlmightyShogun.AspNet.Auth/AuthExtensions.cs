@@ -50,7 +50,7 @@ public static class AuthExtensions
         /// <returns>The <see cref="IServiceCollection"/> instance with JWT authentication and authorization registered.</returns>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IServiceCollection AddAuth(IConfiguration configuration, bool registerExceptionHandler = true)
         {
             serviceCollection
@@ -95,7 +95,7 @@ public static class AuthExtensions
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static void ConfigureJwtBearer(JwtBearerOptions options, IOptions<AuthSettings> authOptions)
     {
         AuthSettings authSettings = authOptions.Value;
@@ -138,7 +138,7 @@ public static class AuthExtensions
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static Task ValidateAppAudience(TokenValidatedContext context)
     {
         if (!context.HttpContext.RequestServices.GetRequiredService<IOptions<AuthSettings>>().Value.IsScoped())

@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.Localization;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public static class HttpResponseExtensions
 {
     /// <summary>
@@ -20,7 +20,7 @@ public static class HttpResponseExtensions
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     extension(HttpResponse httpResponse)
     {
         /// <summary>
@@ -33,7 +33,7 @@ public static class HttpResponseExtensions
         /// </returns>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public string? GetContentLanguage()
         {
             var language = httpResponse.Headers.ContentLanguage.ToString();
@@ -62,7 +62,7 @@ public static class HttpResponseExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public bool TrySetContentLanguage(string language)
         {
             if (httpResponse.HasStarted || string.IsNullOrWhiteSpace(language) || language.Any(char.IsControl))

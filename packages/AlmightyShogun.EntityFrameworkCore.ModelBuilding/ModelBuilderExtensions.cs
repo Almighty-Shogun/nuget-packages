@@ -117,7 +117,7 @@ public static class ModelBuilderExtensions
         /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public ModelBuilder ApplyOneToOne<TEntity, TDependent>(
             Expression<Func<TEntity, TDependent?>> navigation,
             Expression<Func<TDependent, object?>> foreignKey,
@@ -207,7 +207,7 @@ public static class ModelBuilderExtensions
         /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public ModelBuilder ApplyOneToMany<TEntity, TDependent>(
             Expression<Func<TEntity, IEnumerable<TDependent>?>> navigation,
             Expression<Func<TDependent, object?>> foreignKey,
@@ -302,7 +302,7 @@ public static class ModelBuilderExtensions
         /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public ModelBuilder ApplyManyToOne<TEntity, TDependent>(
             Expression<Func<TDependent, TEntity?>> navigation,
             Expression<Func<TDependent, object?>> foreignKey,
@@ -376,7 +376,7 @@ public static class ModelBuilderExtensions
         /// <exception cref="ArgumentNullException"><paramref name="index"/> is <c>null</c>.</exception>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public ModelBuilder ApplyIndex<TEntity>(Expression<Func<TEntity, object?>> index) where TEntity : class
         {
             modelBuilder.Entity<TEntity>().HasIndex(index);
@@ -414,7 +414,7 @@ public static class ModelBuilderExtensions
         /// <exception cref="ArgumentNullException"><paramref name="index"/> is <c>null</c>.</exception>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public ModelBuilder ApplyUniqueIndex<TEntity>(
             Expression<Func<TEntity, object?>> index,
             string? filter = null
@@ -467,7 +467,7 @@ public static class ModelBuilderExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public ModelBuilder ApplyManyToMany<TEntity, TRelated>(
             Expression<Func<TEntity, IEnumerable<TRelated>?>> navigation,
             Expression<Func<TRelated, IEnumerable<TEntity>?>> inverseNavigation,
@@ -514,7 +514,7 @@ public static class ModelBuilderExtensions
         /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public ModelBuilder ApplyEnumAsString<TEntity, TProperty>(
             Expression<Func<TEntity, TProperty>> property,
             int maxLength = 32

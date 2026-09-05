@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <typeparam name="TProperty">The bound property's type, read as an object rather than constrained here.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class ArrayKeysValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
@@ -17,7 +17,7 @@ internal sealed class ArrayKeysValidationRule<TRequest, TProperty> : IPropertyVa
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly ArrayKeyMode _mode;
 
     /// <summary>
@@ -25,7 +25,7 @@ internal sealed class ArrayKeysValidationRule<TRequest, TProperty> : IPropertyVa
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly IReadOnlyList<string> _requiredKeys;
 
     /// <summary>
@@ -40,7 +40,7 @@ internal sealed class ArrayKeysValidationRule<TRequest, TProperty> : IPropertyVa
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public ArrayKeysValidationRule(ArrayKeyMode mode, IReadOnlyList<string> requiredKeys)
     {
         _mode = mode;
@@ -77,6 +77,6 @@ internal sealed class ArrayKeysValidationRule<TRequest, TProperty> : IPropertyVa
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey() => _mode == ArrayKeyMode.AnyRequiredKey ? "validation.in.array-keys" : "validation.required.array-keys";
 }

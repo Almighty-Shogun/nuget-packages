@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.Auth;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class AuthSigningKey
 {
     /// <summary>
@@ -21,7 +21,7 @@ internal static class AuthSigningKey
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal const int MinimumSecretBytes = 32;
 
     /// <summary>
@@ -40,7 +40,7 @@ internal static class AuthSigningKey
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static SymmetricSecurityKey Create(string secret)
     {
         byte[] key = Encoding.UTF8.GetBytes(secret);

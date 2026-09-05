@@ -29,7 +29,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class AuthTwoFactorService<TUser>(
     AuthDbContext<TUser> databaseContext,
     IOptions<AuthCredentialsSettings> credentialOptions,
@@ -47,7 +47,7 @@ internal sealed class AuthTwoFactorService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly IDataProtector _protector =
         dataProtectionProvider.CreateProtector("AlmightyShogun.Auth.Credentials.TwoFactor");
 
@@ -56,7 +56,7 @@ internal sealed class AuthTwoFactorService<TUser>(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly TwoFactorPolicy _policy = credentialOptions.Value.TwoFactor;
 
     /// <inheritdoc />
@@ -194,7 +194,7 @@ internal sealed class AuthTwoFactorService<TUser>(
     /// <exception cref="InvalidCredentialsException">Thrown when no user matches the predicate.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task<TUser> GetUserAsync(Expression<Func<TUser, bool>> predicate, CancellationToken cancellationToken)
     {
         TUser? user = await databaseContext.Users.FirstOrDefaultAsync(predicate, cancellationToken);
@@ -219,7 +219,7 @@ internal sealed class AuthTwoFactorService<TUser>(
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task<UserTwoFactor> GetEnrolmentAsync(Guid identifier, CancellationToken cancellationToken)
     {
         TUser user = await GetUserAsync(candidate => candidate.Identifier == identifier, cancellationToken);
@@ -243,7 +243,7 @@ internal sealed class AuthTwoFactorService<TUser>(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task<UserTwoFactor> GetOrCreateEnrolmentAsync(TUser user, CancellationToken cancellationToken)
     {
         UserTwoFactor? enrolment = await databaseContext.UserTwoFactors
@@ -282,7 +282,7 @@ internal sealed class AuthTwoFactorService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool TryVerifyTotp(string protectedSecret, string code, out long window)
     {
         window = default;

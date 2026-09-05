@@ -5,7 +5,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal enum StringCharacterMode
 {
     /// <summary>
@@ -13,7 +13,7 @@ internal enum StringCharacterMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Alpha,
 
     /// <summary>
@@ -21,7 +21,7 @@ internal enum StringCharacterMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     AlphaNumeric,
 
     /// <summary>
@@ -29,7 +29,7 @@ internal enum StringCharacterMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     AlphaDash,
 
     /// <summary>
@@ -37,7 +37,7 @@ internal enum StringCharacterMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Ascii,
 
     /// <summary>
@@ -45,7 +45,7 @@ internal enum StringCharacterMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Lowercase,
 
     /// <summary>
@@ -53,6 +53,6 @@ internal enum StringCharacterMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Uppercase
 }

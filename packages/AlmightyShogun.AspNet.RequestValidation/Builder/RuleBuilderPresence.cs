@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
@@ -19,7 +19,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Required()
     {
         _propertyRule.AddRule(new PresenceValidationRule<TRequest, TProperty>(PresenceMode.Required));
@@ -46,7 +46,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> RequiredIf<TCompare>(
         Expression<Func<TRequest, TCompare>> compareExpression,
         params TCompare?[] values
@@ -81,7 +81,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> RequiredUnless<TCompare>(
         Expression<Func<TRequest, TCompare>> compareExpression,
         params TCompare?[] values
@@ -115,7 +115,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> RequiredIfAccepted<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
         _propertyRule.AddRule(new ConditionalStateValidationRule<TRequest, TProperty, TCompare>(
@@ -145,7 +145,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> RequiredIfDeclined<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
         _propertyRule.AddRule(new ConditionalStateValidationRule<TRequest, TProperty, TCompare>(
@@ -171,7 +171,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> RequiredWith(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
         _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
@@ -197,7 +197,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> RequiredWithAll(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
         _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
@@ -223,7 +223,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> RequiredWithout(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
         _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
@@ -249,7 +249,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> RequiredWithoutAll(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
         _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
@@ -269,7 +269,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Filled()
     {
         _propertyRule.AddRule(new PresenceValidationRule<TRequest, TProperty>(PresenceMode.Filled));
@@ -285,7 +285,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Present()
     {
         _propertyRule.AddRule(new PresenceValidationRule<TRequest, TProperty>(PresenceMode.Present));
@@ -313,7 +313,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> PresentIf<TCompare>(
         Expression<Func<TRequest, TCompare>> compareExpression,
         params TCompare?[] values
@@ -348,7 +348,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> PresentUnless<TCompare>(
         Expression<Func<TRequest, TCompare>> compareExpression,
         params TCompare?[] values
@@ -378,7 +378,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> PresentWith(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
         _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
@@ -404,7 +404,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> PresentWithAll(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
         _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
@@ -423,7 +423,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Missing()
     {
         _propertyRule.AddRule(new PresenceValidationRule<TRequest, TProperty>(PresenceMode.Missing));
@@ -450,7 +450,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> MissingIf<TCompare>(
         Expression<Func<TRequest, TCompare>> compareExpression,
         params TCompare?[] values
@@ -485,7 +485,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> MissingUnless<TCompare>(
         Expression<Func<TRequest, TCompare>> compareExpression,
         params TCompare?[] values
@@ -515,7 +515,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> MissingWith(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
         _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
@@ -541,7 +541,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> MissingWithAll(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
         _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(
@@ -560,7 +560,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Prohibited()
     {
         _propertyRule.AddRule(new PresenceValidationRule<TRequest, TProperty>(PresenceMode.Prohibited));
@@ -587,7 +587,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> ProhibitedIf<TCompare>(
         Expression<Func<TRequest, TCompare>> compareExpression,
         params TCompare?[] values
@@ -622,7 +622,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> ProhibitedUnless<TCompare>(
         Expression<Func<TRequest, TCompare>> compareExpression,
         params TCompare?[] values
@@ -656,7 +656,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> ProhibitedIfAccepted<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
         _propertyRule.AddRule(new ConditionalStateValidationRule<TRequest, TProperty, TCompare>(
@@ -686,7 +686,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> ProhibitedIfDeclined<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
         _propertyRule.AddRule(new ConditionalStateValidationRule<TRequest, TProperty, TCompare>(
@@ -712,7 +712,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Prohibits(params Expression<Func<TRequest, object?>>[] compareExpressions)
     {
         _propertyRule.AddRule(new MultiFieldPresenceValidationRule<TRequest, TProperty>(

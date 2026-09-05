@@ -13,7 +13,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record AuthCredentialsSettings
 {
     /// <summary>
@@ -22,7 +22,7 @@ public sealed record AuthCredentialsSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public LockoutPolicy Lockout { get; init; } = new();
 
     /// <summary>
@@ -31,7 +31,7 @@ public sealed record AuthCredentialsSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public TwoFactorPolicy TwoFactor { get; init; } = new();
 
     /// <summary>
@@ -40,7 +40,7 @@ public sealed record AuthCredentialsSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Range(1, int.MaxValue)]
     public int? AbsoluteSessionLifetimeDays { get; init; } = 30;
 
@@ -50,7 +50,7 @@ public sealed record AuthCredentialsSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Range(1, int.MaxValue)]
     public int PasswordResetMinutes { get; init; } = 60;
 
@@ -62,7 +62,7 @@ public sealed record AuthCredentialsSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Range(1, int.MaxValue)]
     public int ForgotPasswordMinimumMilliseconds { get; init; } = 200;
 }

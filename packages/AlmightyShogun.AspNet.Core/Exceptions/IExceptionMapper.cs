@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.Core;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public interface IExceptionMapper
 {
     /// <summary>
@@ -32,6 +32,6 @@ public interface IExceptionMapper
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     ErrorMapping? Map(Exception exception);
 }

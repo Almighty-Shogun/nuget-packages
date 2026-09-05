@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <typeparam name="TRequest">The request type whose field this rule set validates.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal interface IRequestValidationRule<TRequest> where TRequest : class
 {
     /// <summary>
@@ -17,7 +17,7 @@ internal interface IRequestValidationRule<TRequest> where TRequest : class
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     string FieldName { get; }
 
     /// <summary>
@@ -30,7 +30,7 @@ internal interface IRequestValidationRule<TRequest> where TRequest : class
     /// <returns><c>true</c> when the rule was merged; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     bool TryMerge(IRequestValidationRule<TRequest> rule);
 
     /// <summary>
@@ -39,7 +39,7 @@ internal interface IRequestValidationRule<TRequest> where TRequest : class
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     void DeduplicateRules();
 
     /// <summary>
@@ -57,7 +57,7 @@ internal interface IRequestValidationRule<TRequest> where TRequest : class
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     ValueTask ValidateAsync(
         TRequest request,
         ValidationBag errors,

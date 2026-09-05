@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ValidationDisplay
 {
     /// <summary>
@@ -20,7 +20,7 @@ internal static class ValidationDisplay
     /// <returns>The values separated by a comma and a space.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static string JoinValues(IEnumerable<string> values) => string.Join(", ", values);
 
     /// <summary>
@@ -32,7 +32,7 @@ internal static class ValidationDisplay
     /// <returns>The rendered values separated by a comma and a space.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static string JoinDisplayValues(IEnumerable<object?> values) => string.Join(", ", values.Select(ToDisplayValue));
 
     /// <summary>
@@ -47,7 +47,7 @@ internal static class ValidationDisplay
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static string ToDisplayValue(object? value)
     {
         if (value is null)

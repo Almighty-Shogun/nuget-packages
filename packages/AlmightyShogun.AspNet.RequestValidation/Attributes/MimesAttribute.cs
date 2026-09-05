@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="mimes">The allowed file extensions or MIME aliases.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class MimesAttribute(params string[] mimes) : ValidationRuleAttribute
 {

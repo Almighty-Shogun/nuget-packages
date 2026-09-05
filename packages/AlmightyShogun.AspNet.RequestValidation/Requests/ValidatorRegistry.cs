@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class ValidatorRegistry
 {
     /// <summary>
@@ -17,7 +17,7 @@ internal sealed class ValidatorRegistry
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly Dictionary<Type, Type> _validatorTypes = [];
 
     /// <summary>
@@ -32,7 +32,7 @@ internal sealed class ValidatorRegistry
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public ValidatorRegistry(Assembly[] assemblies)
     {
         foreach (Type validatorType in TypeDiscovery.FindAssignableTypes<object>(assemblies))
@@ -69,7 +69,7 @@ internal sealed class ValidatorRegistry
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool HasValidator(Type requestType) => _validatorTypes.ContainsKey(requestType);
 
     /// <summary>
@@ -86,7 +86,7 @@ internal sealed class ValidatorRegistry
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<IRequestValidationRule<TRequest>> BuildRules<TRequest>() where TRequest : class
     {
         if (!_validatorTypes.TryGetValue(typeof(TRequest), out Type? validatorType))
@@ -106,7 +106,7 @@ internal sealed class ValidatorRegistry
     /// <returns>The request type its <see cref="Validator{TRequest}"/> base names, or <c>null</c> when it has no such base.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static Type? GetRequestType(Type type)
     {
         for (Type? baseType = type.BaseType; baseType is not null; baseType = baseType.BaseType)

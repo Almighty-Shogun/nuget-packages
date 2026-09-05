@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
 public abstract class CustomRuleAttribute : ValidationRuleAttribute
 {
@@ -17,7 +17,7 @@ public abstract class CustomRuleAttribute : ValidationRuleAttribute
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     protected CustomRuleAttribute() { }
 
     /// <inheritdoc />
@@ -32,7 +32,7 @@ public abstract class CustomRuleAttribute : ValidationRuleAttribute
     /// <returns>The custom validation rule type.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     protected abstract Type CreateCustomRule();
 
     /// <summary>
@@ -47,7 +47,7 @@ public abstract class CustomRuleAttribute : ValidationRuleAttribute
     /// <returns>The rule's type, which is all an attribute may carry since it cannot hold an instance.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     protected static Type CustomRule<TRule>() where TRule : class => typeof(TRule);
 }
 
@@ -59,7 +59,7 @@ public abstract class CustomRuleAttribute : ValidationRuleAttribute
 /// <typeparam name="TRule">The custom validation rule type.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
 public sealed class CustomRuleAttribute<TRule> : CustomRuleAttribute where TRule : class
 {

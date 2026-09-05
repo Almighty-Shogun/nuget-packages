@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record CompleteForgotPasswordRequest
 {
     /// <summary>
@@ -17,7 +17,7 @@ public sealed record CompleteForgotPasswordRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Required]
     public required string Token { get; set; }
 
@@ -26,7 +26,7 @@ public sealed record CompleteForgotPasswordRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Min(8)]
     [Required]
     [PasswordSecure]
@@ -37,7 +37,7 @@ public sealed record CompleteForgotPasswordRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Min(8)]
     [Required]
     public required string ConfirmPassword { get; set; }

@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.Localization;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public static class LocalizationExtensions
 {
     /// <summary>
@@ -25,7 +25,7 @@ public static class LocalizationExtensions
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
@@ -48,7 +48,7 @@ public static class LocalizationExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IServiceCollection AddMessageLocalization(IConfiguration configuration)
         {
             serviceCollection
@@ -72,7 +72,7 @@ public static class LocalizationExtensions
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     extension(IApplicationBuilder applicationBuilder)
     {
         /// <summary>
@@ -88,7 +88,7 @@ public static class LocalizationExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IApplicationBuilder UseMessageLocalization() => applicationBuilder.UseMiddleware<ContentLanguageMiddleware>();
     }
 }

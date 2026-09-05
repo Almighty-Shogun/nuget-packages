@@ -23,7 +23,7 @@ internal sealed class AppHostResolver(IOptions<AuthSettings> authSettings, IHttp
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly object _resolvedAppKey = new();
 
     /// <summary>
@@ -117,7 +117,7 @@ internal sealed class AppHostResolver(IOptions<AuthSettings> authSettings, IHttp
     /// <returns><c>true</c> when the host is localhost, loopback IPv4, or loopback IPv6; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsLocalhost(string host)
         => host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
            || (IPAddress.TryParse(host, out IPAddress? address) && IPAddress.IsLoopback(address));

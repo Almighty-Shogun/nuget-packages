@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal enum ComparableSizeMode
 {
     /// <summary>
@@ -14,7 +14,7 @@ internal enum ComparableSizeMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Min,
 
     /// <summary>
@@ -22,7 +22,7 @@ internal enum ComparableSizeMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Max,
 
     /// <summary>
@@ -30,7 +30,7 @@ internal enum ComparableSizeMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Between,
 
     /// <summary>
@@ -38,7 +38,7 @@ internal enum ComparableSizeMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Size,
 
     /// <summary>
@@ -46,7 +46,7 @@ internal enum ComparableSizeMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     GreaterThan,
 
     /// <summary>
@@ -54,7 +54,7 @@ internal enum ComparableSizeMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     GreaterThanOrEqual,
 
     /// <summary>
@@ -62,7 +62,7 @@ internal enum ComparableSizeMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     LessThan,
 
     /// <summary>
@@ -70,6 +70,6 @@ internal enum ComparableSizeMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     LessThanOrEqual
 }

@@ -16,7 +16,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal readonly record struct ValidationRuleIdentity(string Value)
 {
     /// <summary>
@@ -30,7 +30,7 @@ internal readonly record struct ValidationRuleIdentity(string Value)
     /// <returns><c>true</c> when the rule can be represented safely; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool TryCreate(object rule, out ValidationRuleIdentity identity)
     {
         StringBuilder builder = new();
@@ -56,7 +56,7 @@ internal readonly record struct ValidationRuleIdentity(string Value)
     /// <returns><c>true</c> when the value was appended; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryAppendValue(StringBuilder builder, object? value, HashSet<object> visited)
     {
         if (value is null)
@@ -133,7 +133,7 @@ internal readonly record struct ValidationRuleIdentity(string Value)
     /// <returns><c>true</c> when all values were appended; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryAppendEnumerable(StringBuilder builder, IEnumerable values, HashSet<object> visited)
     {
         builder.Append('[');
@@ -169,7 +169,7 @@ internal readonly record struct ValidationRuleIdentity(string Value)
     /// <returns><c>true</c> when the object was appended; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryAppendObject(StringBuilder builder, object value, HashSet<object> visited)
     {
         Type type = value.GetType();
@@ -207,7 +207,7 @@ internal readonly record struct ValidationRuleIdentity(string Value)
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static IEnumerable<FieldInfo> GetIdentityFields(Type type) => type
         .GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
         .Where(field => field.Name != "_normalizedValues")
@@ -222,7 +222,7 @@ internal readonly record struct ValidationRuleIdentity(string Value)
     /// <param name="value">The literal value to append.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static void AppendLiteral(StringBuilder builder, string value)
     {
         builder.Append('"');

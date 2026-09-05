@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.Auth;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public interface IAuthTokenGenerator
 {
     /// <summary>
@@ -41,6 +41,6 @@ public interface IAuthTokenGenerator
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     AuthToken Generate(IEnumerable<Claim> claims, string? audience = null);
 }

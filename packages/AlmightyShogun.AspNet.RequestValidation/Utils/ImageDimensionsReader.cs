@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ImageDimensionsReader
 {
     /// <summary>
@@ -19,7 +19,7 @@ internal static class ImageDimensionsReader
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private const int _maximumHeaderBytes = 1024 * 1024;
 
     /// <summary>
@@ -28,7 +28,7 @@ internal static class ImageDimensionsReader
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly byte[] _pngSignature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
 
     /// <summary>
@@ -38,7 +38,7 @@ internal static class ImageDimensionsReader
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly byte[] _standaloneJpegMarkers = [0xD8, 0xD9, 0x01];
 
     /// <summary>
@@ -47,7 +47,7 @@ internal static class ImageDimensionsReader
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly byte[] _startOfFrameJpegMarkers =
     [
         0xC0, 0xC1, 0xC2, 0xC3,
@@ -68,7 +68,7 @@ internal static class ImageDimensionsReader
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static async Task<ImageDimensions?> TryReadAsync(IFormFile file, CancellationToken cancellationToken)
     {
         if (file.Length <= 0)
@@ -93,7 +93,7 @@ internal static class ImageDimensionsReader
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static async Task<byte[]> ReadHeaderAsync(IFormFile file, CancellationToken cancellationToken)
     {
         var length = (int)Math.Min(file.Length, _maximumHeaderBytes);
@@ -125,7 +125,7 @@ internal static class ImageDimensionsReader
     /// <returns>The dimensions from the first matching format, or <c>null</c> when none matched.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static ImageDimensions? TryRead(ReadOnlySpan<byte> header)
         => TryReadPng(header, out ImageDimensions dimensions)
            || TryReadGif(header, out dimensions)
@@ -144,7 +144,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when PNG dimensions were read; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryReadPng(ReadOnlySpan<byte> header, out ImageDimensions dimensions)
     {
         dimensions = new ImageDimensions(0, 0);
@@ -168,7 +168,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when GIF dimensions were read; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryReadGif(ReadOnlySpan<byte> header, out ImageDimensions dimensions)
     {
         dimensions = new ImageDimensions(0, 0);
@@ -193,7 +193,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when JPEG dimensions were read; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryReadJpeg(ReadOnlySpan<byte> header, out ImageDimensions dimensions)
     {
         dimensions = new ImageDimensions(0, 0);
@@ -253,7 +253,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when WebP dimensions were read; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryReadWebP(ReadOnlySpan<byte> header, out ImageDimensions dimensions)
     {
         dimensions = new ImageDimensions(0, 0);
@@ -294,7 +294,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when VP8X dimensions were read; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryReadVp8X(ReadOnlySpan<byte> chunk, out ImageDimensions dimensions)
     {
         dimensions = new ImageDimensions(0, 0);
@@ -318,7 +318,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when VP8L dimensions were read; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryReadVp8L(ReadOnlySpan<byte> chunk, out ImageDimensions dimensions)
     {
         dimensions = new ImageDimensions(0, 0);
@@ -342,7 +342,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when VP8 dimensions were read; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryReadVp8(ReadOnlySpan<byte> chunk, out ImageDimensions dimensions)
     {
         dimensions = new ImageDimensions(0, 0);
@@ -368,7 +368,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when both were positive; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryCreateDimensions(int width, int height, out ImageDimensions dimensions)
     {
         dimensions = new ImageDimensions(width, height);
@@ -389,7 +389,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when the header is PNG; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool HasPngHeader(ReadOnlySpan<byte> header)
     {
         if (header.Length < 24)
@@ -407,7 +407,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when the header is GIF; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool HasGifHeader(ReadOnlySpan<byte> header)
     {
         if (header.Length < 10)
@@ -425,7 +425,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when the header is JPEG; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool HasJpegHeader(ReadOnlySpan<byte> header)
     {
         if (header.Length < 4)
@@ -446,7 +446,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when the marker is standalone; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsStandaloneJpegMarker(byte marker)
     {
         if (_standaloneJpegMarkers.Contains(marker))
@@ -466,7 +466,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when the segment length is valid; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool HasValidSegmentLength(ReadOnlySpan<byte> header, int offset, int segmentLength)
     {
         if (segmentLength < 2)
@@ -484,7 +484,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when the header is WebP; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool HasWebPHeader(ReadOnlySpan<byte> header)
     {
         if (header.Length < 30)
@@ -512,7 +512,7 @@ internal static class ImageDimensionsReader
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool HasValidChunkSize(ReadOnlySpan<byte> header, int dataOffset, int chunkSize)
     {
         if (chunkSize < 0)
@@ -532,7 +532,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when a supported chunk type was read; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryReadWebPChunk(ReadOnlySpan<byte> chunkType, ReadOnlySpan<byte> chunk, out ImageDimensions dimensions)
     {
         dimensions = new ImageDimensions(0, 0);
@@ -556,7 +556,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when the signature byte is present and the chunk is long enough; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool HasVp8LHeader(ReadOnlySpan<byte> chunk)
     {
         if (chunk.Length < 5)
@@ -575,7 +575,7 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when the start code is present and the chunk is long enough; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool HasVp8Header(ReadOnlySpan<byte> chunk)
     {
         if (chunk.Length < 10)
@@ -599,7 +599,7 @@ internal static class ImageDimensionsReader
     /// <returns>The integer value.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static int ReadUInt24LittleEndian(ReadOnlySpan<byte> value) => value[0] | (value[1] << 8) | (value[2] << 16);
 
     /// <summary>
@@ -611,6 +611,6 @@ internal static class ImageDimensionsReader
     /// <returns><c>true</c> when the marker contains dimensions; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsStartOfFrameMarker(byte marker) => _startOfFrameJpegMarkers.Contains(marker);
 }

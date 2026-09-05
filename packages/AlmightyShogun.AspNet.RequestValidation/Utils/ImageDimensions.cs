@@ -8,5 +8,5 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="Height">The image height in pixels.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed record ImageDimensions(int Width, int Height);

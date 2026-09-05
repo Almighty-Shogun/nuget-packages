@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="format">The required date format.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class DateFormatAttribute(string format) : ValidationRuleAttribute
 {

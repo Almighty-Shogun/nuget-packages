@@ -41,7 +41,7 @@ public sealed class RecurringJobAttribute(string jobId, string cronExpression) :
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? TimeZone { get; set; }
 
     /// <summary>
@@ -49,7 +49,7 @@ public sealed class RecurringJobAttribute(string jobId, string cronExpression) :
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? Queue { get; set; }
 
     /// <summary>
@@ -64,7 +64,7 @@ public sealed class RecurringJobAttribute(string jobId, string cronExpression) :
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool Enabled
     {
         get => DeclaredEnabled ?? true;
@@ -77,6 +77,6 @@ public sealed class RecurringJobAttribute(string jobId, string cronExpression) :
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal bool? DeclaredEnabled { get; private set; }
 }

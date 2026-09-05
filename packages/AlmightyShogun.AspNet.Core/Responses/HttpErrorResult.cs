@@ -15,7 +15,7 @@ namespace AlmightyShogun.AspNet.Core;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed class HttpErrorResult : ObjectResult
 {
     /// <summary>
@@ -30,6 +30,6 @@ public sealed class HttpErrorResult : ObjectResult
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public HttpErrorResult(HttpErrorResponse response) : base(response) => StatusCode = response.Code;
 }

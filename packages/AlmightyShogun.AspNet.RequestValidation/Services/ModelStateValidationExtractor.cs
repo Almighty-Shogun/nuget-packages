@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ModelStateValidationExtractor
 {
     /// <summary>
@@ -23,7 +23,7 @@ internal static class ModelStateValidationExtractor
     /// <returns><c>true</c> when model state contains a body-level error; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool HasBodyLevelError(ActionContext context)
     {
         HashSet<string> bodyParameterNames = GetBodyParameterNames(context);
@@ -50,7 +50,7 @@ internal static class ModelStateValidationExtractor
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static ValidationBag Extract(ModelStateDictionary modelState)
     {
         ValidationBag errors = new();
@@ -77,7 +77,7 @@ internal static class ModelStateValidationExtractor
     /// <returns>The body-bound parameter names.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static HashSet<string> GetBodyParameterNames(ActionContext context)
     {
         HashSet<string> names = new(StringComparer.OrdinalIgnoreCase);
@@ -107,7 +107,7 @@ internal static class ModelStateValidationExtractor
     /// <returns><c>true</c> when the key is body-level; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsBodyLevelKey(string key, HashSet<string> bodyParameterNames)
     {
         if (string.IsNullOrEmpty(key))
@@ -132,7 +132,7 @@ internal static class ModelStateValidationExtractor
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static string ResolveErrorKey(ModelError error)
     {
         if (error.Exception is not null)
@@ -159,7 +159,7 @@ internal static class ModelStateValidationExtractor
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static string ToFieldPath(string key) => string.IsNullOrEmpty(key)
         ? "request"
         : string.Join('.', key.Split('.').Select(ToPathSegment));
@@ -173,7 +173,7 @@ internal static class ModelStateValidationExtractor
     /// <returns>The segment with its name part converted and its indexer, when it has one, reattached.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static string ToPathSegment(string segment)
     {
         int bracketIndex = segment.IndexOf('[', StringComparison.Ordinal);

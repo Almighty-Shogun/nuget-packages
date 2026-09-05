@@ -79,7 +79,7 @@ public static class HttpResponseExtensions
     /// <returns>The <c>SameSite</c> mode from the bound <c>AuthSettings</c>, or its default when nothing bound it.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static SameSiteMode ResolveSameSite(HttpResponse httpResponse)
         => httpResponse.HttpContext.RequestServices.GetRequiredService<IOptions<AuthSettings>>().Value.SameSite;
 }

@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.Localization;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static partial class LanguageTag
 {
     /// <summary>
@@ -24,7 +24,7 @@ internal static partial class LanguageTag
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal const string Pattern = @"^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*\z";
 
     /// <summary>
@@ -42,7 +42,7 @@ internal static partial class LanguageTag
     /// <exception cref="ArgumentNullException"><paramref name="language"/> is <c>null</c>.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static bool IsValid(string language) => LanguageTagRegex().IsMatch(language);
 
     /// <summary>
@@ -57,7 +57,7 @@ internal static partial class LanguageTag
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [GeneratedRegex(Pattern)]
     private static partial Regex LanguageTagRegex();
 }

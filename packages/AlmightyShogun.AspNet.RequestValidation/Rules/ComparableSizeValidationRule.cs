@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <typeparam name="TProperty">The bound property's type, read as an object rather than constrained here.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class ComparableSizeValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty>
     where TRequest : class
 {
@@ -18,7 +18,7 @@ internal sealed class ComparableSizeValidationRule<TRequest, TProperty> : IPrope
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly ComparableSizeMode _mode;
 
     /// <summary>
@@ -26,7 +26,7 @@ internal sealed class ComparableSizeValidationRule<TRequest, TProperty> : IPrope
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly decimal _value;
 
     /// <summary>
@@ -34,7 +34,7 @@ internal sealed class ComparableSizeValidationRule<TRequest, TProperty> : IPrope
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly decimal? _maxValue;
 
     /// <summary>
@@ -52,7 +52,7 @@ internal sealed class ComparableSizeValidationRule<TRequest, TProperty> : IPrope
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public ComparableSizeValidationRule(ComparableSizeMode mode, decimal value, decimal? maxValue = null)
     {
         if (mode == ComparableSizeMode.Between && maxValue is null)
@@ -108,7 +108,7 @@ internal sealed class ComparableSizeValidationRule<TRequest, TProperty> : IPrope
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey(string messageType) => _mode switch
     {
         ComparableSizeMode.Min => $"validation.min.{messageType}",
@@ -130,6 +130,6 @@ internal sealed class ComparableSizeValidationRule<TRequest, TProperty> : IPrope
     /// <returns>The validation message parameters.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private object?[] GetMessageParameters() => _mode == ComparableSizeMode.Between ? [_value, _maxValue] : [_value];
 }

@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="enumType">The enum type to validate against.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class EnumAttribute(Type? enumType = null) : ValidationRuleAttribute
 {
@@ -27,7 +27,7 @@ public sealed class EnumAttribute(Type? enumType = null) : ValidationRuleAttribu
 /// <typeparam name="TEnum">The enum type to validate against.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class EnumAttribute<TEnum> : ValidationRuleAttribute where TEnum : struct, Enum
 {

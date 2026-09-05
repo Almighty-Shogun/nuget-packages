@@ -28,7 +28,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class AuthUserService<TUser>(
     AuthDbContext<TUser> databaseContext,
     IOptions<AuthCredentialsSettings> credentialOptions,
@@ -43,7 +43,7 @@ internal sealed class AuthUserService<TUser>(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly PasswordHasher<TUser> _hasher = new();
 
     /// <inheritdoc />
@@ -155,7 +155,7 @@ internal sealed class AuthUserService<TUser>(
     /// <param name="password">The submitted password, verified against a throwaway hash and then discarded.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static void VerifyDecoy(string password)
         => AuthTimingDefence.SpendVerification(password);
 
@@ -192,7 +192,7 @@ internal sealed class AuthUserService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task ReserveAttemptAsync(int userId, LockoutPolicy policy, CancellationToken cancellationToken)
     {
         if (!policy.Enabled)
@@ -238,7 +238,7 @@ internal sealed class AuthUserService<TUser>(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task<bool> TryClaimAttemptAsync(
         int userId,
         int maximum,
@@ -285,7 +285,7 @@ internal sealed class AuthUserService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task<bool> TryClaimFirstAttemptAsync(
         int userId,
         int maximum,
@@ -333,7 +333,7 @@ internal sealed class AuthUserService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task<DateTimeOffset> ResolveLockoutEndAsync(
         int userId,
         DateTimeOffset lockoutEnd,
@@ -371,7 +371,7 @@ internal sealed class AuthUserService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task ClearLockoutAsync(int userId, CancellationToken cancellationToken)
         => await databaseContext.UserLockouts
             .Where(candidate => candidate.UserId == userId)
@@ -400,7 +400,7 @@ internal sealed class AuthUserService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task EnsureCredentialsAvailableAsync(string username, string email, CancellationToken cancellationToken)
     {
         if (await databaseContext.Users.AnyAsync(candidate => candidate.Username == username, cancellationToken))

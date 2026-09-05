@@ -7,7 +7,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal enum FieldComparisonMode
 {
     /// <summary>
@@ -15,7 +15,7 @@ internal enum FieldComparisonMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Same,
 
     /// <summary>
@@ -23,7 +23,7 @@ internal enum FieldComparisonMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Different,
 
     /// <summary>
@@ -31,6 +31,6 @@ internal enum FieldComparisonMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Confirmed
 }

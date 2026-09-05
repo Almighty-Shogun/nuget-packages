@@ -5,7 +5,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal enum ConditionMode
 {
     /// <summary>
@@ -13,7 +13,7 @@ internal enum ConditionMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     If,
 
     /// <summary>
@@ -21,6 +21,6 @@ internal enum ConditionMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Unless
 }

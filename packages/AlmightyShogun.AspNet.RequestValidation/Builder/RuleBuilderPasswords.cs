@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
@@ -22,7 +22,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Password(bool letters = true, bool mixed = true, bool numbers = true, bool symbols = true)
     {
         if (letters)
@@ -47,7 +47,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> PasswordLetters()
     {
         _propertyRule.AddRule(new PasswordValidationRule<TRequest, TProperty>(PasswordRequirement.Letters));
@@ -62,7 +62,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> PasswordMixed()
     {
         _propertyRule.AddRule(new PasswordValidationRule<TRequest, TProperty>(PasswordRequirement.Mixed));
@@ -77,7 +77,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> PasswordNumbers()
     {
         _propertyRule.AddRule(new PasswordValidationRule<TRequest, TProperty>(PasswordRequirement.Numbers));
@@ -92,7 +92,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> PasswordSymbols()
     {
         _propertyRule.AddRule(new PasswordValidationRule<TRequest, TProperty>(PasswordRequirement.Symbols));
@@ -107,7 +107,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> PasswordSecure()
     {
         _propertyRule.AddRule(new PasswordValidationRule<TRequest, TProperty>(PasswordRequirement.Secure));

@@ -7,7 +7,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class MaintenancePath
 {
     /// <summary>
@@ -28,7 +28,7 @@ internal static class MaintenancePath
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static PathString Normalize(string? path, string? fallback = null)
     {
         if (string.IsNullOrWhiteSpace(path))

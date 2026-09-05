@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="height">The minimum image height in pixels.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class MinDimensionsAttribute(int width, int height) : ValidationRuleAttribute
 {

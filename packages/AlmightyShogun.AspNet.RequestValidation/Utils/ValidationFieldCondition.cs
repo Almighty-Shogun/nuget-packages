@@ -23,7 +23,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </exception>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class ValidationFieldCondition<TRequest, TCompare>(
     Expression<Func<TRequest, TCompare>> expression,
     IReadOnlyList<TCompare?> values
@@ -34,7 +34,7 @@ internal sealed class ValidationFieldCondition<TRequest, TCompare>(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly ValidationField<TRequest> _field = ValidationField<TRequest>.From(expression);
 
     /// <summary>
@@ -42,7 +42,7 @@ internal sealed class ValidationFieldCondition<TRequest, TCompare>(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string FieldName => _field.Name;
 
     /// <summary>
@@ -50,7 +50,7 @@ internal sealed class ValidationFieldCondition<TRequest, TCompare>(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string ValuesText => ValidationDisplay.JoinDisplayValues(values.Select(value => (object?)value));
 
     /// <summary>
@@ -63,7 +63,7 @@ internal sealed class ValidationFieldCondition<TRequest, TCompare>(
     /// <returns><c>true</c> when the condition matches; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool Matches(TRequest request)
     {
         object? value = _field.GetValue(request);
@@ -80,7 +80,7 @@ internal sealed class ValidationFieldCondition<TRequest, TCompare>(
     /// <returns><c>true</c> when the condition field is accepted; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool IsAccepted(TRequest request) => ValidationValue.IsAccepted(_field.GetValue(request));
 
     /// <summary>
@@ -93,6 +93,6 @@ internal sealed class ValidationFieldCondition<TRequest, TCompare>(
     /// <returns><c>true</c> when the condition field is declined; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool IsDeclined(TRequest request) => ValidationValue.IsDeclined(_field.GetValue(request));
 }

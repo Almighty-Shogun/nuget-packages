@@ -11,7 +11,7 @@ namespace AlmightyShogun.Mail.Resend;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record MailSendResult
 {
     /// <summary>
@@ -24,7 +24,7 @@ public sealed record MailSendResult
     /// <param name="error">The failure message, or <c>null</c> when the send succeeded.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private MailSendResult(bool isSuccess, string? messageId, string? error)
     {
         IsSuccess = isSuccess;
@@ -37,7 +37,7 @@ public sealed record MailSendResult
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool IsSuccess { get; }
 
     /// <summary>
@@ -46,7 +46,7 @@ public sealed record MailSendResult
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? MessageId { get; }
 
     /// <summary>
@@ -55,7 +55,7 @@ public sealed record MailSendResult
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? Error { get; }
 
     /// <summary>
@@ -67,7 +67,7 @@ public sealed record MailSendResult
     /// <returns>A result whose <see cref="IsSuccess"/> is <c>true</c> and whose <see cref="Error"/> is <c>null</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static MailSendResult Success(string? messageId) => new(true, messageId, null);
 
     /// <summary>
@@ -81,6 +81,6 @@ public sealed record MailSendResult
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static MailSendResult Failure(string error) => new(false, null, error);
 }

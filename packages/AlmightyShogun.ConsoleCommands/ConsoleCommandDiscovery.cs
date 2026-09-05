@@ -23,7 +23,7 @@ public static class ConsoleCommandDiscovery
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static IReadOnlyList<ConsoleCommand> GetAllCommands() => GetAllCommands([Assembly.GetCallingAssembly()]);
 
     /// <summary>
@@ -88,7 +88,7 @@ public static class ConsoleCommandDiscovery
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static ConsoleCommand Describe(Type commandType)
     {
         (ConsoleCommandAttribute attribute, MethodInfo handlerMethod) = CommandMetadata.Describe(commandType);

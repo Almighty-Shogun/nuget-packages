@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ValidationExpression
 {
     /// <summary>
@@ -40,7 +40,7 @@ internal static class ValidationExpression
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static PropertyInfo GetProperty<TRequest, TProperty>(Expression<Func<TRequest, TProperty>> expression)
     {
         Expression body = expression.Body is UnaryExpression
@@ -78,7 +78,7 @@ internal static class ValidationExpression
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static string GetFieldName<TRequest, TProperty>(Expression<Func<TRequest, TProperty>> expression)
         => ValidationFieldName.FromProperty(GetProperty(expression));
 }

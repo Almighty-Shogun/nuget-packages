@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.Localization;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public static class HttpRequestExtensions
 {
     /// <summary>
@@ -22,7 +22,7 @@ public static class HttpRequestExtensions
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     extension(HttpRequest httpRequest)
     {
         /// <summary>
@@ -42,7 +42,7 @@ public static class HttpRequestExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IReadOnlyList<string> GetAcceptLanguages()
         {
             IList<StringWithQualityHeaderValue>? languages = httpRequest.GetTypedHeaders().AcceptLanguage;
@@ -69,7 +69,7 @@ public static class HttpRequestExtensions
         /// </returns>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public string? GetAcceptLanguage()
         {
             IReadOnlyList<string> languages = httpRequest.GetAcceptLanguages();

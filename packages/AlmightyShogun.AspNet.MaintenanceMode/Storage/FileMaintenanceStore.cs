@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 /// <param name="logger">The logger used to report an unreadable state file and a watcher that could not be set up.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class FileMaintenanceStore(
     IWebHostEnvironment webHostEnvironment,
     ILogger<FileMaintenanceStore> logger
@@ -23,7 +23,7 @@ internal sealed class FileMaintenanceStore(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
 
     /// <summary>
@@ -33,7 +33,7 @@ internal sealed class FileMaintenanceStore(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly SemaphoreSlim _writeLock = new(1, 1);
 
     /// <summary>
@@ -42,7 +42,7 @@ internal sealed class FileMaintenanceStore(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly Lock _watcherGate = new();
 
     /// <summary>
@@ -51,7 +51,7 @@ internal sealed class FileMaintenanceStore(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private volatile CachedState? _cached;
 
     /// <summary>
@@ -60,7 +60,7 @@ internal sealed class FileMaintenanceStore(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private long _cacheVersion;
 
     /// <summary>
@@ -68,7 +68,7 @@ internal sealed class FileMaintenanceStore(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private FileSystemWatcher? _watcher;
 
     /// <summary>
@@ -77,7 +77,7 @@ internal sealed class FileMaintenanceStore(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool _watching;
 
     /// <summary>
@@ -86,7 +86,7 @@ internal sealed class FileMaintenanceStore(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string FilePath => Path.Combine(webHostEnvironment.ContentRootPath, "maintenance.json");
 
     /// <inheritdoc />
@@ -199,7 +199,7 @@ internal sealed class FileMaintenanceStore(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private void Publish(PersistedMaintenanceState? state) => _cached = new CachedState(Interlocked.Increment(ref _cacheVersion), state);
 
     /// <summary>
@@ -210,7 +210,7 @@ internal sealed class FileMaintenanceStore(
     /// <exception cref="UnauthorizedAccessException">The process may not delete the file, so the window it holds stays open.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private void DeleteFile()
     {
         if (File.Exists(FilePath))
@@ -227,7 +227,7 @@ internal sealed class FileMaintenanceStore(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task<PersistedMaintenanceState?> ReadFromDiskAsync()
     {
         if (!File.Exists(FilePath)) return null;
@@ -273,7 +273,7 @@ internal sealed class FileMaintenanceStore(
     /// <returns>An enabled state that keeps maintenance active until the file is fixed.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static PersistedMaintenanceState CreateCorruptState() => new()
     {
         IsEnabled = true,
@@ -299,7 +299,7 @@ internal sealed class FileMaintenanceStore(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private void EnsureWatching()
     {
         lock (_watcherGate)
@@ -352,7 +352,7 @@ internal sealed class FileMaintenanceStore(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private void OnStateFileChanged(object sender, FileSystemEventArgs eventArgs) => Interlocked.Increment(ref _cacheVersion);
 
     /// <summary>
@@ -364,6 +364,6 @@ internal sealed class FileMaintenanceStore(
     /// <param name="State">The cached state.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private sealed record CachedState(long Version, PersistedMaintenanceState? State);
 }

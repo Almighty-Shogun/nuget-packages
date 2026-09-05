@@ -105,7 +105,7 @@ internal static class RecurringJobDiscovery
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static Job CreateExecutionMethod(RecurringJobInfo job)
     {
         MethodInfo runMethod = ResolveRunMethod(job.JobType);
@@ -130,7 +130,7 @@ internal static class RecurringJobDiscovery
     /// <exception cref="InvalidOperationException">The merged job id, cron expression or time zone is not usable.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static void Validate(Type type, RecurringJobInfo job)
     {
         if (string.IsNullOrWhiteSpace(job.JobId))
@@ -181,7 +181,7 @@ internal static class RecurringJobDiscovery
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static MethodInfo ResolveRunMethod(Type type)
     {
         const string runAsync = nameof(IRecurringJob.RunAsync);

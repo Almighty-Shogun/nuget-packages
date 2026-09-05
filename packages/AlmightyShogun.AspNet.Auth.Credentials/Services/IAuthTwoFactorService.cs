@@ -13,7 +13,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
 {
     /// <summary>
@@ -42,7 +42,7 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task<AuthTwoFactorResult> BeginEnrolmentAsync(Guid identifier, string issuer, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -71,7 +71,7 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task<IReadOnlyList<string>> CompleteEnrolmentAsync(Guid identifier, string code, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -103,7 +103,7 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task<bool> VerifyAsync(Guid identifier, string code, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -121,6 +121,6 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
     /// <exception cref="InvalidCredentialsException">The identifier matches no account.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task DisableAsync(Guid identifier, CancellationToken cancellationToken = default);
 }

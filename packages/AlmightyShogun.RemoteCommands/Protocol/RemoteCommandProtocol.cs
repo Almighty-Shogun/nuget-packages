@@ -14,7 +14,7 @@ namespace AlmightyShogun.RemoteCommands;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class RemoteCommandProtocol
 {
     /// <summary>
@@ -24,7 +24,7 @@ internal static class RemoteCommandProtocol
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
 
     /// <summary>
@@ -55,7 +55,7 @@ internal static class RemoteCommandProtocol
     /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled mid-read.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static async Task<byte[]?> ReadFrameAsync(Stream stream, int maxPayloadBytes, CancellationToken cancellationToken = default)
     {
         var lengthBuffer = new byte[sizeof(int)];
@@ -111,7 +111,7 @@ internal static class RemoteCommandProtocol
     /// <exception cref="JsonException"><typeparamref name="T"/> could not be serialized, so nothing was written.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static async Task WriteFrameAsync<T>(Stream stream, T value, CancellationToken cancellationToken = default)
     {
         byte[] payload = JsonSerializer.SerializeToUtf8Bytes(value, SerializerOptions);
@@ -140,7 +140,7 @@ internal static class RemoteCommandProtocol
     /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled mid-read.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static async Task<bool> TryReadExactlyAsync(Stream stream, Memory<byte> buffer, CancellationToken cancellationToken)
     {
         var offset = 0;

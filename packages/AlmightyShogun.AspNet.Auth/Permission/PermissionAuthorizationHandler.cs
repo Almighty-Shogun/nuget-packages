@@ -45,7 +45,7 @@ internal sealed class PermissionAuthorizationHandler : AuthorizationHandler<Perm
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool Satisfies(string granted, string required)
     {
         if (granted.Equals(required, StringComparison.OrdinalIgnoreCase))

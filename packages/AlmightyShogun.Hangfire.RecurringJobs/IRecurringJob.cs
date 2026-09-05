@@ -12,7 +12,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public interface IRecurringJob
 {
     /// <summary>
@@ -29,6 +29,6 @@ public interface IRecurringJob
     /// <returns>A task that represents the asynchronous execution of the recurring job.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task RunAsync(CancellationToken cancellationToken);
 }

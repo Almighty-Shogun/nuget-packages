@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
@@ -16,7 +16,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> File()
     {
         _propertyRule.AddRule(new TypeValidationRule<TRequest, TProperty>(TypeMode.File));
@@ -32,7 +32,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Uploaded()
     {
         _propertyRule.AddRule(new FileConstraintValidationRule<TRequest, TProperty>(FileConstraintMode.Uploaded));
@@ -49,7 +49,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Extensions(params string[] extensions)
     {
         _propertyRule.AddRule(new FileConstraintValidationRule<TRequest, TProperty>(FileConstraintMode.Extensions, extensions));
@@ -66,7 +66,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Mimes(params string[] mimes)
     {
         _propertyRule.AddRule(new FileConstraintValidationRule<TRequest, TProperty>(FileConstraintMode.Mimes, mimes));
@@ -83,7 +83,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> MimeTypes(params string[] mimeTypes)
     {
         _propertyRule.AddRule(new FileConstraintValidationRule<TRequest, TProperty>(FileConstraintMode.MimeTypes, mimeTypes));
@@ -98,7 +98,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Image()
     {
         _propertyRule.AddRule(new FileConstraintValidationRule<TRequest, TProperty>(FileConstraintMode.Image));
@@ -116,7 +116,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Dimensions(int width, int height)
     {
         _propertyRule.AddRule(new FileConstraintValidationRule<TRequest, TProperty>(
@@ -138,7 +138,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> MinDimensions(int width, int height)
     {
         _propertyRule.AddRule(new FileConstraintValidationRule<TRequest, TProperty>(
@@ -160,7 +160,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> MaxDimensions(int width, int height)
     {
         _propertyRule.AddRule(new FileConstraintValidationRule<TRequest, TProperty>(

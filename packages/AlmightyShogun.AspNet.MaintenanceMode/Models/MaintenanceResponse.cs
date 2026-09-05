@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record MaintenanceResponse
 {
     /// <summary>
@@ -19,7 +19,7 @@ public sealed record MaintenanceResponse
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string? Message { get; init; }
 
     /// <summary>
@@ -27,7 +27,7 @@ public sealed record MaintenanceResponse
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required DateTimeOffset? StartsAt { get; init; }
 
     /// <summary>
@@ -35,7 +35,7 @@ public sealed record MaintenanceResponse
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required DateTimeOffset? EndsAt { get; init; }
 
     /// <summary>
@@ -43,6 +43,6 @@ public sealed record MaintenanceResponse
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required DateTimeOffset? EnabledAt { get; init; }
 }

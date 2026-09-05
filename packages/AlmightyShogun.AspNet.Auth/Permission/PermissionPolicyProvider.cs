@@ -32,7 +32,7 @@ internal sealed class PermissionPolicyProvider(IOptions<AuthorizationOptions> op
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly ConcurrentDictionary<string, AuthorizationPolicy?> _policies = new(StringComparer.Ordinal);
 
     /// <inheritdoc />

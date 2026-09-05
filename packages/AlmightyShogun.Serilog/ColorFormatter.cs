@@ -29,7 +29,7 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static bool OutputSupportsColors { get; } =
         !Console.IsOutputRedirected && string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NO_COLOR"));
 
@@ -181,7 +181,7 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
     /// <param name="ansiColor">The escape code to write, discarded when colors are off.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private void Write(TextWriter output, string ansiColor)
     {
         if (enableColors)

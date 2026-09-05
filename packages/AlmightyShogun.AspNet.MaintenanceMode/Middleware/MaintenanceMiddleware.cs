@@ -16,7 +16,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 /// <param name="responseWriter">The shared writer used for the blocked-request error body.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class MaintenanceMiddleware(
     RequestDelegate next,
     MaintenanceService maintenanceService,
@@ -29,7 +29,7 @@ internal sealed class MaintenanceMiddleware(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly PathString _maintenancePath = MaintenancePath.Normalize(maintenanceOptions.Value.MaintenancePath, "/maintenance");
 
     /// <summary>
@@ -61,7 +61,7 @@ internal sealed class MaintenanceMiddleware(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public async Task InvokeAsync(HttpContext context)
     {
         PersistedMaintenanceState state = await maintenanceService.GetPersistedAsync();
@@ -118,7 +118,7 @@ internal sealed class MaintenanceMiddleware(
     /// <returns>A task that completes when the response has been written.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static async Task WriteDetailsAsync(HttpContext context, PersistedMaintenanceState state)
     {
         SetRetryAfter(context, state);
@@ -150,7 +150,7 @@ internal sealed class MaintenanceMiddleware(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static void SetRetryAfter(HttpContext context, PersistedMaintenanceState state)
     {
         if (state.EndsAt is not { } endsAt || context.Response.HasStarted) return;
@@ -170,7 +170,7 @@ internal sealed class MaintenanceMiddleware(
     /// <returns><c>true</c> when maintenance is enabled and the window has started.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsWindowActive(PersistedMaintenanceState state)
         => state.IsEnabled && (state.StartsAt is not { } startsAt || startsAt <= DateTimeOffset.UtcNow);
 
@@ -192,7 +192,7 @@ internal sealed class MaintenanceMiddleware(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool ShouldPassThrough(HttpContext context, PersistedMaintenanceState state)
     {
         PathString path = context.Request.Path;
@@ -241,7 +241,7 @@ internal sealed class MaintenanceMiddleware(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsAllowedAddress(HttpContext context, PersistedMaintenanceState state)
     {
         if (state.AllowedIpAddresses is not { Count: > 0 } allowed || context.Connection.RemoteIpAddress is not { } remote)
@@ -279,7 +279,7 @@ internal sealed class MaintenanceMiddleware(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool AcceptsHtml(HttpRequest request) => request.GetTypedHeaders().Accept
         .Any(accept => accept.Quality.GetValueOrDefault(1) > 0
                        && accept.MediaType.HasValue

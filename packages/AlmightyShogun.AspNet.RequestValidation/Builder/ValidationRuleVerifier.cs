@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ValidationRuleVerifier
 {
     /// <summary>
@@ -31,7 +31,7 @@ internal static class ValidationRuleVerifier
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static void Verify(Assembly[] assemblies)
     {
         MethodInfo createRules = typeof(AttributeRuleFactory).GetMethod(nameof(AttributeRuleFactory.CreateRules))!;

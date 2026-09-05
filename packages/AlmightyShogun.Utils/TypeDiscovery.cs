@@ -32,7 +32,7 @@ public static class TypeDiscovery
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static IEnumerable<Type> FindAssignableTypes<T>() => FindAssignableTypes<T>(Assembly.GetCallingAssembly());
 
     /// <summary>
@@ -54,7 +54,7 @@ public static class TypeDiscovery
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static IEnumerable<Type> FindAssignableTypes<T>(Assembly assembly) => FindAssignableTypes<T>([assembly]);
     
     /// <summary>
@@ -106,7 +106,7 @@ public static class TypeDiscovery
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static IEnumerable<Type> SafeGetTypes(Assembly assembly)
     {
         try

@@ -5,7 +5,7 @@ namespace AlmightyShogun.Mail.Resend;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record MailPreview
 {
     /// <summary>
@@ -13,7 +13,7 @@ public sealed record MailPreview
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string Html { get; init; }
 
     /// <summary>
@@ -21,6 +21,6 @@ public sealed record MailPreview
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string Text { get; init; }
 }

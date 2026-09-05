@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="Parameters">The values the message template substitutes by position, empty when it takes none.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed record ValidationError(long Code, string Key, string Error, object?[] Parameters)
 {
     /// <summary>
@@ -27,7 +27,7 @@ internal sealed record ValidationError(long Code, string Key, string Error, obje
     /// <returns>The validation error.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static ValidationError From(string key, object?[] parameters) => new(ToNumericCode(key), key, ToErrorName(key), parameters);
 
     /// <summary>
@@ -40,7 +40,7 @@ internal sealed record ValidationError(long Code, string Key, string Error, obje
     /// <returns>The numeric error code.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static long ToNumericCode(string key)
     {
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(key));
@@ -57,7 +57,7 @@ internal sealed record ValidationError(long Code, string Key, string Error, obje
     /// <returns>The public error name.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static string ToErrorName(string key)
     {
         if (string.IsNullOrEmpty(key))

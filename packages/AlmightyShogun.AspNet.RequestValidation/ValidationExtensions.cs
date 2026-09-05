@@ -13,7 +13,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public static class ValidationExtensions
 {
     /// <summary>
@@ -23,7 +23,7 @@ public static class ValidationExtensions
     /// <param name="serviceCollection">The service collection used to register validation services.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
@@ -38,7 +38,7 @@ public static class ValidationExtensions
         /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IServiceCollection AddAspNetValidation() => serviceCollection.AddAspNetValidation([Assembly.GetCallingAssembly()]);
 
         /// <summary>
@@ -77,7 +77,7 @@ public static class ValidationExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IServiceCollection AddAspNetValidation(Assembly[] assemblies) => serviceCollection
             .AddSingleton<ValidationResponseWriter>()
             .AddSingleton<IValidationRuleDescriber, ValidationRuleDescriber>()
@@ -107,7 +107,7 @@ public static class ValidationExtensions
     /// <param name="applicationBuilder">The application builder used to register validation middleware.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     extension(IApplicationBuilder applicationBuilder)
     {
         /// <summary>
@@ -122,7 +122,7 @@ public static class ValidationExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IApplicationBuilder UseAspNetValidation() => applicationBuilder.UseMiddleware<InvalidRequestBodyMiddleware>();
     }
 
@@ -133,7 +133,7 @@ public static class ValidationExtensions
     /// <param name="routeHandlerBuilder">The route handler builder that receives validation.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     extension(RouteHandlerBuilder routeHandlerBuilder)
     {
         /// <summary>
@@ -143,7 +143,7 @@ public static class ValidationExtensions
         /// <returns>The <see cref="RouteHandlerBuilder"/> instance with the validation endpoint filter added.</returns>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public RouteHandlerBuilder UseAspNetValidation() => routeHandlerBuilder.AddEndpointFilter<EndpointValidationFilter>();
     }
 
@@ -154,7 +154,7 @@ public static class ValidationExtensions
     /// <param name="routeGroupBuilder">The route group builder that receives validation.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     extension(RouteGroupBuilder routeGroupBuilder)
     {
         /// <summary>
@@ -164,7 +164,7 @@ public static class ValidationExtensions
         /// <returns>The <see cref="RouteGroupBuilder"/> instance with the validation endpoint filter added.</returns>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public RouteGroupBuilder UseAspNetValidation() => routeGroupBuilder.AddEndpointFilter<EndpointValidationFilter>();
     }
 }

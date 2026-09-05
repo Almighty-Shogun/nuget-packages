@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed class ChangePasswordRequest
 {
     /// <summary>
@@ -16,7 +16,7 @@ public sealed class ChangePasswordRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Required]
     public required string CurrentPassword { get; set; }
 
@@ -25,7 +25,7 @@ public sealed class ChangePasswordRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Min(8)]
     [Required]
     [PasswordSecure]
@@ -36,7 +36,7 @@ public sealed class ChangePasswordRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Min(8)]
     [Required]
     public required string ConfirmPassword { get; set; }

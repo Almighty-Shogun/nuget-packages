@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ValidationRuleArguments
 {
     /// <summary>
@@ -26,7 +26,7 @@ internal static class ValidationRuleArguments
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static IReadOnlyList<TValue> RequireAny<TValue>(IReadOnlyList<TValue> values, string parameterName)
         => values.Count > 0
             ? values

@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class AuthClaimFactory
 {
     /// <summary>
@@ -37,7 +37,7 @@ internal static class AuthClaimFactory
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static List<Claim> Create(AuthUser user, string? app)
     {
         List<Claim> claims =

@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="compareField">The field holding the values this one must appear in, already resolved by the caller.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class InArrayValidationRule<TRequest, TProperty>(
     ValidationField<TRequest> compareField
 ) : IPropertyValidationRule<TRequest, TProperty> where TRequest : class

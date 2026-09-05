@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <typeparam name="TProperty">The bound property's type, which also types the set and decides the equality membership uses.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class SetMembershipValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty>
     where TRequest : class
 {
@@ -19,7 +19,7 @@ internal sealed class SetMembershipValidationRule<TRequest, TProperty> : IProper
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly IReadOnlyList<TProperty?> _values;
 
     /// <summary>
@@ -27,7 +27,7 @@ internal sealed class SetMembershipValidationRule<TRequest, TProperty> : IProper
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly bool _shouldContain;
 
     /// <summary>
@@ -43,7 +43,7 @@ internal sealed class SetMembershipValidationRule<TRequest, TProperty> : IProper
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public SetMembershipValidationRule(IReadOnlyList<TProperty?> values, bool shouldContain)
     {
         _shouldContain = shouldContain;

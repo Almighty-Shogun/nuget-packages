@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public static class MaintenanceModeExtensions
 {
     /// <summary>
@@ -25,7 +25,7 @@ public static class MaintenanceModeExtensions
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
@@ -48,7 +48,7 @@ public static class MaintenanceModeExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IServiceCollection AddMaintenanceMode(IConfiguration configuration) => serviceCollection
             .AddConfiguration<MaintenanceSettings>(configuration.GetSection("Maintenance"))
             .AddSingleton<IMaintenanceStore, FileMaintenanceStore>()
@@ -67,7 +67,7 @@ public static class MaintenanceModeExtensions
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     extension(IApplicationBuilder applicationBuilder)
     {
         /// <summary>
@@ -84,7 +84,7 @@ public static class MaintenanceModeExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IApplicationBuilder UseMaintenanceMode() => applicationBuilder.UseMiddleware<MaintenanceMiddleware>();
     }
 }

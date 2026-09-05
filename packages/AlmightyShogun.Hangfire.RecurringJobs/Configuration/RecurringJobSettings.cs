@@ -11,7 +11,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record RecurringJobSettings
 {
     /// <summary>
@@ -20,7 +20,7 @@ public sealed record RecurringJobSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool EnabledByDefault { get; init; } = true;
 
     /// <summary>
@@ -28,6 +28,6 @@ public sealed record RecurringJobSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyDictionary<string, RecurringJobOverride> Jobs { get; init; } = new Dictionary<string, RecurringJobOverride>();
 }

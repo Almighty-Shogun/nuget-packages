@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="responseWriter">The writer that shapes the gathered failures into the result sent in the action's place.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class RequestValidationFilter(
     RequestValidator requestValidator,
     ValidationResponseWriter responseWriter
@@ -26,7 +26,7 @@ internal sealed class RequestValidationFilter(
     /// <returns>A task that completes once the action has run, or once a failing argument has replaced the result instead.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         foreach (object? argument in context.ActionArguments.Values)

@@ -5,7 +5,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal enum IpMode
 {
     /// <summary>
@@ -13,7 +13,7 @@ internal enum IpMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Any,
 
     /// <summary>
@@ -21,7 +21,7 @@ internal enum IpMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Ipv4,
 
     /// <summary>
@@ -29,6 +29,6 @@ internal enum IpMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Ipv6
 }

@@ -29,7 +29,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class RecurringJobRegistry(RecurringJobSources sources, IOptions<RecurringJobSettings> settings) : IRecurringJobRegistry
 {
     /// <inheritdoc />

@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="max">The inclusive maximum value.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class BetweenAttribute(double min, double max) : ValidationRuleAttribute
 {

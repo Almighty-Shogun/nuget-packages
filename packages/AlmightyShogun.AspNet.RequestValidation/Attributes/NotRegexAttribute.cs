@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="matchTimeoutSeconds">The maximum seconds a single match may take before it is abandoned and the rule fails.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class NotRegexAttribute(
     string pattern,

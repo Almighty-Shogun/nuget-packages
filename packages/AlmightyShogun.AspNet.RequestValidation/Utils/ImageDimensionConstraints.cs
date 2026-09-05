@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class ImageDimensionConstraints(int width, int height)
 {
     /// <summary>
@@ -24,7 +24,7 @@ internal sealed class ImageDimensionConstraints(int width, int height)
     /// <returns><c>true</c> when the dimensions match exactly; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool MatchesExact(ImageDimensions dimensions) => dimensions.Width == width && dimensions.Height == height;
 
     /// <summary>
@@ -36,7 +36,7 @@ internal sealed class ImageDimensionConstraints(int width, int height)
     /// <returns><c>true</c> when the dimensions meet the minimum; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool MatchesMinimum(ImageDimensions dimensions) => dimensions.Width >= width && dimensions.Height >= height;
 
     /// <summary>
@@ -48,6 +48,6 @@ internal sealed class ImageDimensionConstraints(int width, int height)
     /// <returns><c>true</c> when the dimensions meet the maximum; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool MatchesMaximum(ImageDimensions dimensions) => dimensions.Width <= width && dimensions.Height <= height;
 }

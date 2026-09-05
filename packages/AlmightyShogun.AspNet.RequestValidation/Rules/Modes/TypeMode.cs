@@ -7,7 +7,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal enum TypeMode
 {
     /// <summary>
@@ -15,7 +15,7 @@ internal enum TypeMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     String,
 
     /// <summary>
@@ -23,7 +23,7 @@ internal enum TypeMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Boolean,
 
     /// <summary>
@@ -31,7 +31,7 @@ internal enum TypeMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Array,
 
     /// <summary>
@@ -39,7 +39,7 @@ internal enum TypeMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     List,
 
     /// <summary>
@@ -47,6 +47,6 @@ internal enum TypeMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     File
 }

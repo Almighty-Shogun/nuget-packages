@@ -21,7 +21,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, ValidationResponseWriter responseWriter)
 {
     /// <summary>
@@ -30,7 +30,7 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private const int _statusCode = ValidationErrorResponseFactory.StatusCode;
 
     /// <summary>
@@ -47,7 +47,7 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public async Task InvokeAsync(HttpContext context)
     {
         try
@@ -80,7 +80,7 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsUnreadableBody(HttpContext context, BadHttpRequestException exception)
     {
         if (context.Response.HasStarted)
@@ -103,7 +103,7 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
     /// <returns>A task representing the asynchronous write operation.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private Task WriteInvalidBodyResponseAsync(HttpContext context, int statusCode = _statusCode) => responseWriter.WriteAsync(
         context,
         statusCode,
@@ -124,7 +124,7 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool ShouldWriteInvalidBodyResponse(HttpContext context)
     {
         if (context.Response.HasStarted || !IsBodyRequest(context.Request))
@@ -145,7 +145,7 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
     /// <returns><c>true</c> for POST, PUT, or PATCH requests; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsBodyRequest(HttpRequest request)
         => HttpMethods.IsPost(request.Method) || HttpMethods.IsPut(request.Method) || HttpMethods.IsPatch(request.Method);
 }

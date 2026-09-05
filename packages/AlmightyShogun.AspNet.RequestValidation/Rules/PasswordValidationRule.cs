@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="requirement">Which character class the text must carry, which also decides the message a failure reports.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class PasswordValidationRule<TRequest, TProperty>(
     PasswordRequirement requirement
 ) : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
@@ -45,7 +45,7 @@ internal sealed class PasswordValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the password satisfies the requirement; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsValid(string text, PasswordRequirement requirement) => requirement switch
     {
         PasswordRequirement.Letters => HasLetters(text),
@@ -64,7 +64,7 @@ internal sealed class PasswordValidationRule<TRequest, TProperty>(
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey() => requirement switch
     {
         PasswordRequirement.Letters => "validation.password.letters",
@@ -84,7 +84,7 @@ internal sealed class PasswordValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the password is secure; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsSecure(string text) => HasLetters(text) && HasMixedCase(text) && HasNumbers(text) && HasSymbols(text);
 
     /// <summary>
@@ -96,7 +96,7 @@ internal sealed class PasswordValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the password contains a letter; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool HasLetters(string text) => text.Any(char.IsLetter);
 
     /// <summary>
@@ -108,7 +108,7 @@ internal sealed class PasswordValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the password has mixed case; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool HasMixedCase(string text) => text.Any(char.IsLower) && text.Any(char.IsUpper);
 
     /// <summary>
@@ -120,7 +120,7 @@ internal sealed class PasswordValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the password contains a number; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool HasNumbers(string text) => text.Any(char.IsDigit);
 
     /// <summary>
@@ -132,7 +132,7 @@ internal sealed class PasswordValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the password contains a symbol; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool HasSymbols(string text) => text.Any(IsSymbol);
 
     /// <summary>
@@ -144,6 +144,6 @@ internal sealed class PasswordValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the character is a symbol; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsSymbol(char character) => char.IsPunctuation(character) || char.IsSymbol(character);
 }

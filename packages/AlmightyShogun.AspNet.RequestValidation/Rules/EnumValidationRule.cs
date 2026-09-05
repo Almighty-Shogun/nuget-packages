@@ -15,7 +15,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class EnumValidationRule<TRequest, TProperty>(
     Type enumType
 ) : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
@@ -26,7 +26,7 @@ internal sealed class EnumValidationRule<TRequest, TProperty>(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly Type _enumType = Nullable.GetUnderlyingType(enumType) ?? enumType;
 
     /// <inheritdoc />
@@ -57,7 +57,7 @@ internal sealed class EnumValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the value is defined; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool IsDefinedEnumValue(object? value)
     {
         if (!_enumType.IsEnum || value is null)
@@ -108,6 +108,6 @@ internal sealed class EnumValidationRule<TRequest, TProperty>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsIntegral(object value) => value is byte or sbyte or short or ushort or int or uint or long or ulong;
 }

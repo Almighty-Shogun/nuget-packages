@@ -13,7 +13,7 @@ namespace AlmightyShogun.RemoteCommands;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class StreamCommandResponse(Stream stream) : ICommandResponse
 {
     /// <summary>
@@ -22,7 +22,7 @@ internal sealed class StreamCommandResponse(Stream stream) : ICommandResponse
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private int _hasWritten;
 
     /// <summary>
@@ -38,7 +38,7 @@ internal sealed class StreamCommandResponse(Stream stream) : ICommandResponse
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal bool HasWritten => Volatile.Read(ref _hasWritten) != 0;
 
     /// <inheritdoc />

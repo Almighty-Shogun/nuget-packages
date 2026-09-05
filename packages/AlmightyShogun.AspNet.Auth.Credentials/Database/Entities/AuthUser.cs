@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [Table("users")]
 [SuppressMessage("ReSharper", "ClassCanBeSealed.Global")]
 [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
@@ -22,7 +22,7 @@ public class AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public int Id { get; set; }
 
     /// <summary>
@@ -31,7 +31,7 @@ public class AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public Guid Identifier { get; set; } = Guid.CreateVersion7();
 
     /// <summary>
@@ -40,7 +40,7 @@ public class AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [MaxLength(255)]
     public required string Username { get; set; }
 
@@ -50,7 +50,7 @@ public class AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [MaxLength(255)]
     public required string Email { get; set; }
 
@@ -60,7 +60,7 @@ public class AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [MaxLength(255)]
     public string Password { get; set; } = string.Empty;
 
@@ -70,7 +70,7 @@ public class AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [SuppressMessage("ReSharper", "CollectionNeverUpdated.Global")]
     public List<UserSession> Sessions { get; set; } = [];
 
@@ -80,7 +80,7 @@ public class AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [MaxLength(255)]
     public string Role { get; set; } = "User";
 
@@ -90,7 +90,7 @@ public class AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string[] Permissions { get; set; } = [];
 
     /// <summary>
@@ -99,7 +99,7 @@ public class AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool IsActive { get; set; } = true;
 
     /// <summary>
@@ -110,7 +110,7 @@ public class AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public UserLockout? Lockout { get; set; }
 
     /// <summary>
@@ -119,6 +119,6 @@ public class AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public UserTwoFactor? TwoFactor { get; set; }
 }

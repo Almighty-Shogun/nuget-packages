@@ -21,7 +21,7 @@ public static class DeserializeExtensions
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static JsonSerializerOptions DefaultOptions { get; } = CreateDefaultOptions();
 
     /// <summary>
@@ -44,7 +44,7 @@ public static class DeserializeExtensions
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static JsonSerializerOptions CreateDefaultOptions()
     {
         JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
@@ -101,7 +101,7 @@ public static class DeserializeExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public bool TryDeserialize<T>([NotNullWhen(true)] out T? result, JsonSerializerOptions? options = null)
         {
             try

@@ -5,7 +5,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal enum FileConstraintMode
 {
     /// <summary>
@@ -13,7 +13,7 @@ internal enum FileConstraintMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Uploaded,
 
     /// <summary>
@@ -21,7 +21,7 @@ internal enum FileConstraintMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Image,
 
     /// <summary>
@@ -29,7 +29,7 @@ internal enum FileConstraintMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Extensions,
 
     /// <summary>
@@ -37,7 +37,7 @@ internal enum FileConstraintMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Mimes,
 
     /// <summary>
@@ -45,7 +45,7 @@ internal enum FileConstraintMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     MimeTypes,
 
     /// <summary>
@@ -53,7 +53,7 @@ internal enum FileConstraintMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Dimensions,
 
     /// <summary>
@@ -61,7 +61,7 @@ internal enum FileConstraintMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     MinDimensions,
 
     /// <summary>
@@ -69,6 +69,6 @@ internal enum FileConstraintMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     MaxDimensions
 }

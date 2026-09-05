@@ -23,7 +23,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class AuthPasswordService<TUser>(
     AuthDbContext<TUser> databaseContext,
     IOptions<AuthCredentialsSettings> credentialOptions
@@ -35,7 +35,7 @@ internal sealed class AuthPasswordService<TUser>(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly PasswordHasher<TUser> _hasher = new();
 
     /// <inheritdoc />
@@ -140,7 +140,7 @@ internal sealed class AuthPasswordService<TUser>(
     /// <exception cref="InvalidCredentialsException">Thrown when no user matches the predicate.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task<TUser> GetUserAsync(Expression<Func<TUser, bool>> predicate, CancellationToken cancellationToken)
     {
         TUser? user = await databaseContext.Users.FirstOrDefaultAsync(predicate, cancellationToken);
@@ -166,7 +166,7 @@ internal sealed class AuthPasswordService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task<string> CreatePasswordResetTokenAsync(TUser user, string? requestIpAddress, CancellationToken cancellationToken)
     {
         await using IDbContextTransaction transaction =
@@ -223,7 +223,7 @@ internal sealed class AuthPasswordService<TUser>(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task RevokeUserSessionsAsync(int userId, CancellationToken cancellationToken, string? exceptToken = null)
     {
         string? exceptTokenHash = exceptToken is null ? null : TokenHasher.Hash(exceptToken);
@@ -254,7 +254,7 @@ internal sealed class AuthPasswordService<TUser>(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task InvalidateActiveTokenAsync(int userId, CancellationToken cancellationToken)
     {
         List<PasswordResetToken> tokens = await databaseContext.PasswordResetTokens
@@ -288,7 +288,7 @@ internal sealed class AuthPasswordService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task<PasswordResetToken> FindActiveTokenAsync(string token, CancellationToken cancellationToken)
     {
         string tokenHash = TokenHasher.Hash(token);

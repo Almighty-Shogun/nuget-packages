@@ -29,7 +29,7 @@ namespace AlmightyShogun.AspNet.Localization;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class JsonMessageProvider(
     IOptions<LocalizationSettings> localizationOptions,
     ILogger<JsonMessageProvider> logger,
@@ -41,7 +41,7 @@ internal sealed class JsonMessageProvider(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private const string _messagesDirectoryName = "messages";
 
     /// <summary>
@@ -52,7 +52,7 @@ internal sealed class JsonMessageProvider(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly ConcurrentDictionary<string, CachedMessages> _messages = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
@@ -62,7 +62,7 @@ internal sealed class JsonMessageProvider(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private long _cacheVersion;
 
     /// <summary>
@@ -71,7 +71,7 @@ internal sealed class JsonMessageProvider(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly List<FileSystemWatcher> _watchers = [];
 
     /// <summary>
@@ -80,7 +80,7 @@ internal sealed class JsonMessageProvider(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly Lock _watcherGate = new();
 
     /// <summary>
@@ -90,7 +90,7 @@ internal sealed class JsonMessageProvider(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool _watching;
 
     /// <inheritdoc />
@@ -168,7 +168,7 @@ internal sealed class JsonMessageProvider(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private IReadOnlyDictionary<string, string> LoadMessages(string language)
     {
         Dictionary<string, string> messages = new(StringComparer.OrdinalIgnoreCase);
@@ -209,7 +209,7 @@ internal sealed class JsonMessageProvider(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private void LoadFile(string filePath, Dictionary<string, string> messages)
     {
         try
@@ -241,7 +241,7 @@ internal sealed class JsonMessageProvider(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private IEnumerable<string> GetSearchRoots()
     {
         HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
@@ -261,7 +261,7 @@ internal sealed class JsonMessageProvider(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private IEnumerable<string> EnumerateRoots()
     {
         if (webHostEnvironment?.ContentRootPath is not null)
@@ -288,7 +288,7 @@ internal sealed class JsonMessageProvider(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private void StartWatchingIfEnabled()
     {
         if (_watching || !localizationOptions.Value.AutomaticReload) return;
@@ -339,7 +339,7 @@ internal sealed class JsonMessageProvider(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private void OnMessageFileChanged(object sender, FileSystemEventArgs eventArgs) => Interlocked.Increment(ref _cacheVersion);
 
     /// <summary>
@@ -359,7 +359,7 @@ internal sealed class JsonMessageProvider(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static void FlattenMessageFile(string filePath, JsonElement element, Dictionary<string, string> messages)
     {
         if (element.ValueKind != JsonValueKind.Object) return;
@@ -386,7 +386,7 @@ internal sealed class JsonMessageProvider(
     /// <param name="messages">The dictionary being built, mutated in place.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static void Flatten(string prefix, JsonElement element, Dictionary<string, string> messages)
     {
         if (element.ValueKind == JsonValueKind.String)
@@ -417,7 +417,7 @@ internal sealed class JsonMessageProvider(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static string NormalizeMessageKey(string key)
     {
         const string defaultSuffix = ".default";

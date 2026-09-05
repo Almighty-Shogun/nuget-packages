@@ -33,7 +33,7 @@ namespace AlmightyShogun.AspNet.Core;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class FrameworkExceptionHandler(
     IMessageResolver messageResolver,
     IHttpErrorResponseWriter responseWriter,

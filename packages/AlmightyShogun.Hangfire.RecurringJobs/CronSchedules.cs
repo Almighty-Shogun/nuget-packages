@@ -10,7 +10,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public static class CronSchedules
 {
     /// <summary>
@@ -18,7 +18,7 @@ public static class CronSchedules
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public const string Minutely = "* * * * *";
 
     /// <summary>
@@ -26,7 +26,7 @@ public static class CronSchedules
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public const string Hourly = "0 * * * *";
 
     /// <summary>
@@ -34,7 +34,7 @@ public static class CronSchedules
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public const string Daily = "0 0 * * *";
 
     /// <summary>
@@ -42,7 +42,7 @@ public static class CronSchedules
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public const string Weekly = "0 0 * * 1";
 
     /// <summary>
@@ -50,7 +50,7 @@ public static class CronSchedules
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public const string Monthly = "0 0 1 * *";
 
     /// <summary>
@@ -58,6 +58,6 @@ public static class CronSchedules
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public const string Yearly = "0 0 1 1 *";
 }

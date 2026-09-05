@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.Auth;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed class UnknownAppException(string? host) : Exception
 {
     /// <summary>
@@ -20,6 +20,6 @@ public sealed class UnknownAppException(string? host) : Exception
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? Host { get; } = host;
 }

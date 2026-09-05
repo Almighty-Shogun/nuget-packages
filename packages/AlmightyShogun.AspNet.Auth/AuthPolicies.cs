@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.Auth;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public static class AuthPolicies
 {
     /// <summary>
@@ -15,6 +15,6 @@ public static class AuthPolicies
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public const string PermissionPrefix = "permission:";
 }

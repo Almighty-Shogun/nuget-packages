@@ -19,7 +19,7 @@ namespace AlmightyShogun.AspNet.Auth;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class AuthTokenGenerator(IOptions<AuthSettings> authOptions, IAppHostResolver appHostResolver) : IAuthTokenGenerator
 {
     /// <summary>
@@ -27,7 +27,7 @@ internal sealed class AuthTokenGenerator(IOptions<AuthSettings> authOptions, IAp
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly JsonWebTokenHandler _tokenHandler = new();
 
     /// <summary>
@@ -36,7 +36,7 @@ internal sealed class AuthTokenGenerator(IOptions<AuthSettings> authOptions, IAp
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly SigningCredentials _signingCredentials = new(
         AuthSigningKey.Create(authOptions.Value.Secret),
         SecurityAlgorithms.HmacSha256

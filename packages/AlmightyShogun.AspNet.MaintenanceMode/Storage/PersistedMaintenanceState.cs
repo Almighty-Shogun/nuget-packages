@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed record PersistedMaintenanceState
 {
     /// <summary>
@@ -25,7 +25,7 @@ internal sealed record PersistedMaintenanceState
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public Guid Revision { get; init; }
 
     /// <summary>
@@ -33,7 +33,7 @@ internal sealed record PersistedMaintenanceState
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool IsEnabled { get; init; }
 
     /// <summary>
@@ -41,7 +41,7 @@ internal sealed record PersistedMaintenanceState
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? Message { get; init; }
 
     /// <summary>
@@ -49,7 +49,7 @@ internal sealed record PersistedMaintenanceState
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset? StartsAt { get; init; }
 
     /// <summary>
@@ -57,7 +57,7 @@ internal sealed record PersistedMaintenanceState
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset? EndsAt { get; init; }
 
     /// <summary>
@@ -65,7 +65,7 @@ internal sealed record PersistedMaintenanceState
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset? EnabledAt { get; init; }
 
     /// <summary>
@@ -73,7 +73,7 @@ internal sealed record PersistedMaintenanceState
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool AutoDisableWhenExpired { get; init; }
 
     /// <summary>
@@ -81,7 +81,7 @@ internal sealed record PersistedMaintenanceState
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool RedirectBlockedRequests { get; init; }
 
     /// <summary>
@@ -89,7 +89,7 @@ internal sealed record PersistedMaintenanceState
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<string>? AllowedPaths { get; init; }
 
     /// <summary>
@@ -97,7 +97,7 @@ internal sealed record PersistedMaintenanceState
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<string>? AllowedPathPrefixes { get; init; }
 
     /// <summary>
@@ -105,7 +105,7 @@ internal sealed record PersistedMaintenanceState
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<string>? AllowedIpAddresses { get; init; }
 
     /// <summary>
@@ -115,7 +115,7 @@ internal sealed record PersistedMaintenanceState
     /// <returns>The public maintenance state.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal MaintenanceState ToState() => new()
     {
         Message = Message,

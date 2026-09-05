@@ -36,6 +36,6 @@ public sealed record RemoteCommandPayload
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? Secret { get; init; }
 }

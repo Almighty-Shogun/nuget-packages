@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record MaintenanceSettings
 {
     /// <summary>
@@ -24,7 +24,7 @@ public sealed record MaintenanceSettings
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [RegularExpression(
         @"^[^\s?#]+$",
         ErrorMessage = "MaintenancePath must be a path such as '/maintenance', with no whitespace, query string, or fragment."
@@ -36,7 +36,7 @@ public sealed record MaintenanceSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? DefaultMessage { get; init; }
 
     /// <summary>
@@ -45,7 +45,7 @@ public sealed record MaintenanceSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool AutoDisableWhenExpired { get; init; }
 
     /// <summary>
@@ -53,7 +53,7 @@ public sealed record MaintenanceSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool RedirectBlockedRequests { get; init; } = true;
 
     /// <summary>
@@ -61,7 +61,7 @@ public sealed record MaintenanceSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<string> AllowedPaths { get; init; } = [];
 
     /// <summary>
@@ -69,7 +69,7 @@ public sealed record MaintenanceSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<string> AllowedPathPrefixes { get; init; } = [];
 
     /// <summary>
@@ -77,6 +77,6 @@ public sealed record MaintenanceSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<string> AllowedIpAddresses { get; init; } = [];
 }

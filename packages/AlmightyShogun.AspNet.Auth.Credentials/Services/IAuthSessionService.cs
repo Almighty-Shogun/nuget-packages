@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// <typeparam name="TUser">The application's own user entity, returned alongside the tokens a session yields.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public interface IAuthSessionService<TUser> where TUser : AuthUser
 {
     /// <summary>
@@ -57,7 +57,7 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task<AuthSessionResult<TUser>> RefreshSessionAsync(
         string refreshToken,
         HttpContext httpContext,
@@ -79,7 +79,7 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task RevokeSessionAsync(string refreshToken, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -106,6 +106,6 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task<string> CreateSessionAsync(TUser user, string? app, ClientContext context, CancellationToken cancellationToken = default);
 }

@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed class AuthSessionResult<TUser> where TUser : AuthUser
 {
     /// <summary>
@@ -19,7 +19,7 @@ public sealed class AuthSessionResult<TUser> where TUser : AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string AccessToken { get; init; }
 
     /// <summary>
@@ -28,7 +28,7 @@ public sealed class AuthSessionResult<TUser> where TUser : AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string RefreshToken { get; init; }
 
     /// <summary>
@@ -37,6 +37,6 @@ public sealed class AuthSessionResult<TUser> where TUser : AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required TUser User { get; init; }
 }

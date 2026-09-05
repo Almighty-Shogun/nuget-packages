@@ -76,7 +76,7 @@ public interface IResendMailService
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task<MailSendResult> SendAsync(BaseMailTemplate mail, MailOptions options, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -103,6 +103,6 @@ public interface IResendMailService
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task<MailPreview> PreviewAsync(BaseMailTemplate mail, CancellationToken cancellationToken = default);
 }

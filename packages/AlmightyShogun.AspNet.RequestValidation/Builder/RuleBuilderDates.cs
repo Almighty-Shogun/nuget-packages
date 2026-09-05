@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
@@ -18,7 +18,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Date()
     {
         _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>());
@@ -41,7 +41,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> DateFormat(string format)
     {
         _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(format));
@@ -58,7 +58,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> After(DateTimeOffset date)
     {
         _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(DateMode.After, date));
@@ -75,7 +75,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> After(DateTime date)
     {
         ValidationDate.TryGetDate(date, out DateTimeOffset dateTimeOffset);
@@ -101,7 +101,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> After<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
         _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(
@@ -121,7 +121,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> AfterOrEqual(DateTimeOffset date)
     {
         _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(DateMode.AfterOrEqual, date));
@@ -138,7 +138,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> AfterOrEqual(DateTime date)
     {
         ValidationDate.TryGetDate(date, out DateTimeOffset dateTimeOffset);
@@ -164,7 +164,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> AfterOrEqual<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
         _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(
@@ -184,7 +184,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Before(DateTimeOffset date)
     {
         _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(DateMode.Before, date));
@@ -201,7 +201,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Before(DateTime date)
     {
         ValidationDate.TryGetDate(date, out DateTimeOffset dateTimeOffset);
@@ -227,7 +227,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Before<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
         _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(
@@ -247,7 +247,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> BeforeOrEqual(DateTimeOffset date)
     {
         _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(DateMode.BeforeOrEqual, date));
@@ -264,7 +264,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> BeforeOrEqual(DateTime date)
     {
         ValidationDate.TryGetDate(date, out DateTimeOffset dateTimeOffset);
@@ -290,7 +290,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> BeforeOrEqual<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
         _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(
@@ -310,7 +310,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> DateEquals(DateTimeOffset date)
     {
         _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(DateMode.Equals, date));
@@ -327,7 +327,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> DateEquals(DateTime date)
     {
         ValidationDate.TryGetDate(date, out DateTimeOffset dateTimeOffset);
@@ -353,7 +353,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> DateEquals<TCompare>(Expression<Func<TRequest, TCompare>> compareExpression)
     {
         _propertyRule.AddRule(new DateValidationRule<TRequest, TProperty>(
@@ -371,7 +371,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Timezone()
     {
         _propertyRule.AddRule(new TimezoneValidationRule<TRequest, TProperty>());

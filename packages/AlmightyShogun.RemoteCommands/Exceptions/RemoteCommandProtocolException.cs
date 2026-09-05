@@ -11,5 +11,5 @@ namespace AlmightyShogun.RemoteCommands;
 /// <param name="message">What was wrong with the frame.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed class RemoteCommandProtocolException(string message) : RemoteCommandException(message);

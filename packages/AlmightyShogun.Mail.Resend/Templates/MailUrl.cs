@@ -6,7 +6,7 @@ namespace AlmightyShogun.Mail.Resend;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class MailUrl
 {
     /// <summary>
@@ -21,7 +21,7 @@ internal static class MailUrl
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static bool IsAllowed(string? url)
         => !string.IsNullOrWhiteSpace(url)
            && Uri.TryCreate(url, UriKind.Absolute, out Uri? parsed)

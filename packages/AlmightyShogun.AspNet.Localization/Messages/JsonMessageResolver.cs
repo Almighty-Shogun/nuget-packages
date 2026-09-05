@@ -24,7 +24,7 @@ namespace AlmightyShogun.AspNet.Localization;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class JsonMessageResolver(
     IMessageProvider messageProvider,
     ILanguageProvider languageProvider,
@@ -126,7 +126,7 @@ internal sealed class JsonMessageResolver(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private IEnumerable<string> GetLanguageCandidates()
     {
         HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
@@ -166,7 +166,7 @@ internal sealed class JsonMessageResolver(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static IEnumerable<string> GetFallbackTags(string language)
     {
         for (int index = language.LastIndexOf('-'); index > 0; index = language.LastIndexOf('-', index - 1))
@@ -198,7 +198,7 @@ internal sealed class JsonMessageResolver(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string Format(string template, IReadOnlyList<object?> parameters, string language)
     {
         if (parameters.Count == 0)
@@ -235,7 +235,7 @@ internal sealed class JsonMessageResolver(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static CultureInfo GetCulture(string language)
     {
         try

@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="ruleSets">The alternatives, each a set whose rules must all pass. An empty outer list passes.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class AnyOfValidationRule<TRequest, TProperty>(
     IReadOnlyList<IReadOnlyList<IPropertyValidationRule<TRequest, TProperty>>> ruleSets
 ) : IPropertyValidationRule<TRequest, TProperty> where TRequest : class

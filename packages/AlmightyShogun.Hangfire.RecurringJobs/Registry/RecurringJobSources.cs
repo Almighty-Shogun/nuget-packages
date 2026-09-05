@@ -14,5 +14,5 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed record RecurringJobSources(ImmutableArray<Assembly> Assemblies);

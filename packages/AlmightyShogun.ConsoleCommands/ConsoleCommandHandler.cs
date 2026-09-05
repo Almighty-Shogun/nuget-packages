@@ -17,7 +17,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly Lock _lifecycleGate = new();
 
     /// <summary>
@@ -26,7 +26,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private CancellationTokenSource? _stopSource;
 
     /// <summary>
@@ -44,7 +44,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly IServiceScopeFactory _scopeFactory;
 
     /// <summary>
@@ -195,7 +195,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     /// <param name="commandType">The type the name should dispatch to.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private void Register(string name, Type commandType)
     {
         if (string.IsNullOrWhiteSpace(name)) return;
@@ -297,7 +297,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string? FindClosestCommand(string commandName)
     {
         string? best = null;
@@ -327,7 +327,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     /// <returns>The number of insertions, deletions, and substitutions separating the two.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static int Distance(string left, string right)
     {
         var costs = new int[left.Length + 1, right.Length + 1];

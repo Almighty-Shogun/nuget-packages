@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public interface IAuthPasswordService
 {
     /// <summary>
@@ -40,7 +40,7 @@ public interface IAuthPasswordService
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task ChangePasswordAsync(
         Guid identifier,
         ChangePasswordRequest request,
@@ -74,7 +74,7 @@ public interface IAuthPasswordService
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task<string?> RequestForgotPasswordAsync(
         ForgotPasswordRequest request,
         string? requestIpAddress = null,
@@ -106,6 +106,6 @@ public interface IAuthPasswordService
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task CompleteForgotPasswordAsync(CompleteForgotPasswordRequest request, CancellationToken cancellationToken = default);
 }

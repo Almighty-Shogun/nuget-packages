@@ -117,7 +117,7 @@ public static class ServiceCollectionExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IServiceCollection ReplaceService<TService, TImplementation>(
             ServiceLifetime serviceLifetime = ServiceLifetime.Singleton
         ) where TService : class where TImplementation : class, TService
@@ -142,7 +142,7 @@ public static class ServiceCollectionExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IServiceCollection RegisterOnInherit<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Singleton) where T : class
             => serviceCollection.RegisterOnInherit<T>([Assembly.GetCallingAssembly()], serviceLifetime);
 

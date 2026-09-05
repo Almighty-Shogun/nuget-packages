@@ -22,7 +22,7 @@ public static class ResendMailExtensions
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly string[] _requiredTemplates =
     [
         "BaseEmailTemplate.html",
@@ -88,7 +88,7 @@ public static class ResendMailExtensions
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static void EnsureTemplatesExist()
     {
         string directory = FileEmailTemplateLoader.TemplatesDirectory;

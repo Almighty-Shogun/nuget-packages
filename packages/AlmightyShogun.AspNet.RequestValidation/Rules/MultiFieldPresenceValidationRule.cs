@@ -23,7 +23,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </exception>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class MultiFieldPresenceValidationRule<TRequest, TProperty>(
     MultiFieldPresenceTargetMode targetMode,
     MultiFieldPresenceTriggerMode triggerMode,
@@ -38,7 +38,7 @@ internal sealed class MultiFieldPresenceValidationRule<TRequest, TProperty>(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly IReadOnlyList<ValidationField<TRequest>> _fields = ValidationField<TRequest>.FromMany(compareExpressions);
 
     /// <inheritdoc />
@@ -89,7 +89,7 @@ internal sealed class MultiFieldPresenceValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when validation should run; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool ShouldValidate(TRequest request) => triggerMode switch
     {
         MultiFieldPresenceTriggerMode.WithAny => _fields.Any(field => IsTriggerPresent(field.GetValue(request))),
@@ -111,7 +111,7 @@ internal sealed class MultiFieldPresenceValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the trigger is present; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool IsTriggerPresent(object? value) => targetMode == MultiFieldPresenceTargetMode.Required
         ? !ValidationValue.IsEmpty(value)
         : ValidationValue.IsPresent(value);
@@ -125,7 +125,7 @@ internal sealed class MultiFieldPresenceValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> for the <c>WithAll</c> and <c>WithoutAll</c> triggers; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool TriggerNeedsFields()
         => triggerMode is MultiFieldPresenceTriggerMode.WithAll or MultiFieldPresenceTriggerMode.WithoutAll;
 
@@ -137,7 +137,7 @@ internal sealed class MultiFieldPresenceValidationRule<TRequest, TProperty>(
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey() => (targetMode, triggerMode) switch
     {
         (MultiFieldPresenceTargetMode.Required, MultiFieldPresenceTriggerMode.WithAny) => "validation.required.with",

@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
@@ -16,7 +16,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Numeric()
     {
         _propertyRule.AddRule(new NumberValidationRule<TRequest, TProperty>(NumberMode.Numeric));
@@ -31,7 +31,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Integer()
     {
         _propertyRule.AddRule(new NumberValidationRule<TRequest, TProperty>(NumberMode.Integer));
@@ -48,7 +48,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Min(decimal min)
     {
         _propertyRule.AddRule(new ComparableSizeValidationRule<TRequest, TProperty>(ComparableSizeMode.Min, min));
@@ -65,7 +65,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Max(decimal max)
     {
         _propertyRule.AddRule(new ComparableSizeValidationRule<TRequest, TProperty>(ComparableSizeMode.Max, max));
@@ -83,7 +83,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Between(decimal min, decimal max)
     {
         _propertyRule.AddRule(new ComparableSizeValidationRule<TRequest, TProperty>(ComparableSizeMode.Between, min, max));
@@ -100,7 +100,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Size(decimal size)
     {
         _propertyRule.AddRule(new ComparableSizeValidationRule<TRequest, TProperty>(ComparableSizeMode.Size, size));
@@ -117,7 +117,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Decimal(int places)
     {
         _propertyRule.AddRule(new NumberValidationRule<TRequest, TProperty>(NumberMode.DecimalPlaces, places));
@@ -134,7 +134,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> Digits(int digits)
     {
         _propertyRule.AddRule(new DigitCountValidationRule<TRequest, TProperty>(DigitMode.Exact, digits));
@@ -152,7 +152,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> DigitsBetween(int min, int max)
     {
         _propertyRule.AddRule(new DigitCountValidationRule<TRequest, TProperty>(DigitMode.Between, min, max));
@@ -169,7 +169,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> MinDigits(int min)
     {
         _propertyRule.AddRule(new DigitCountValidationRule<TRequest, TProperty>(DigitMode.Min, min));
@@ -186,7 +186,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> MaxDigits(int max)
     {
         _propertyRule.AddRule(new DigitCountValidationRule<TRequest, TProperty>(DigitMode.Max, max));
@@ -203,7 +203,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> MultipleOf(decimal multipleOf)
     {
         _propertyRule.AddRule(new NumberValidationRule<TRequest, TProperty>(NumberMode.MultipleOf, multipleOf));
@@ -220,7 +220,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> GreaterThan(decimal value)
     {
         _propertyRule.AddRule(new ComparableSizeValidationRule<TRequest, TProperty>(ComparableSizeMode.GreaterThan, value));
@@ -237,7 +237,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> GreaterThanOrEqual(decimal value)
     {
         _propertyRule.AddRule(new ComparableSizeValidationRule<TRequest, TProperty>(ComparableSizeMode.GreaterThanOrEqual, value));
@@ -254,7 +254,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> LessThan(decimal value)
     {
         _propertyRule.AddRule(new ComparableSizeValidationRule<TRequest, TProperty>(ComparableSizeMode.LessThan, value));
@@ -271,7 +271,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RuleBuilder<TRequest, TProperty> LessThanOrEqual(decimal value)
     {
         _propertyRule.AddRule(new ComparableSizeValidationRule<TRequest, TProperty>(ComparableSizeMode.LessThanOrEqual, value));

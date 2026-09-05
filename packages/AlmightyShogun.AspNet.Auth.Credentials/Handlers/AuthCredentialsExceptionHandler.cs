@@ -28,7 +28,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class AuthCredentialsExceptionHandler(
     AuthCredentialsExceptionMapper exceptionMapper,
     IMessageResolver messageResolver,
@@ -69,7 +69,7 @@ internal sealed class AuthCredentialsExceptionHandler(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private void Log(HttpContext httpContext, Exception exception, ErrorMapping mapping)
     {
         if (mapping.StatusCode >= StatusCodes.Status500InternalServerError)

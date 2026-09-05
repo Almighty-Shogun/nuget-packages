@@ -15,7 +15,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="mode">Which shape the text must have, which also decides the message a failure reports.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     FormatMode mode
 ) : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
@@ -59,7 +59,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the value is a valid email address; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsEmail(object? value) => value switch
     {
         string typed => ValidationFormat.IsEmail(typed),
@@ -77,7 +77,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the value is a valid URL; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsUrl(object? value) => value switch
     {
         string typed => IsUrlText(typed),
@@ -93,7 +93,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the text is a valid URL; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsUrlText(string value) => Uri.TryCreate(value, UriKind.Absolute, out Uri? uri) && IsHttpUri(uri);
 
     /// <summary>
@@ -107,7 +107,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the value is valid JSON; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsJson(object? value) => value switch
     {
         string typed => IsJsonText(typed),
@@ -123,7 +123,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the text is valid JSON; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsJsonText(string value)
     {
         try
@@ -149,7 +149,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the value is a valid UUID; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsUuid(object? value) => value switch
     {
         string typed => Guid.TryParse(typed, out _),
@@ -167,7 +167,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the value is a valid ULID; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsUlid(object? value) => value switch
     {
         string typed => UlidRegex().IsMatch(typed),
@@ -185,7 +185,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the value is a valid hex color; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsHexColor(object? value) => value switch
     {
         string typed => HexColorRegex().IsMatch(typed),
@@ -203,7 +203,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the value is a valid MAC address; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsMacAddress(object? value) => value switch
     {
         string typed => MacAddressRegex().IsMatch(typed),
@@ -219,7 +219,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the URI uses HTTP or HTTPS; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsHttpUri(Uri uri) => uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps;
 
     /// <summary>
@@ -230,7 +230,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey() => mode switch
     {
         FormatMode.Email => "validation.email",
@@ -250,7 +250,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     /// <returns>The ULID regular expression.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [GeneratedRegex("^[0-7][0-9A-HJKMNP-TV-Z]{25}$", RegexOptions.IgnoreCase)]
     private static partial Regex UlidRegex();
 
@@ -261,7 +261,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     /// <returns>The hex color regular expression.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [GeneratedRegex("^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")]
     private static partial Regex HexColorRegex();
 
@@ -273,7 +273,7 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     /// <returns>The MAC address regular expression.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [GeneratedRegex("^(?:[0-9a-fA-F]{2}[:-]){5}[0-9a-fA-F]{2}$|^[0-9a-fA-F]{12}$")]
     private static partial Regex MacAddressRegex();
 }

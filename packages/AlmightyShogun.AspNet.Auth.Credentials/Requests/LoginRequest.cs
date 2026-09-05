@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record LoginRequest
 {
     /// <summary>
@@ -16,7 +16,7 @@ public sealed record LoginRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Required]
     public required string Identifier { get; set; }
 
@@ -25,7 +25,7 @@ public sealed record LoginRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Required]
     public required string Password { get; set; }
 }

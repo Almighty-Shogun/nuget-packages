@@ -5,7 +5,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal enum ConditionalStateTargetMode
 {
     /// <summary>
@@ -13,7 +13,7 @@ internal enum ConditionalStateTargetMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Required,
 
     /// <summary>
@@ -21,6 +21,6 @@ internal enum ConditionalStateTargetMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Prohibited
 }

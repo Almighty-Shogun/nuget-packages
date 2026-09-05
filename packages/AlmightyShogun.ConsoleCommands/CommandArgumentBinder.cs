@@ -11,7 +11,7 @@ namespace AlmightyShogun.ConsoleCommands;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class CommandArgumentBinder
 {
     /// <summary>
@@ -29,7 +29,7 @@ internal static class CommandArgumentBinder
     /// <returns><c>true</c> when the count could fill the parameters; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static bool IsArgumentCountValid(ParameterInfo[] parameters, int argumentCount, bool ignoreExtraArguments)
     {
         int required = parameters.Count(parameter => !parameter.HasDefaultValue);
@@ -61,7 +61,7 @@ internal static class CommandArgumentBinder
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static bool TryBind(ParameterInfo[] parameters, string[] arguments, ILogger logger, out object?[] values)
     {
         values = new object?[parameters.Length];
@@ -115,7 +115,7 @@ internal static class CommandArgumentBinder
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryConvert(ParameterInfo parameter, string argument, ILogger logger, out object? value)
     {
         value = null;
@@ -168,7 +168,7 @@ internal static class CommandArgumentBinder
     /// <returns><c>true</c> when the token converted; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryChangeType(string argument, Type parameterType, out object? value)
     {
         try
@@ -208,7 +208,7 @@ internal static class CommandArgumentBinder
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryConvertFromString(string argument, Type parameterType, out object? value)
     {
         value = null;

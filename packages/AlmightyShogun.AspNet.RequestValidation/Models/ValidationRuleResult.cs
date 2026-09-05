@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record ValidationRuleResult
 {
     /// <summary>
@@ -19,7 +19,7 @@ public sealed record ValidationRuleResult
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool IsValid { get; }
 
     /// <summary>
@@ -27,7 +27,7 @@ public sealed record ValidationRuleResult
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string Key { get; }
 
     /// <summary>
@@ -35,7 +35,7 @@ public sealed record ValidationRuleResult
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public object?[] Parameters { get; }
 
     /// <summary>
@@ -43,7 +43,7 @@ public sealed record ValidationRuleResult
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly ValidationRuleResult _successful = new(true, string.Empty, []);
 
     /// <summary>
@@ -55,7 +55,7 @@ public sealed record ValidationRuleResult
     /// <param name="parameters">The message parameters, empty for a pass and for a message that takes none.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private ValidationRuleResult(bool isValid, string key, object?[] parameters)
     {
         IsValid = isValid;
@@ -70,7 +70,7 @@ public sealed record ValidationRuleResult
     /// <returns>The successful validation rule result, which is one shared instance rather than a new one per call.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static ValidationRuleResult Success() => _successful;
 
     /// <summary>
@@ -83,6 +83,6 @@ public sealed record ValidationRuleResult
     /// <returns>The failed validation rule result.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static ValidationRuleResult Failure(string key, params object?[] parameters) => new(false, key, parameters);
 }

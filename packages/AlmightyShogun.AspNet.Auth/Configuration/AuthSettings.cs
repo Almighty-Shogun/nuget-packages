@@ -60,7 +60,7 @@ public sealed record AuthSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Range(1, int.MaxValue)]
     public int ClockSkewSeconds { get; init; } = 30;
 
@@ -69,7 +69,7 @@ public sealed record AuthSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? DefaultApp { get; init; }
 
     /// <summary>
@@ -77,7 +77,7 @@ public sealed record AuthSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public SameSiteMode SameSite { get; init; } = SameSiteMode.Lax;
 
     /// <summary>
@@ -102,7 +102,7 @@ public sealed record AuthSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<string> ValidAudiences => _validAudiences ??= BuildValidAudiences();
 
     /// <summary>
@@ -112,7 +112,7 @@ public sealed record AuthSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private IReadOnlyList<string>? _validAudiences;
 
     /// <summary>
@@ -125,7 +125,7 @@ public sealed record AuthSettings
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool IsScoped() => Hosts.Count > 0;
 
     /// <summary>
@@ -144,7 +144,7 @@ public sealed record AuthSettings
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private IReadOnlyList<string> BuildValidAudiences()
     {
         foreach (KeyValuePair<string, string> host in Hosts.Where(host => string.IsNullOrWhiteSpace(host.Value)))

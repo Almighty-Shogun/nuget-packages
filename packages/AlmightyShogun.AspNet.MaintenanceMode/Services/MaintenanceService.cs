@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 /// <param name="store">The store that owns reading and writing the state.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenanceOptions, IMaintenanceStore store) : IMaintenanceService
 {
     /// <summary>
@@ -19,7 +19,7 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly MaintenanceSettings _settings = maintenanceOptions.Value;
 
     /// <inheritdoc />
@@ -85,7 +85,7 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal async Task<PersistedMaintenanceState> GetPersistedAsync()
     {
         PersistedMaintenanceState? state = await store.ReadAsync();
@@ -110,7 +110,7 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     /// <returns>The state with non-null collections.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private PersistedMaintenanceState ApplyDefaults(PersistedMaintenanceState state) => state with
     {
         AllowedPaths = ResolvePaths(state.AllowedPaths, _settings.AllowedPaths),
@@ -125,7 +125,7 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     /// <returns>A disabled maintenance state.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private PersistedMaintenanceState CreateDisabledState() => new()
     {
         IsEnabled = false,
@@ -152,7 +152,7 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     /// <returns>The resolved values, compared case-insensitively when duplicates are removed.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static IReadOnlyList<string> Resolve(IReadOnlyList<string>? supplied, IReadOnlyList<string> defaults)
         => [.. (supplied ?? defaults).Distinct(StringComparer.OrdinalIgnoreCase)];
 
@@ -174,7 +174,7 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static IReadOnlyList<string> ResolvePaths(IReadOnlyList<string>? supplied, IReadOnlyList<string> defaults) =>
     [
         .. (supplied ?? defaults).Select(path => MaintenancePath.Normalize(path).Value)

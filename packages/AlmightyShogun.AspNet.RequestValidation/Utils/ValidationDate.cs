@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ValidationDate
 {
     /// <summary>
@@ -23,7 +23,7 @@ internal static class ValidationDate
     /// <returns><c>true</c> when the date can be read; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool TryGetDate(object? value, out DateTimeOffset date) => value switch
     {
         DateTimeOffset typed => SetDate(typed.ToUniversalTime(), out date),
@@ -45,7 +45,7 @@ internal static class ValidationDate
     /// <returns><c>true</c> when the date can be parsed; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryGetDateFromText(string value, out DateTimeOffset date)
     {
         const DateTimeStyles flags = DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal;
@@ -81,7 +81,7 @@ internal static class ValidationDate
     /// <returns><c>true</c> when the exact date can be read; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool TryGetExactDate(object? value, string format, out DateTimeOffset date) => value switch
     {
         string typed => TryGetExactDateFromText(typed, format, out date),
@@ -103,7 +103,7 @@ internal static class ValidationDate
     /// <returns><c>true</c> when the exact date can be parsed; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryGetExactDateFromText(string value, string format, out DateTimeOffset date)
     {
         const DateTimeStyles flags = DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal;
@@ -135,7 +135,7 @@ internal static class ValidationDate
     /// <returns>The UTC date message value.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static string ToMessageValue(DateTimeOffset date) => date.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture);
 
     /// <summary>
@@ -147,7 +147,7 @@ internal static class ValidationDate
     /// <returns>The UTC date time offset.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static DateTimeOffset ToDateTimeOffset(DateTime dateTime) => dateTime.Kind switch
     {
         DateTimeKind.Local => new DateTimeOffset(dateTime).ToUniversalTime(),
@@ -165,7 +165,7 @@ internal static class ValidationDate
     /// <returns><c>true</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool SetDate(DateTimeOffset value, out DateTimeOffset date)
     {
         date = value;
@@ -182,7 +182,7 @@ internal static class ValidationDate
     /// <returns><c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool Fail(out DateTimeOffset date)
     {
         date = default;

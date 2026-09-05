@@ -11,7 +11,7 @@ namespace AlmightyShogun.RemoteCommands;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed class RemoteCommandDisconnectedException(Exception? innerException = null) : RemoteCommandException(
     "The server closed the connection without sending a response. The address may not be whitelisted.",
     innerException

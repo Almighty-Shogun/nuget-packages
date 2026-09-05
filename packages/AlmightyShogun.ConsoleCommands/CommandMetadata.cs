@@ -8,7 +8,7 @@ namespace AlmightyShogun.ConsoleCommands;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class CommandMetadata
 {
     /// <summary>
@@ -27,7 +27,7 @@ internal static class CommandMetadata
     /// <returns><c>true</c> when the type can be dispatched to; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static bool TryDescribe(
         Type commandType,
         out ConsoleCommandAttribute attribute,
@@ -98,7 +98,7 @@ internal static class CommandMetadata
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static (ConsoleCommandAttribute Attribute, MethodInfo HandlerMethod) Describe(Type commandType)
         => !TryDescribe(commandType, out ConsoleCommandAttribute attribute, out MethodInfo handlerMethod, out string? error)
             ? throw new InvalidOperationException(error)
@@ -123,7 +123,7 @@ internal static class CommandMetadata
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static bool IsInvocableName(string name) => !string.IsNullOrWhiteSpace(name) && !name.Any(char.IsWhiteSpace);
 
     /// <summary>
@@ -140,6 +140,6 @@ internal static class CommandMetadata
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static bool IsAwaitableReturn(Type returnType) => returnType == typeof(Task) || returnType == typeof(ValueTask);
 }

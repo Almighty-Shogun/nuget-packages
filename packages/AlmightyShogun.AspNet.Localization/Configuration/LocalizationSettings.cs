@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.Localization;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record LocalizationSettings
 {
     /// <summary>
@@ -22,7 +22,7 @@ public sealed record LocalizationSettings
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Required(ErrorMessage = "DefaultLanguage is required.")]
     [RegularExpression(LanguageTag.Pattern, ErrorMessage = "DefaultLanguage must be a language tag such as 'en' or 'nl-BE'.")]
     public string DefaultLanguage { get; init; } = "en";
@@ -33,6 +33,6 @@ public sealed record LocalizationSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool AutomaticReload { get; init; }
 }

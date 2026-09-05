@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <typeparam name="TProperty">The bound property's type; a non-empty value that cannot be read as text fails.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class RegexValidationRule<TRequest, TProperty>
     : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
@@ -22,7 +22,7 @@ internal sealed class RegexValidationRule<TRequest, TProperty>
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly Regex _regex;
 
     /// <summary>
@@ -31,7 +31,7 @@ internal sealed class RegexValidationRule<TRequest, TProperty>
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly bool _shouldMatch;
 
     /// <summary>
@@ -39,7 +39,7 @@ internal sealed class RegexValidationRule<TRequest, TProperty>
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly string? _description;
 
     /// <summary>
@@ -72,7 +72,7 @@ internal sealed class RegexValidationRule<TRequest, TProperty>
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RegexValidationRule(
         string pattern,
         RegexOptions options,
@@ -124,7 +124,7 @@ internal sealed class RegexValidationRule<TRequest, TProperty>
     /// <returns>The validation failure result.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private ValidationRuleResult Failure() => _description is null
         ? ValidationRuleResult.Failure(GetMessageKey())
         : ValidationRuleResult.Failure(GetMessageKey(), _description);
@@ -137,6 +137,6 @@ internal sealed class RegexValidationRule<TRequest, TProperty>
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey() => _shouldMatch ? "validation.regex" : "validation.not.regex";
 }

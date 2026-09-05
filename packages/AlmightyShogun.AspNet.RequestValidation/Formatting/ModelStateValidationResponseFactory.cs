@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ModelStateValidationResponseFactory
 {
     /// <summary>
@@ -30,7 +30,7 @@ internal static class ModelStateValidationResponseFactory
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static IActionResult Create(ActionContext context)
     {
         var messageResolver = context.HttpContext.RequestServices.GetRequiredService<IMessageResolver>();

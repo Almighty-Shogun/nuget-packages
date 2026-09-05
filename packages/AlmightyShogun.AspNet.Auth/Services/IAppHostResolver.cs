@@ -27,7 +27,7 @@ public interface IAppHostResolver
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     bool TryResolve(out string? app);
 
     /// <summary>
@@ -43,7 +43,7 @@ public interface IAppHostResolver
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     string? Resolve();
 
     /// <summary>

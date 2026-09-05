@@ -18,7 +18,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ValidationFieldName
 {
     /// <summary>
@@ -32,7 +32,7 @@ internal static class ValidationFieldName
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static string FromProperty(PropertyInfo property)
         => property.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ?? FromDeclaredName(property.Name);
 
@@ -48,7 +48,7 @@ internal static class ValidationFieldName
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static string FromDeclaredName(string value)
         => string.IsNullOrEmpty(value) ? value : JsonNamingPolicy.CamelCase.ConvertName(value);
 }

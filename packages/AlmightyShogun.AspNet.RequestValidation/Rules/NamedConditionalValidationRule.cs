@@ -19,7 +19,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </exception>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class NamedConditionalValidationRule<TRequest, TProperty>(
     ConditionalTargetMode targetMode,
     ConditionMode conditionMode,
@@ -35,7 +35,7 @@ internal sealed class NamedConditionalValidationRule<TRequest, TProperty>(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly NamedValidationFieldCondition<TRequest> _condition = new(comparePropertyName, values);
 
     /// <inheritdoc />
@@ -71,7 +71,7 @@ internal sealed class NamedConditionalValidationRule<TRequest, TProperty>(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool IsValid(TProperty? value) => targetMode switch
     {
         ConditionalTargetMode.Missing => value is null,
@@ -91,7 +91,7 @@ internal sealed class NamedConditionalValidationRule<TRequest, TProperty>(
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey() => (targetMode, conditionMode) switch
     {
         (ConditionalTargetMode.Required, ConditionMode.If) => "validation.required.if",

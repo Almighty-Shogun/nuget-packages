@@ -7,7 +7,7 @@ namespace AlmightyShogun.AspNet.Auth;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public static class AuthClaimTypes
 {
     /// <summary>
@@ -15,7 +15,7 @@ public static class AuthClaimTypes
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public const string UserId = "userId";
 
     /// <summary>
@@ -23,6 +23,6 @@ public static class AuthClaimTypes
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public const string Permission = "permission";
 }

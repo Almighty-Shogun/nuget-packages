@@ -23,7 +23,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public abstract class Validator<TRequest> where TRequest : class
 {
     /// <summary>
@@ -31,7 +31,7 @@ public abstract class Validator<TRequest> where TRequest : class
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly List<IRequestValidationRule<TRequest>> _rules = [];
 
     /// <summary>
@@ -39,7 +39,7 @@ public abstract class Validator<TRequest> where TRequest : class
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     protected abstract void Rules();
 
     /// <summary>
@@ -60,7 +60,7 @@ public abstract class Validator<TRequest> where TRequest : class
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     protected RuleBuilder<TRequest, TProperty> RuleFor<TProperty>(Expression<Func<TRequest, TProperty>> expression)
     {
         PropertyRule<TRequest, TProperty> propertyRule = new(expression);
@@ -77,7 +77,7 @@ public abstract class Validator<TRequest> where TRequest : class
     /// <returns>The rules this validator declared, in declaration order.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal IReadOnlyList<IRequestValidationRule<TRequest>> BuildRules()
     {
         _rules.Clear();

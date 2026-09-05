@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal enum PasswordRequirement
 {
     /// <summary>
@@ -14,7 +14,7 @@ internal enum PasswordRequirement
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Letters,
 
     /// <summary>
@@ -22,7 +22,7 @@ internal enum PasswordRequirement
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Mixed,
 
     /// <summary>
@@ -30,7 +30,7 @@ internal enum PasswordRequirement
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Numbers,
 
     /// <summary>
@@ -38,7 +38,7 @@ internal enum PasswordRequirement
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Symbols,
 
     /// <summary>
@@ -46,6 +46,6 @@ internal enum PasswordRequirement
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Secure
 }

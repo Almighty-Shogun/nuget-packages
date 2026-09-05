@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class NumberValidationRule<TRequest, TProperty>(
     NumberMode mode,
     decimal value = 0
@@ -60,7 +60,7 @@ internal sealed class NumberValidationRule<TRequest, TProperty>(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private ValidationRuleResult ValidateDecimalPlaces(TProperty? propertyValue)
     {
         if (!ValidationValue.TryGetDecimalPlaces(propertyValue, out int actualPlaces))
@@ -84,7 +84,7 @@ internal sealed class NumberValidationRule<TRequest, TProperty>(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private ValidationRuleResult ValidateMultipleOf(TProperty? propertyValue)
     {
         if (!ValidationValue.TryGetNumber(propertyValue, out decimal number))

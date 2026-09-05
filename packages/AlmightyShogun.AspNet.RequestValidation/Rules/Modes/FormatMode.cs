@@ -5,7 +5,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal enum FormatMode
 {
     /// <summary>
@@ -13,7 +13,7 @@ internal enum FormatMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Email,
 
     /// <summary>
@@ -21,7 +21,7 @@ internal enum FormatMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Url,
 
     /// <summary>
@@ -29,7 +29,7 @@ internal enum FormatMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Json,
 
     /// <summary>
@@ -37,7 +37,7 @@ internal enum FormatMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Uuid,
 
     /// <summary>
@@ -45,7 +45,7 @@ internal enum FormatMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Ulid,
 
     /// <summary>
@@ -53,7 +53,7 @@ internal enum FormatMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     HexColor,
 
     /// <summary>
@@ -61,6 +61,6 @@ internal enum FormatMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     MacAddress
 }

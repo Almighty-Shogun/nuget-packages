@@ -5,7 +5,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal enum MultiFieldPresenceTriggerMode
 {
     /// <summary>
@@ -13,7 +13,7 @@ internal enum MultiFieldPresenceTriggerMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     WithAny,
 
     /// <summary>
@@ -21,7 +21,7 @@ internal enum MultiFieldPresenceTriggerMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     WithAll,
 
     /// <summary>
@@ -29,7 +29,7 @@ internal enum MultiFieldPresenceTriggerMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     WithoutAny,
 
     /// <summary>
@@ -37,7 +37,7 @@ internal enum MultiFieldPresenceTriggerMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     WithoutAll,
 
     /// <summary>
@@ -45,6 +45,6 @@ internal enum MultiFieldPresenceTriggerMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Prohibits
 }

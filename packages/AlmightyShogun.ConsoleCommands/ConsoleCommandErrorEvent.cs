@@ -14,7 +14,7 @@ namespace AlmightyShogun.ConsoleCommands;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed class ConsoleCommandErrorEvent(string commandName, Exception exception) : EventArgs
 {
     /// <summary>
@@ -23,7 +23,7 @@ public sealed class ConsoleCommandErrorEvent(string commandName, Exception excep
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string CommandName { get; } = commandName;
 
     /// <summary>
@@ -32,6 +32,6 @@ public sealed class ConsoleCommandErrorEvent(string commandName, Exception excep
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public Exception Exception { get; } = exception;
 }

@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="responseWriter">The writer that shapes the gathered failures into the body returned in the handler's place.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class EndpointValidationFilter(
     RequestValidator requestValidator,
     ValidationResponseWriter responseWriter
@@ -33,7 +33,7 @@ internal sealed class EndpointValidationFilter(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
         foreach (object? argument in context.Arguments)

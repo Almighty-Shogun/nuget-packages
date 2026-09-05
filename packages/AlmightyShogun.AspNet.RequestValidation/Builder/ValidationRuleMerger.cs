@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ValidationRuleMerger
 {
     /// <summary>
@@ -29,7 +29,7 @@ internal static class ValidationRuleMerger
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static IRequestValidationRule<TRequest>[] Merge<TRequest>(
         IEnumerable<IRequestValidationRule<TRequest>> rules
     ) where TRequest : class
@@ -63,7 +63,7 @@ internal static class ValidationRuleMerger
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryMerge<TRequest>(
         List<IRequestValidationRule<TRequest>> rules,
         IRequestValidationRule<TRequest> rule

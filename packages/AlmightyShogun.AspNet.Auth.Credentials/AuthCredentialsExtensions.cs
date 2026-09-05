@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public static class AuthCredentialsExtensions
 {
     /// <summary>
@@ -25,7 +25,7 @@ public static class AuthCredentialsExtensions
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
@@ -51,7 +51,7 @@ public static class AuthCredentialsExtensions
         /// <returns>The <see cref="IServiceCollection"/> instance with the credential authentication services registered.</returns>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IServiceCollection AddAuthCredentials<TDbContext, TUser>(
             IConfiguration configuration,
             bool registerExceptionHandler = true

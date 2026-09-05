@@ -5,7 +5,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal enum ValidationValueType
 {
     /// <summary>
@@ -13,7 +13,7 @@ internal enum ValidationValueType
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     String,
 
     /// <summary>
@@ -21,7 +21,7 @@ internal enum ValidationValueType
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Numeric,
 
     /// <summary>
@@ -29,7 +29,7 @@ internal enum ValidationValueType
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Array,
 
     /// <summary>
@@ -37,6 +37,6 @@ internal enum ValidationValueType
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     File
 }

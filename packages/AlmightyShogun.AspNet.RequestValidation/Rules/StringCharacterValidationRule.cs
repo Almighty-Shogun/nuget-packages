@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="mode">Which class or case the text must satisfy, which also decides the message a failure reports.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class StringCharacterValidationRule<TRequest, TProperty>(
     StringCharacterMode mode
 ) : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
@@ -52,7 +52,7 @@ internal sealed class StringCharacterValidationRule<TRequest, TProperty>(
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey() => mode switch
     {
         StringCharacterMode.Alpha => "validation.alpha",
@@ -73,7 +73,7 @@ internal sealed class StringCharacterValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the character is allowed; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsAlphaDashCharacter(char character) => char.IsLetterOrDigit(character) || character is '-' or '_';
 
     /// <summary>
@@ -93,7 +93,7 @@ internal sealed class StringCharacterValidationRule<TRequest, TProperty>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsLowercase(string text) => text.Any(IsCasedCharacter) && !text.Any(char.IsUpper);
 
     /// <summary>
@@ -107,7 +107,7 @@ internal sealed class StringCharacterValidationRule<TRequest, TProperty>(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsUppercase(string text) => text.Any(IsCasedCharacter) && !text.Any(char.IsLower);
 
     /// <summary>
@@ -119,6 +119,6 @@ internal sealed class StringCharacterValidationRule<TRequest, TProperty>(
     /// <returns><c>true</c> when the character's upper and lower forms differ; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsCasedCharacter(char character) => char.ToLowerInvariant(character) != char.ToUpperInvariant(character);
 }

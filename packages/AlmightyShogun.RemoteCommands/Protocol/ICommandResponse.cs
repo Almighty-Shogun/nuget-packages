@@ -6,7 +6,7 @@ namespace AlmightyShogun.RemoteCommands;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public interface ICommandResponse
 {
     /// <summary>
@@ -39,6 +39,6 @@ public interface ICommandResponse
     /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled mid-write.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task WriteAsync<TResponse>(TResponse data, CancellationToken cancellationToken = default);
 }

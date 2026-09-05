@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.Core;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public record HttpErrorResponse
 {
     /// <summary>
@@ -15,7 +15,7 @@ public record HttpErrorResponse
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required int Code { get; init; }
 
     /// <summary>
@@ -24,7 +24,7 @@ public record HttpErrorResponse
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string Error { get; init; }
 
     /// <summary>
@@ -33,6 +33,6 @@ public record HttpErrorResponse
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? ErrorDescription { get; init; }
 }

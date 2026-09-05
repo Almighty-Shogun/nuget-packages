@@ -15,7 +15,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class AuthTimingDefence
 {
     /// <summary>
@@ -23,7 +23,7 @@ internal static class AuthTimingDefence
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly AuthUser _decoyUser = new() { Username = "decoy", Email = "decoy" };
 
     /// <summary>
@@ -31,7 +31,7 @@ internal static class AuthTimingDefence
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly PasswordHasher<AuthUser> _decoyHasher = new();
 
     /// <summary>
@@ -41,7 +41,7 @@ internal static class AuthTimingDefence
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly string _decoyHash = _decoyHasher.HashPassword(_decoyUser, "decoy");
 
     /// <summary>
@@ -53,7 +53,7 @@ internal static class AuthTimingDefence
     /// <returns>The verification outcome, which the caller ignores; only the time it took matters.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static PasswordVerificationResult SpendVerification(string password)
         => _decoyHasher.VerifyHashedPassword(_decoyUser, _decoyHash, password);
 }

@@ -13,7 +13,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="ruleCache">The rules per request type, built on first use and kept for the life of the process.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class RequestValidator(IServiceProvider serviceProvider, ValidationRuleCache ruleCache)
 {
     /// <summary>
@@ -22,7 +22,7 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider, Validat
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private delegate Task<ValidationBag> TypedValidator(
         RequestValidator validator,
         object request,
@@ -35,7 +35,7 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider, Validat
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly ConcurrentDictionary<Type, TypedValidator> _typedValidators = new();
 
     /// <summary>
@@ -50,7 +50,7 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider, Validat
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public Task<ValidationBag> ValidateAsync(object? request, CancellationToken cancellationToken = default)
     {
         if (request is null || !ruleCache.HasRules(request.GetType()))
@@ -68,7 +68,7 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider, Validat
     /// <returns>The compiled validator delegate.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static TypedValidator CreateTypedValidator(Type requestType)
     {
         ParameterExpression validatorParameter = Expression.Parameter(typeof(RequestValidator), "validator");
@@ -100,7 +100,7 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider, Validat
     /// <returns>The failures, at most one per field, since a field's remaining rules are skipped once it has failed.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task<ValidationBag> ValidateTypedAsync<TRequest>(
         TRequest request,
         CancellationToken cancellationToken

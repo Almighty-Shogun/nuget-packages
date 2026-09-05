@@ -9,7 +9,7 @@ namespace AlmightyShogun.RemoteCommands;
 /// <param name="reason">What the server objected to.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed class RemoteCommandRefusedException(RemoteCommandRefusal reason) : RemoteCommandException(Describe(reason))
 {
     /// <summary>
@@ -19,7 +19,7 @@ public sealed class RemoteCommandRefusedException(RemoteCommandRefusal reason) :
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RemoteCommandRefusal Reason { get; } = reason;
 
     /// <summary>
@@ -35,7 +35,7 @@ public sealed class RemoteCommandRefusedException(RemoteCommandRefusal reason) :
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static string Describe(RemoteCommandRefusal reason) => reason switch
     {
         RemoteCommandRefusal.MalformedPayload => "The server could not read the request as JSON.",

@@ -57,7 +57,7 @@ public sealed record RemoteServerSettings
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? Secret { get; init; }
 
     /// <summary>
@@ -65,7 +65,7 @@ public sealed record RemoteServerSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Range(1, int.MaxValue)]
     public int MaxPayloadBytes { get; init; } = 1024 * 1024;
 
@@ -75,7 +75,7 @@ public sealed record RemoteServerSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Range(1, int.MaxValue)]
     public int ReadTimeout { get; init; } = 30;
 
@@ -89,7 +89,7 @@ public sealed record RemoteServerSettings
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Range(1, int.MaxValue)]
     public int IdleTimeout { get; init; } = 120;
 
@@ -98,7 +98,7 @@ public sealed record RemoteServerSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Range(1, int.MaxValue)]
     public int MaxConcurrentConnections { get; init; } = 100;
 }

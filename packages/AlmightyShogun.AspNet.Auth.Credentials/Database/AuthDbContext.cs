@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext(options) where TUser : AuthUser
 {
     /// <summary>
@@ -22,7 +22,7 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DbSet<TUser> Users => Set<TUser>();
 
     /// <summary>
@@ -31,7 +31,7 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DbSet<UserSession> UserSessions => Set<UserSession>();
 
     /// <summary>
@@ -41,7 +41,7 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
     /// <summary>
@@ -50,7 +50,7 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
 
     /// <summary>
@@ -60,7 +60,7 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DbSet<UserTwoFactor> UserTwoFactors => Set<UserTwoFactor>();
 
     /// <summary>
@@ -69,7 +69,7 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DbSet<UserLockout> UserLockouts => Set<UserLockout>();
 
     /// <summary>
@@ -78,7 +78,7 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DbSet<TwoFactorRecoveryCode> TwoFactorRecoveryCodes => Set<TwoFactorRecoveryCode>();
 
     /// <inheritdoc />

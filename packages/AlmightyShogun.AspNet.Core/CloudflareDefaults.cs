@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.Core;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public static class CloudflareDefaults
 {
     /// <summary>
@@ -17,7 +17,7 @@ public static class CloudflareDefaults
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public const string ClientIpHeader = "CF-Connecting-IP";
 
     /// <summary>
@@ -30,7 +30,7 @@ public static class CloudflareDefaults
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static IReadOnlyList<IPNetwork> Networks { get; } =
     [
         // IPv4

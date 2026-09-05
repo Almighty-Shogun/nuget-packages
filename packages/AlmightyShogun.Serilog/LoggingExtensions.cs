@@ -144,7 +144,7 @@ public static class LoggingExtensions
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static Logger CreateLogger(IConfiguration? configuration, bool includeConsoleSink, bool? enableColors)
     {
         LoggerConfiguration loggerConfiguration = new LoggerConfiguration().Enrich.FromLogContext();

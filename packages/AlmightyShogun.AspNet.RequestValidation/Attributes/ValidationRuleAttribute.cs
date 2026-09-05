@@ -16,7 +16,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public abstract class ValidationRuleAttribute : Attribute
 {
     /// <summary>
@@ -24,7 +24,7 @@ public abstract class ValidationRuleAttribute : Attribute
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private protected ValidationRuleAttribute() { }
 
     /// <summary>
@@ -64,7 +64,7 @@ public abstract class ValidationRuleAttribute : Attribute
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal abstract IPropertyValidationRule<TRequest, TProperty> CreateRule<TRequest, TProperty>(PropertyInfo property)
         where TRequest : class;
 }

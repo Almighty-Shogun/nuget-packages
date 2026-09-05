@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.Core;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public interface IHttpErrorResponseWriter
 {
     /// <summary>
@@ -42,7 +42,7 @@ public interface IHttpErrorResponseWriter
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task WriteAsync(
         HttpContext context,
         int statusCode,

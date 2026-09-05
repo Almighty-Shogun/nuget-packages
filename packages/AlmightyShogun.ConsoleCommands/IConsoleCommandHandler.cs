@@ -49,7 +49,7 @@ public interface IConsoleCommandHandler
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     event EventHandler<ConsoleCommandErrorEvent>? CommandFailed;
 
     /// <summary>
@@ -58,6 +58,6 @@ public interface IConsoleCommandHandler
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     void Stop();
 }

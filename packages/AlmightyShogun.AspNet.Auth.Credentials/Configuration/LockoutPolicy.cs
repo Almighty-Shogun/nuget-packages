@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record LockoutPolicy
 {
     /// <summary>
@@ -17,7 +17,7 @@ public sealed record LockoutPolicy
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool Enabled { get; init; } = false;
 
     /// <summary>
@@ -26,7 +26,7 @@ public sealed record LockoutPolicy
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Range(1, int.MaxValue)]
     public int MaxFailedAttempts { get; init; } = 5;
 
@@ -36,7 +36,7 @@ public sealed record LockoutPolicy
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Range(1, int.MaxValue)]
     public int DurationMinutes { get; init; } = 15;
 }

@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="targetType">Whether the target is a literal value or a request field.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class BeforeAttribute(string target, ComparisonTarget targetType = ComparisonTarget.Value) : ValidationRuleAttribute
 {

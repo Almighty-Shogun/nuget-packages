@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record CreateUserRequest
 {
     /// <summary>
@@ -16,7 +16,7 @@ public sealed record CreateUserRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Required]
     public required string Username { get; set; }
 
@@ -25,7 +25,7 @@ public sealed record CreateUserRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Min(8)]
     [Required]
     [PasswordSecure]
@@ -36,7 +36,7 @@ public sealed record CreateUserRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Email]
     [Required]
     public required string Email { get; set; }
@@ -47,7 +47,7 @@ public sealed record CreateUserRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string Role { get; set; } = "User";
 
     /// <summary>
@@ -56,6 +56,6 @@ public sealed record CreateUserRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string[] Permissions { get; set; } = [];
 }

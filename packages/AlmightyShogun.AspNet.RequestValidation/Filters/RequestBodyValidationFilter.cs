@@ -24,7 +24,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class RequestBodyValidationFilter(
     IMessageResolver messageResolver,
     IOptions<MvcOptions> mvcOptions
@@ -36,7 +36,7 @@ internal sealed class RequestBodyValidationFilter(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public int Order => int.MinValue;
 
     /// <summary>
@@ -49,7 +49,7 @@ internal sealed class RequestBodyValidationFilter(
     /// <returns>A task that completes once the pipeline has run, or immediately when the request was answered here.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
     {
         if (!HasBodyParameter(context.ActionDescriptor) || !HasInvalidBody(context.HttpContext.Request))
@@ -71,7 +71,7 @@ internal sealed class RequestBodyValidationFilter(
     /// <returns><c>true</c> when the action expects a request body; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool HasBodyParameter(ActionDescriptor actionDescriptor)
     {
         foreach (ParameterDescriptor parameter in actionDescriptor.Parameters)
@@ -97,7 +97,7 @@ internal sealed class RequestBodyValidationFilter(
     /// <returns><c>true</c> when the request body is empty; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool HasEmptyBody(HttpRequest request) => request.ContentLength == 0;
 
     /// <summary>
@@ -109,7 +109,7 @@ internal sealed class RequestBodyValidationFilter(
     /// <returns><c>true</c> when the body is empty or uses an unsupported content type; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool HasInvalidBody(HttpRequest request) => HasEmptyBody(request) || HasUnsupportedContentType(request);
 
     /// <summary>
@@ -125,7 +125,7 @@ internal sealed class RequestBodyValidationFilter(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool HasUnsupportedContentType(HttpRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.ContentType))
@@ -166,7 +166,7 @@ internal sealed class RequestBodyValidationFilter(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static IEnumerable<string>? GetSupportedMediaTypes(IInputFormatter formatter) => formatter switch
     {
         InputFormatter typed => typed.SupportedMediaTypes,
@@ -185,7 +185,7 @@ internal sealed class RequestBodyValidationFilter(
     /// <returns><c>true</c> when the declared type covers the request's; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool Reads(MediaTypeHeaderValue mediaType, string supported)
         => MediaTypeHeaderValue.TryParse(supported, out MediaTypeHeaderValue? supportedType) && mediaType.IsSubsetOf(supportedType);
 }

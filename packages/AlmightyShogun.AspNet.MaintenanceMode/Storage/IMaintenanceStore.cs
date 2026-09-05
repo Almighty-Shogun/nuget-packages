@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal interface IMaintenanceStore
 {
     /// <summary>
@@ -21,7 +21,7 @@ internal interface IMaintenanceStore
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     ValueTask<PersistedMaintenanceState?> ReadAsync();
 
     /// <summary>
@@ -39,7 +39,7 @@ internal interface IMaintenanceStore
     /// <exception cref="UnauthorizedAccessException">The process may not write the state file.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task WriteAsync(PersistedMaintenanceState state);
 
     /// <summary>
@@ -57,7 +57,7 @@ internal interface IMaintenanceStore
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task ClearAsync();
 
     /// <summary>
@@ -85,6 +85,6 @@ internal interface IMaintenanceStore
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task<bool> TryClearAsync(Guid expectedRevision);
 }

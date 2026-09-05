@@ -36,7 +36,7 @@ internal sealed class CustomConsoleLifetime(IHostApplicationLifetime application
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private PosixSignalRegistration? _sigTermRegistration;
 
     /// <inheritdoc />

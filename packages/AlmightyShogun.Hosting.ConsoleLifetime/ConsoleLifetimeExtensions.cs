@@ -89,7 +89,7 @@ public static class ConsoleLifetimeExtensions
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     extension(IHostApplicationBuilder hostApplicationBuilder)
     {
         /// <summary>
@@ -106,7 +106,7 @@ public static class ConsoleLifetimeExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IHostApplicationBuilder UseCustomConsoleLifetime()
         {
             hostApplicationBuilder.Services.UseCustomConsoleLifetime();
@@ -128,7 +128,7 @@ public static class ConsoleLifetimeExtensions
         /// <returns>The <see cref="IHostApplicationBuilder"/> instance with the host options configured.</returns>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IHostApplicationBuilder ConfigureHostOptions(
             TimeSpan shutdownTimeout,
             BackgroundServiceExceptionBehavior backgroundServiceExceptionBehavior
@@ -152,7 +152,7 @@ public static class ConsoleLifetimeExtensions
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     extension(IHostBuilder hostBuilder)
     {
         /// <summary>
@@ -171,7 +171,7 @@ public static class ConsoleLifetimeExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IHostBuilder UseCustomConsoleLifetime()
             => hostBuilder.ConfigureServices(services => services.UseCustomConsoleLifetime());
 
@@ -189,7 +189,7 @@ public static class ConsoleLifetimeExtensions
         /// <returns>The <see cref="IHostBuilder"/> instance with the host options queued for configuration.</returns>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IHostBuilder ConfigureHostOptions(
             TimeSpan shutdownTimeout,
             BackgroundServiceExceptionBehavior backgroundServiceExceptionBehavior

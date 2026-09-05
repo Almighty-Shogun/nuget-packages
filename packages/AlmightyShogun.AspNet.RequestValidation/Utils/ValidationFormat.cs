@@ -7,7 +7,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ValidationFormat
 {
     /// <summary>
@@ -15,7 +15,7 @@ internal static class ValidationFormat
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly EmailAddressAttribute _emailAddressAttribute = new();
 
     /// <summary>
@@ -28,6 +28,6 @@ internal static class ValidationFormat
     /// <returns><c>true</c> when <see cref="EmailAddressAttribute"/> accepts the text; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool IsEmail(string value) => _emailAddressAttribute.IsValid(value);
 }

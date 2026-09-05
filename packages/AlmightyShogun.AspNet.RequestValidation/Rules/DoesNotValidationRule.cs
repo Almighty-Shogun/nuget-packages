@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <typeparam name="TProperty">The bound property's type, read as text, or as a collection for the contain mode alone.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class DoesNotValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty>
     where TRequest : class
 {
@@ -20,7 +20,7 @@ internal sealed class DoesNotValidationRule<TRequest, TProperty> : IPropertyVali
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly StringMatchMode _mode;
 
     /// <summary>
@@ -28,7 +28,7 @@ internal sealed class DoesNotValidationRule<TRequest, TProperty> : IPropertyVali
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly IReadOnlyList<string> _values;
 
     /// <summary>
@@ -43,7 +43,7 @@ internal sealed class DoesNotValidationRule<TRequest, TProperty> : IPropertyVali
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DoesNotValidationRule(StringMatchMode mode, IReadOnlyList<string> values)
     {
         _mode = mode;
@@ -94,7 +94,7 @@ internal sealed class DoesNotValidationRule<TRequest, TProperty> : IPropertyVali
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool CollectionHoldsNoneOf(TProperty? value)
         => ValidationCollection.TryGetValues(value, out IReadOnlyList<object?> elements)
            && _values.All(forbidden => elements.All(element => !string.Equals(element?.ToString(), forbidden, StringComparison.Ordinal)));
@@ -106,7 +106,7 @@ internal sealed class DoesNotValidationRule<TRequest, TProperty> : IPropertyVali
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey() => _mode switch
     {
         StringMatchMode.Contain => "validation.does-not.contain",

@@ -13,5 +13,5 @@ namespace AlmightyShogun.AspNet.Localization;
 /// <param name="Messages">The flattened messages the load produced, keyed by their dot-separated key.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed record CachedMessages(long Version, IReadOnlyDictionary<string, string> Messages);

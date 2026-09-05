@@ -23,7 +23,7 @@ public abstract class RemoteCommand<T> : IRemoteCommand<T>, IInternalRemoteComma
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly string _name;
 
     /// <summary>
@@ -38,7 +38,7 @@ public abstract class RemoteCommand<T> : IRemoteCommand<T>, IInternalRemoteComma
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     protected RemoteCommand()
     {
         var attribute = GetType().GetCustomAttribute<RemoteCommandAttribute>();
@@ -54,7 +54,7 @@ public abstract class RemoteCommand<T> : IRemoteCommand<T>, IInternalRemoteComma
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     protected string CommandName => _name;
 
     /// <inheritdoc />

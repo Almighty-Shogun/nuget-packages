@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.Localization;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public interface ILanguageProvider
 {
     /// <summary>
@@ -19,7 +19,7 @@ public interface ILanguageProvider
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     string GetLanguage();
 
     /// <summary>
@@ -36,6 +36,6 @@ public interface ILanguageProvider
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     IReadOnlyList<string> GetLanguages() => [GetLanguage()];
 }

@@ -26,7 +26,7 @@ namespace AlmightyShogun.AspNet.Auth;
 /// <param name="logger">The logger the handled error is written to, at a level chosen from the mapped status code.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class JwtAuthExceptionHandler(
     JwtAuthExceptionMapper exceptionMapper,
     IMessageResolver messageResolver,
@@ -70,7 +70,7 @@ internal sealed class JwtAuthExceptionHandler(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private void Log(HttpContext httpContext, Exception exception, ErrorMapping mapping)
     {
         if (mapping.StatusCode >= StatusCodes.Status500InternalServerError)

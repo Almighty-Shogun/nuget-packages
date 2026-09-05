@@ -20,7 +20,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class DigitCountValidationRule<TRequest, TProperty>(
     DigitMode mode,
     int value,
@@ -64,7 +64,7 @@ internal sealed class DigitCountValidationRule<TRequest, TProperty>(
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey() => mode switch
     {
         DigitMode.Exact => "validation.digits",
@@ -82,6 +82,6 @@ internal sealed class DigitCountValidationRule<TRequest, TProperty>(
     /// <returns>The validation message parameters.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private object?[] GetMessageParameters() => mode == DigitMode.Between ? [value, maxValue] : [value];
 }

@@ -11,7 +11,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public interface IRecurringJobRegistry
 {
     /// <summary>
@@ -21,6 +21,6 @@ public interface IRecurringJobRegistry
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     IReadOnlyList<RecurringJobInfo> Jobs { get; }
 }

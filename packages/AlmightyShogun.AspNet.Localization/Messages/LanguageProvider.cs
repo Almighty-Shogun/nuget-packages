@@ -16,7 +16,7 @@ namespace AlmightyShogun.AspNet.Localization;
 /// <param name="localizationOptions">The settings supplying the language used when the request asks for none.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class LanguageProvider(
     IHttpContextAccessor httpContextAccessor,
     IOptions<LocalizationSettings> localizationOptions

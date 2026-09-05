@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <typeparam name="TRequest">The request type the field is read from.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class ValidationField<TRequest> where TRequest : class
 {
     /// <summary>
@@ -21,7 +21,7 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string Name { get; }
 
     /// <summary>
@@ -29,7 +29,7 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly Func<TRequest, object?> _getter;
 
     /// <summary>
@@ -43,7 +43,7 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private ValidationField(string name, Func<TRequest, object?> getter)
     {
         Name = name;
@@ -63,7 +63,7 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public object? GetValue(TRequest request) => _getter(request);
 
     /// <summary>
@@ -85,7 +85,7 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static ValidationField<TRequest> From<TProperty>(Expression<Func<TRequest, TProperty>> expression)
     {
         string name = ValidationExpression.GetFieldName(expression);
@@ -107,7 +107,7 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static IReadOnlyList<ValidationField<TRequest>> FromMany(params Expression<Func<TRequest, object?>>[] expressions)
         => [.. expressions.Select(From)];
 
@@ -125,7 +125,7 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static IReadOnlyList<ValidationField<TRequest>> FromMany(params string[] propertyNames)
         => [.. propertyNames.Select(FromPropertyName)];
 
@@ -145,7 +145,7 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static ValidationField<TRequest> FromPropertyName(string propertyName)
     {
         PropertyInfo property = ResolveProperty(propertyName);
@@ -162,7 +162,7 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     /// <returns>The field names separated by a comma and a space.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static string JoinNames(IEnumerable<ValidationField<TRequest>> fields)
         => ValidationDisplay.JoinValues(fields.Select(field => field.Name));
 
@@ -180,7 +180,7 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static PropertyInfo ResolveProperty(string propertyName)
     {
         Type requestType = typeof(TRequest);

@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.Core;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record ErrorMapping
 {
     /// <summary>
@@ -17,7 +17,7 @@ public sealed record ErrorMapping
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required int StatusCode { get; init; }
 
     /// <summary>
@@ -26,7 +26,7 @@ public sealed record ErrorMapping
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string Code { get; init; }
 
     /// <summary>
@@ -35,7 +35,7 @@ public sealed record ErrorMapping
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string MessageKey { get; init; }
 
     /// <summary>
@@ -44,6 +44,6 @@ public sealed record ErrorMapping
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required IReadOnlyList<object?> MessageParameters { get; init; }
 }

@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <typeparam name="TProperty">The property's type, which every rule held here is typed against.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule<TRequest> where TRequest : class
 {
     /// <summary>
@@ -21,7 +21,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string FieldName { get; }
 
     /// <summary>
@@ -30,7 +30,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal string DeclaredName { get; }
 
     /// <summary>
@@ -38,7 +38,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly Func<TRequest, TProperty> _getter;
 
     /// <summary>
@@ -46,7 +46,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly List<IPropertyValidationRule<TRequest, TProperty>> _rules = [];
 
     /// <summary>
@@ -54,7 +54,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal IReadOnlyList<IPropertyValidationRule<TRequest, TProperty>> Rules => _rules;
 
     /// <summary>
@@ -69,7 +69,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public PropertyRule(Expression<Func<TRequest, TProperty>> expression)
         : this(ValidationExpression.GetProperty(expression), expression.Compile()) { }
 
@@ -81,7 +81,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// <param name="getter">The property value getter.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private PropertyRule(PropertyInfo property, Func<TRequest, TProperty> getter)
         : this(ValidationFieldName.FromProperty(property), property.Name, getter) { }
 
@@ -94,7 +94,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// <param name="getter">The property value getter.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private PropertyRule(string fieldName, string declaredName, Func<TRequest, TProperty> getter)
     {
         _getter = getter;
@@ -111,7 +111,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// <returns>A rule holding none yet, reading the property through reflection rather than through a compiled expression.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static PropertyRule<TRequest, TProperty> FromPropertyInfo(PropertyInfo property)
         => new(property, request => (TProperty)property.GetValue(request)!);
 
@@ -125,7 +125,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// <returns>The empty rule set property rule.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static PropertyRule<TRequest, TProperty> CreateRuleSet(string fieldName) => new(fieldName, fieldName, _ => default!);
 
     /// <summary>
@@ -135,7 +135,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// <param name="rule">The validation rule to add.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public void AddRule(IPropertyValidationRule<TRequest, TProperty> rule) => _rules.Add(rule);
 
     /// <summary>
@@ -147,7 +147,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// <returns><c>true</c> when the rules target the same property; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool TryMerge(IRequestValidationRule<TRequest> rule)
     {
         if (rule is not PropertyRule<TRequest, TProperty> propertyRule)
@@ -167,7 +167,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public void DeduplicateRules()
     {
         HashSet<ValidationRuleIdentity> identities = [];
@@ -217,7 +217,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     /// <param name="priority">The priority to add.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private void AddRulesByPriority(List<IPropertyValidationRule<TRequest, TProperty>> rules, ValidationRulePriority priority)
     {
         foreach (IPropertyValidationRule<TRequest, TProperty> rule in rules.Where(rule => rule.Priority == priority))

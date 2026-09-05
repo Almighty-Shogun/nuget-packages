@@ -63,7 +63,7 @@ internal sealed class RemoteCommandHandler(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly IReadOnlyList<IPNetwork> _whitelist =
         RemoteServerSettingsParser.ParseWhitelist(remoteServerSettings.Value.Whitelisted);
 
@@ -73,7 +73,7 @@ internal sealed class RemoteCommandHandler(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly IPAddress _address = RemoteServerSettingsParser.ParseAddress(remoteServerSettings.Value.Address);
 
     /// <summary>
@@ -84,7 +84,7 @@ internal sealed class RemoteCommandHandler(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly byte[]? _secret = remoteServerSettings.Value.Secret is { Length: > 0 } secret
         ? SHA256.HashData(Encoding.UTF8.GetBytes(secret))
         : null;
@@ -104,7 +104,7 @@ internal sealed class RemoteCommandHandler(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly SemaphoreSlim _connectionLimit = new(remoteServerSettings.Value.MaxConcurrentConnections);
 
     /// <summary>
@@ -112,7 +112,7 @@ internal sealed class RemoteCommandHandler(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly Lock _lifecycleGate = new();
 
     /// <summary>
@@ -122,7 +122,7 @@ internal sealed class RemoteCommandHandler(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly List<Task> _inFlight = [];
 
     /// <summary>
@@ -131,7 +131,7 @@ internal sealed class RemoteCommandHandler(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private CancellationTokenSource? _stopSource;
 
     /// <inheritdoc />
@@ -247,7 +247,7 @@ internal sealed class RemoteCommandHandler(
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static Dictionary<string, RemoteCommandDescriptor> BuildCommandTable(
         IEnumerable<RemoteCommandDescriptor> descriptors,
         ILogger logger
@@ -286,7 +286,7 @@ internal sealed class RemoteCommandHandler(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task HandleClientSafelyAsync(TcpClient client, CancellationToken cancellationToken)
     {
         try
@@ -423,7 +423,7 @@ internal sealed class RemoteCommandHandler(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task DispatchAsync(byte[] frame, Stream stream, IPEndPoint? remoteEndPoint, CancellationToken cancellationToken)
     {
         RemoteCommandPayload? payload;
@@ -549,7 +549,7 @@ internal sealed class RemoteCommandHandler(
     /// <returns><c>true</c> when some configured network contains the address; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool IsWhitelisted(IPAddress? address)
     {
         if (address is null)
@@ -572,7 +572,7 @@ internal sealed class RemoteCommandHandler(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool IsSecretValid(string? supplied)
     {
         if (_secret is null)

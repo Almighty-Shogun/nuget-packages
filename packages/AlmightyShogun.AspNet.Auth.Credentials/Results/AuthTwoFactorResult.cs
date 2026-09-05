@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record AuthTwoFactorResult
 {
     /// <summary>
@@ -15,7 +15,7 @@ public sealed record AuthTwoFactorResult
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string Secret { get; init; }
 
     /// <summary>
@@ -24,6 +24,6 @@ public sealed record AuthTwoFactorResult
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string Uri { get; init; }
 }

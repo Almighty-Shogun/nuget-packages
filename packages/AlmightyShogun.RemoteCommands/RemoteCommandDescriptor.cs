@@ -15,5 +15,5 @@ namespace AlmightyShogun.RemoteCommands;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed record RemoteCommandDescriptor(string Name, Type ImplementationType);

@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [SuppressMessage("Performance", "CA1865:Use char overload")]
 internal static class ValidationFile
 {
@@ -20,7 +20,7 @@ internal static class ValidationFile
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
 
     /// <summary>
@@ -33,7 +33,7 @@ internal static class ValidationFile
     /// <returns><c>true</c> when files can be read; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool TryGetFiles(object? value, out IReadOnlyList<IFormFile> files)
     {
         (bool isValid, IReadOnlyList<IFormFile> resolvedFiles) = value switch
@@ -60,7 +60,7 @@ internal static class ValidationFile
     /// <returns><c>true</c> when the extension is allowed; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool HasExtension(IFormFile file, IReadOnlySet<string> allowedExtensions)
     {
         string extension = Path.GetExtension(file.FileName);
@@ -83,7 +83,7 @@ internal static class ValidationFile
     /// <returns><c>true</c> when the MIME type is allowed; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool HasMimeType(IFormFile file, IReadOnlySet<string> allowedMimeTypes)
         => file.ContentType.Length > 0 && allowedMimeTypes.Contains(file.ContentType);
 
@@ -103,7 +103,7 @@ internal static class ValidationFile
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static Task<bool> IsImageAsync(IFormFile file, CancellationToken cancellationToken)
         => ImageSignature.IsImageAsync(file, cancellationToken);
 
@@ -116,7 +116,7 @@ internal static class ValidationFile
     /// <returns>The normalized extension set.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static IReadOnlySet<string> NormalizeExtensions(IEnumerable<string> extensions) => extensions
         .Select(extension => extension.StartsWith(".", StringComparison.Ordinal) ? extension[1..] : extension)
         .ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -131,7 +131,7 @@ internal static class ValidationFile
     /// <returns>The normalized MIME type set.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static IReadOnlySet<string> NormalizeMimeTypes(IEnumerable<string> mimeTypes)
         => mimeTypes.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -145,7 +145,7 @@ internal static class ValidationFile
     /// <returns>The resolved MIME type set.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static IReadOnlySet<string> ResolveMimeTypes(IEnumerable<string> mimeTypesOrExtensions)
     {
         HashSet<string> mimeTypes = new(StringComparer.OrdinalIgnoreCase);

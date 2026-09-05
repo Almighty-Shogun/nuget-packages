@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal enum ConditionalTargetMode
 {
     /// <summary>
@@ -14,7 +14,7 @@ internal enum ConditionalTargetMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Required,
 
     /// <summary>
@@ -22,7 +22,7 @@ internal enum ConditionalTargetMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Present,
 
     /// <summary>
@@ -30,7 +30,7 @@ internal enum ConditionalTargetMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Missing,
 
     /// <summary>
@@ -38,7 +38,7 @@ internal enum ConditionalTargetMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Prohibited,
 
     /// <summary>
@@ -46,7 +46,7 @@ internal enum ConditionalTargetMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Accepted,
 
     /// <summary>
@@ -54,6 +54,6 @@ internal enum ConditionalTargetMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Declined
 }

@@ -6,7 +6,7 @@ namespace AlmightyShogun.RemoteCommands;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public enum RemoteCommandRefusal
 {
     /// <summary>
@@ -16,7 +16,7 @@ public enum RemoteCommandRefusal
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Other = 0,
 
     /// <summary>
@@ -26,7 +26,7 @@ public enum RemoteCommandRefusal
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     MalformedPayload,
 
     /// <summary>
@@ -35,7 +35,7 @@ public enum RemoteCommandRefusal
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     MissingCommandName,
 
     /// <summary>
@@ -44,7 +44,7 @@ public enum RemoteCommandRefusal
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Unauthorized,
 
     /// <summary>
@@ -53,7 +53,7 @@ public enum RemoteCommandRefusal
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     CommandNotFound,
 
     /// <summary>
@@ -64,6 +64,6 @@ public enum RemoteCommandRefusal
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     InvalidMessage
 }

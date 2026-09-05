@@ -17,7 +17,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </exception>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class NamedConditionalStateValidationRule<TRequest, TProperty>(
     ConditionalStateTargetMode targetMode,
     ConditionalStateMode stateMode,
@@ -32,7 +32,7 @@ internal sealed class NamedConditionalStateValidationRule<TRequest, TProperty>(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly ValidationField<TRequest> _field = ValidationField<TRequest>.FromPropertyName(comparePropertyName);
 
     /// <inheritdoc />
@@ -68,7 +68,7 @@ internal sealed class NamedConditionalStateValidationRule<TRequest, TProperty>(
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey() => (targetMode, stateMode) switch
     {
         (ConditionalStateTargetMode.Required, ConditionalStateMode.Accepted) => "validation.required.if-accepted",

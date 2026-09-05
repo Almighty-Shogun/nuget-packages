@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public interface IMaintenanceService
 {
     /// <summary>
@@ -26,7 +26,7 @@ public interface IMaintenanceService
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task<MaintenanceState> GetAsync();
 
     /// <summary>
@@ -45,7 +45,7 @@ public interface IMaintenanceService
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task<bool> IsEnabledAsync();
 
     /// <summary>
@@ -68,7 +68,7 @@ public interface IMaintenanceService
     /// <exception cref="UnauthorizedAccessException">The process may not write the state file, so no window is opened.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task EnableAsync(MaintenanceRequest request);
 
     /// <summary>
@@ -81,6 +81,6 @@ public interface IMaintenanceService
     /// <exception cref="UnauthorizedAccessException">The process may not delete the state file, so the window stays open.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task DisableAsync();
 }

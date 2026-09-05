@@ -5,7 +5,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record ValidationRuleError
 {
     /// <summary>
@@ -13,7 +13,7 @@ public sealed record ValidationRuleError
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required long Code { get; init; }
 
     /// <summary>
@@ -21,7 +21,7 @@ public sealed record ValidationRuleError
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string Error { get; init; }
 
     /// <summary>
@@ -29,6 +29,6 @@ public sealed record ValidationRuleError
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string? ErrorDescription { get; init; }
 }

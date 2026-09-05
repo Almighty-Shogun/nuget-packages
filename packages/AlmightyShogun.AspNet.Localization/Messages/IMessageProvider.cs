@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.Localization;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal interface IMessageProvider
 {
     /// <summary>
@@ -26,6 +26,6 @@ internal interface IMessageProvider
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     IReadOnlyDictionary<string, string> GetMessages(string language);
 }

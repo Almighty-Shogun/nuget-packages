@@ -16,7 +16,7 @@ namespace AlmightyShogun.AspNet.Core;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class HttpErrorCodes
 {
     /// <summary>
@@ -25,7 +25,7 @@ internal static class HttpErrorCodes
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private const int _tooEarly = 425;
 
     /// <summary>
@@ -43,7 +43,7 @@ internal static class HttpErrorCodes
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static string FromStatusCode(int statusCode)
     {
         if (statusCode is _tooEarly) return "too_early";
@@ -67,7 +67,7 @@ internal static class HttpErrorCodes
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static string ToSnakeCase(string phrase)
     {
         StringBuilder builder = new(phrase.Length);

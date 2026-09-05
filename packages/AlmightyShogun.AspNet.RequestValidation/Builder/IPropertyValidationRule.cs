@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <typeparam name="TProperty">The validated property's type, which is what the rule receives rather than the request.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal interface IPropertyValidationRule<in TRequest, in TProperty> where TRequest : class
 {
     /// <summary>
@@ -17,7 +17,7 @@ internal interface IPropertyValidationRule<in TRequest, in TProperty> where TReq
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     ValidationRulePriority Priority => ValidationRulePriority.Normal;
 
     /// <summary>
@@ -38,7 +38,7 @@ internal interface IPropertyValidationRule<in TRequest, in TProperty> where TReq
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     ValueTask<ValidationRuleResult> ValidateAsync(
         TRequest request,
         TProperty? value,

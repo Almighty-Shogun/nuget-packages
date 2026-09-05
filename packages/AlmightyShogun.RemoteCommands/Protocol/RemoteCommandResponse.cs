@@ -8,7 +8,7 @@ namespace AlmightyShogun.RemoteCommands;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record RemoteCommandResponse
 {
     /// <summary>
@@ -17,7 +17,7 @@ public sealed record RemoteCommandResponse
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public RemoteCommandRefusal? Refusal { get; init; }
 
     /// <summary>
@@ -25,7 +25,7 @@ public sealed record RemoteCommandResponse
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public JsonElement? Data { get; init; }
 
     /// <summary>
@@ -37,6 +37,6 @@ public sealed record RemoteCommandResponse
     /// <returns>The envelope to send, carrying the reason and no data.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static RemoteCommandResponse Refused(RemoteCommandRefusal reason) => new() { Refusal = reason };
 }

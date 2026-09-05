@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="messageResolver">The resolver used to produce the description and the per-field messages.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class ValidationResponseWriter(IMessageResolver messageResolver)
 {
     /// <summary>
@@ -26,7 +26,7 @@ internal sealed class ValidationResponseWriter(IMessageResolver messageResolver)
     /// <returns>The validation error response.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal ValidationErrorResponse CreateResponse(ValidationBag errors)
         => ValidationErrorResponseFactory.Create(messageResolver, errors);
 
@@ -39,7 +39,7 @@ internal sealed class ValidationResponseWriter(IMessageResolver messageResolver)
     /// <returns>The result carrying the validation body, whose status comes from the body rather than being set separately.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal HttpErrorResult CreateResult(ValidationBag errors) => new(CreateResponse(errors));
 
     /// <summary>
@@ -60,7 +60,7 @@ internal sealed class ValidationResponseWriter(IMessageResolver messageResolver)
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal async Task WriteAsync(HttpContext context, int statusCode, string messageKey, CancellationToken cancellationToken)
     {
         if (context.Response.HasStarted) return;

@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <typeparam name="TProperty">The bound property's type, read as an object and parsed as a date.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
@@ -17,7 +17,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly DateMode _mode;
 
     /// <summary>
@@ -26,7 +26,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly string? _format;
 
     /// <summary>
@@ -34,7 +34,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly string? _target;
 
     /// <summary>
@@ -42,7 +42,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly DateTimeOffset? _targetDate;
 
     /// <summary>
@@ -50,7 +50,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly ValidationField<TRequest>? _targetField;
 
     /// <summary>
@@ -58,7 +58,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateValidationRule() => _mode = DateMode.ValidDate;
 
     /// <summary>
@@ -73,7 +73,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateValidationRule(string format)
     {
         if (string.IsNullOrWhiteSpace(format))
@@ -95,7 +95,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateValidationRule(DateMode mode, DateTimeOffset targetDate)
     {
         _mode = RequireOrderingMode(mode);
@@ -115,7 +115,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateValidationRule(DateMode mode, ValidationField<TRequest> targetField)
     {
         _mode = RequireOrderingMode(mode);
@@ -140,7 +140,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateValidationRule(DateMode mode, string targetPropertyName)
         : this(mode, ValidationField<TRequest>.FromPropertyName(targetPropertyName)) { }
 
@@ -185,7 +185,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// <returns><c>true</c> when the target date can be resolved; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool TryGetTargetDate(TRequest request, out DateTimeOffset targetDate)
     {
         if (_targetDate is not { } date)
@@ -206,7 +206,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// <returns><c>true</c> when the date matches; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool Matches(DateTimeOffset date, DateTimeOffset targetDate) => _mode switch
     {
         DateMode.After => date > targetDate,
@@ -232,7 +232,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static DateMode RequireOrderingMode(DateMode mode) => mode switch
     {
         DateMode.After or DateMode.AfterOrEqual or DateMode.Before or DateMode.BeforeOrEqual or DateMode.Equals => mode,
@@ -247,7 +247,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey() => _mode switch
     {
         DateMode.After => "validation.after",

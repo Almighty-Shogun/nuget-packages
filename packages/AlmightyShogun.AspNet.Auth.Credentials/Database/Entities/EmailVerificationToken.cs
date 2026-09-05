@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [Table("email_verification_tokens")]
 [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public sealed class EmailVerificationToken
@@ -21,7 +21,7 @@ public sealed class EmailVerificationToken
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public int Id { get; set; }
 
     /// <summary>
@@ -30,7 +30,7 @@ public sealed class EmailVerificationToken
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public int UserId { get; set; }
 
     /// <summary>
@@ -38,7 +38,7 @@ public sealed class EmailVerificationToken
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Required]
     [MaxLength(64)]
     public string TokenHash { get; set; } = string.Empty;
@@ -49,7 +49,7 @@ public sealed class EmailVerificationToken
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Required]
     [MaxLength(255)]
     public string Email { get; set; } = string.Empty;
@@ -60,7 +60,7 @@ public sealed class EmailVerificationToken
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
@@ -69,7 +69,7 @@ public sealed class EmailVerificationToken
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset ExpiresAt { get; set; }
 
     /// <summary>
@@ -78,7 +78,7 @@ public sealed class EmailVerificationToken
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset? UsedAt { get; set; }
 
     /// <summary>
@@ -86,7 +86,7 @@ public sealed class EmailVerificationToken
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [NotMapped]
     public bool IsActive => UsedAt is null && ExpiresAt > DateTimeOffset.UtcNow;
 }

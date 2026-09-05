@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class ValidationRuleCache(ValidatorRegistry validatorRegistry)
 {
     /// <summary>
@@ -20,7 +20,7 @@ internal sealed class ValidationRuleCache(ValidatorRegistry validatorRegistry)
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly ConcurrentDictionary<Type, object> _requestRules = new();
 
     /// <summary>
@@ -28,7 +28,7 @@ internal sealed class ValidationRuleCache(ValidatorRegistry validatorRegistry)
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly ConcurrentDictionary<Type, bool> _hasAttributeRules = new();
 
     /// <summary>
@@ -43,7 +43,7 @@ internal sealed class ValidationRuleCache(ValidatorRegistry validatorRegistry)
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool HasRules(Type requestType)
         => requestType.IsClass
            && (validatorRegistry.HasValidator(requestType) || _hasAttributeRules.GetOrAdd(requestType, AttributeRuleFactory.HasRules));
@@ -60,7 +60,7 @@ internal sealed class ValidationRuleCache(ValidatorRegistry validatorRegistry)
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<IRequestValidationRule<TRequest>> GetRules<TRequest>() where TRequest : class
         => (IReadOnlyList<IRequestValidationRule<TRequest>>)_requestRules.GetOrAdd(
             typeof(TRequest),

@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public static class TokenHasher
 {
     /// <summary>
@@ -23,7 +23,7 @@ public static class TokenHasher
     /// <returns>The digest as uppercase hexadecimal, stable enough to store in a column and index on.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static string Hash(string token)
     {
         byte[] bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));

@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// <typeparam name="TUser">The application's own user entity, both accepted on creation and returned on sign-in.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public interface IAuthUserService<TUser> where TUser : AuthUser
 {
     /// <summary>
@@ -53,7 +53,7 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task<AuthSessionResult<TUser>> LoginAsync(LoginRequest request, HttpContext context, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -81,7 +81,7 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task<TUser> CreateUserAsync(TUser user, string password, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -108,7 +108,7 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task<AuthSessionResult<TUser>> RegisterAsync(
         TUser user,
         string password,

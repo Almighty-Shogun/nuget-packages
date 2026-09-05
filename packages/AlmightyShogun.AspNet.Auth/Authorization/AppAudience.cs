@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.Auth;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class AppAudience
 {
     /// <summary>
@@ -27,7 +27,7 @@ internal static class AppAudience
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static bool Matches(ClaimsPrincipal? principal, string app) => principal is not null && principal.Claims
         .Where(IsAudienceClaim)
         .Any(claim => string.Equals(claim.Value, app, StringComparison.OrdinalIgnoreCase));
@@ -41,7 +41,7 @@ internal static class AppAudience
     /// <returns><c>true</c> when the claim type is a supported audience claim type; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsAudienceClaim(Claim claim)
         => claim.Type is JwtRegisteredClaimNames.Aud or "http://schemas.microsoft.com/identity/claims/audience";
 }

@@ -20,7 +20,7 @@ public static class HttpContextExtensions
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly object _clientContextKey = new();
 
     /// <summary>
@@ -89,7 +89,7 @@ public static class HttpContextExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public void SetClientContext(ClientContext clientContext) => httpContext.Items[_clientContextKey] = clientContext;
 
         /// <summary>
@@ -106,7 +106,7 @@ public static class HttpContextExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public string? GetIpAddress()
         {
             if (httpContext.Connection.RemoteIpAddress is not { } remoteAddress)
@@ -132,7 +132,7 @@ public static class HttpContextExtensions
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public UserAgent GetUserAgent() => UserAgent.Parse(httpContext.Request.Headers.UserAgent.ToString());
     }
 }

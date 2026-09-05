@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.Auth;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class JwtAuthExceptionMapper : IExceptionMapper
 {
     /// <inheritdoc />

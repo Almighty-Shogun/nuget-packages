@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [Table("user_sessions")]
 [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public sealed class UserSession
@@ -23,7 +23,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public int Id { get; set; }
 
     /// <summary>
@@ -31,7 +31,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public int UserId { get; set; }
 
     /// <summary>
@@ -40,7 +40,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Required]
     [MaxLength(64)]
     public string RefreshTokenHash { get; set; } = string.Empty;
@@ -51,7 +51,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [MaxLength(255)]
     public string? App { get; set; }
 
@@ -60,7 +60,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset ExpiresAt { get; set; }
 
     /// <summary>
@@ -69,7 +69,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
@@ -78,7 +78,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset LastActiveAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
@@ -87,7 +87,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool IsRevoked { get; set; }
 
     /// <summary>
@@ -95,7 +95,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [MaxLength(45)]
     public string? IpAddress { get; set; }
 
@@ -104,7 +104,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [MaxLength(512)]
     public string? UserAgent { get; set; }
 
@@ -113,7 +113,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [MaxLength(256)]
     public string? Device { get; set; }
 
@@ -122,7 +122,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [MaxLength(256)]
     public string? Browser { get; set; }
 
@@ -131,7 +131,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [MaxLength(256)]
     public string? Os { get; set; }
 
@@ -141,7 +141,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [MaxLength(64)]
     public string? PreviousRefreshTokenHash { get; set; }
 
@@ -156,7 +156,7 @@ public sealed class UserSession
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal Guid ConcurrencyToken { get; set; } = Guid.NewGuid();
 
     /// <summary>
@@ -164,7 +164,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [NotMapped]
     public bool IsExpired => DateTimeOffset.UtcNow >= ExpiresAt;
 
@@ -173,7 +173,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [NotMapped]
     public bool IsActive => !IsRevoked && !IsExpired;
 }

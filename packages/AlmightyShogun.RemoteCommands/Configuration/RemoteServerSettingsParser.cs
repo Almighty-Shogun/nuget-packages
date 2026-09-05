@@ -13,7 +13,7 @@ namespace AlmightyShogun.RemoteCommands;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class RemoteServerSettingsParser
 {
     /// <summary>
@@ -28,7 +28,7 @@ internal static class RemoteServerSettingsParser
     /// <exception cref="InvalidOperationException">The configured value is not an IP address.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static IPAddress ParseAddress(string value) => IPAddress.TryParse(value, out IPAddress? address)
         ? address
         : throw new InvalidOperationException($"RemoteServer:Address '{value}' is not an IP address.");
@@ -51,7 +51,7 @@ internal static class RemoteServerSettingsParser
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static IReadOnlyList<IPNetwork> ParseWhitelist(IReadOnlyList<string> values)
     {
         List<IPNetwork> networks = [];

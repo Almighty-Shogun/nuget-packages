@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// <param name="lockoutEnd">The moment the lockout expires.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed class AccountLockedException(DateTimeOffset lockoutEnd) : Exception
 {
     /// <summary>
@@ -16,6 +16,6 @@ public sealed class AccountLockedException(DateTimeOffset lockoutEnd) : Exceptio
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset LockoutEnd { get; } = lockoutEnd;
 }

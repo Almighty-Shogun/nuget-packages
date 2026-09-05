@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class AttributeRuleFactory
 {
     /// <summary>
@@ -21,7 +21,7 @@ internal static class AttributeRuleFactory
     /// <returns><c>true</c> when at least one validation attribute exists; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool HasRules(Type requestType) => requestType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
         .Any(property => property.GetCustomAttributes<ValidationRuleAttribute>(true).Any());
 
@@ -34,7 +34,7 @@ internal static class AttributeRuleFactory
     /// <returns>One rule per property carrying at least one validation attribute, empty when the type carries none.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static IReadOnlyList<IRequestValidationRule<TRequest>> CreateRules<TRequest>() where TRequest : class =>
     [
         .. typeof(TRequest)
@@ -56,7 +56,7 @@ internal static class AttributeRuleFactory
     /// <returns>The property's rule, already holding one rule per declared attribute.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static IRequestValidationRule<TRequest> CreatePropertyRule<TRequest>(
         PropertyInfo property,
         IReadOnlyList<ValidationRuleAttribute> attributes
@@ -77,7 +77,7 @@ internal static class AttributeRuleFactory
     /// <returns>The typed property rule populated with attribute rules.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static PropertyRule<TRequest, TProperty> CreateTypedPropertyRule<TRequest, TProperty>(
         PropertyInfo property,
         IReadOnlyList<ValidationRuleAttribute> attributes

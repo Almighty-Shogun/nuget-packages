@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class ValidationBag
 {
     /// <summary>
@@ -17,7 +17,7 @@ internal sealed class ValidationBag
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly Dictionary<string, List<ValidationError>> _errors = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
@@ -25,7 +25,7 @@ internal sealed class ValidationBag
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool HasErrors => _errors.Count > 0;
 
     /// <summary>
@@ -37,7 +37,7 @@ internal sealed class ValidationBag
     /// <returns><c>true</c> when the field has errors; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool HasError(string field) => _errors.ContainsKey(field);
 
     /// <summary>
@@ -49,7 +49,7 @@ internal sealed class ValidationBag
     /// <param name="parameters">The values substituted into the message template by position, empty when the message takes none.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public void Add(string field, string key, params object?[] parameters)
     {
         if (!_errors.TryGetValue(field, out List<ValidationError>? fieldErrors))
@@ -71,7 +71,7 @@ internal sealed class ValidationBag
     /// <returns>The public validation error dictionary.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyDictionary<string, ValidationRuleError> ToErrorDictionary(IMessageResolver messageResolver) => _errors.ToDictionary(
         error => error.Key,
         error => ToRuleError(error.Value[0], messageResolver),
@@ -88,7 +88,7 @@ internal sealed class ValidationBag
     /// <returns>The public validation rule error model.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static ValidationRuleError ToRuleError(ValidationError validationError, IMessageResolver messageResolver) => new()
     {
         Code = validationError.Code,

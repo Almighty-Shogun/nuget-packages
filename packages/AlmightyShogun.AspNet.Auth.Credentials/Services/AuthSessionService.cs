@@ -44,7 +44,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class AuthSessionService<TUser>(
     AuthDbContext<TUser> databaseContext,
     IOptions<AuthSettings> authOptions,
@@ -213,7 +213,7 @@ internal sealed class AuthSessionService<TUser>(
     /// <exception cref="InvalidCredentialsException">Thrown when no user matches the predicate.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task<TUser> GetUserAsync(Expression<Func<TUser, bool>> predicate, CancellationToken cancellationToken)
     {
         TUser? user = await databaseContext.Users.FirstOrDefaultAsync(predicate, cancellationToken);
@@ -238,7 +238,7 @@ internal sealed class AuthSessionService<TUser>(
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task EnsureNotLockedOutAsync(int userId, LockoutPolicy policy, CancellationToken cancellationToken)
     {
         if (!policy.Enabled)
@@ -269,7 +269,7 @@ internal sealed class AuthSessionService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task<bool> DetectTokenReuseAsync(string refreshTokenHash, CancellationToken cancellationToken)
     {
         UserSession? rotated = await databaseContext.UserSessions
@@ -309,7 +309,7 @@ internal sealed class AuthSessionService<TUser>(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private DateTimeOffset CapToAbsoluteLifetime(UserSession session, DateTimeOffset proposedExpiry)
     {
         if (credentialOptions.Value.AbsoluteSessionLifetimeDays is not { } days)
@@ -333,7 +333,7 @@ internal sealed class AuthSessionService<TUser>(
     /// <returns>The value, trimmed when it exceeds the column length.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static string? Truncate(string? value, int maxLength)
         => value is null || value.Length <= maxLength ? value : value[..maxLength];
 }

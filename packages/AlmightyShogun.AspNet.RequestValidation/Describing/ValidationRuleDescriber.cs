@@ -16,7 +16,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
 {
     /// <summary>
@@ -24,7 +24,7 @@ internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly ConcurrentDictionary<Type, IReadOnlyDictionary<string, IReadOnlyList<ValidationRuleDescription>>> _descriptions =
         new();
 
@@ -41,7 +41,7 @@ internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
     /// <returns>The described rules keyed by the field name a client sees rather than by the declared property name.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static IReadOnlyDictionary<string, IReadOnlyList<ValidationRuleDescription>> BuildDescription(Type requestType)
         => requestType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
             .Select(property => (Field: ValidationFieldName.FromProperty(property), Rules: DescribeProperty(property)))
@@ -57,7 +57,7 @@ internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
     /// <returns>The described rules for the property.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static IReadOnlyList<ValidationRuleDescription> DescribeProperty(PropertyInfo property) =>
     [
         .. GetRuleAttributeData(property)
@@ -87,7 +87,7 @@ internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static IEnumerable<CustomAttributeData> GetRuleAttributeData(PropertyInfo property)
     {
         HashSet<Type> declared = [];
@@ -117,7 +117,7 @@ internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
     /// <returns>The rule name.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static string GetRuleName(Type attributeType)
     {
         const string suffix = "Attribute";
@@ -138,7 +138,7 @@ internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static IReadOnlyList<object?> GetArguments(CustomAttributeData attributeData)
         => [.. attributeData.ConstructorArguments.Select(ToArgumentValue)];
 
@@ -154,7 +154,7 @@ internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static object? ToArgumentValue(CustomAttributeTypedArgument argument)
     {
         if (argument.Value is IReadOnlyCollection<CustomAttributeTypedArgument> elements)

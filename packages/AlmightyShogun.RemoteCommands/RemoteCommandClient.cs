@@ -26,7 +26,7 @@ namespace AlmightyShogun.RemoteCommands;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed class RemoteCommandClient(
     string host,
     int port,
@@ -44,7 +44,7 @@ public sealed class RemoteCommandClient(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private TcpClient? _client;
 
     /// <summary>
@@ -52,7 +52,7 @@ public sealed class RemoteCommandClient(
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private NetworkStream? _stream;
 
     /// <summary>
@@ -97,7 +97,7 @@ public sealed class RemoteCommandClient(
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public async Task<TResponse?> SendAsync<TMessage, TResponse>(
         string command,
         TMessage message,
@@ -211,7 +211,7 @@ public sealed class RemoteCommandClient(
     /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public Task SendAsync<TMessage>(string command, TMessage message, CancellationToken cancellationToken = default)
         => SendAsync<TMessage, JsonElement>(command, message, cancellationToken);
 
@@ -224,7 +224,7 @@ public sealed class RemoteCommandClient(
     /// <returns>A <see cref="ValueTask"/> that completes once the stream and the socket have been disposed.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public async ValueTask DisposeAsync()
     {
         if (_stream is not null)
@@ -256,7 +256,7 @@ public sealed class RemoteCommandClient(
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task<NetworkStream> ConnectAsync(CancellationToken cancellationToken)
     {
         if (_stream is not null && _client?.Connected == true)

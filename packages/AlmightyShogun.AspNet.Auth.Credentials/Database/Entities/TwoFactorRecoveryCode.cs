@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [Table("two_factor_recovery_codes")]
 public sealed class TwoFactorRecoveryCode
 {
@@ -19,7 +19,7 @@ public sealed class TwoFactorRecoveryCode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public int Id { get; set; }
 
     /// <summary>
@@ -28,7 +28,7 @@ public sealed class TwoFactorRecoveryCode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public int UserTwoFactorId { get; set; }
 
     /// <summary>
@@ -37,7 +37,7 @@ public sealed class TwoFactorRecoveryCode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Required]
     [MaxLength(64)]
     public string CodeHash { get; set; } = string.Empty;
@@ -48,6 +48,6 @@ public sealed class TwoFactorRecoveryCode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset? UsedAt { get; set; }
 }

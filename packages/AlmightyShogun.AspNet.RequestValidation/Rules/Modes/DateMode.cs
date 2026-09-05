@@ -5,7 +5,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal enum DateMode
 {
     /// <summary>
@@ -13,7 +13,7 @@ internal enum DateMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     ValidDate,
 
     /// <summary>
@@ -21,7 +21,7 @@ internal enum DateMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     ExactFormat,
 
     /// <summary>
@@ -29,7 +29,7 @@ internal enum DateMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     After,
 
     /// <summary>
@@ -37,7 +37,7 @@ internal enum DateMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     AfterOrEqual,
 
     /// <summary>
@@ -45,7 +45,7 @@ internal enum DateMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Before,
 
     /// <summary>
@@ -53,7 +53,7 @@ internal enum DateMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     BeforeOrEqual,
 
     /// <summary>
@@ -61,6 +61,6 @@ internal enum DateMode
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Equals
 }

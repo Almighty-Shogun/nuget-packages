@@ -5,7 +5,7 @@ namespace AlmightyShogun.Mail.Resend;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record MailAttachment
 {
     /// <summary>
@@ -14,7 +14,7 @@ public sealed record MailAttachment
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required string FileName { get; init; }
 
     /// <summary>
@@ -22,7 +22,7 @@ public sealed record MailAttachment
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required byte[] Content { get; init; }
 
     /// <summary>
@@ -30,6 +30,6 @@ public sealed record MailAttachment
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? ContentType { get; init; }
 }

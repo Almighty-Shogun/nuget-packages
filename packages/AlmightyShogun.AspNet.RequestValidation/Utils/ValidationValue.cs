@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ValidationValue
 {
     /// <summary>
@@ -19,7 +19,7 @@ internal static class ValidationValue
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly string[] _acceptedTexts = ["yes", "on", "1", "true"];
 
     /// <summary>
@@ -28,7 +28,7 @@ internal static class ValidationValue
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly string[] _declinedTexts = ["no", "off", "0", "false"];
 
     /// <summary>
@@ -45,7 +45,7 @@ internal static class ValidationValue
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool IsEmpty(object? value) => value switch
     {
         null => true,
@@ -69,7 +69,7 @@ internal static class ValidationValue
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool IsPresent(object? value) => value is not null;
 
     /// <summary>
@@ -83,7 +83,7 @@ internal static class ValidationValue
     /// <returns><c>true</c> for <c>true</c>, one of the accepted spellings, or the number <c>1</c>; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool IsAccepted(object? value) => value switch
     {
         bool boolValue => boolValue,
@@ -102,7 +102,7 @@ internal static class ValidationValue
     /// <returns><c>true</c> for <c>false</c>, one of the declined spellings, or the number <c>0</c>; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool IsDeclined(object? value) => value switch
     {
         bool boolValue => !boolValue,
@@ -123,7 +123,7 @@ internal static class ValidationValue
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool IsString(object? value) => value is null or string;
 
     /// <summary>
@@ -135,7 +135,7 @@ internal static class ValidationValue
     /// <returns><c>true</c> when the text is accepted; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsAcceptedText(string text) => _acceptedTexts.Contains(text, StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
@@ -147,7 +147,7 @@ internal static class ValidationValue
     /// <returns><c>true</c> when the text is declined; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsDeclinedText(string text) => _declinedTexts.Contains(text, StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
@@ -163,7 +163,7 @@ internal static class ValidationValue
     /// <returns><c>true</c> when the value matches the expected number; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsDecimalValue(object? value, decimal expected)
     {
         if (!TryGetNumber(value, out decimal number))
@@ -186,7 +186,7 @@ internal static class ValidationValue
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool TryGetText(object? value, out string text)
     {
         (bool isValid, string resolvedText) = value switch
@@ -211,7 +211,7 @@ internal static class ValidationValue
     /// <returns><c>true</c> for a boolean, <c>null</c>, an empty string or collection, or text <c>bool.TryParse</c> accepts.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool IsBoolean(object? value) => value switch
     {
         bool => true,
@@ -236,7 +236,7 @@ internal static class ValidationValue
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool IsInteger(object? value) => value switch
     {
         null => true,
@@ -267,7 +267,7 @@ internal static class ValidationValue
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool IsNumeric(object? value) => value switch
     {
         null => true,
@@ -299,7 +299,7 @@ internal static class ValidationValue
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool TryGetNumber(object? value, out decimal number)
     {
         (bool isValid, decimal resolvedNumber) = value switch
@@ -339,7 +339,7 @@ internal static class ValidationValue
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool TryGetDigitText(object? value, out string text)
     {
         text = value switch
@@ -369,7 +369,7 @@ internal static class ValidationValue
     /// <returns><c>true</c> when the value was a number or numeric text; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool TryGetDecimalPlaces(object? value, out int places) => value switch
     {
         string typed => TryGetTextDecimalPlaces(typed, out places),
@@ -391,7 +391,7 @@ internal static class ValidationValue
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryGetTextDecimalPlaces(string value, out int places)
     {
         if (!TryGetNumber(value, out _))
@@ -435,7 +435,7 @@ internal static class ValidationValue
     /// <returns>Always <c>true</c>, so this can be the tail of a try-pattern expression rather than a statement.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool SetDecimalPlaces(decimal value, out int places)
     {
         places = (decimal.GetBits(value)[3] >> 16) & 0x7F;
@@ -452,7 +452,7 @@ internal static class ValidationValue
     /// <returns><c>true</c> when every character encodes to one byte; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool IsAscii(string value) => Encoding.UTF8.GetByteCount(value) == value.Length;
 
     /// <summary>
@@ -465,7 +465,7 @@ internal static class ValidationValue
     /// <returns><c>true</c> when the character is an ASCII digit; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsAsciiDigit(char character) => character is >= '0' and <= '9';
 
 
@@ -479,7 +479,7 @@ internal static class ValidationValue
     /// <returns><c>true</c> when the value read as a number; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryGetNumericDecimalPlaces(object? value, out int places) => !TryGetNumber(value, out decimal number)
         ? Fail(out places)
         : SetDecimalPlaces(number, out places);
@@ -503,7 +503,7 @@ internal static class ValidationValue
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static (bool IsValid, decimal Number) TryFromFloatingPoint(double value)
     {
         const double maximum = 7.9228162514264337e28;
@@ -525,7 +525,7 @@ internal static class ValidationValue
     /// <returns><c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool Fail<T>(out T value)
     {
         value = default!;

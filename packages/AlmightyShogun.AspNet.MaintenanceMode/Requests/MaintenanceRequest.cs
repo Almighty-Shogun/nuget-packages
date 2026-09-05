@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record MaintenanceRequest
 {
     /// <summary>
@@ -15,7 +15,7 @@ public sealed record MaintenanceRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? Message { get; init; }
 
     /// <summary>
@@ -23,7 +23,7 @@ public sealed record MaintenanceRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset? EndsAt { get; init; }
 
     /// <summary>
@@ -31,7 +31,7 @@ public sealed record MaintenanceRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset? StartsAt { get; init; }
 
     /// <summary>
@@ -39,7 +39,7 @@ public sealed record MaintenanceRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool? AutoDisableWhenExpired { get; init; }
 
     /// <summary>
@@ -48,7 +48,7 @@ public sealed record MaintenanceRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool? RedirectBlockedRequests { get; init; }
 
     /// <summary>
@@ -56,7 +56,7 @@ public sealed record MaintenanceRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<string>? AllowedPaths { get; init; }
 
     /// <summary>
@@ -64,7 +64,7 @@ public sealed record MaintenanceRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<string>? AllowedPathPrefixes { get; init; }
 
     /// <summary>
@@ -72,6 +72,6 @@ public sealed record MaintenanceRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<string>? AllowedIpAddresses { get; init; }
 }

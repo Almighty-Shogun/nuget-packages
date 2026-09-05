@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class AuthSessionDefaults
 {
     /// <summary>
@@ -21,6 +21,6 @@ internal static class AuthSessionDefaults
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     internal static readonly TimeSpan RotationGrace = TimeSpan.FromSeconds(30);
 }

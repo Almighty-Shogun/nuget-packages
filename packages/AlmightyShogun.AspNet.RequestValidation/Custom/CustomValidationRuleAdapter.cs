@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <typeparam name="TProperty">The property type the wrapped rule is handed the value of.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
@@ -23,7 +23,7 @@ internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValid
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly Type _ruleType;
 
     /// <summary>
@@ -39,7 +39,7 @@ internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValid
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public CustomValidationRuleAdapter(Type ruleType)
     {
         if (!typeof(ICustomValidationRule<TRequest, TProperty>).IsAssignableFrom(ruleType))
@@ -78,7 +78,7 @@ internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValid
 /// </typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class CustomValidationRuleAdapter<TRequest, TProperty, TRule>
     : CustomValidationRuleAdapter<TRequest, TProperty> where TRequest : class where TRule : class
 {
@@ -88,6 +88,6 @@ internal sealed class CustomValidationRuleAdapter<TRequest, TProperty, TRule>
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public CustomValidationRuleAdapter() : base(typeof(TRule)) { }
 }

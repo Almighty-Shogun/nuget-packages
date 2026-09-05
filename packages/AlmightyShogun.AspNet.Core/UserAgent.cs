@@ -53,7 +53,7 @@ public sealed record UserAgent
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private const string Unknown = "Unknown";
 
     /// <summary>
@@ -63,7 +63,7 @@ public sealed record UserAgent
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly Parser Parser = Parser.GetDefault();
 
     /// <summary>
@@ -83,7 +83,7 @@ public sealed record UserAgent
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static UserAgent Parse(string userAgent)
     {
         if (string.IsNullOrEmpty(userAgent))

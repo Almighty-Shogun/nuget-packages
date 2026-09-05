@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 [Table("user_two_factors")]
 public sealed class UserTwoFactor
 {
@@ -19,7 +19,7 @@ public sealed class UserTwoFactor
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public int Id { get; set; }
 
     /// <summary>
@@ -27,7 +27,7 @@ public sealed class UserTwoFactor
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public int UserId { get; set; }
 
     /// <summary>
@@ -36,7 +36,7 @@ public sealed class UserTwoFactor
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public bool IsEnabled { get; set; }
 
     /// <summary>
@@ -46,7 +46,7 @@ public sealed class UserTwoFactor
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [Required]
     [MaxLength(512)]
     public string Secret { get; set; } = string.Empty;
@@ -58,7 +58,7 @@ public sealed class UserTwoFactor
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     [MaxLength(512)]
     public string? PendingSecret { get; set; }
 
@@ -69,7 +69,7 @@ public sealed class UserTwoFactor
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset? PendingSecretExpiresAt { get; set; }
 
     /// <summary>
@@ -77,7 +77,7 @@ public sealed class UserTwoFactor
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public long? LastWindow { get; set; }
 
     /// <summary>
@@ -87,7 +87,7 @@ public sealed class UserTwoFactor
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
@@ -96,6 +96,6 @@ public sealed class UserTwoFactor
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public List<TwoFactorRecoveryCode> RecoveryCodes { get; set; } = [];
 }

@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public interface ICustomValidationRule<in TRequest, in TProperty> where TRequest : class
 {
     /// <summary>
@@ -27,6 +27,6 @@ public interface ICustomValidationRule<in TRequest, in TProperty> where TRequest
     /// <returns>The validation rule result.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     Task<ValidationRuleResult> ValidateAsync(TRequest request, TProperty? value, CancellationToken cancellationToken = default);
 }

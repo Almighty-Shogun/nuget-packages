@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ValidationSize
 {
     /// <summary>
@@ -24,7 +24,7 @@ internal static class ValidationSize
     /// <returns><c>true</c> when the value was one of those four shapes; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static bool TryGetComparableSize(object? value, out decimal size, out ValidationValueType type) => value switch
     {
         IFormFile typed => SetComparableSize(ToKilobytes(typed.Length), ValidationValueType.File, out size, out type),
@@ -45,7 +45,7 @@ internal static class ValidationSize
     /// <returns>Always <c>true</c>, since reaching here means a size was measured.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool SetComparableSize(decimal value, ValidationValueType valueType, out decimal size, out ValidationValueType type)
     {
         size = value;
@@ -63,7 +63,7 @@ internal static class ValidationSize
     /// <returns>The segment appended to the rule's key, such as <c>string</c> or <c>file</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static string ToMessageType(ValidationValueType type) => type switch
     {
         ValidationValueType.Array => "array",
@@ -87,7 +87,7 @@ internal static class ValidationSize
     /// <returns><c>true</c> when the numeric size can be read; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryGetNumericComparableSize(object? value, out decimal size, out ValidationValueType type)
     {
         if (TryGetOrderableNumber(value, out decimal number))
@@ -120,7 +120,7 @@ internal static class ValidationSize
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool TryGetOrderableNumber(object? value, out decimal number)
     {
         if (ValidationValue.TryGetNumber(value, out number))
@@ -155,6 +155,6 @@ internal static class ValidationSize
     /// <returns>The kilobyte value.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static decimal ToKilobytes(long bytes) => bytes / 1024m;
 }

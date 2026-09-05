@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.Localization;
 /// <param name="next">The rest of the pipeline, always invoked; this middleware never short-circuits a request.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class ContentLanguageMiddleware(RequestDelegate next)
 {
     /// <summary>
@@ -32,7 +32,7 @@ internal sealed class ContentLanguageMiddleware(RequestDelegate next)
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public async Task InvokeAsync(HttpContext context, IMessageResolver messageResolver)
     {
         context.Response.OnStarting(static state =>

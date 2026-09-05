@@ -36,7 +36,7 @@ public static class ConsoleCommandExtensions
         /// <returns>The <see cref="IServiceCollection"/> instance with the console commands registered.</returns>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public IServiceCollection RegisterConsoleCommands() => serviceCollection.RegisterConsoleCommands([Assembly.GetCallingAssembly()]);
 
         /// <summary>

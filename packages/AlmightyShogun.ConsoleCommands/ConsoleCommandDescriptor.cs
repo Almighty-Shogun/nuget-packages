@@ -20,5 +20,5 @@ namespace AlmightyShogun.ConsoleCommands;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed record ConsoleCommandDescriptor(string Name, IReadOnlyList<string> Aliases, Type ImplementationType);

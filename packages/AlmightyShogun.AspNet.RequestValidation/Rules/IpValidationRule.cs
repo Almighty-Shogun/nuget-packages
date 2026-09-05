@@ -13,7 +13,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="mode">Which address family to insist on, which also decides the message a failure reports.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class IpValidationRule<TRequest, TProperty>(
     IpMode mode
 ) : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
@@ -52,7 +52,7 @@ internal sealed class IpValidationRule<TRequest, TProperty>(
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey() => mode switch
     {
         IpMode.Ipv4 => "validation.ip.ipv4",

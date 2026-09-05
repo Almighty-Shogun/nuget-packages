@@ -50,7 +50,7 @@ public static class ClaimsPrincipalExtensions
         /// </returns>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>4.0.0</since>
         public Guid? TryGetCurrentUserId()
         {
             string? value = principal.FindFirstValue(AuthClaimTypes.UserId) ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);

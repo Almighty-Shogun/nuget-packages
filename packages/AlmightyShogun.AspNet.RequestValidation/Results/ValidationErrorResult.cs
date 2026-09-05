@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public static class ValidationErrorResult
 {
     /// <summary>
@@ -29,7 +29,7 @@ public static class ValidationErrorResult
     /// <returns>The result carrying the validation body, whose status comes from the body rather than being set separately.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static HttpErrorResult Create(IMessageResolver messageResolver, string field, string key, params object?[] parameters)
         => new(ValidationErrorResponseFactory.Create(messageResolver, field, key, parameters));
 }

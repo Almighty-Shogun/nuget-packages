@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal static class ImageSignature
 {
     /// <summary>
@@ -23,7 +23,7 @@ internal static class ImageSignature
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private const int _signatureBytes = 32;
 
     /// <summary>
@@ -32,7 +32,7 @@ internal static class ImageSignature
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly byte[] _pngSignature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
 
     /// <summary>
@@ -40,7 +40,7 @@ internal static class ImageSignature
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly byte[] _tiffLittleEndianSignature = [0x49, 0x49, 0x2A, 0x00];
 
     /// <summary>
@@ -48,7 +48,7 @@ internal static class ImageSignature
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly byte[] _tiffBigEndianSignature = [0x4D, 0x4D, 0x00, 0x2A];
 
     /// <summary>
@@ -56,7 +56,7 @@ internal static class ImageSignature
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly byte[] _iconSignature = [0x00, 0x00, 0x01, 0x00];
 
     /// <summary>
@@ -65,7 +65,7 @@ internal static class ImageSignature
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static readonly byte[][] _stillImageBrands =
     [
         [.. "avif"u8], [.. "avis"u8],
@@ -84,7 +84,7 @@ internal static class ImageSignature
     /// <returns><c>true</c> when the leading bytes are a recognized image signature; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public static async Task<bool> IsImageAsync(IFormFile file, CancellationToken cancellationToken)
     {
         if (file.Length <= 0)
@@ -117,7 +117,7 @@ internal static class ImageSignature
     /// <returns><c>true</c> when any signature matched; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsImage(ReadOnlySpan<byte> header)
         => IsPng(header)
            || IsGif(header)
@@ -137,7 +137,7 @@ internal static class ImageSignature
     /// <returns><c>true</c> when the header is PNG; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsPng(ReadOnlySpan<byte> header)
         => header.Length >= 8 && header[..8].SequenceEqual(_pngSignature);
 
@@ -150,7 +150,7 @@ internal static class ImageSignature
     /// <returns><c>true</c> when the header is GIF; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsGif(ReadOnlySpan<byte> header)
         => header.Length >= 6 && (header[..6].SequenceEqual("GIF87a"u8) || header[..6].SequenceEqual("GIF89a"u8));
 
@@ -163,7 +163,7 @@ internal static class ImageSignature
     /// <returns><c>true</c> when the header is JPEG; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsJpeg(ReadOnlySpan<byte> header)
         => header.Length >= 3 && header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF;
 
@@ -176,7 +176,7 @@ internal static class ImageSignature
     /// <returns><c>true</c> when the header is WebP; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsWebP(ReadOnlySpan<byte> header)
         => header.Length >= 12 && header[..4].SequenceEqual("RIFF"u8) && header.Slice(8, 4).SequenceEqual("WEBP"u8);
 
@@ -189,7 +189,7 @@ internal static class ImageSignature
     /// <returns><c>true</c> when the header is BMP; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsBmp(ReadOnlySpan<byte> header) => header.Length >= 2 && header[..2].SequenceEqual("BM"u8);
 
     /// <summary>
@@ -201,7 +201,7 @@ internal static class ImageSignature
     /// <returns><c>true</c> when the header is TIFF; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsTiff(ReadOnlySpan<byte> header)
     {
         if (header.Length < 4)
@@ -219,7 +219,7 @@ internal static class ImageSignature
     /// <returns><c>true</c> when the header is an icon; otherwise, <c>false</c>. A cursor shares the layout and is not accepted.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsIcon(ReadOnlySpan<byte> header)
         => header.Length >= 4 && header[..4].SequenceEqual(_iconSignature);
 
@@ -235,7 +235,7 @@ internal static class ImageSignature
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static bool IsStillImageContainer(ReadOnlySpan<byte> header)
     {
         if (header.Length < 12 || !header.Slice(4, 4).SequenceEqual("ftyp"u8))

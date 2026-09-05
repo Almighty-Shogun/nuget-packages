@@ -5,7 +5,7 @@ namespace AlmightyShogun.Mail.Resend;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 public sealed record MailOptions
 {
     /// <summary>
@@ -13,7 +13,7 @@ public sealed record MailOptions
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public required IReadOnlyList<string> To { get; init; }
 
     /// <summary>
@@ -21,7 +21,7 @@ public sealed record MailOptions
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<string> Cc { get; init; } = [];
 
     /// <summary>
@@ -30,7 +30,7 @@ public sealed record MailOptions
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<string> Bcc { get; init; } = [];
 
     /// <summary>
@@ -39,7 +39,7 @@ public sealed record MailOptions
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<string> ReplyTo { get; init; } = [];
 
     /// <summary>
@@ -47,7 +47,7 @@ public sealed record MailOptions
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public IReadOnlyList<MailAttachment> Attachments { get; init; } = [];
 
     /// <summary>
@@ -61,6 +61,6 @@ public sealed record MailOptions
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public string? IdempotencyKey { get; init; }
 }

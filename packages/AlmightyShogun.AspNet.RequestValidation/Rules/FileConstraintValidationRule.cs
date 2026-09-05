@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <typeparam name="TProperty">The bound property's type, read as one upload or as several rather than constrained here.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.0.0</since>
 internal sealed class FileConstraintValidationRule<TRequest, TProperty>
     : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
@@ -20,7 +20,7 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly FileConstraintMode _mode;
 
     /// <summary>
@@ -28,7 +28,7 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly IReadOnlyList<string> _values;
 
     /// <summary>
@@ -36,7 +36,7 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly IReadOnlySet<string> _normalizedValues;
 
     /// <summary>
@@ -44,7 +44,7 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private readonly ImageDimensionConstraints? _dimensionConstraints;
 
     /// <summary>
@@ -56,7 +56,7 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
     /// <param name="dimensionConstraints">The width and height to enforce, absent for a file rule that constrains something else.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     public FileConstraintValidationRule(
         FileConstraintMode mode,
         IReadOnlyList<string>? values = null,
@@ -115,7 +115,7 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
     /// <returns><c>true</c> when every file opens with a recognized image signature; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private static async Task<bool> AreAllImagesAsync(IReadOnlyList<IFormFile> files, CancellationToken cancellationToken)
     {
         foreach (IFormFile file in files)
@@ -135,7 +135,7 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
     /// <returns><c>true</c> when all files have valid dimensions; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private async Task<bool> HasValidDimensionsAsync(IReadOnlyList<IFormFile> files, CancellationToken cancellationToken)
     {
         if (_dimensionConstraints is null)
@@ -162,7 +162,7 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
     /// <returns><c>true</c> when the dimensions match; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private bool MatchesDimensions(ImageDimensions dimensions) => _mode switch
     {
         FileConstraintMode.Dimensions => _dimensionConstraints!.MatchesExact(dimensions),
@@ -179,7 +179,7 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
     /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private string GetMessageKey() => _mode switch
     {
         FileConstraintMode.Uploaded => "validation.uploaded",
@@ -204,7 +204,7 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.0.0</since>
     private object?[] GetMessageParameters(string field) => _mode switch
     {
         FileConstraintMode.Uploaded => [field],
