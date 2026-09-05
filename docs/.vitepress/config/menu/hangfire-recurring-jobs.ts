@@ -10,13 +10,6 @@ export const hangfireRecurringJobs: DefaultTheme.SidebarItem[] = [
         ]
     },
     {
-        text: 'Configuration',
-        collapsed: false,
-        items: [
-            { text: 'RecurringJobSettings', link: '/hangfire-recurring-jobs/configuration/recurring-job-settings' }
-        ]
-    },
-    {
         text: 'Extensions',
         collapsed: false,
         items: [

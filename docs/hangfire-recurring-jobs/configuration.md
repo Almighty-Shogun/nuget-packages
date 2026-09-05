@@ -1,6 +1,6 @@
 ---
 fields:
-    - name: RecurringJobs
+    - name: RecurringJobSettings
       description: The `RecurringJobs` section itself. Every value has a default, so the section may be absent and an application that schedules the same jobs everywhere never needs it.
       fields:
           - name: EnabledByDefault
@@ -10,11 +10,11 @@ fields:
 
           - name: Jobs
             description: Per-job overrides keyed by job id, matched ignoring case. A key naming a job the scan did not find stops the host, since that is nearly always a typo.
-            type: 'Dictionary<string, RecurringJobOverride>'
+            type: 'IReadOnlyDictionary<string, RecurringJobOverride>'
             default: '{}'
 
-    - name: Jobs
-      description: One entry under `Jobs`. Every value is optional and an omitted one keeps what the attribute declared, so an entry only names what changes.
+    - name: RecurringJobOverride
+      description: One entry under `Jobs`, replacing what a single job's attribute declares. Every value is optional and an omitted one keeps the declared one, so an entry only names what changes.
       fields:
           - name: Enabled
             description: Whether the job is scheduled, outranking both the attribute and `EnabledByDefault`.
