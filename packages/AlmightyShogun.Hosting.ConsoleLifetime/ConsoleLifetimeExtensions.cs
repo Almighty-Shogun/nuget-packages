@@ -6,7 +6,8 @@ namespace AlmightyShogun.Hosting.ConsoleLifetime;
 
 /// <summary>
 /// Provides the two startup helpers this package contributes: taking over the console lifetime so <c>Ctrl+C</c> no longer
-/// stops the process, and setting the host options that govern shutdown. Each is offered on all three startup entry points.
+/// stops the process unless <c>DOTNET_RUNNING_IN_IDE</c> is set, and setting the host options that govern shutdown. Each is
+/// offered on all three startup entry points.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -29,16 +30,19 @@ public static class ConsoleLifetimeExtensions
     {
         /// <summary>
         /// Takes over the console lifetime so <c>Ctrl+C</c> no longer stops the application, for a worker or daemon that
-        /// should only stop when something asks it to. <c>SIGTERM</c> still shuts the host down in an orderly way.
+        /// should only stop when something asks it to. Off Windows a <c>SIGTERM</c> handler is registered and still shuts
+        /// the host down in an orderly way; on Windows none is, so the host has to be asked to stop from inside the process.
         /// </summary>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the custom <see cref="IHostLifetime"/> registered.</returns>
         ///
         /// <remarks>
-        /// Set <c>DOTNET_RUNNING_IN_IDE</c> in a run configuration to keep <c>Ctrl+C</c> working while debugging, otherwise a
-        /// locally launched process can only be stopped from outside.
+        /// Set <c>DOTNET_RUNNING_IN_IDE</c> to a non-empty value to keep <c>Ctrl+C</c> working while debugging. Without it, the
+        /// process stops when <c>SIGTERM</c> arrives off Windows, when something in the process calls
+        /// <see cref="IHostApplicationLifetime.StopApplication"/>, or when it is killed from outside.
         ///
         /// The default lifetime is replaced rather than added, so calling this twice still leaves exactly one registration.
+        /// The replacement is appended, though, so a later plain <c>Add</c> for <see cref="IHostLifetime"/> still wins.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
@@ -51,13 +55,13 @@ public static class ConsoleLifetimeExtensions
         ///
         /// <param name="shutdownTimeout">
         /// How long the host waits for hosted services to stop before it gives up and continues shutting down. Too short
-        /// truncates work that was mid-flight; too long delays a restart and can trip an orchestrator's own kill timeout.
+        /// truncates work that was mid-flight; too long leaves the process alive after it has stopped serving.
         /// </param>
         /// <param name="backgroundServiceExceptionBehavior">
         /// What an unhandled exception in a <see cref="BackgroundService"/> does.
-        /// <see cref="BackgroundServiceExceptionBehavior.StopHost"/> brings the whole application down, which surfaces the
-        /// fault; <see cref="BackgroundServiceExceptionBehavior.Ignore"/> logs it and leaves the process running with that one
-        /// service dead.
+        /// <see cref="BackgroundServiceExceptionBehavior.StopHost"/> stops the <see cref="IHost"/> while the process itself
+        /// continues; <see cref="BackgroundServiceExceptionBehavior.Ignore"/> logs it and leaves the process running with
+        /// that one service dead.
         /// </param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the host options configured.</returns>
@@ -89,8 +93,9 @@ public static class ConsoleLifetimeExtensions
     extension(IHostApplicationBuilder hostApplicationBuilder)
     {
         /// <summary>
-        /// Takes over the console lifetime so <c>Ctrl+C</c> no longer stops the application, leaving <c>SIGTERM</c> as the
-        /// orderly way out.
+        /// Takes over the console lifetime so <c>Ctrl+C</c> no longer stops the application, unless
+        /// <c>DOTNET_RUNNING_IN_IDE</c> is set. Off Windows a <c>SIGTERM</c> handler is registered as the orderly way out;
+        /// on Windows none is.
         /// </summary>
         ///
         /// <returns>The <see cref="IHostApplicationBuilder"/> instance with the custom <see cref="IHostLifetime"/> registered.</returns>
@@ -137,7 +142,8 @@ public static class ConsoleLifetimeExtensions
 
     /// <summary>
     /// Provides both helpers on the generic host builder, each deferring its registration into
-    /// <see cref="IHostBuilder.ConfigureServices"/> rather than applying it where it is called.
+    /// <see cref="HostingHostBuilderExtensions.ConfigureServices(IHostBuilder, Action{IServiceCollection})"/> rather than
+    /// applying it where it is called.
     /// </summary>
     ///
     /// <param name="hostBuilder">
@@ -150,15 +156,17 @@ public static class ConsoleLifetimeExtensions
     extension(IHostBuilder hostBuilder)
     {
         /// <summary>
-        /// Takes over the console lifetime so <c>Ctrl+C</c> no longer stops the application, leaving <c>SIGTERM</c> as the
-        /// orderly way out.
+        /// Takes over the console lifetime so <c>Ctrl+C</c> no longer stops the application. Off Windows a <c>SIGTERM</c>
+        /// handler is registered as the orderly way out; on Windows none is.
         /// </summary>
         ///
-        /// <returns>The <see cref="IHostBuilder"/> instance with the custom <see cref="IHostLifetime"/> registered.</returns>
+        /// <returns>The <see cref="IHostBuilder"/> instance with the custom <see cref="IHostLifetime"/> queued for registration.</returns>
         ///
         /// <remarks>
-        /// Registration is deferred into <see cref="IHostBuilder.ConfigureServices"/>, so it lands whenever the builder runs
-        /// its callbacks rather than at the moment this is called.
+        /// Registration is deferred into
+        /// <see cref="HostingHostBuilderExtensions.ConfigureServices(IHostBuilder, Action{IServiceCollection})"/>, so it
+        /// lands whenever the builder runs its callbacks rather than at the moment this is called. Setting
+        /// <c>DOTNET_RUNNING_IN_IDE</c> leaves <c>Ctrl+C</c> working, so a stop button still ends the process.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
@@ -177,7 +185,7 @@ public static class ConsoleLifetimeExtensions
         /// Whether an unhandled exception in a <see cref="BackgroundService"/> stops the host or is logged and ignored.
         /// </param>
         ///
-        /// <returns>The <see cref="IHostBuilder"/> instance with the host options configured.</returns>
+        /// <returns>The <see cref="IHostBuilder"/> instance with the host options queued for configuration.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
