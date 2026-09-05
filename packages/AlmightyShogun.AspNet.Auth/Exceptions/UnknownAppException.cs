@@ -1,7 +1,8 @@
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Thrown when a request host does not map to any configured application audience, so the request cannot be attributed
+/// Thrown when no configured application audience can be resolved, whether a request host maps to none, a caller-supplied
+/// host does, or there is no request in flight at all, so the request cannot be attributed
 /// to an application and must not be served.
 /// </summary>
 ///

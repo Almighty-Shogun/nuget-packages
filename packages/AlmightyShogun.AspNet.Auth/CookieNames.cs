@@ -10,8 +10,9 @@ namespace AlmightyShogun.AspNet.Auth;
 public static class CookieNames
 {
     /// <summary>
-    /// The name of the cookie carrying the refresh token. Written <c>HttpOnly</c>, so script on the page cannot read it
-    /// even though it is sent on every request to the origin.
+    /// The name of the cookie carrying the refresh token. Written <c>HttpOnly</c> and scoped to the root path, so script on
+    /// the page cannot read it. Whether it accompanies a given request still depends on the configured <c>SameSite</c> mode
+    /// and, for a cookie written over HTTPS, on that request being secure too.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

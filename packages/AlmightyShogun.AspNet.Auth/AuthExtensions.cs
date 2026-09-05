@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Registers the services and authentication handlers provided by ASP.NET JWT Auth.
+/// Registers the bearer authentication, authorization, and token services this package provides.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -17,7 +17,8 @@ namespace AlmightyShogun.AspNet.Auth;
 public static class AuthExtensions
 {
     /// <summary>
-    /// Provides service-collection extension methods for registering JWT authentication and authorization services.
+    /// Provides the single call that wires this package into an application, so the bearer scheme, the policy provider,
+    /// and the authorization handlers are never registered one at a time.
     /// </summary>
     ///
     /// <param name="serviceCollection">
@@ -30,7 +31,7 @@ public static class AuthExtensions
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Registers bearer authentication, the permission policy provider, and the app-audience requirement, binding the
+        /// Registers bearer authentication, the permission policy provider, and the app-audience handler, binding the
         /// <c>Auth</c> section they all read from and forcing its audience list to be built while the host starts.
         /// </summary>
         ///
@@ -40,9 +41,10 @@ public static class AuthExtensions
         /// </param>
         /// <param name="registerExceptionHandler">
         /// Whether to register the handler that turns this package's exceptions into standardized responses. It needs
-        /// <c>AddHttpErrorResponseWriter</c> and <c>AddMessageLocalization</c> from <c>AlmightyShogun.AspNet.Core</c>, and
-        /// runs ahead of whatever <c>AddExceptionHandling</c> registers. The mapper is registered either way, so a
-        /// replacement handler can still resolve it.
+        /// <c>AddHttpErrorResponseWriter</c> from <c>AlmightyShogun.AspNet.Core</c> and <c>AddMessageLocalization</c> from
+        /// <c>AlmightyShogun.AspNet.Localization</c>. Call this ahead of <c>AddExceptionHandling</c>, since the fallback
+        /// handler there answers everything and would claim these exceptions first. Passing <c>false</c> leaves them to
+        /// whatever handler the application registers instead.
         /// </param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with JWT authentication and authorization registered.</returns>

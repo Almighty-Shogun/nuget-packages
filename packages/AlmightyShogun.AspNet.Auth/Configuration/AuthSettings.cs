@@ -26,7 +26,7 @@ public sealed record AuthSettings
     /// <summary>
     /// Gets the symmetric signing secret used to sign and validate JWT signatures. Must be at least 32 characters, which
     /// is what startup validation enforces. UTF-8 never encodes a character to fewer than one byte, so that also satisfies
-    /// the 32-byte minimum HMAC-SHA256 accepts.
+    /// the 32 bytes this package requires of the key.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -87,7 +87,9 @@ public sealed record AuthSettings
     public SameSiteMode SameSite { get; init; } = SameSiteMode.Lax;
 
     /// <summary>
-    /// Gets the application audience name used when requests arrive from plain localhost in development.
+    /// Gets the application audience name used when a request arrives from a loopback host. That is <c>localhost</c> or any
+    /// address <c>IPAddress.IsLoopback</c> accepts, in every environment, since nothing here checks which one the
+    /// application is running in.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -104,7 +106,8 @@ public sealed record AuthSettings
 
     /// <summary>
     /// Gets every audience a token may carry: the host mappings, the localhost fallback, and the default app. Read
-    /// during startup validation, so a configuration that yields none stops the host rather than the first request.
+    /// during startup validation, so a configuration it cannot build an audience from stops the host rather than the first
+    /// request. It never returns empty: every path either adds an audience or throws.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -112,8 +115,9 @@ public sealed record AuthSettings
     public IReadOnlyList<string> ValidAudiences => _validAudiences ??= BuildValidAudiences();
 
     /// <summary>
-    /// The cached audience list. Building it walks the host mapping, and it is read on every token validation, so it is
-    /// built once by startup validation and reused from there.
+    /// The cached audience list. Building it walks the host mapping and can throw, so it is built the first time
+    /// <see cref="ValidAudiences"/> is read on an instance and reused for every later read of that instance. Startup
+    /// validation and the bearer options need not share one, so it may be built more than once in a process.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

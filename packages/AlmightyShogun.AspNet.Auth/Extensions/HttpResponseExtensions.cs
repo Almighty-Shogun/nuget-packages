@@ -13,27 +13,28 @@ namespace AlmightyShogun.AspNet.Auth;
 public static class HttpResponseExtensions
 {
     /// <summary>
-    /// Provides response extension methods for writing and clearing JWT auth cookies.
+    /// Provides the refresh-token cookie writers on any response, both applying the same path, <c>SameSite</c> mode, and
+    /// secure flag, so the cookie is deleted with the attributes it was written with.
     /// </summary>
     ///
-    /// <param name="httpResponse">The HTTP response used by the extension methods.</param>
+    /// <param name="httpResponse">
+    /// The response the cookie is written on. Its request supplies both the service scope the <c>Auth</c> settings are
+    /// read from and the scheme that decides the secure flag.
+    /// </param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
     extension(HttpResponse httpResponse)
     {
         /// <summary>
-        /// Writes an <c>HttpOnly</c> refresh token cookie, with the <c>SameSite</c> mode configured under
-        /// <c>Auth:SameSite</c> and the secure flag taken from the current request scheme.
+        /// Writes an <c>HttpOnly</c> refresh token cookie, with the <c>SameSite</c> mode from the bound
+        /// <c>AuthSettings</c> and the secure flag taken from the current request scheme. On an application that never
+        /// called <c>AddAuth</c> nothing bound that section, so the mode is the record's own default rather than a
+        /// configured one.
         /// </summary>
         ///
         /// <param name="token">The refresh token value to store in the cookie.</param>
         /// <param name="days">The number of days before the cookie expires.</param>
-        ///
-        /// <exception cref="InvalidOperationException">
-        /// The request has no <see cref="AuthSettings"/> registration to read the mode from, which means
-        /// <c>AddAuth</c> was never called on the application's services.
-        /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.3.0</since>
@@ -48,14 +49,10 @@ public static class HttpResponseExtensions
             });
 
         /// <summary>
-        /// Deletes the default authentication cookies used by the package, repeating the path, <c>SameSite</c> mode, and
-        /// secure flag they were written with, since a browser ignores a deletion whose attributes do not match.
+        /// Deletes the default authentication cookies used by the package, repeating the path they were written with, which
+        /// is what identifies the cookie to remove, along with the <c>SameSite</c> mode and secure flag so a
+        /// <c>SameSite=None</c> deletion still carries the secure flag that mode requires.
         /// </summary>
-        ///
-        /// <exception cref="InvalidOperationException">
-        /// The request has no <see cref="AuthSettings"/> registration to read the mode from, which means
-        /// <c>AddAuth</c> was never called on the application's services.
-        /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.3.0</since>
@@ -74,11 +71,7 @@ public static class HttpResponseExtensions
     ///
     /// <param name="httpResponse">The response being written to, used for the service provider of its request.</param>
     ///
-    /// <returns>The <c>SameSite</c> mode configured under <c>Auth:SameSite</c>.</returns>
-    ///
-    /// <exception cref="InvalidOperationException">
-    /// No <see cref="AuthSettings"/> options are registered, so <c>AddAuth</c> was never called.
-    /// </exception>
+    /// <returns>The <c>SameSite</c> mode from the bound <c>AuthSettings</c>, or its default when nothing bound it.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

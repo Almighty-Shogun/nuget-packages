@@ -33,7 +33,7 @@ public static class HttpRequestExtensions
         /// </returns>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>2.3.0</since>
+        /// <since>Unreleased</since>
         public string? TryGetRefreshTokenCookie()
         {
             string? refreshToken = httpRequest.Cookies[CookieNames.RefreshToken];
@@ -54,7 +54,7 @@ public static class HttpRequestExtensions
         /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
-        /// <since>Unreleased</since>
+        /// <since>2.3.0</since>
         public string GetRefreshTokenCookie()
         {
             string? refreshToken = httpRequest.Cookies[CookieNames.RefreshToken];

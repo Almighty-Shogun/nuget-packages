@@ -5,7 +5,9 @@ using Microsoft.Extensions.Options;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Resolves configured application audience names from incoming request hosts.
+/// Matches a request host against the configured mapping, falling back to the configured localhost app for loopback
+/// hosts so a development machine resolves without being listed. A successful resolution is cached on the request, so
+/// repeated calls while one request is served cost a single lookup.
 /// </summary>
 ///
 /// <param name="authSettings">The bound authentication settings that contain host mappings and the localhost fallback.</param>
@@ -15,9 +17,31 @@ namespace AlmightyShogun.AspNet.Auth;
 /// <since>2.3.0</since>
 internal sealed class AppHostResolver(IOptions<AuthSettings> authSettings, IHttpContextAccessor httpContextAccessor) : IAppHostResolver
 {
+    /// <summary>
+    /// The key the resolved app is stored under in <c>HttpContext.Items</c>. A private object rather than a string, so
+    /// nothing outside this class can address the entry or collide with it.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private static readonly object _resolvedAppKey = new();
+
+    /// <summary>
+    /// The bound settings, read once at construction. The resolver is a singleton taking <c>IOptions</c> rather than
+    /// <c>IOptionsMonitor</c>, so the value it sees never changes.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.3.0</since>
     private readonly AuthSettings _authSettings = authSettings.Value;
 
+    /// <summary>
+    /// The configured host mapping, copied into a case-insensitive dictionary. Hosts arrive from the request rather than
+    /// from configuration, so their casing is not the application's to dictate.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.3.0</since>
     private readonly Dictionary<string, string> _hosts = authSettings.Value.Hosts
         .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase);
 

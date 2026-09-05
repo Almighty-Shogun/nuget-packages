@@ -17,6 +17,13 @@ namespace AlmightyShogun.AspNet.Auth;
 /// <since>2.3.0</since>
 internal sealed class PermissionPolicyProvider(IOptions<AuthorizationOptions> options) : IAuthorizationPolicyProvider
 {
+    /// <summary>
+    /// The framework's own provider, asked for every policy name that does not carry the permission prefix, and for the
+    /// default and fallback policies, which this provider only decorates rather than builds.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.3.0</since>
     private readonly DefaultAuthorizationPolicyProvider _fallback = new(options);
 
     /// <summary>
@@ -61,8 +68,9 @@ internal sealed class PermissionPolicyProvider(IOptions<AuthorizationOptions> op
     public async Task<AuthorizationPolicy?> GetFallbackPolicyAsync() => AddAppAudienceRequirement(await _fallback.GetFallbackPolicyAsync());
 
     /// <summary>
-    /// Adds the app-audience requirement to a policy unless it already carries one, so every policy in the application
-    /// enforces scoping without each one having to ask for it.
+    /// Adds the app-audience requirement to a policy unless it already carries one, so every policy resolved through this
+    /// provider enforces scoping without each one having to ask for it. A policy an application builds and hands to the
+    /// pipeline directly never passes through here and is not decorated.
     /// </summary>
     ///
     /// <param name="policy">The policy to decorate, or <c>null</c> when the fallback provider produced none.</param>

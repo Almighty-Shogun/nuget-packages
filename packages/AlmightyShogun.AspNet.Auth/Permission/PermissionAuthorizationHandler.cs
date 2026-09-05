@@ -27,7 +27,11 @@ internal sealed class PermissionAuthorizationHandler : AuthorizationHandler<Perm
     /// than treated as a literal permission name.
     /// </summary>
     ///
-    /// <param name="granted">The permission value held by the principal, which may end in a <c>*</c> wildcard.</param>
+    /// <param name="granted">
+    /// The permission value held by the principal. Only a <c>.*</c> ending is treated as a wildcard, covering every
+    /// permission under that dotted prefix; a bare <c>*</c>, or a value ending in <c>*</c> without the dot, is compared
+    /// literally instead.
+    /// </param>
     /// <param name="required">The permission the endpoint demands, as written on the attribute.</param>
     ///
     /// <returns>

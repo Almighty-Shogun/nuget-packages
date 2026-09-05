@@ -61,9 +61,7 @@ internal sealed class JwtAuthExceptionHandler(
     /// Writes the handled error to the log, at warning for a client fault and at error for a server fault.
     /// </summary>
     ///
-    /// <param name="httpContext">
-    /// The failing request, read for the method and path in the log line and written to with the response.
-    /// </param>
+    /// <param name="httpContext">The failing request, read for the method and path the log line reports.</param>
     /// <param name="exception">
     /// The exception being reported. Attached to the log entry only for a server fault, since a client mistake needs no
     /// stack trace.

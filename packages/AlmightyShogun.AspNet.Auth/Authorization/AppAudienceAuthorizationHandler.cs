@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Authorizes requests by ensuring the current token audience matches the resolved request app.
+/// Authorizes requests by ensuring the current token audience matches the app the request host resolves to. With host
+/// scoping off there is no app to resolve, and the requirement succeeds without any audience being compared.
 /// </summary>
 ///
 /// <param name="appHostResolver">
@@ -48,8 +49,7 @@ internal sealed class AppAudienceAuthorizationHandler(IAppHostResolver appHostRe
         .Any(claim => string.Equals(claim.Value, app, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
-    /// Reports whether a claim is an audience, accepting both the short JWT name and the long URI form, because which one
-    /// appears depends on whether inbound claim mapping was left on.
+    /// Reports whether a claim is an audience, accepting both the short JWT name and the long identity URI form.
     /// </summary>
     ///
     /// <param name="claim">One claim from the principal.</param>

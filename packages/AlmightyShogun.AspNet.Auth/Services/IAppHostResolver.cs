@@ -1,8 +1,9 @@
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Resolves which configured application a request belongs to, from its host. Every token carries an audience and it is
-/// always validated, so this is what decides whether a request is even eligible to be authenticated.
+/// Resolves which configured application a request belongs to, from its host. Consulted when a policy checks a token's
+/// audience and when a token is minted without one; authentication itself never calls this, since it validates against
+/// the configured audience list instead.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
