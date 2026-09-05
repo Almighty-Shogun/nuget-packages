@@ -36,23 +36,6 @@ Everything about a send other than the message itself: recipients, copies, reply
 
 An options object rather than a growing parameter list, so adding a capability does not change [`SendAsync`](../services/resend-mail-service#sendasync). The single-recipient overload builds one of these for you.
 
-## Usage
-
-```csharp
-using AlmightyShogun.Mail.Resend;
-
-MailSendResult result = await mailService.SendAsync(
-    new WelcomeMail(user.Name),
-    new MailOptions
-    {
-        To = [user.Email],
-        Bcc = ["audit@example.com"],
-        ReplyTo = ["support@example.com"]
-    },
-    cancellationToken
-);
-```
-
 <FrontmatterDocs/>
 
 ## Type signature

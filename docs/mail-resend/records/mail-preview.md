@@ -14,21 +14,14 @@ Both rendered bodies for a template, returned by [`PreviewAsync`](../services/re
 
 Writing them to a file is left to the caller, so the package takes on no path validation or overwrite semantics.
 
-## Usage
-
-```csharp
-using AlmightyShogun.Mail.Resend;
-
-WelcomeMail mail = new WelcomeMail("Ada");
-MailPreview preview = await mailService.PreviewAsync(mail);
-
-await File.WriteAllTextAsync("welcome.html", preview.Html);
-```
-
 <FrontmatterDocs/>
 
 ## Type signature
 
 ```csharp
-public sealed record MailPreview(string Html, string Text);
+public sealed record MailPreview
+{
+    public required string Html { get; init; }
+    public required string Text { get; init; }
+}
 ```

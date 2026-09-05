@@ -2,7 +2,9 @@
 
 Renders a [`BaseMailTemplate`](../types/base-mail-template) and sends it through Resend. Application code depends on `IResendMailService`, which loads the shared template files, renders the HTML and plain-text bodies, and calls the Resend API.
 
-## Usage
+## SendAsync
+
+Sends a rendered template. One overload takes a single recipient address, for the common case that needs no copies, attachments, or reply-to address; the other takes [`MailOptions`](../records/mail-options) for full addressing, with carbon copies, blind copies, reply-to addresses, attachments, and an explicit idempotency key. The single-recipient overload builds a `MailOptions` holding that one address and calls the other, so both behave the same from there on.
 
 ::: code-group
 
@@ -35,9 +37,7 @@ using AlmightyShogun.Mail.Resend;
 public sealed class WelcomeMailTemplate(string name) : BaseMailTemplate
 {
     public override string Subject => "Welcome";
-
     protected override string Title => "Welcome";
-
     protected override string Greeting => $"Hello {name},";
 
     protected override IReadOnlyList<string> Paragraphs =>
@@ -49,31 +49,9 @@ public sealed class WelcomeMailTemplate(string name) : BaseMailTemplate
 
 :::
 
-::: warning
-A provider or transport failure comes back as a failed [`MailSendResult`](../records/mail-send-result), but rendering happens before the request and is not guarded. A missing or unreadable template file throws instead, so inspecting the result alone does not catch both.
-:::
+The returned [`MailSendResult`](../records/mail-send-result) reports whether Resend accepted the message, and carries the message id for correlating with a webhook or the dashboard. Acceptance is not delivery. An empty `To` list and a rejection from Resend both come back as a failed result rather than an exception, so a caller sending in a loop does not have to wrap each message. Cancelling the token is the exception to that and propagates, so a caller shutting down is never told the send was rejected.
 
-## SendAsync
-
-Sends a template to one recipient. Use it for the common case that needs no copies, attachments, or reply-to address.
-
-The returned [`MailSendResult`](../records/mail-send-result) reports whether Resend accepted the message, and carries the message id for correlating with a webhook or the dashboard. Acceptance is not delivery. An empty recipient list and a rejection from Resend both come back as a failed result rather than an exception, so a caller sending in a loop does not have to wrap each message. Cancelling the token is the exception to that and propagates, so a caller shutting down is never told the send was rejected.
-
-Every call to this overload generates its own idempotency key. Reach for the [`MailOptions`](../records/mail-options) overload when the caller can itself be retried and the key has to be stable across those retries.
-
-### Type signature
-
-```csharp
-public Task<MailSendResult> SendAsync(
-    string recipientEmail,
-    BaseMailTemplate mail,
-    CancellationToken cancellationToken = default
-);
-```
-
-## SendAsync with options
-
-Sends a template with full addressing: carbon copies, blind copies, reply-to addresses, attachments, and an explicit idempotency key.
+A fresh idempotency key is generated for every call that does not carry one, which the single-recipient overload never does. Setting `MailOptions.IdempotencyKey` from something the caller already owns, such as the invoice id below, makes the whole operation idempotent rather than only the HTTP call, so a retried job cannot deliver the same message twice.
 
 ::: code-group
 
@@ -98,11 +76,12 @@ public sealed class InvoiceMailer(IResendMailService mailService)
             Bcc = ["billing@example.com"],
             ReplyTo = ["support@example.com"],
             Attachments = [
-                new MailAttachment(
-                    "invoice.pdf",
-                    invoicePdf,
-                    "application/pdf"
-                )
+                new MailAttachment
+                {
+                    FileName = "invoice.pdf",
+                    Content = invoicePdf,
+                    ContentType = "application/pdf"
+                }
             ],
             IdempotencyKey = $"invoice-ready-{invoiceId}"
         };
@@ -122,9 +101,7 @@ using AlmightyShogun.Mail.Resend;
 public sealed class InvoiceReadyMailTemplate(string url) : BaseMailTemplate
 {
     public override string Subject => "Your invoice is ready";
-
     protected override string Title => "Invoice ready";
-
     protected override string Greeting => "Hello,";
 
     protected override IReadOnlyList<string> Paragraphs =>
@@ -141,13 +118,19 @@ public sealed class InvoiceReadyMailTemplate(string url) : BaseMailTemplate
 
 :::
 
-::: tip
-Setting `IdempotencyKey` from something the caller already owns, such as the invoice id above, makes the whole operation idempotent rather than only the HTTP call. A retried job then cannot deliver the same message twice.
+::: warning
+A provider or transport failure comes back as a failed [`MailSendResult`](../records/mail-send-result), but rendering happens before the request and is not guarded. A missing or unreadable template file throws instead, so inspecting the result alone does not catch both.
 :::
 
 ### Type signature
 
 ```csharp
+public Task<MailSendResult> SendAsync(
+    string recipientEmail,
+    BaseMailTemplate mail,
+    CancellationToken cancellationToken = default
+);
+
 public Task<MailSendResult> SendAsync(
     BaseMailTemplate mail,
     MailOptions options,

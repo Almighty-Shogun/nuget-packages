@@ -10,7 +10,7 @@ dotnet add package AlmightyShogun.Mail.Resend
 
 ### Package references
 
-- `Resend` `0.15.0` &mdash; provides the Resend API client used to send email messages.
+- `Resend` `0.16.0` &mdash; provides the Resend API client used to send email messages.
 - `Microsoft.Extensions.Http` `10.0.11` &mdash; registers the Resend client through `IHttpClientFactory`.
 - `Microsoft.Extensions.Http.Resilience` `10.9.0` &mdash; adds retry, a circuit breaker, and a timeout to the send call.
 - `Microsoft.Extensions.DependencyInjection.Abstractions` `10.0.11` &mdash; the service collection the mail service registers into.
@@ -24,10 +24,6 @@ dotnet add package AlmightyShogun.Mail.Resend
 ## Startup Registration
 
 Register the package once during application startup. The registration binds email settings, configures the Resend API token, and exposes the mail sender through [`IResendMailService`](./services/resend-mail-service).
-
-::: warning
-Requires an `Email` section in application configuration, usually from `appsettings.json`. `ApiToken` and `FromEmail` have no default, so an absent section fails validation while the host starts.
-:::
 
 ```csharp
 using AlmightyShogun.Mail.Resend;

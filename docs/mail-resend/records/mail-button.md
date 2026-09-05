@@ -11,38 +11,7 @@ fields:
 
 # MailButton
 
-Represents a call-to-action button rendered by [`BaseMailTemplate`](../types/base-mail-template). Derived mail templates return `MailButton` values from the protected `Buttons` member when an email should include one or more prominent links.
-
-The label becomes the visible text and the URL the target. Both are encoded in the HTML rendering; the plain-text rendering writes them as given, which is safe because the constructor has already rejected a URL that is not an absolute `http`, `https`, or `mailto` one.
-
-::: warning
-The constructor throws an `ArgumentException` when the label or URL is blank, or when the URL is not an absolute `http`, `https`, or `mailto` URL. Validating at construction rather than at render time is deliberate: the HTML and plain-text renderers are separate paths, and encoding only the HTML one would leave a `javascript:` URL visible verbatim in the plain-text alternative.
-:::
-
-## Usage
-
-```csharp
-using AlmightyShogun.Mail.Resend;
-
-public sealed class ConfirmEmailTemplate(string url) : BaseMailTemplate
-{
-    public override string Subject => "Confirm your email address";
-
-    protected override string Title => "Confirm your email";
-
-    protected override string Greeting => "Hello,";
-
-    protected override IReadOnlyList<string> Paragraphs =>
-    [
-        "Use the button below to confirm your email address."
-    ];
-
-    protected override IReadOnlyList<MailButton> Buttons =>
-    [
-        new("Confirm email", url)
-    ];
-}
-```
+A call-to-action button rendered by [`BaseMailTemplate`](../types/base-mail-template), returned from a template's protected [`Buttons`](../types/base-mail-template#buttons) member when a message should carry one or more prominent links. The label becomes the visible text and the URL the destination. Both are encoded into the HTML body and written verbatim into the plain-text one.
 
 <FrontmatterDocs/>
 

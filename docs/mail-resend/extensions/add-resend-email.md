@@ -9,17 +9,9 @@ returns: The `IServiceCollection` instance with the Resend client, template load
 
 # AddResendEmail
 
-Registers the Resend email services and binds the `Email` configuration section. The method binds [`EmailSettings`](../configuration), configures the Resend API token, registers the Resend client behind a typed `HttpClient` with the standard resilience handler, and exposes the package mail sender through [`IResendMailService`](../services/resend-mail-service).
-
-Call it once during startup, then depend on [`IResendMailService`](../services/resend-mail-service) and send classes that inherit from [`BaseMailTemplate`](../types/base-mail-template).
-
-The mail service is registered as transient and the template loader as a singleton, so the file cache is shared across sends. Settings are bound through `IOptions<EmailSettings>`, so their values are fixed for the life of the process and a configuration reload requires a restart.
+Binds the `Email` section to [`EmailSettings`](../configuration), then registers the shared template loader, [`IResendMailService`](../services/resend-mail-service), and the Resend client itself, authenticated with the configured token and placed behind a typed `HttpClient` with the standard resilience handler. Call it once during startup, then send classes that inherit from [`BaseMailTemplate`](../types/base-mail-template) through the injected service. The mail service is transient and the template loader a singleton, so its file cache is shared across sends, while settings are read through `IOptions<EmailSettings>` and a configuration reload requires a restart.
 
 ## Usage
-
-::: warning
-Requires an `Email` section in application configuration, usually from `appsettings.json`. `ApiToken` and `FromEmail` have no default, so an absent section fails validation while the host starts.
-:::
 
 ```csharp
 using AlmightyShogun.Mail.Resend;

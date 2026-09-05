@@ -91,21 +91,3 @@ Mail Resend reads the `Email` section when [`AddResendEmail`](./extensions/add-r
 :::
 
 <FrontmatterDocs/>
-
-## Usage
-
-Inject `IOptions<EmailSettings>` wherever a service needs the configured sender, brand, shared links, or footer text.
-
-```csharp
-using AlmightyShogun.Mail.Resend;
-using Microsoft.Extensions.Options;
-
-public sealed class EmailLinkResolver(IOptions<EmailSettings> options)
-{
-    private readonly EmailSettings _settings = options.Value;
-
-    public string DashboardUrl => _settings.Links["Dashboard"];
-
-    public string FooterText => _settings.Template.FooterLinkText;
-}
-```

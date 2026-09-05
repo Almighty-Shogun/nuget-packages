@@ -15,20 +15,6 @@ fields:
 
 The outcome of a send. Returned rather than thrown, so a caller can decide whether a failed notification should fail the operation around it. Only the package constructs one, so a result always describes an outcome that actually happened.
 
-## Usage
-
-```csharp
-using AlmightyShogun.Mail.Resend;
-
-WelcomeMail mail = new WelcomeMail(user.Name);
-MailSendResult result = await mailService.SendAsync(user.Email, mail);
-
-if (!result.IsSuccess)
-{
-    logger.LogWarning("Welcome mail failed: {Error}", result.Error);
-}
-```
-
 <FrontmatterDocs/>
 
 ## Type signature
