@@ -4,14 +4,23 @@ namespace AlmightyShogun.Mail.Resend;
 /// Represents a message rendered but not sent, for inspecting what a template produces.
 /// </summary>
 ///
-/// <param name="Html">The rendered HTML body, with every interpolated value already encoded.</param>
-/// <param name="Text">The plain-text alternative, sent alongside the HTML rather than instead of it.</param>
-///
-/// <remarks>
-/// The package returns the rendered strings rather than writing a file, so it does not take on path validation,
-/// permissions, and overwrite semantics for what is one line at the call site.
-/// </remarks>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public sealed record MailPreview(string Html, string Text);
+public sealed record MailPreview
+{
+    /// <summary>
+    /// Gets the rendered HTML body, exactly as a send would submit it.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public required string Html { get; init; }
+
+    /// <summary>
+    /// Gets the plain-text alternative, sent alongside the HTML rather than instead of it.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public required string Text { get; init; }
+}

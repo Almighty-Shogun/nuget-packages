@@ -15,8 +15,8 @@ namespace AlmightyShogun.Mail.Resend;
 /// The bound settings, read once at construction, so a message never sees a sender changed part-way through its own send.
 /// </param>
 /// <param name="logger">
-/// The logger a failed send is recorded on, because the returned result carries the reason but nothing forces a caller to
-/// look at it.
+/// The logger the exception behind a failed send request is recorded on, because the returned result carries only its
+/// message and nothing forces a caller to look at that. A send refused for having no recipient logs nothing.
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
@@ -108,9 +108,10 @@ internal sealed class ResendMailService(
         string paragraphTemplateHtml = await emailTemplateLoader.LoadAsync("BaseEmailParagraph.html", cancellationToken);
         string buttonTemplateHtml = await emailTemplateLoader.LoadAsync("BaseEmailButton.html", cancellationToken);
 
-        return new MailPreview(
-            mail.Render(templateHtml, paragraphTemplateHtml, buttonTemplateHtml, _settings),
-            mail.RenderText(_settings)
-        );
+        return new MailPreview
+        {
+            Html = mail.Render(templateHtml, paragraphTemplateHtml, buttonTemplateHtml, _settings),
+            Text = mail.RenderText(_settings)
+        };
     }
 }
