@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -43,7 +42,6 @@ public sealed class PasswordResetToken
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     [Required]
-    [JsonIgnore]
     [MaxLength(64)]
     public string TokenHash { get; set; } = string.Empty;
 

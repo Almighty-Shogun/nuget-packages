@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -62,18 +61,16 @@ public class AuthUser
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    [JsonIgnore]
     [MaxLength(255)]
     public string Password { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the refresh-token sessions opened against the account, one per signed-in device. Not loaded unless
-    /// explicitly included, and ignored during JSON serialization so returning a user cannot leak its sessions.
+    /// explicitly included.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    [JsonIgnore]
     [SuppressMessage("ReSharper", "CollectionNeverUpdated.Global")]
     public List<UserSession> Sessions { get; set; } = [];
 
@@ -106,8 +103,10 @@ public class AuthUser
     public bool IsActive { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets the lockout state, or <c>null</c> while nothing has failed against the account. Held in its own
-    /// table, so a deployment that leaves lockout disabled never writes one.
+    /// Gets or sets the lockout state, held in its own table so a deployment that leaves lockout disabled never writes
+    /// one. Nothing in the package loads this navigation, reading that table directly instead, so it is populated only when
+    /// the change tracker happens to hold a matching row from the same context, as it does after a lockout check on the
+    /// login and refresh paths. Do not read it as a reliable answer to whether a lockout exists.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

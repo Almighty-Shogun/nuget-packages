@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
 using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,8 +6,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// One device's signed-in session, keyed by the refresh token it holds. A user has one row per device rather than one
-/// overall, so a sign-out on a phone leaves a laptop signed in.
+/// One signed-in session, keyed by the refresh token it holds. A row is inserted per sign-in, with nothing matching it
+/// against the device presenting it, so signing in twice from one browser leaves two rows and ending either leaves the
+/// other usable.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -42,7 +42,6 @@ public sealed class UserSession
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     [Required]
-    [JsonIgnore]
     [MaxLength(64)]
     public string RefreshTokenHash { get; set; } = string.Empty;
 
@@ -65,7 +64,8 @@ public sealed class UserSession
     public DateTimeOffset ExpiresAt { get; set; }
 
     /// <summary>
-    /// Gets or sets when the user first signed in on this device, which bounds the absolute lifetime.
+    /// Gets or sets when this row was inserted, which is the sign-in that opened it rather than a first sign-in on the
+    /// device. A configured absolute lifetime is measured from here, so refreshing cannot carry the session past it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -82,8 +82,9 @@ public sealed class UserSession
     public DateTimeOffset LastActiveAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
-    /// Gets or sets whether the session was ended deliberately, by a sign-out or a password change. The row is kept rather
-    /// than deleted, and a refresh presented against it is refused exactly as an unknown token is.
+    /// Gets or sets whether the session has been ended, by a sign-out, by a password change, or by a detected replay of a
+    /// spent refresh token, which sets it on every live session the user holds. The row is kept rather than deleted, and a
+    /// refresh presented against it is refused exactly as an unknown token is.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -152,8 +153,7 @@ public sealed class UserSession
     /// </summary>
     ///
     /// <remarks>
-    /// Internal because nothing outside the package may set it: a caller assigning it would either break a rotation in
-    /// flight or defeat the check entirely. It is still a real column, so an application's migration has to create it.
+    /// It is a real column despite being internal, so an application's migration has to create it.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -170,7 +170,7 @@ public sealed class UserSession
     public bool IsExpired => DateTimeOffset.UtcNow >= ExpiresAt;
 
     /// <summary>
-    /// Gets whether a refresh presented against this session would be honoured, which is neither revoked nor expired.
+    /// Gets whether a refresh presented against this session would be honored, which is neither revoked nor expired.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
