@@ -23,10 +23,16 @@ public interface IConsoleCommandHandler
     ///
     /// <remarks>
     /// An exception escaping a command is logged and the prompt keeps reading, so one failing command does not take the
-    /// console down with it. Subscribe to <see cref="CommandFailed"/> to report it anywhere else.
+    /// console down with it. Subscribe to <see cref="CommandFailed"/> to report it anywhere else. Three things do end the
+    /// loop, each logged as an unexpected stop: a cancellation raised once this token or <see cref="Stop"/> has signaled, a
+    /// <see cref="CommandFailed"/> subscriber throwing, and a command that cannot be constructed.
     ///
     /// The loop also ends when the input stream does. A redirected process reaching end of input stops rather than
     /// spinning on a reader that will never return another line.
+    ///
+    /// Starting sets <c>Console.TreatControlCAsInput</c> to <c>false</c> for the whole process, so Ctrl+C is handled as an
+    /// interrupt instead of being delivered to the reader as a line. It is never restored, and an <see cref="IOException"/>
+    /// from a console that does not support the write is swallowed.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -40,7 +46,8 @@ public interface IConsoleCommandHandler
     ///
     /// <remarks>
     /// Handlers run on the loop's thread before the next line is read, so a slow one delays the prompt. An exception from
-    /// a handler is not caught, and would take down the loop that the command itself was not allowed to.
+    /// a handler escapes into the read loop, which logs it as an unexpected stop and returns, ending the loop that the
+    /// command's own failure was not allowed to end.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

@@ -56,8 +56,8 @@ internal static class CommandArgumentBinder
     /// <returns><c>true</c> when every supplied argument converted; otherwise <c>false</c>.</returns>
     ///
     /// <remarks>
-    /// A failed conversion aborts the whole bind. Running a command with a defaulted value in place of an argument the
-    /// user actually typed is worse than not running it.
+    /// A failed conversion aborts the whole bind, so no parameter is filled with its default in place of an argument the
+    /// user typed.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -198,8 +198,13 @@ internal static class CommandArgumentBinder
     /// <returns><c>true</c> when the token converted; otherwise <c>false</c>.</returns>
     ///
     /// <remarks>
-    /// Every exception is swallowed rather than the parse-shaped ones alone, because a converter is third-party code and
-    /// may throw anything at all to mean "not my format". The caller reports the failure either way.
+    /// Every exception out of <c>ConvertFromInvariantString</c> is swallowed rather than the parse-shaped ones alone,
+    /// because a converter is third-party code and may throw anything at all to mean "not my format". The caller reports
+    /// the failure either way.
+    ///
+    /// Only that call sits inside the catch. <c>TypeDescriptor.GetConverter</c> and <c>CanConvertFrom</c> run before it, so
+    /// a converter that throws from either escapes this method and is reported by the dispatcher as a command failure
+    /// instead of as a rejected argument.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

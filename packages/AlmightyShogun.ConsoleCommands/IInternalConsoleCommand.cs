@@ -16,7 +16,7 @@ internal interface IInternalConsoleCommand
     /// running anything. An argument that fails to convert stops the whole invocation rather than defaulting.
     /// </summary>
     ///
-    /// <param name="args">The tokens typed after the command name, already split on whitespace and never <c>null</c>.</param>
+    /// <param name="args">The tokens typed after the command name, already split on spaces and never <c>null</c>.</param>
     /// <param name="logger">
     /// The dispatcher's logger, supplied per invocation rather than held by the command, so a command that needs no
     /// services of its own can declare no constructor and still report bad input.
@@ -28,16 +28,19 @@ internal interface IInternalConsoleCommand
     ///
     /// <returns>A task that completes when the handler has finished, or immediately when the arguments were rejected.</returns>
     ///
+    /// <exception cref="Exception">
+    /// Whatever failed the command, which is what its own <c>ExecuteAsync</c> threw or what binding its
+    /// arguments raised, rethrown with its original stack trace rather than wrapped in
+    /// <see cref="System.Reflection.TargetInvocationException"/>. The dispatcher catches it, logs it, and raises
+    /// <see cref="IConsoleCommandHandler.CommandFailed"/>, except for a cancellation raised once the token it passed in was
+    /// already signaled, which it rethrows and lets end the read loop.
+    /// </exception>
+    ///
     /// <remarks>
     /// A handler returning <see cref="ValueTask"/> is converted with <see cref="ValueTask.AsTask"/> rather than awaited in
     /// its own branch, because the two return types share no base to await through. The conversion allocates, but reflection
     /// has already boxed the value, so the allocation <see cref="ValueTask"/> exists to avoid is gone either way.
     /// </remarks>
-    ///
-    /// <exception cref="Exception">
-    /// Whatever the command's own <c>ExecuteAsync</c> threw, rethrown with its original stack trace rather than wrapped in
-    /// <see cref="System.Reflection.TargetInvocationException"/>. Nothing on this path catches it.
-    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>3.0.0</since>

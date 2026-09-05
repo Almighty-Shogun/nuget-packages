@@ -4,8 +4,9 @@ namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
 /// Validates that a type is a usable console command, so the base constructor and the assembly scanner agree on what
-/// valid means. Both treat an invalid one as a failure rather than something to pass over: <see cref="Describe"/> throws
-/// for either caller, and nothing filters a malformed command out silently.
+/// valid means. Both treat an invalid one as a failure rather than something to pass over: the scanner calls
+/// <see cref="Describe"/>, which throws, and <see cref="ConsoleCommandBase"/> calls <see cref="TryDescribe"/> and raises
+/// the same message itself. Nothing filters a malformed command out silently.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -109,7 +110,7 @@ internal static class CommandMetadata
     /// Checks whether a declared name is one a user could actually type and the dispatcher could actually match.
     /// </summary>
     ///
-    /// <param name="name">The name from the class attribute, or from an alias.</param>
+    /// <param name="name">The declared command name from <see cref="ConsoleCommandAttribute"/>, the only value checked here.</param>
     ///
     /// <returns><c>true</c> when the name is non-blank and free of whitespace; otherwise <c>false</c>.</returns>
     ///
@@ -117,6 +118,9 @@ internal static class CommandMetadata
     /// Input is split on spaces before the first token is looked up, so a name containing one can never be matched however
     /// it is typed. Rejecting it here is what stops such a command registering and then never responding. Every other
     /// whitespace character is rejected with it, which is wider than the split strictly requires.
+    ///
+    /// Aliases never reach this check. An <see cref="AliasAttribute"/> name goes straight into the descriptor and into the
+    /// dispatcher's table, which drops only a blank one, so an alias containing whitespace registers and then never matches.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

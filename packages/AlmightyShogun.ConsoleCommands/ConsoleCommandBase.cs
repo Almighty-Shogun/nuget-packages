@@ -11,7 +11,7 @@ namespace AlmightyShogun.ConsoleCommands;
 ///
 /// <remarks>
 /// The handler method is found by name rather than by an abstract member, so a command declares whatever parameters it
-/// wants and the binder matches them positionally. That is the whole reason this class exists.
+/// wants and the binder matches them positionally. 
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -19,8 +19,9 @@ namespace AlmightyShogun.ConsoleCommands;
 public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleCommand
 {
     /// <summary>
-    /// The handler resolved in the constructor, so a repeated invocation inside one command does not reflect again. A
-    /// command is transient, so this is paid once per invocation rather than once per process.
+    /// The handler found by reflection in the constructor and invoked once, for the line that resolved this instance. A
+    /// command is transient and built per dispatched line, so the reflection is paid once per invocation rather than once
+    /// per process.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

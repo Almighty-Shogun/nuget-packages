@@ -221,12 +221,14 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     ///
     /// <returns>
     /// A task that completes when the command has finished, or immediately when no command matched. A command that fails
-    /// is logged and raises <see cref="CommandFailed"/> rather than faulting the task.
+    /// with anything but the cancellation below is logged and raises <see cref="CommandFailed"/> rather than faulting the
+    /// task.
     /// </returns>
     ///
     /// <exception cref="OperationCanceledException">
-    /// The handler is stopping and the command observed it. Rethrown rather than reported, so the read loop that awaited
-    /// this ends instead of prompting again.
+    /// Thrown out of the command while <paramref name="cancellationToken"/> is already signaled. The filter tests that
+    /// token alone, so one raised for an unrelated token during shutdown is rethrown with it. Either way it escapes into
+    /// <see cref="StartAsync"/>, which ends the loop and logs it as an unexpected stop.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -280,8 +282,9 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     /// <param name="commandName">The name that matched nothing.</param>
     ///
     /// <returns>
-    /// The nearest name, or <c>null</c> when none is within one edit per three characters. That threshold keeps a short
-    /// name from suggesting an unrelated one of similar length.
+    /// The nearest registered name, or <c>null</c> when no name is within one edit per three characters of
+    /// <paramref name="commandName"/>. The allowance never drops below one, so a name shorter than three characters still
+    /// suggests anything a single edit away, and the ratio only governs names of three characters or more.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>

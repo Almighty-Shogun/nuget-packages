@@ -10,7 +10,7 @@ namespace AlmightyShogun.ConsoleCommands;
 ///
 /// <remarks>
 /// Raised after the failure has already been logged, so a subscriber adds to the report rather than replacing it. The
-/// prompt keeps reading whether anything is subscribed.
+/// prompt keeps reading unless a subscriber itself throws, which ends the loop.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -27,7 +27,8 @@ public sealed class ConsoleCommandErrorEvent(string commandName, Exception excep
     public string CommandName { get; } = commandName;
 
     /// <summary>
-    /// Gets the exception the command threw. Already logged as an error by the dispatcher before this was raised.
+    /// Gets the exception that failed the command, which is what its <c>ExecuteAsync</c> threw or what binding its arguments
+    /// raised before it ran. Already logged as an error by the dispatcher before this was raised.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

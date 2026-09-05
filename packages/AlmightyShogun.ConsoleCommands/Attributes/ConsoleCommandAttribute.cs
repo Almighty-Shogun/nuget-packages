@@ -10,7 +10,10 @@ namespace AlmightyShogun.ConsoleCommands;
 /// The first token typed at the prompt, matched case-insensitively. A name already taken by another command is dropped
 /// with a warning, so the losing command stays reachable only through whatever aliases it declares.
 /// </param>
-/// <param name="description">The one-line explanation shown in a help listing. Omitted commands simply list no text.</param>
+/// <param name="description">
+/// The one-line explanation, surfaced as <see cref="ConsoleCommand.Description"/> for an application to render. Left
+/// <c>null</c> when omitted; nothing in this package prints it.
+/// </param>
 /// <param name="ignoreExtraArgs">
 /// When <c>true</c>, arguments beyond the handler's parameters are discarded and the command still runs; when
 /// <c>false</c>, the extra input is treated as a mistake, logged, and the command is not invoked.

@@ -11,7 +11,7 @@ public sealed class ConsoleCommand
 {
     /// <summary>
     /// Assembles the metadata, prefixing the command name onto the usage and example text so both read as something the
-    /// user could type. Internal because the values only mean anything when reflected off a real command class.
+    /// user could type.
     /// </summary>
     ///
     /// <param name="name">The name the command is invoked by.</param>

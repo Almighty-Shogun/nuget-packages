@@ -16,7 +16,7 @@ public static class ConsoleCommandDiscovery
     /// project wants. Reach for the overload taking assemblies when the commands live elsewhere.
     /// </summary>
     ///
-    /// <returns>The metadata for each command class, in declaration order.</returns>
+    /// <returns>One entry per command class the calling assembly declares.</returns>
     ///
     /// <exception cref="InvalidOperationException">
     /// A discovered class breaks one of the command rules. Reported rather than skipped, so a malformed command is the
@@ -37,7 +37,7 @@ public static class ConsoleCommandDiscovery
     /// assembly at all is the one that falls back to the calling assembly.
     /// </param>
     ///
-    /// <returns>The metadata for each command class, in assembly then declaration order.</returns>
+    /// <returns>One entry per command class, grouped by assembly in the order the assemblies were given.</returns>
     ///
     /// <exception cref="InvalidOperationException">
     /// A discovered class breaks one of the command rules. Reported rather than skipped, so a malformed command is the
@@ -83,7 +83,10 @@ public static class ConsoleCommandDiscovery
     ///
     /// <remarks>
     /// Only a trailing token is dropped, matching the one position <see cref="ConsoleCommandBase"/> fills in. A token
-    /// declared anywhere else is a parameter the user has to supply, and the usage string says so rather than hiding it.
+    /// declared anywhere else is counted as a parameter the user supplies and the usage string says so, but the binder has
+    /// no conversion from a typed token to a <see cref="CancellationToken"/>. A line long enough to reach that position is
+    /// rejected by the conversion and a shorter one by the argument count, so unless the parameter is optional the command
+    /// can never be run at all.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
