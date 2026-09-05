@@ -65,8 +65,8 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
     /// <param name="cancellationToken">Cancels the send and the wait for a response.</param>
     ///
     /// <returns>
-    /// The response, or <c>default</c> when the command ran but wrote nothing of its own and the server acknowledged it
-    /// instead.
+    /// The response, or <c>default</c> in two cases nothing here tells apart: the command wrote nothing of its own and the
+    /// server acknowledged it instead, or the command wrote a value that serialized to JSON <c>null</c>.
     /// </returns>
     ///
     /// <exception cref="RemoteCommandUnreachableException">The connection could not be opened, so nothing was sent.</exception>
@@ -83,9 +83,11 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
     /// call opens a fresh one.
     /// </exception>
     /// <exception cref="JsonException">
-    /// The frame is not valid JSON for an envelope, in which case the connection is discarded, or the envelope's data does
-    /// not bind to <typeparamref name="TResponse"/>, in which case it is kept because the frame was read in full. Neither
-    /// is a <see cref="RemoteCommandException"/>, so a caller catching only that type does not see it.
+    /// <paramref name="message"/> could not be serialized into the request, in which case nothing catches it and the
+    /// connection is left open. The response raises it too: a frame that is not valid JSON for an envelope discards the
+    /// connection, while data that does not bind to <typeparamref name="TResponse"/> keeps it, because the frame was read
+    /// in full. None of these is a <see cref="RemoteCommandException"/>, so a caller catching only that type does not see
+    /// it.
     /// </exception>
     /// <exception cref="OperationCanceledException">
     /// <paramref name="cancellationToken"/> was signaled. Rethrown as-is rather than wrapped, though the connection is
@@ -106,11 +108,12 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
         {
             NetworkStream stream = await ConnectAsync(cancellationToken);
 
-            RemoteCommandPayload payload = new(
-                command,
-                JsonSerializer.SerializeToElement(message, RemoteCommandProtocol.SerializerOptions),
-                secret
-            );
+            RemoteCommandPayload payload = new()
+            {
+                Command = command,
+                Data = JsonSerializer.SerializeToElement(message, RemoteCommandProtocol.SerializerOptions),
+                Secret = secret
+            };
 
             await RemoteCommandProtocol.WriteFrameAsync(stream, payload, cancellationToken);
 
@@ -192,10 +195,13 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
     /// </returns>
     ///
     /// <exception cref="RemoteCommandException">
-    /// Which subclass is thrown says whether the server refused the command, could not be reached, or closed the
-    /// connection without answering. Only <see cref="RemoteCommandUnreachableException"/> and
-    /// <see cref="RemoteCommandRefusedException"/> mean the command did not run: the server runs a command before it
-    /// writes, so a disconnection can also mean it ran and the answer never came back.
+    /// Which subclass is thrown says whether the server refused the command, could not be reached, closed the connection
+    /// without answering, or sent a frame that is not an envelope. Only
+    /// <see cref="RemoteCommandUnreachableException"/> means nothing was sent. A
+    /// <see cref="RemoteCommandRefusedException"/> means the command did not run for every reason except
+    /// <see cref="RemoteCommandRefusal.Other"/>, which this package's server sends for a command that ran and threw, and a
+    /// disconnection can likewise mean it ran and the answer never came back, because the server runs a command before it
+    /// writes.
     /// </exception>
     /// <exception cref="InvalidDataException">The frame was unusable. Carries the same meaning as on the overload this calls.</exception>
     /// <exception cref="JsonException">
@@ -208,7 +214,16 @@ public sealed class RemoteCommandClient(string host, int port, string? secret = 
     public Task SendAsync<TMessage>(string command, TMessage message, CancellationToken cancellationToken = default)
         => SendAsync<TMessage, JsonElement>(command, message, cancellationToken);
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Closes the current connection and forgets it, leaving this instance usable: no disposed flag is set, so a send
+    /// after an <c>await using</c> block opens a fresh connection rather than throwing. Called on every failure path that
+    /// leaves the connection unusable or out of step as well, which makes it as much a reset as a disposal.
+    /// </summary>
+    ///
+    /// <returns>A <see cref="ValueTask"/> that completes once the stream and the socket have been disposed.</returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     public async ValueTask DisposeAsync()
     {
         if (_stream is not null)
