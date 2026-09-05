@@ -35,8 +35,8 @@ nuget-packages/
 The packages are small on purpose. Each owns one application concern and can be installed on its own when an application needs only that concern.
 
 - ASP.NET packages cover the shared web layer, authentication, credential login, localization, request validation, and maintenance mode.
-- Operations packages cover console commands, recurring Hangfire jobs, host lifetime behavior, remote command handling, and logging.
-- Data packages cover Entity Framework Core model building and Resend email.
+- Operations packages cover console commands, recurring Hangfire jobs, host lifetime behavior, transactional email, remote command handling, and logging.
+- The data package covers Entity Framework Core model building.
 - `AlmightyShogun.Utils` provides the shared configuration, dependency-injection, JSON, and reflection helpers the others build on.
 
 ## Package dependencies

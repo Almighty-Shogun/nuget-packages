@@ -18,13 +18,13 @@ The repository is intentionally practical. Packages are small, .NET-first, depen
 - [Console Commands](/console-commands/) &mdash; command classes discovered from assemblies, with string input converted into method parameters and dispatched from an input loop.
 - [Hangfire Recurring Jobs](/hangfire-recurring-jobs/) &mdash; Hangfire setup where a job's schedule lives on the job class instead of being repeated in startup code.
 - [Hosting Console Lifetime](/hosting-console-lifetime/) &mdash; a generic host that an accidental interrupt cannot kill, while an orchestrator's stop signal still shuts it down cleanly.
+- [Mail Resend](/mail-resend/) &mdash; Resend sending through a typed contract, with reusable HTML and plain-text templates that share one layout.
 - [Remote Commands](/remote-commands/) &mdash; a TCP listener taking length-prefixed JSON and dispatching each payload to a typed handler.
 - [Serilog](/serilog/) &mdash; Serilog registration with a console formatter that colors output by level and by property.
 
 ## Data
 
 - [EF Core Model Building](/ef-core-model-building/) &mdash; `ModelBuilder` helpers for the shapes written on almost every model: relationships, indexes, enum storage, and eager loading.
-- [Mail Resend](/mail-resend/) &mdash; Resend sending through a typed contract, with reusable HTML and plain-text templates that share one layout.
 
 ## Utils
 

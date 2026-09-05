@@ -40,21 +40,21 @@ export const nav: DefaultTheme.NavItem[] = [
     },
     {
         text: 'Operations',
-        activeMatch: '^/(console-commands|hangfire-recurring-jobs|hosting-console-lifetime|remote-commands|serilog)/',
+        activeMatch: '^/(console-commands|hangfire-recurring-jobs|hosting-console-lifetime|mail-resend|remote-commands|serilog)/',
         items: [
             { text: 'Console Commands', activeMatch: '^/console-commands/', link: '/console-commands/' },
             { text: 'Hangfire Recurring Jobs', activeMatch: '^/hangfire-recurring-jobs/', link: '/hangfire-recurring-jobs/' },
             { text: 'Hosting Console Lifetime', activeMatch: '^/hosting-console-lifetime/', link: '/hosting-console-lifetime/' },
+            { text: 'Mail Resend', activeMatch: '^/mail-resend/', link: '/mail-resend/' },
             { text: 'Remote Commands', activeMatch: '^/remote-commands/', link: '/remote-commands/' },
             { text: 'Serilog', activeMatch: '^/serilog/', link: '/serilog/' }
         ]
     },
     {
         text: 'Data',
-        activeMatch: '^/(ef-core-model-building|mail-resend)/',
+        activeMatch: '^/ef-core-model-building/',
         items: [
-            { text: 'EF Core Model Building', activeMatch: '^/ef-core-model-building/', link: '/ef-core-model-building/' },
-            { text: 'Mail Resend', activeMatch: '^/mail-resend/', link: '/mail-resend/' }
+            { text: 'EF Core Model Building', activeMatch: '^/ef-core-model-building/', link: '/ef-core-model-building/' }
         ]
     },
     {
