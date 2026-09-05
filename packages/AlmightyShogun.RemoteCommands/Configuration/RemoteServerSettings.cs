@@ -12,7 +12,7 @@ namespace AlmightyShogun.RemoteCommands;
 public sealed record RemoteServerSettings
 {
     /// <summary>
-    /// Gets the local address to bind. The default accepts only connections from the same machine; binding a routable
+    /// The local address to bind. The default accepts only connections from the same machine; binding a routable
     /// address exposes the listener to everything that can reach it, subject to the whitelist.
     /// </summary>
     ///
@@ -22,7 +22,7 @@ public sealed record RemoteServerSettings
     public string Address { get; init; } = "127.0.0.1";
 
     /// <summary>
-    /// Gets the port to bind. Required, and the reason an absent <c>RemoteServer</c> section fails validation rather than
+    /// The port to bind. Required, and the reason an absent <c>RemoteServer</c> section fails validation rather than
     /// starting a listener on a port nobody chose.
     /// </summary>
     ///
@@ -32,8 +32,7 @@ public sealed record RemoteServerSettings
     public required int Port { get; init; }
 
     /// <summary>
-    /// Gets the addresses allowed to connect, each a bare address or a CIDR range. Deny by default: an empty list
-    /// matches nothing, so a listener configured without one accepts connections and immediately drops every one.
+    /// The addresses allowed to connect, each a bare address or a CIDR range. Deny by default: an empty list matches nothing.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -41,8 +40,7 @@ public sealed record RemoteServerSettings
     public IReadOnlyList<string> Whitelisted { get; init; } = [];
 
     /// <summary>
-    /// Gets whether each accepted command is logged by name. Refusals are logged either way, so turning this off hides
-    /// ordinary traffic rather than problems.
+    /// Whether each accepted command is logged by name, which covers ordinary traffic only and not refusals.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -50,7 +48,7 @@ public sealed record RemoteServerSettings
     public bool EnableReceiveLog { get; init; }
 
     /// <summary>
-    /// Gets the optional pre-shared key a client must present. When set, a request without a matching key is refused.
+    /// The optional pre-shared key a client must present. When set, a request without a matching key is refused.
     /// </summary>
     ///
     /// <remarks>
@@ -63,8 +61,7 @@ public sealed record RemoteServerSettings
     public string? Secret { get; init; }
 
     /// <summary>
-    /// Gets the largest request accepted, in bytes. Checked against the declared length before a buffer is rented, so an
-    /// oversized frame costs nothing to refuse.
+    /// The largest request accepted, in bytes. It bounds what the listener reads only, never the size of what it writes back.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -73,8 +70,8 @@ public sealed record RemoteServerSettings
     public int MaxPayloadBytes { get; init; } = 1024 * 1024;
 
     /// <summary>
-    /// Gets how long serving one request may take, in seconds, before it is abandoned. This bounds the command itself, so
-    /// a command that outlives it is cancelled mid-flight and the client gets no response.
+    /// How long serving one request may take, in seconds, before it is abandoned. The window covers the command's
+    /// own work, not just the framing around it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -83,7 +80,7 @@ public sealed record RemoteServerSettings
     public int ReadTimeout { get; init; } = 30;
 
     /// <summary>
-    /// Gets how long a connection may sit idle between requests, in seconds, before it is closed.
+    /// How long a connection may sit idle between requests, in seconds, before it is closed.
     /// </summary>
     ///
     /// <remarks>
@@ -97,8 +94,7 @@ public sealed record RemoteServerSettings
     public int IdleTimeout { get; init; } = 120;
 
     /// <summary>
-    /// Gets how many connections are served at once. A further client is not accepted until a slot frees, so this bounds
-    /// the memory and threads the listener spends on connections.
+    /// How many connections are served at once, which bounds the memory and threads the listener spends on connections.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

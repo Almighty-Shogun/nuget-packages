@@ -5,14 +5,8 @@ namespace AlmightyShogun.RemoteCommands;
 /// command instance. Built once during registration and never read from the wire.
 /// </summary>
 ///
-/// <param name="Name">
-/// The wire name from <see cref="RemoteCommandAttribute"/>, matched with ordinal case sensitivity against the request's
-/// <c>command</c> field.
-/// </param>
-/// <param name="ImplementationType">
-/// The command class, resolved from a fresh scope for each request. Registered as a transient service under this exact
-/// type, so resolving it never returns a shared instance.
-/// </param>
+/// <param name="Name">The wire name, read from the command class's <see cref="RemoteCommandAttribute"/>.</param>
+/// <param name="ImplementationType">The command class.</param>
 ///
 /// <remarks>
 /// This exists so the singleton listener never captures a command. Reading the name from the attribute rather than from a

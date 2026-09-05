@@ -12,9 +12,8 @@ namespace AlmightyShogun.RemoteCommands;
 public sealed record RemoteCommandResponse
 {
     /// <summary>
-    /// Gets why the request was declined, or <c>null</c> when it was served. Serialized as the underlying number, so a
-    /// value a newer server introduces still arrives and is kept here as that raw number. The client maps an unrecognized
-    /// one onto <see cref="RemoteCommandRefusal.Other"/> when it builds the exception, not on this property.
+    /// Why the request was declined, or <c>null</c> when it was served. Serialized as the underlying number, so a
+    /// value a newer server introduces still arrives and is kept here as that raw number.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -22,8 +21,7 @@ public sealed record RemoteCommandResponse
     public RemoteCommandRefusal? Refusal { get; init; }
 
     /// <summary>
-    /// Gets whatever the command wrote, or <c>null</c> when it was refused or ran without writing anything. A command
-    /// that returns without answering is therefore acknowledged rather than leaving the client waiting.
+    /// Whatever the command wrote, or <c>null</c> when it was refused or ran without writing anything.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

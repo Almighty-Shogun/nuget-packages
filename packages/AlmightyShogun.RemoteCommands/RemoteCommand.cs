@@ -50,7 +50,7 @@ public abstract class RemoteCommand<T> : IRemoteCommand<T>, IInternalRemoteComma
     }
 
     /// <summary>
-    /// Gets the declared command name, for a subclass that wants to name itself in its own logging or responses.
+    /// The declared command name, for a subclass that wants to name itself in its own logging or responses.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

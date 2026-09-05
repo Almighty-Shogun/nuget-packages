@@ -43,6 +43,11 @@ public static class RemoteCommandExtensions
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the remote commands registered.</returns>
         ///
+        /// <exception cref="InvalidOperationException">
+        /// A discovered command class carries no <see cref="RemoteCommandAttribute"/> and so declares no name to be
+        /// reachable by. Raised by the overload taking assemblies, which this forwards to.
+        /// </exception>
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
         public IServiceCollection RegisterRemoteCommands() => serviceCollection.RegisterRemoteCommands([Assembly.GetCallingAssembly()]);

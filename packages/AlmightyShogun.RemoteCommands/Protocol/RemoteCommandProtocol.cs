@@ -19,7 +19,8 @@ internal static class RemoteCommandProtocol
 {
     /// <summary>
     /// The serializer options used for every frame in both directions. Web defaults give camel-case output and
-    /// case-insensitive matching, so both casings are accepted on the wire.
+    /// case-insensitive matching, so both casings are accepted on the wire. No string enum converter is registered, so an
+    /// enum such as <see cref="RemoteCommandRefusal"/> travels as its underlying number.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -88,7 +89,9 @@ internal static class RemoteCommandProtocol
 
     /// <summary>
     /// Writes one whole message as a length prefix followed by the body, then flushes the stream. Completion means the
-    /// bytes were handed to the stream, not that the peer has received them.
+    /// bytes were handed to the stream, not that the peer has received them. No size limit applies on the way out, so
+    /// the only cap on a frame is the one whoever reads it passes to
+    /// <see cref="ReadFrameAsync(Stream, int, CancellationToken)"/>.
     /// </summary>
     ///
     /// <typeparam name="T">The value's type, serialized with the shared web defaults.</typeparam>
@@ -133,6 +136,8 @@ internal static class RemoteCommandProtocol
     /// </returns>
     ///
     /// <exception cref="EndOfStreamException">The connection ended after part of the expected bytes had arrived.</exception>
+    /// <exception cref="IOException">The connection failed while reading.</exception>
+    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled mid-read.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

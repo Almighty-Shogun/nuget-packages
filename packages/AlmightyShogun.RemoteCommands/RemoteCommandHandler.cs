@@ -317,6 +317,14 @@ internal sealed class RemoteCommandHandler(
     /// connection is kept open between requests, so one client may run many commands on it.
     /// </returns>
     ///
+    /// <exception cref="OperationCanceledException">
+    /// The read timeout elapsed or the listener stopped while a request was being dispatched. Only the frame read is
+    /// guarded, so this escapes to <see cref="HandleClientSafelyAsync"/> rather than ending the loop quietly.
+    /// </exception>
+    /// <exception cref="IOException">
+    /// The connection failed while a refusal or the acknowledgement was being written back.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
     private async Task HandleClientAsync(TcpClient client, CancellationToken cancellationToken)
@@ -400,6 +408,19 @@ internal sealed class RemoteCommandHandler(
     /// The connection failed while a refusal or the acknowledgement was being written. The same failure inside the
     /// command's own write is caught and logged instead, because it escapes the command rather than these calls.
     /// </exception>
+    ///
+    /// <remarks>
+    /// This is where every <see cref="RemoteCommandRefusal"/> is decided, in guard order. A frame that is not readable as
+    /// JSON is answered with <see cref="RemoteCommandRefusal.MalformedPayload"/>, one that deserializes to nothing or
+    /// carries a blank name with <see cref="RemoteCommandRefusal.MissingCommandName"/>, one whose key does not match with
+    /// <see cref="RemoteCommandRefusal.Unauthorized"/>, and a name no command is registered under with
+    /// <see cref="RemoteCommandRefusal.CommandNotFound"/>. Once the request has been handed to a command, a
+    /// <c>JsonException</c> escaping it answers <see cref="RemoteCommandRefusal.InvalidMessage"/> whether it came from
+    /// binding the message or from the command's own body, and anything else other than a cancellation answers
+    /// <see cref="RemoteCommandRefusal.Other"/>. A frame omitting <c>data</c> entirely lands on
+    /// <see cref="RemoteCommandRefusal.Other"/> as well, because binding a default <see cref="JsonElement"/> raises
+    /// <see cref="InvalidOperationException"/> rather than a <c>JsonException</c>.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

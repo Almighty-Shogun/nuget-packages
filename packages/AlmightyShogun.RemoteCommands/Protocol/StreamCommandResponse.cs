@@ -26,7 +26,7 @@ internal sealed class StreamCommandResponse(Stream stream) : ICommandResponse
     private int _hasWritten;
 
     /// <summary>
-    /// Gets whether the command answered for itself, which is what stops a client waiting on a command that returned
+    /// Whether the command answered for itself, which is what stops a client waiting on a command that returned
     /// without writing and stops the dispatcher sending a second frame after one that did.
     /// </summary>
     ///

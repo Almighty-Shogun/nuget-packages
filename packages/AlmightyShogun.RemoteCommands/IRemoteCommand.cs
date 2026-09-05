@@ -11,7 +11,7 @@ namespace AlmightyShogun.RemoteCommands;
 internal interface IRemoteCommand
 {
     /// <summary>
-    /// Gets the name the command declares, which <see cref="RemoteCommand{T}"/> reads from
+    /// The name the command declares, which <see cref="RemoteCommand{T}"/> reads from
     /// <see cref="RemoteCommandAttribute"/> once per instance. Routing does not read it: the dispatch table is keyed by
     /// <see cref="RemoteCommandDescriptor.Name"/>, taken from the same attribute at registration.
     /// </summary>

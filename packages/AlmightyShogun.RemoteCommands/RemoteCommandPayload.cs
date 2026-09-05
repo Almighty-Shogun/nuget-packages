@@ -7,10 +7,8 @@ namespace AlmightyShogun.RemoteCommands;
 /// </summary>
 ///
 /// <remarks>
-/// No property is <c>required</c>, so a frame that omits one deserializes rather than throwing and reaches the handler's
-/// own guards: a missing name is refused with <see cref="RemoteCommandRefusal.MissingCommandName"/> and a missing message
-/// with <see cref="RemoteCommandRefusal.InvalidMessage"/>. Marking either one required would collapse both onto
-/// <see cref="RemoteCommandRefusal.MalformedPayload"/>, because deserialization would fail before the guards run.
+/// No property is <c>required</c>, so a frame that omits one binds to the property's default rather than failing while
+/// the frame is being read.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -18,9 +16,7 @@ namespace AlmightyShogun.RemoteCommands;
 public sealed record RemoteCommandPayload
 {
     /// <summary>
-    /// Gets the name of the command to run, matched with ordinal case sensitivity. A blank name is refused with
-    /// <see cref="RemoteCommandRefusal.MissingCommandName"/> before any command is looked up, which reaches the client as its
-    /// numeric value because the serializer is configured with web defaults and no string enum converter.
+    /// The name of the command to run, as declared on that command's <see cref="RemoteCommandAttribute"/>.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -28,7 +24,7 @@ public sealed record RemoteCommandPayload
     public string Command { get; init; } = string.Empty;
 
     /// <summary>
-    /// Gets the command's own message, left unbound here because only the command it is addressed to knows its type.
+    /// The command's own message, left unbound here because only the command it is addressed to knows its type.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -36,11 +32,10 @@ public sealed record RemoteCommandPayload
     public JsonElement Data { get; init; }
 
     /// <summary>
-    /// Gets the pre-shared key. Ignored when the server configures none, and compared in constant time when it does, so a
-    /// wrong key cannot be found a character at a time.
+    /// The pre-shared key sent with the request, or <c>null</c> when the client sends none.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>1.0.0</since>
+    /// <since>Unreleased</since>
     public string? Secret { get; init; }
 }

@@ -13,7 +13,7 @@ namespace AlmightyShogun.RemoteCommands;
 public sealed class RemoteCommandRefusedException(RemoteCommandRefusal reason) : RemoteCommandException(Describe(reason))
 {
     /// <summary>
-    /// Gets what the server objected to, which is the value to branch on. Stored exactly as it was passed in: nothing
+    /// What the server objected to, which is the value to branch on. Stored exactly as it was passed in: nothing
     /// here checks it is defined, and <see cref="RemoteCommandClient"/> is what maps a value it does not recognize onto
     /// <see cref="RemoteCommandRefusal.Other"/> before constructing this.
     /// </summary>

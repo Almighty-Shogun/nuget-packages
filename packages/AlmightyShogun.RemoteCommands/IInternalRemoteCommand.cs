@@ -25,9 +25,13 @@ internal interface IInternalRemoteCommand
     /// <returns>A task that completes when the command has finished.</returns>
     ///
     /// <exception cref="JsonException">
-    /// The payload could not become the command's message type. The dispatcher answers with a
-    /// <see cref="RemoteCommandRefusal.InvalidMessage"/> refusal, unless the command had already claimed the write slot, in
-    /// which case the refusal is suppressed and the client is left waiting.
+    /// The payload could not become the command's message type, or the command's own body raised one after binding
+    /// succeeded. Nothing here tells the two apart.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="data"/> was a default <see cref="JsonElement"/>, whose <see cref="JsonValueKind.Undefined"/>
+    /// cannot be bound at all. Nothing guards the parameter, so a request frame omitting its <c>data</c> field arrives
+    /// this way.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>

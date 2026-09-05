@@ -1,8 +1,8 @@
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// Why the server declined to run a command. Sent on the wire as its underlying number, so this is the vocabulary both
-/// ends share and the only place a refusal is named.
+/// Why the server declined to run a command. This is the vocabulary both ends share and the only place a refusal is
+/// named.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -10,10 +10,9 @@ namespace AlmightyShogun.RemoteCommands;
 public enum RemoteCommandRefusal
 {
     /// <summary>
-    /// What this package's own server answers with when a command threw anything but a cancellation or a
-    /// <c>JsonException</c>, so between a matched pair of ends it means the command ran and failed rather than that it
-    /// was declined. It is also what a value introduced by a newer server arrives as, since the client maps anything it
-    /// has no name for onto this and does not keep the original number.
+    /// The request was accepted and handed to its command, but serving it failed for a reason with no more specific code
+    /// here. That covers a command that ran and threw as well as a request the command could never be given, so this on
+    /// its own does not say whether the command's own body ran.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

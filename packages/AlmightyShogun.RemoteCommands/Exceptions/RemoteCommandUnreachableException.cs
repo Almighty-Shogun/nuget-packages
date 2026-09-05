@@ -15,7 +15,7 @@ public sealed class RemoteCommandUnreachableException(string host, int port, Exc
     : RemoteCommandException($"The server at {host}:{port} could not be reached.", innerException)
 {
     /// <summary>
-    /// Gets the host that was dialed, for logging which endpoint is unreachable when a client is built from settings.
+    /// The host that was dialed, for logging which endpoint is unreachable when a client is built from settings.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -23,7 +23,7 @@ public sealed class RemoteCommandUnreachableException(string host, int port, Exc
     public string Host { get; } = host;
 
     /// <summary>
-    /// Gets the port that was dialed.
+    /// The port that was dialed.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
