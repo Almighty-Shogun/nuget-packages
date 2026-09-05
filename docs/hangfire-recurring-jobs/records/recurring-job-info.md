@@ -21,28 +21,17 @@ fields:
 
 One discovered recurring job, as its attribute and any matching configuration override resolve together. Only the job id always comes from the attribute. Exposed through [`RecurringJobRegistry`](../services/recurring-job-registry) so an application can list what is scheduled.
 
-## Usage
-
-```csharp
-using AlmightyShogun.Hangfire.RecurringJobs;
-
-public sealed class JobReporter(IRecurringJobRegistry registry)
-{
-    public IEnumerable<string> Describe() => registry.Jobs
-        .Select(job => $"{job.JobId}: {job.CronExpression}");
-}
-```
-
 <FrontmatterDocs/>
 
 ## Type signature
 
 ```csharp
-public sealed record RecurringJobInfo(
-    string JobId,
-    string CronExpression,
-    Type JobType,
-    string? TimeZone,
-    string? Queue
-);
+public sealed record RecurringJobInfo
+{
+    public required string JobId { get; init; }
+    public required string CronExpression { get; init; }
+    public required Type JobType { get; init; }
+    public required string? TimeZone { get; init; }
+    public required string? Queue { get; init; }
+}
 ```

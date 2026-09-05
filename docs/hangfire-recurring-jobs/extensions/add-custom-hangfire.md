@@ -30,7 +30,7 @@ builder.Services.AddCustomHangfire();
 using Hangfire;
 using AlmightyShogun.Hangfire.RecurringJobs;
 
-string connection = builder.Configuration.GetConnectionString("Hangfire");
+string connection = builder.Configuration.GetConnectionString("Hangfire")!;
 
 builder.Services.AddCustomHangfire(configuration => configuration
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -41,7 +41,7 @@ builder.Services.AddCustomHangfire(configuration => configuration
 using Hangfire;
 using AlmightyShogun.Hangfire.RecurringJobs;
 
-string connection = builder.Configuration.GetConnectionString("Hangfire");
+string connection = builder.Configuration.GetConnectionString("Hangfire")!;
 
 builder.Services.AddCustomHangfire(configuration => configuration
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
