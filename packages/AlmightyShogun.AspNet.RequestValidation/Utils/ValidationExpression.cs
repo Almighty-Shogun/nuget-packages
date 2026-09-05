@@ -4,8 +4,9 @@ using System.Linq.Expressions;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Reads the property a rule expression points at. Only a property read directly off the request is accepted, so a rule cannot be declared
-/// against something the pipeline is unable to name or safely read.
+/// Reads the property a rule expression points at. A conversion wrapped around the read is unwrapped first, and what remains has to be a
+/// property read directly off the request parameter, so a rule cannot be declared against something the pipeline is unable to name or
+/// safely read.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -13,7 +14,8 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal static class ValidationExpression
 {
     /// <summary>
-    /// Reads the property an expression points at, rejecting anything that is not a direct read off the lambda's own parameter.
+    /// Reads the property an expression points at, unwrapping one unary node first and rejecting anything that does not then reduce to a
+    /// read off the lambda's own parameter.
     /// </summary>
     ///
     /// <typeparam name="TRequest">The request type the expression reads from.</typeparam>
@@ -21,15 +23,17 @@ internal static class ValidationExpression
     /// The property type the expression yields, which is <see cref="object"/> for the untyped spellings the attribute path uses.
     /// </typeparam>
     /// <param name="expression">
-    /// Points at the property, supplying both the name failures are reported under and the reader used to fetch its value. A conversion
-    /// wrapped around the read, which the compiler inserts when a value-typed property is read as <see cref="object"/> , is unwrapped
-    /// first.
+    /// Points at the property, supplying both the name failures are reported under and the reader used to fetch its value. Only the
+    /// conversion the compiler inserts when a value-typed property is read as <see cref="object"/> is unwrapped; any other unary operator
+    /// is refused rather than resolved to its operand, so <c>request => !request.IsActive</c> does not quietly become a rule on
+    /// <c>IsActive</c> .
     /// </param>
     ///
     /// <returns>The property the expression reads.</returns>
     ///
     /// <exception cref="ArgumentOutOfRangeException">
-    /// The expression is not a direct property read: a method call, a literal, a field, or a nested read such as
+    /// The expression is not a direct property read: a method call, a literal, a field, a unary operator that is not a conversion such as
+    /// <c>request => !request.IsActive</c> , or a nested read such as
     /// <c>request => request.User.Email</c> . A nested read is refused rather than supported, because the name derived from it would be the
     /// leaf property's alone and the compiled reader would throw whenever an intermediate value is null. Thrown as the rule is built rather
     /// than when a request arrives.
@@ -39,7 +43,13 @@ internal static class ValidationExpression
     /// <since>Unreleased</since>
     public static PropertyInfo GetProperty<TRequest, TProperty>(Expression<Func<TRequest, TProperty>> expression)
     {
-        Expression body = expression.Body is UnaryExpression { Operand: var operand } ? operand : expression.Body;
+        Expression body = expression.Body is UnaryExpression
+        {
+            NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked,
+            Operand: var operand
+        }
+            ? operand
+            : expression.Body;
 
         if (body is MemberExpression { Member: PropertyInfo property, Expression: ParameterExpression parameter }
             && parameter == expression.Parameters[0])
