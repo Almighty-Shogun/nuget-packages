@@ -24,8 +24,9 @@ public sealed class HttpErrorResult : ObjectResult
     ///
     /// <param name="response">
     /// The body to return. Its <see cref="HttpErrorResponse.Code"/> becomes
-    /// <see cref="ObjectResult.StatusCode"/>, so the status a client reads in the headers and the one it reads in the
-    /// body cannot drift apart the way a hand-built <see cref="ObjectResult"/> can.
+    /// <see cref="ObjectResult.StatusCode"/> at construction, so the status a client reads in the headers matches the one in
+    /// the body without a caller setting both. <see cref="ObjectResult.StatusCode"/> stays settable, so assigning it
+    /// afterwards still parts them.
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>

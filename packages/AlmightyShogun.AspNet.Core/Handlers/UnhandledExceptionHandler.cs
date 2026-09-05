@@ -16,8 +16,11 @@ namespace AlmightyShogun.AspNet.Core;
 /// </param>
 ///
 /// <remarks>
-/// The exception itself is not logged here. The framework's exception handler middleware already logs every unhandled
-/// exception with its stack trace, so logging again would duplicate it.
+/// The exception itself is not logged here, and claiming it stops the framework from logging it either: with no
+/// <c>SuppressDiagnosticsCallback</c> configured, and <c>UseHttpErrorResponses</c> configures none,
+/// <c>ExceptionHandlerMiddlewareImpl</c> suppresses its own unhandled-exception diagnostics for any exception an
+/// <see cref="IExceptionHandler"/> claimed. This one claims everything that reaches it, so an application that needs
+/// the stack trace recorded has to log it itself.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

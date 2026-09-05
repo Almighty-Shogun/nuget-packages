@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.Core;
 /// <remarks>
 /// Deriving from <see cref="ReasonPhrases"/> rather than listing every status means a status the framework learns to
 /// name is covered without an edit here. It also ties the contract to a table this package does not own, which is why
-/// <c>425</c> is pinned below: the derived form is only as stable as the phrase it comes from.
+/// <c>425</c> is pinned below: the table does not name it at all, so without the pin it would fall to the numeric form.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

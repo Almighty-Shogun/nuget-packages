@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Http;
 namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
-/// Deletes response cookies. Deletion travels as a <c>Set-Cookie</c> header, so nothing here takes effect once the
-/// response has started.
+/// Deletes response cookies. Deletion travels as a <c>Set-Cookie</c> header, so it has to happen before the response
+/// starts.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -16,7 +16,8 @@ public static class HttpResponseExtensions
     /// </summary>
     ///
     /// <param name="httpResponse">
-    /// The response being built. It is not written to or completed here, so the body remains the caller's to produce.
+    /// The response being built. Its headers are appended to, but the body is neither written nor completed here, so it
+    /// remains the caller's to produce.
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
@@ -31,6 +32,12 @@ public static class HttpResponseExtensions
         /// The cookie names to delete. Blank names are ignored, so a name read from configuration can be passed without
         /// a guard.
         /// </param>
+        ///
+        /// <exception cref="InvalidOperationException">
+        /// The response has already started. There is no guard here, and each name appends a <c>Set-Cookie</c> header,
+        /// which Kestrel rejects once the headers are sent. Check <c>HttpResponse.HasStarted</c> first where the call
+        /// site cannot rule that out.
+        /// </exception>
         ///
         /// <remarks>
         /// The expiry is scoped to the root path and the current host. A cookie written with a different path or domain
