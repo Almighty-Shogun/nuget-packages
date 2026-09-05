@@ -16,7 +16,7 @@ namespace AlmightyShogun.RemoteCommands;
 /// <param name="maxPayloadBytes">
 /// The largest response frame accepted, in bytes. Like every limit in the protocol it bounds what is read rather than
 /// what is written, so raise it where a command returns more than the default. The server bounds the requests it reads
-/// with its own <see cref="RemoteServerSettings.MaxPayloadBytes"/> .
+/// with its own <see cref="RemoteServerSettings.MaxPayloadBytes"/>.
 /// </param>
 ///
 /// <remarks>
