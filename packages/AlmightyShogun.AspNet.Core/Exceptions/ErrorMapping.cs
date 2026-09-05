@@ -8,24 +8,44 @@ namespace AlmightyShogun.AspNet.Core;
 /// type never names an HTTP status or a message file.
 /// </summary>
 ///
-/// <param name="StatusCode">
-/// The status the response is sent with, and the value carried into <see cref="HttpErrorResponse.Code"/> so the body
-/// repeats it.
-/// </param>
-/// <param name="Code">
-/// The stable machine-readable identifier a client branches on, such as <c>invalid_credentials</c>. Treat it as public
-/// API: renaming it breaks consumers without breaking a build.
-/// </param>
-/// <param name="MessageKey">
-/// The key resolved through <see cref="IMessageResolver"/> for the human-readable description. A key no message file
-/// defines reaches the client verbatim, so it should read as a key rather than as prose.
-/// </param>
-/// <param name="MessageParameters">
-/// The values substituted into the resolved template by position, as <c>{0}</c> and onwards. Pass an empty list when
-/// the message takes none. Too few for the template leaves it unformatted rather than throwing, so a placeholder can
-/// reach the client; surplus values are ignored.
-/// </param>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public sealed record ErrorMapping(int StatusCode, string Code, string MessageKey, IReadOnlyList<object?> MessageParameters);
+public sealed record ErrorMapping
+{
+    /// <summary>
+    /// Gets the status the response is sent with, and the value carried into <see cref="HttpErrorResponse.Code"/> so the
+    /// body repeats it.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public required int StatusCode { get; init; }
+
+    /// <summary>
+    /// Gets the stable machine-readable identifier a client branches on, such as <c>invalid_credentials</c>. Treat it as
+    /// public API: renaming it breaks consumers without breaking a build.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public required string Code { get; init; }
+
+    /// <summary>
+    /// Gets the key resolved through <see cref="IMessageResolver"/> for the human-readable description. A key no message
+    /// file defines reaches the client verbatim, so it should read as a key rather than as prose.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public required string MessageKey { get; init; }
+
+    /// <summary>
+    /// Gets the values substituted into the resolved template by position, as <c>{0}</c> and onwards. Pass an empty list
+    /// when the message takes none. Too few for the template leaves it unformatted rather than throwing, so a
+    /// placeholder can reach the client; surplus values are ignored.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public required IReadOnlyList<object?> MessageParameters { get; init; }
+}

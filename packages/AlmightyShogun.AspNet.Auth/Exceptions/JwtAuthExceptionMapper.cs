@@ -10,8 +10,8 @@ namespace AlmightyShogun.AspNet.Auth;
 /// </summary>
 ///
 /// <remarks>
-/// Registered by <c>AddAuth</c> whether it also registers the handler chain, since a mapper nothing consults
-/// is inert and an application that runs its own handler still wants these mappings available to it.
+/// Registered by <c>AddAuth</c> whether or not it also registers the handler, and only under this concrete type. It is
+/// <c>internal</c>, so nothing outside this package can resolve it.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -21,26 +21,29 @@ internal sealed class JwtAuthExceptionMapper : IExceptionMapper
     /// <inheritdoc />
     public ErrorMapping? Map(Exception exception) => exception switch
     {
-        MissingUserIdClaimException => new ErrorMapping(
-            StatusCodes.Status401Unauthorized,
-            "missing_user_id_claim",
-            "auth.missing-user-id",
-            []
-        ),
+        MissingUserIdClaimException => new ErrorMapping
+        {
+            StatusCode = StatusCodes.Status401Unauthorized,
+            Code = "missing_user_id_claim",
+            MessageKey = "auth.missing-user-id",
+            MessageParameters = []
+        },
 
-        MissingRefreshTokenException => new ErrorMapping(
-            StatusCodes.Status401Unauthorized,
-            "missing_refresh_token",
-            "auth.missing-refresh-token",
-            []
-        ),
+        MissingRefreshTokenException => new ErrorMapping
+        {
+            StatusCode = StatusCodes.Status401Unauthorized,
+            Code = "missing_refresh_token",
+            MessageKey = "auth.missing-refresh-token",
+            MessageParameters = []
+        },
 
-        UnknownAppException => new ErrorMapping(
-            StatusCodes.Status403Forbidden,
-            "unknown_app",
-            "auth.unknown-app",
-            []
-        ),
+        UnknownAppException => new ErrorMapping
+        {
+            StatusCode = StatusCodes.Status403Forbidden,
+            Code = "unknown_app",
+            MessageKey = "auth.unknown-app",
+            MessageParameters = []
+        },
 
         _ => null
     };
