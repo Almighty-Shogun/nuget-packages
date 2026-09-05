@@ -6,18 +6,21 @@ namespace AlmightyShogun.EntityFrameworkCore.ModelBuilding;
 
 /// <summary>
 /// Collapses the fluent chain a relationship or an index normally takes into a single call, so a mapping in
-/// <c>OnModelCreating</c> is one statement rather than a chain. The three relationship families share one parameter
-/// order, navigation then foreign key then inverse navigation; the index, enum and auto-include helpers take what they
-/// need instead.
+/// <c>OnModelCreating</c> is one statement rather than a chain. The one-to-one, one-to-many and many-to-one families share
+/// one parameter order, navigation then foreign key then inverse navigation; the many-to-many, index, enum and
+/// auto-include helpers take what they need instead.
 /// </summary>
 ///
 /// <remarks>
-/// The relationship helpers override no EF Core convention: requiredness and delete behavior are left to be inferred
-/// from the foreign key's nullability, so a mapping written through them behaves exactly as the fluent equivalent
-/// without the matching call would. The others do override one, deliberately: an enum is stored as text rather than as
-/// its number, a unique index replaces the conventional non-unique one, and a many-to-many names its own join table and
-/// key columns. What is not conventional, such as an alternate principal key, is a separate overload rather than an
-/// argument every caller has to read past.
+/// The two-argument relationship overloads call nothing beyond <c>HasOne</c> or <c>HasMany</c>, <c>WithOne</c> or
+/// <c>WithMany</c>, and <c>HasForeignKey</c>: requiredness and delete behavior are left to whatever EF Core infers
+/// from the foreign key's nullability, so a mapping written through them is the fluent chain it expands to and nothing
+/// more. The four-argument overloads add <c>HasPrincipalKey</c>, which EF Core documents as introducing a unique
+/// constraint when the target property is not already the primary key or one. The enum, unique-index and many-to-many
+/// helpers each configure what the fluent chain would not give them by convention: an enum is stored as text rather than as
+/// its number and given a column width, a unique index is marked unique and optionally filtered, and a many-to-many names
+/// its own join entity and key columns. An alternate principal key lives in a separate overload rather than in an argument
+/// every caller has to read past.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -95,13 +98,11 @@ public static class ModelBuilderExtensions
         /// The property on the dependent holding the key. Its nullability is what decides whether the relationship is
         /// required.
         /// </param>
-        /// <param name="inverseNavigation">
-        /// The property on the dependent pointing back, or <c>null</c> when it has none. Required here only so this
-        /// overload is told apart from the conventional one.
-        /// </param>
+        /// <param name="inverseNavigation">The property on the dependent pointing back, or <c>null</c> when it has none.</param>
         /// <param name="principalKey">
-        /// The property on the principal the foreign key targets. EF Core promotes it to an alternate key, so it needs
-        /// a unique index of its own and the values behind it have to stay unique.
+        /// The property on the principal the foreign key targets. EF Core documents <c>HasPrincipalKey</c> as
+        /// introducing a unique constraint over it when it is not already the primary key or one, so it wants no
+        /// <c>ApplyUniqueIndex</c> call of its own; the values behind it still have to stay unique.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the relationship configured.</returns>
@@ -186,13 +187,11 @@ public static class ModelBuilderExtensions
         /// The property on the dependent holding the key. Its nullability is what decides whether a dependent may exist
         /// without a principal.
         /// </param>
-        /// <param name="inverseNavigation">
-        /// The property on the dependent pointing back, or <c>null</c> when it has none. Required here only so this
-        /// overload is told apart from the conventional one.
-        /// </param>
+        /// <param name="inverseNavigation">The property on the dependent pointing back, or <c>null</c> when it has none.</param>
         /// <param name="principalKey">
-        /// The property on the principal the foreign key targets. EF Core promotes it to an alternate key, so it needs
-        /// a unique index of its own and the values behind it have to stay unique.
+        /// The property on the principal the foreign key targets. EF Core documents <c>HasPrincipalKey</c> as
+        /// introducing a unique constraint over it when it is not already the primary key or one, so it wants no
+        /// <c>ApplyUniqueIndex</c> call of its own; the values behind it still have to stay unique.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the relationship configured.</returns>
@@ -228,8 +227,9 @@ public static class ModelBuilderExtensions
         /// <typeparam name="TEntity">The principal, at the single end.</typeparam>
         /// <typeparam name="TDependent">The dependent, at the many end, which carries the foreign key.</typeparam>
         /// <param name="navigation">
-        /// The reference property on the dependent. The model this produces is the same one the collection-side helper
-        /// produces, foreign key included; only the side the call is written from differs.
+        /// The reference property on the dependent. The foreign key this produces is the one the collection-side helper
+        /// produces, but the navigations are not: this is the only one defined unless
+        /// <paramref name="inverseNavigation"/> is supplied as well.
         /// </param>
         /// <param name="foreignKey">
         /// The property on the dependent holding the key. Its nullability is what decides whether the reference is
@@ -270,20 +270,19 @@ public static class ModelBuilderExtensions
         /// <typeparam name="TEntity">The principal, at the single end.</typeparam>
         /// <typeparam name="TDependent">The dependent, at the many end, which carries the foreign key.</typeparam>
         /// <param name="navigation">
-        /// The reference property on the dependent. The model this produces is the same one the collection-side helper
-        /// produces, foreign key included; only the side the call is written from differs.
+        /// The reference property on the dependent. The foreign key this produces is the one the collection-side helper
+        /// produces, but the navigations are not: this is the only one defined unless
+        /// <paramref name="inverseNavigation"/> is non-null as well.
         /// </param>
         /// <param name="foreignKey">
         /// The property on the dependent holding the key. Its nullability is what decides whether the reference is
         /// optional.
         /// </param>
-        /// <param name="inverseNavigation">
-        /// The collection property on the principal, or <c>null</c> when it exposes none. Required here only so this
-        /// overload is told apart from the conventional one.
-        /// </param>
+        /// <param name="inverseNavigation">The collection property on the principal, or <c>null</c> when it exposes none.</param>
         /// <param name="principalKey">
-        /// The property on the principal the foreign key targets. EF Core promotes it to an alternate key, so it needs
-        /// a unique index of its own and the values behind it have to stay unique.
+        /// The property on the principal the foreign key targets. EF Core documents <c>HasPrincipalKey</c> as
+        /// introducing a unique constraint over it when it is not already the primary key or one, so it wants no
+        /// <c>ApplyUniqueIndex</c> call of its own; the values behind it still have to stay unique.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the relationship configured.</returns>
@@ -312,14 +311,14 @@ public static class ModelBuilderExtensions
         }
 
         /// <summary>
-        /// Marks a navigation to be loaded with its owner on every query, so the property is never silently empty
-        /// because an <c>Include</c> was forgotten.
+        /// Marks a navigation to be loaded with its owner, so the property is not left silently empty because an
+        /// <c>Include</c> was forgotten. A query that calls <c>IgnoreAutoIncludes</c> opts back out of it.
         /// </summary>
         ///
         /// <typeparam name="TEntity">The entity the navigation is declared on.</typeparam>
         /// <param name="navigation">
-        /// The navigation to load eagerly. Every query returning the entity itself loads it, so reach for it on small
-        /// related data rather than on a large collection.
+        /// The navigation to load eagerly. Every query returning the entity loads it too unless that query calls
+        /// <c>IgnoreAutoIncludes</c>, so reach for it on small related data rather than on a large collection.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the navigation set to load eagerly.</returns>
@@ -342,10 +341,13 @@ public static class ModelBuilderExtensions
         /// Adds an index over one or more properties, which is what a column filtered or sorted on regularly needs.
         /// </summary>
         ///
-        /// <typeparam name="TEntity">The entity the index is created on, which is also the table it lands in.</typeparam>
+        /// <typeparam name="TEntity">
+        /// The entity the index is declared on. That is the table it lands in unless the entity shares one, as a derived
+        /// type does under EF Core's default inheritance mapping.
+        /// </typeparam>
         /// <param name="index">
         /// The property to index, or an anonymous object of properties for a composite index. Column order in a
-        /// composite index is the order given, and only a leading subset of it can be used by a query.
+        /// composite index is the order the anonymous object gives.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the index configured.</returns>
@@ -365,20 +367,23 @@ public static class ModelBuilderExtensions
         }
 
         /// <summary>
-        /// Adds a unique index, which is how a value is kept unique in the database rather than only in the code that
-        /// writes it.
+        /// Adds a unique index over the selected properties, so the database rejects a duplicate rather than relying on the
+        /// code that writes it. A filter narrows which rows the constraint covers.
         /// </summary>
         ///
-        /// <typeparam name="TEntity">The entity the constraint is created on, which is also the table it lands in.</typeparam>
+        /// <typeparam name="TEntity">
+        /// The entity the constraint is declared on. That is the table it lands in unless the entity shares one, as a
+        /// derived type does under EF Core's default inheritance mapping.
+        /// </typeparam>
         /// <param name="index">
         /// The property to index, or an anonymous object of properties for a composite index. A composite unique index
         /// constrains the combination, not each column on its own.
         /// </param>
         /// <param name="filter">
-        /// A provider-specific predicate limiting which rows the constraint covers, such as
-        /// <c>"[Email] IS NOT NULL"</c>. Worth setting over a nullable column on SQL Server, which treats two nulls as
-        /// equal and refuses the second row without it. PostgreSQL, SQLite, MySQL and MariaDB allow repeated nulls, so
-        /// there the filter is only needed to narrow the constraint for its own sake.
+        /// A provider-specific SQL predicate limiting which rows the constraint covers, such as
+        /// <c>"[Email] IS NOT NULL"</c>. It reaches <c>HasFilter</c> unchanged, which EF Core documents as configuring
+        /// the index's filter expression, so the text has to be valid for whichever provider renders it. Left unset,
+        /// no filter is applied.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the unique index configured.</returns>
@@ -414,8 +419,9 @@ public static class ModelBuilderExtensions
         /// The collection property on <typeparamref name="TEntity"/>, whose join column is named after that type.
         /// </param>
         /// <param name="inverseNavigation">
-        /// The collection property on <typeparamref name="TRelated"/>. Both sides are required, because a many-to-many
-        /// with a navigation on one side only has no second collection for EF Core to pair the join rows with.
+        /// The collection property on <typeparamref name="TRelated"/>. This helper's signature requires it, though EF
+        /// Core does not: a many-to-many navigated from one side only is configured by calling <c>WithMany</c> with no
+        /// argument, which is past what this helper covers and needs the fluent call written out.
         /// </param>
         /// <param name="joinTableName">
         /// The table holding the pairs. Named explicitly because EF Core's generated name concatenates the two entity
@@ -426,14 +432,14 @@ public static class ModelBuilderExtensions
         ///
         /// <exception cref="ArgumentException">
         /// A lambda is not a simple property or field access, such as one calling a method or walking more than one
-        /// member. EF Core reports the offending expression.
+        /// member. EF Core reports the offending expression. Also thrown when <paramref name="joinTableName"/> is empty
+        /// or only whitespace, which EF Core rejects with the same emptiness check.
         /// </exception>
         /// <exception cref="ArgumentNullException"><paramref name="joinTableName"/> is <c>null</c>.</exception>
         ///
         /// <remarks>
-        /// Both join columns are non-nullable, so EF Core cascades from either side by convention and a row disappears
-        /// with whichever entity it referenced. A model needing different column names or a join entity of its own is
-        /// past what this hides and should call <c>UsingEntity</c> directly.
+        /// A model needing different column names or a join entity of its own is past what this hides and should call
+        /// <c>UsingEntity</c> directly.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
@@ -468,8 +474,9 @@ public static class ModelBuilderExtensions
         /// </typeparam>
         /// <param name="property">The property to convert, stored through EF Core's enum-to-string conversion.</param>
         /// <param name="maxLength">
-        /// The column width. It has to fit the longest member name, so raise it before adding a longer one rather than
-        /// after a write has already been truncated or refused.
+        /// The column width. It should fit the longest member name, though nothing here or in EF Core checks a written
+        /// value against it, so what happens to a longer one is left to the provider. EF Core documents <c>-1</c> as
+        /// meaning no maximum length at all.
         /// </param>
         ///
         /// <returns>The <see cref="ModelBuilder"/> instance with the property stored as text.</returns>
@@ -477,7 +484,10 @@ public static class ModelBuilderExtensions
         /// <exception cref="ArgumentException">
         /// <paramref name="property"/> is not a simple property or field access.
         /// </exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxLength"/> is negative.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="maxLength"/> is less than <c>-1</c>. <c>-1</c> itself is accepted rather than rejected as
+        /// out of range.
+        /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
