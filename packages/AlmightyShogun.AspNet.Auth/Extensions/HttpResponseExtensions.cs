@@ -14,7 +14,9 @@ public static class HttpResponseExtensions
 {
     /// <summary>
     /// Provides the refresh-token cookie writers on any response, both applying the same path, <c>SameSite</c> mode, and
-    /// secure flag, so the cookie is deleted with the attributes it was written with.
+    /// secure flag, so the cookie is deleted with the attributes it was written with. The secure flag comes from the
+    /// request scheme rather than from the mode, so a <see cref="SameSiteMode.None"/> cookie is marked secure only when
+    /// the request that wrote it was.
     /// </summary>
     ///
     /// <param name="httpResponse">
@@ -34,7 +36,10 @@ public static class HttpResponseExtensions
         /// </summary>
         ///
         /// <param name="token">The refresh token value to store in the cookie.</param>
-        /// <param name="days">The number of days before the cookie expires.</param>
+        /// <param name="days">
+        /// The number of days before the cookie expires. Pass <see cref="AuthSettings.RefreshTokenDays"/> to give the
+        /// cookie the same lifetime the refresh token itself is configured for; nothing pairs them for you.
+        /// </param>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.3.0</since>

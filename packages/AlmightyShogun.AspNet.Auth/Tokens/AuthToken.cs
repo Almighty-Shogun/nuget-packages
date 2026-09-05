@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.Auth;
 public sealed record AuthToken
 {
     /// <summary>
-    /// Gets the encoded JWT, ready to send as a bearer token without further processing.
+    /// The encoded JWT, ready to send as a bearer token without further processing.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -18,9 +18,9 @@ public sealed record AuthToken
     public required string Token { get; init; }
 
     /// <summary>
-    /// Gets the absolute expiry in UTC. Absolute rather than a duration, so a client that holds it does not have to
-    /// remember when it was issued. Validation allows <c>Auth:ClockSkewSeconds</c> beyond this, so the token is still
-    /// accepted for that long after it.
+    /// The absolute expiry in UTC. Absolute rather than a duration, so a client that holds it does not have to
+    /// remember when it was issued. See <see cref="AuthSettings.ClockSkewSeconds"/> for the tolerance this package's own
+    /// validation allows beyond it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

@@ -16,7 +16,7 @@ namespace AlmightyShogun.AspNet.Auth;
 public sealed class UnknownAppException(string? host) : Exception
 {
     /// <summary>
-    /// Gets the host that mapped to no application, which is the one detail needed to fix the configuration.
+    /// The host that mapped to no application, which is the one detail needed to fix the configuration.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

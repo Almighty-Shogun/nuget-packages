@@ -35,6 +35,10 @@ public interface IAuthTokenGenerator
     /// <paramref name="audience"/> is <c>null</c>, host scoping is on, and the request host maps to no configured
     /// application, which includes there being no request in flight at all.
     /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="audience"/> is <c>null</c>, host scoping is off, and no default app is configured. Not reachable
+    /// through <c>AddAuth</c>, which refuses that configuration while the host starts.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

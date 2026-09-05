@@ -10,8 +10,7 @@ namespace AlmightyShogun.AspNet.Auth;
 /// </summary>
 ///
 /// <remarks>
-/// Registered by <c>AddAuth</c> whether or not it also registers the handler, and only under this concrete type. It is
-/// <c>internal</c>, so nothing outside this package can resolve it.
+/// Registered only under this concrete type, and <c>internal</c>, so nothing outside this package can resolve it.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

@@ -11,8 +11,7 @@ namespace AlmightyShogun.AspNet.Auth;
 public static class AuthClaimTypes
 {
     /// <summary>
-    /// The claim carrying the caller's public identifier. A <c>Guid</c>, not the database key, so a token never leaks how
-    /// many accounts exist.
+    /// The claim carrying the caller's public identifier, which this package reads as a <c>Guid</c>.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -20,8 +19,7 @@ public static class AuthClaimTypes
     public const string UserId = "userId";
 
     /// <summary>
-    /// The claim carrying one granted permission. A principal holds one of these per permission, which is what lets a
-    /// policy test for a single value rather than parse a list.
+    /// The claim carrying one granted permission.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

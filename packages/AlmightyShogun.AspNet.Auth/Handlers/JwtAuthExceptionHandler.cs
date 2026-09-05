@@ -7,8 +7,9 @@ using AlmightyShogun.AspNet.Localization;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Answers this package's exceptions with the standardized error response, using JwtAuthExceptionMapper to decide the
-/// status, code, and message for each. Declines everything else, so the rest of the handler chain still gets a turn.
+/// Answers this package's exceptions with the standardized error response, using <see cref="JwtAuthExceptionMapper"/> to
+/// decide the status, code, and message for each. Declines everything else, so the rest of the handler chain still gets
+/// a turn.
 /// </summary>
 ///
 /// <param name="exceptionMapper">
@@ -23,11 +24,6 @@ namespace AlmightyShogun.AspNet.Auth;
 /// The writer that produces the body, so these failures match every other error the application returns.
 /// </param>
 /// <param name="logger">The logger the handled error is written to, at a level chosen from the mapped status code.</param>
-///
-/// <remarks>
-/// Register it ahead of <c>AddExceptionHandling</c>, since the fallback handler there answers everything and would
-/// claim these exceptions first.
-/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

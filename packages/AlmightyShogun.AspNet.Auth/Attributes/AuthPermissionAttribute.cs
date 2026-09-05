@@ -16,8 +16,8 @@ public sealed class AuthPermissionAttribute : AuthorizeAttribute
     /// </summary>
     ///
     /// <param name="permission">
-    /// The permission the principal must hold. Becomes a policy named <c>permission:{permission}</c>, which the package's
-    /// policy provider resolves and caches.
+    /// The permission the principal must hold. Becomes a policy named after
+    /// <see cref="AuthPolicies.PermissionPrefix"/> followed by this value.
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>

@@ -108,10 +108,11 @@ internal sealed class AppHostResolver(IOptions<AuthSettings> authSettings, IHttp
         : throw new UnknownAppException(host);
 
     /// <summary>
-    /// Determines whether a normalized host value represents localhost.
+    /// Determines whether a host value represents localhost. The answer is the same in every environment, since nothing
+    /// here inspects the one the application is running in.
     /// </summary>
     ///
-    /// <param name="host">The normalized host value to inspect.</param>
+    /// <param name="host">The host value to inspect, as it arrived on the request or from a caller.</param>
     ///
     /// <returns><c>true</c> when the host is localhost, loopback IPv4, or loopback IPv6; otherwise, <c>false</c>.</returns>
     ///

@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.Auth;
 public sealed record AuthSettings
 {
     /// <summary>
-    /// Gets the issuer stamped into minted tokens and demanded of incoming ones, which is what stops a token from another
+    /// The issuer stamped into minted tokens and demanded of incoming ones, which is what stops a token from another
     /// system being accepted here.
     /// </summary>
     ///
@@ -24,9 +24,8 @@ public sealed record AuthSettings
     public required string Issuer { get; init; }
 
     /// <summary>
-    /// Gets the symmetric signing secret used to sign and validate JWT signatures. Must be at least 32 characters, which
-    /// is what startup validation enforces. UTF-8 never encodes a character to fewer than one byte, so that also satisfies
-    /// the 32 bytes this package requires of the key.
+    /// The symmetric signing secret used to sign and validate JWT signatures. The <c>[MinLength]</c> constraint on it
+    /// demands at least 32 characters.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -36,7 +35,7 @@ public sealed record AuthSettings
     public required string Secret { get; init; }
 
     /// <summary>
-    /// Gets how long a minted access token stays valid, in minutes. Kept short, because an access token cannot be
+    /// How long a minted access token stays valid, in minutes. Kept short, because an access token cannot be
     /// revoked once issued: shortening it is the only thing that limits how long a leaked one is useful.
     /// </summary>
     ///
@@ -46,9 +45,8 @@ public sealed record AuthSettings
     public int AccessTokenMinutes { get; init; } = 60;
 
     /// <summary>
-    /// Gets how long a refresh token stays valid, in days, which decides how long a returning user stays signed in
-    /// without re-entering credentials. Pass it to <c>SetRefreshTokenCookie</c> to give the cookie a matching lifetime;
-    /// nothing here does that for you.
+    /// How long a refresh token stays valid, in days, which decides how long a returning user stays signed in
+    /// without re-entering credentials.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -57,7 +55,7 @@ public sealed record AuthSettings
     public int RefreshTokenDays { get; init; } = 30;
 
     /// <summary>
-    /// Gets the tolerance applied when checking token expiry, in seconds, which absorbs small clock differences between
+    /// The tolerance applied when checking token expiry, in seconds, which absorbs small clock differences between
     /// the machine that minted a token and the machine validating it.
     /// </summary>
     ///
@@ -67,8 +65,7 @@ public sealed record AuthSettings
     public int ClockSkewSeconds { get; init; } = 30;
 
     /// <summary>
-    /// Gets the audience used when no host mapping applies. Required when <see cref="Hosts"/> is empty, because audience
-    /// validation is always on.
+    /// The audience used when no host mapping applies. Required when <see cref="Hosts"/> is empty.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -76,10 +73,7 @@ public sealed record AuthSettings
     public string? DefaultApp { get; init; }
 
     /// <summary>
-    /// Gets the <c>SameSite</c> mode written on the refresh token cookie, applied by both <c>SetRefreshTokenCookie</c>
-    /// and <c>DeleteAuthCookies</c> so a cookie is deleted with the same attributes it was written with.
-    /// <see cref="SameSiteMode.None"/> only reaches the browser over HTTPS, because the cookie is marked secure from the
-    /// request scheme rather than from this.
+    /// The <c>SameSite</c> mode written on the refresh token cookie, read by <see cref="HttpResponseExtensions"/>.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -87,9 +81,7 @@ public sealed record AuthSettings
     public SameSiteMode SameSite { get; init; } = SameSiteMode.Lax;
 
     /// <summary>
-    /// Gets the application audience name used when a request arrives from a loopback host. That is <c>localhost</c> or any
-    /// address <c>IPAddress.IsLoopback</c> accepts, in every environment, since nothing here checks which one the
-    /// application is running in.
+    /// The application audience name used when a request arrives from a loopback host and no host mapping matched it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -97,7 +89,7 @@ public sealed record AuthSettings
     public string? LocalhostApp { get; init; }
 
     /// <summary>
-    /// Gets the host-to-application mapping used for request host based audience validation.
+    /// The host-to-application mapping used for request host based audience validation.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -105,9 +97,8 @@ public sealed record AuthSettings
     public IReadOnlyDictionary<string, string> Hosts { get; init; } = new Dictionary<string, string>();
 
     /// <summary>
-    /// Gets every audience a token may carry: the host mappings, the localhost fallback, and the default app. Read
-    /// during startup validation, so a configuration it cannot build an audience from stops the host rather than the first
-    /// request. It never returns empty: every path either adds an audience or throws.
+    /// Every audience a token may carry: the host mappings, the localhost fallback, and the default app. It never
+    /// returns empty: every path either adds an audience or throws.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

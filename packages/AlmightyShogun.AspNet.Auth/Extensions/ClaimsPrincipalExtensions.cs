@@ -27,7 +27,7 @@ public static class ClaimsPrincipalExtensions
         /// name identifier claim so a token minted by another issuer still resolves.
         /// </summary>
         ///
-        /// <returns>The caller's public identifier, which is what every user-facing service accepts.</returns>
+        /// <returns>The caller's public identifier.</returns>
         ///
         /// <exception cref="MissingUserIdClaimException">
         /// Neither claim is present, or the value is not a well-formed identifier. Thrown rather than returning a default,
