@@ -8,7 +8,7 @@ Adopting it is a set of independent registrations followed by one middleware cal
 
 ## Categories
 
-- [Configuration](./configuration) &mdash; the optional `AllowedOrigins` section.
+- [Configuration](./configuration) &mdash; the `AllowedOrigins`, `AllowedHeaders`, and `AllowedMethods` sections the CORS policy is built from.
 - [Exceptions](./exceptions) &mdash; the `IExceptionMapper` standard your own handler is built on.
 - [HTTP Error Messages](./http-error-messages) &mdash; the `http-error.json` files every status description is resolved from.
 - [Extensions](./extensions/add-exception-handling) &mdash; registration, middleware, and request helpers.
