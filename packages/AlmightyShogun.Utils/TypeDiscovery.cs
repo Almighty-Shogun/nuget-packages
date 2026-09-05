@@ -59,7 +59,8 @@ public static class TypeDiscovery
     
     /// <summary>
     /// Retrieves the concrete types in the specified assemblies that inherit from or implement <typeparamref name="T"/>.
-    /// Interfaces and abstract classes are excluded, so every returned type can be instantiated.
+    /// Interfaces and abstract classes are excluded, but nothing looks for an accessible constructor, so a type whose only
+    /// constructor is private is still returned and still cannot be instantiated.
     /// </summary>
     ///
     /// <typeparam name="T">
@@ -72,8 +73,9 @@ public static class TypeDiscovery
     /// </param>
     ///
     /// <returns>
-    /// The matching concrete types, in assembly then declaration order. The sequence is lazy, so the reflection work happens
-    /// as it is enumerated rather than when this method returns.
+    /// The matching concrete types, grouped by assembly in the order <paramref name="assemblies"/> lists them. Within an
+    /// assembly the order is whatever reflection reports and is not guaranteed. The sequence is lazy, so the reflection work
+    /// happens as it is enumerated rather than when this method returns.
     /// </returns>
     ///
     /// <remarks>

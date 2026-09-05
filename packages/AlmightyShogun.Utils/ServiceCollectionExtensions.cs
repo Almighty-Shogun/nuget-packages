@@ -8,7 +8,8 @@ namespace AlmightyShogun.Utils;
 
 /// <summary>
 /// Provides the registration helpers this package contributes to startup: binding a validated options class, running a
-/// reusable registration module, and discovering implementations across assemblies instead of listing them by hand.
+/// reusable registration module, replacing a registration something else already made, and discovering implementations
+/// across assemblies instead of listing them by hand.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -28,7 +29,7 @@ public static class ServiceCollectionExtensions
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Runs a registration module, letting a feature keep it's wiring in one reusable type instead of spreading it across
+        /// Runs a registration module, letting a feature keep its wiring in one reusable type instead of spreading it across
         /// startup. The module is constructed directly rather than resolved, so it cannot take constructor dependencies.
         /// </summary>
         ///
@@ -49,8 +50,9 @@ public static class ServiceCollectionExtensions
         }
 
         /// <summary>
-        /// Binds a configuration section to a strongly typed options class and validates it, so a missing or malformed setting
-        /// stops the application at startup with a message naming the offending property rather than failing later.
+        /// Binds a configuration section to a strongly typed options class and, unless told otherwise, registers the data
+        /// annotation validator and runs it while the host starts. Validation is only what <typeparamref name="T"/> declares as
+        /// annotations, so a type carrying none is never rejected and an absent section binds to defaults in silence.
         /// </summary>
         ///
         /// <typeparam name="T">The options class to bind. Resolved afterward through <see cref="IOptions{TOptions}"/>.</typeparam>
@@ -118,8 +120,9 @@ public static class ServiceCollectionExtensions
 
         /// <summary>
         /// Registers every concrete type assignable to <typeparamref name="T"/> in the calling assembly, under
-        /// <typeparamref name="T"/> and with no filter. The shortest form, for the common case where the implementations sit
-        /// beside the startup code that registers them.
+        /// <typeparamref name="T"/> and with no filter, except those carrying <see cref="SkipAutoRegistrationAttribute"/>, which
+        /// the shared registration step drops. The shortest form, for the common case where the implementations sit beside the
+        /// startup code that registers them.
         /// </summary>
         ///
         /// <typeparam name="T">

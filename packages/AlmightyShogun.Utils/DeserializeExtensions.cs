@@ -30,10 +30,14 @@ public static class DeserializeExtensions
     ///
     /// <returns>The sealed options, on which any further attempt to set a property throws.</returns>
     ///
-    /// <remarks>
-    /// Sealing is what makes a single static instance safe. A shared mutable <see cref="JsonSerializerOptions"/> could be
-    /// altered by any caller and would silently change deserialization for every other caller in the process.
+    /// <exception cref="InvalidOperationException">
+    /// The <see cref="JsonSerializer.IsReflectionEnabledByDefault"/> feature switch is off, which
+    /// <see cref="JsonSerializerOptions.MakeReadOnly(bool)"/> documents as a failure. The switch is off only for a consumer
+    /// that set it so explicitly. Because this runs from the initialiser of <see cref="DefaultOptions"/>, it surfaces as a
+    /// <see cref="TypeInitializationException"/> on the first call that leaves the options unset.
+    /// </exception>
     ///
+    /// <remarks>
     /// The web preset is taken whole rather than reproduced property by property, so these defaults keep matching ASP.NET Core
     /// if a future runtime changes what the preset covers.
     /// </remarks>
@@ -54,8 +58,8 @@ public static class DeserializeExtensions
     /// </summary>
     ///
     /// <param name="json">
-    /// The JSON text to read. Deserialized in full, so the whole document must be present; use the stream overloads to avoid
-    /// materializing a large payload as a string first.
+    /// The JSON text to read. Deserialized in full, so the whole document must be present; use the stream member
+    /// <c>DeserializeAsync</c> to avoid materializing a large payload as a string first.
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
@@ -80,9 +84,15 @@ public static class DeserializeExtensions
         ///
         /// <returns><c>true</c> when a non-null value was read; otherwise <c>false</c>.</returns>
         ///
+        /// <exception cref="ArgumentNullException">The receiver string is <c>null</c>.</exception>
+        /// <exception cref="NotSupportedException">
+        /// No converter exists for <typeparamref name="T"/> or for one of its serializable members.
+        /// </exception>
+        ///
         /// <remarks>
-        /// Only <see cref="JsonException"/> is caught. Any other failure still propagates, so a genuine programming error is
-        /// not swallowed by a method whose name suggests it only reports success or failure.
+        /// Only <see cref="JsonException"/> is caught, so the failures listed above still propagate despite the <c>Try</c>
+        /// shape, and a genuine programming error is not swallowed by a method whose name suggests it only reports success or
+        /// failure.
         ///
         /// A payload that is the JSON literal <c>null</c> reports <c>false</c> rather than succeeding with a null value, so a
         /// <c>true</c> result always yields something usable. Nothing here distinguishes that case from malformed input; call
@@ -144,6 +154,10 @@ public static class DeserializeExtensions
         /// <exception cref="JsonException">
         /// The stream does not contain valid JSON, carries data after the first document, or cannot bind to
         /// <typeparamref name="T"/>.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">The receiver stream is <c>null</c>.</exception>
+        /// <exception cref="NotSupportedException">
+        /// No converter exists for <typeparamref name="T"/> or for one of its serializable members.
         /// </exception>
         /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signalled during the read.</exception>
         ///

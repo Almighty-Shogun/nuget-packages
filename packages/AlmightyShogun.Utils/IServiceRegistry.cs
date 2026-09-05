@@ -10,16 +10,17 @@ namespace AlmightyShogun.Utils;
 ///
 /// <remarks>
 /// Because the module is constructed with <c>new()</c> before any provider exists, it cannot take constructor dependencies.
-/// Anything it needs must be passed through the service collection it receives, or read from configuration registered on it.
+/// Anything it needs must be passed through the service collection it receives.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>1.0.0</since>
 public interface IServiceRegistry
 {
     /// <summary>
-    /// Adds the module's registrations to the supplied collection. Called once during startup, before the service provider is
-    /// built, so the implementation may register, decorate, or configure freely but must not resolve anything.
+    /// Adds the module's registrations to the supplied collection. <see cref="ServiceCollectionExtensions.AddService{T}"/>
+    /// constructs a fresh instance and calls this on every invocation, with no deduplication, so adding the same module twice
+    /// applies its registrations twice. Nothing orders the calls beyond the order the caller makes them in.
     /// </summary>
     ///
     /// <param name="serviceCollection">

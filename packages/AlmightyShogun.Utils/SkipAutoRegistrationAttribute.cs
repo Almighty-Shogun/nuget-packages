@@ -4,10 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AlmightyShogun.Utils;
 
 /// <summary>
-/// Excludes a type from the assembly scanning performed by
-/// <see cref="ServiceCollectionExtensions.RegisterOnInherit{T}(IServiceCollection, Assembly[], ServiceLifetime, bool, Func{Type, bool})"/>.
-/// Apply it to a concrete type that would otherwise be discovered but needs registering by hand, with a factory or a
-/// non-default lifetime, or that should not be registered at all.
+/// Excludes a type from the registration performed by
+/// <see cref="ServiceCollectionExtensions.RegisterOnInherit{T}(IServiceCollection, Assembly[], ServiceLifetime, bool, Func{Type, bool})"/>
+/// and so from <see cref="ServiceCollectionExtensions.RegisterOnInherit{T}(IServiceCollection, ServiceLifetime)"/>, which
+/// delegates to it. The type is still scanned and still discovered; only the registration step drops it. Apply it to a
+/// concrete type that would otherwise be discovered but needs registering by hand, with a factory or a non-default lifetime,
+/// or that should not be registered at all.
 /// </summary>
 ///
 /// <remarks>
