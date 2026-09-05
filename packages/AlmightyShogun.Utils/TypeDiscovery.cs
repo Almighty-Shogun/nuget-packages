@@ -79,9 +79,8 @@ public static class TypeDiscovery
     /// </returns>
     ///
     /// <remarks>
-    /// This is a raw reflection primitive with no dependency-injection semantics. It does not honor
-    /// <see cref="SkipAutoRegistrationAttribute"/>; only the registration helpers do. An assembly whose types cannot all be
-    /// loaded contributes the types that did load, so one unresolvable dependency does not end the scan.
+    /// An assembly whose types cannot all be loaded contributes the types that did load, so one unresolvable dependency does
+    /// not end the scan.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

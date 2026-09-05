@@ -14,7 +14,7 @@ namespace AlmightyShogun.Utils;
 public static class DeserializeExtensions
 {
     /// <summary>
-    /// Gets the package default JSON options, built from <see cref="JsonSerializerDefaults.Web"/> so a payload from an
+    /// The package default JSON options, built from <see cref="JsonSerializerDefaults.Web"/> so a payload from an
     /// ASP.NET Core API binds on the rules that API itself applied: camel-case naming, case-insensitive property matching, and
     /// numbers accepted from JSON strings. The instance is read-only, so it can be shared across the process and passed to
     /// <see cref="JsonSerializer"/> directly without any caller being able to alter it.
@@ -34,7 +34,8 @@ public static class DeserializeExtensions
     /// The <see cref="JsonSerializer.IsReflectionEnabledByDefault"/> feature switch is off, which
     /// <see cref="JsonSerializerOptions.MakeReadOnly(bool)"/> documents as a failure. The switch is off only for a consumer
     /// that set it so explicitly. Because this runs from the initialiser of <see cref="DefaultOptions"/>, it surfaces as a
-    /// <see cref="TypeInitializationException"/> on the first call that leaves the options unset.
+    /// <see cref="TypeInitializationException"/> the first time the type is initialised, which the runtime is free to do at any
+    /// point up to the first access to that property rather than exactly at it.
     /// </exception>
     ///
     /// <remarks>

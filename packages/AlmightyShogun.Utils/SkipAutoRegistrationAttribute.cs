@@ -7,19 +7,11 @@ namespace AlmightyShogun.Utils;
 /// Excludes a type from the registration performed by
 /// <see cref="ServiceCollectionExtensions.RegisterOnInherit{T}(IServiceCollection, Assembly[], ServiceLifetime, bool, Func{Type, bool})"/>
 /// and so from <see cref="ServiceCollectionExtensions.RegisterOnInherit{T}(IServiceCollection, ServiceLifetime)"/>, which
-/// delegates to it. The type is still scanned and still discovered; only the registration step drops it. Apply it to a
-/// concrete type that would otherwise be discovered but needs registering by hand, with a factory or a non-default lifetime,
-/// or that should not be registered at all.
+/// delegates to it. The type is still scanned and still discovered; only the registration step drops it, and only where the
+/// attribute sits on the type itself rather than on a base it derives from. Apply it to a concrete type that would otherwise
+/// be discovered but needs registering by hand, with a factory or a non-default lifetime, or that should not be registered at
+/// all.
 /// </summary>
-///
-/// <remarks>
-/// The attribute is read with <c>inherit: false</c>, so it applies only to the type that carries it. A class deriving from a
-/// marked base is still discovered and registered, which is deliberate: skipping a base is a statement about that base, not
-/// about everything built on it.
-///
-/// It is honored only by the registration helpers. <see cref="TypeDiscovery"/> is a raw reflection primitive with no
-/// dependency-injection semantics, so every one of its overloads returns marked types like any other.
-/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

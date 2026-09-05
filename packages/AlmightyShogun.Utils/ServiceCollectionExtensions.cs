@@ -40,6 +40,11 @@ public static class ServiceCollectionExtensions
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the module's registrations applied.</returns>
         ///
+        /// <remarks>
+        /// A fresh instance is constructed on every call and nothing deduplicates, so running the same module twice applies its
+        /// registrations twice, in the order the calls were made.
+        /// </remarks>
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
         public IServiceCollection AddService<T>() where T : IServiceRegistry, new()
@@ -120,9 +125,8 @@ public static class ServiceCollectionExtensions
 
         /// <summary>
         /// Registers every concrete type assignable to <typeparamref name="T"/> in the calling assembly, under
-        /// <typeparamref name="T"/> and with no filter, except those carrying <see cref="SkipAutoRegistrationAttribute"/>, which
-        /// the shared registration step drops. The shortest form, for the common case where the implementations sit beside the
-        /// startup code that registers them.
+        /// <typeparamref name="T"/> and with no filter. The shortest form, for the common case where the implementations sit
+        /// beside the startup code that registers them.
         /// </summary>
         ///
         /// <typeparam name="T">
@@ -161,16 +165,14 @@ public static class ServiceCollectionExtensions
         /// <see cref="IEnumerable{T}"/> needs, or under its own concrete type when <c>false</c>.
         /// </param>
         /// <param name="filter">
-        /// An optional predicate narrowing what is registered, evaluated after the discovered type has already passed the
-        /// assignability and <see cref="SkipAutoRegistrationAttribute"/> checks. Only types it accepts are registered.
+        /// An optional predicate narrowing what is registered. Only types it accepts are registered.
         /// </param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with matching implementations registered.</returns>
         ///
         /// <remarks>
         /// Registrations are added rather than replaced, so calling this twice over the same assembly registers everything
-        /// twice. Interfaces, abstract classes, and types carrying <see cref="SkipAutoRegistrationAttribute"/> are never
-        /// registered.
+        /// twice.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
@@ -199,6 +201,13 @@ public static class ServiceCollectionExtensions
         /// </param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with matching implementations registered.</returns>
+        ///
+        /// <remarks>
+        /// Discovery is left to <see cref="TypeDiscovery.FindAssignableTypes{T}(Assembly[])"/>, and two predicates then narrow
+        /// what it returns, in this order: types carrying <see cref="SkipAutoRegistrationAttribute"/> are dropped, and
+        /// <paramref name="filter"/> is applied to whatever survives that. The attribute is read with <c>inherit: false</c>, so
+        /// it excludes only the type that carries it and a class deriving from a marked base is registered like any other.
+        /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>

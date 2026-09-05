@@ -55,8 +55,7 @@ public static class ConsoleUtils
     /// <remarks>
     /// A host can refuse cursor movement even when output is not reported as redirected, so the move is attempted and an
     /// <see cref="IOException"/>, <see cref="ArgumentOutOfRangeException"/>, or <see cref="InvalidOperationException"/>
-    /// raised by it swallowed. Everything else reaches the caller, so this can end a process, including through the
-    /// <c>finally</c> in <see cref="AskQuestionAsync"/>.
+    /// raised by it swallowed. Everything else reaches the caller, so this can end a process.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -105,7 +104,8 @@ public static class ConsoleUtils
     /// <paramref name="cancellationToken"/> was signaled.
     /// </exception>
     /// <exception cref="IOException">
-    /// Setting the input color, resetting it, or erasing the prompt line through <see cref="RemoveLastLine"/> failed.
+    /// Writing the prompt, setting the input color, reading the line, resetting the color, or erasing the prompt line through
+    /// <see cref="RemoveLastLine"/> failed.
     /// </exception>
     /// <exception cref="System.Security.SecurityException">
     /// The process is not permitted to change the console color or to move the cursor.
@@ -161,9 +161,7 @@ public static class ConsoleUtils
     /// <remarks>
     /// There is no counterpart that restores the default. Once suppressed, cancellation stays suppressed for the life of the
     /// process, and the application must expose some other way to stop. A hosted application should prefer
-    /// <c>UseCustomConsoleLifetime</c> from <c>AlmightyShogun.Hosting.ConsoleLifetime</c>, whose handler suppresses the same key
-    /// presses unless <c>DOTNET_RUNNING_IN_IDE</c> is set, and which requests a clean shutdown on <c>SIGTERM</c> everywhere
-    /// except Windows.
+    /// <c>UseCustomConsoleLifetime</c> from <c>AlmightyShogun.Hosting.ConsoleLifetime</c>.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
