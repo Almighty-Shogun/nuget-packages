@@ -28,7 +28,7 @@ public sealed class AppDbContext(
             account => account.Profile,
             profile => profile.AccountId
         );
-        
+
         modelBuilder.ApplyOneToMany<Account, Order>(
             account => account.Orders,
             order => order.AccountId
@@ -42,7 +42,7 @@ public sealed class AppDbContext(
             account => account.Slug,
             filter: "[Slug] IS NOT NULL"
         );
-        
+
         modelBuilder.ApplyEnumAsString<Account, Tier>(
             account => account.Tier
         );
@@ -56,7 +56,7 @@ public sealed class AppDbContext(
 }
 ```
 
-```csharp [Account.cs]
+```csharp [Entities.cs]
 public sealed class Account
 {
     public int Id { get; set; }
@@ -66,6 +66,32 @@ public sealed class Account
     public Profile? Profile { get; set; }
     public List<Order> Orders { get; set; } = [];
     public List<Tag> Tags { get; set; } = [];
+}
+
+public sealed class Profile
+{
+    public int Id { get; set; }
+    public int AccountId { get; set; }
+}
+
+public sealed class Order
+{
+    public int Id { get; set; }
+    public int AccountId { get; set; }
+}
+
+public sealed class Tag
+{
+    public int Id { get; set; }
+    public required string Name { get; set; }
+    public List<Account> Accounts { get; set; } = [];
+}
+
+public enum Tier
+{
+    Free,
+    Pro,
+    Enterprise
 }
 ```
 

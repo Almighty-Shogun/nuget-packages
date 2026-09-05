@@ -11,11 +11,15 @@ dotnet add package AlmightyShogun.EntityFrameworkCore.ModelBuilding
 ### Package references
 
 - `Microsoft.EntityFrameworkCore` `10.0.11` &mdash; supplies `ModelBuilder`, the type every helper extends.
-- `Microsoft.EntityFrameworkCore.Relational` `10.0.11` &mdash; supplies index names and index filters.
+- `Microsoft.EntityFrameworkCore.Relational` `10.0.11` &mdash; supplies the index filter behind [`ApplyUniqueIndex`](./extensions/apply-unique-index).
 
 ## Usage
 
-The package registers no services and has no startup call. The helpers are extension methods on `ModelBuilder`, available inside `OnModelCreating` once the namespace is imported:
+The package registers no services and has no startup call. The helpers are extension methods on `ModelBuilder`, available inside `OnModelCreating` once the namespace is imported, and what one configures can still be extended afterwards with the standard fluent API on the same entity.
+
+::: tip
+A helper call is model configuration like any other, so add a migration with `dotnet ef migrations add <Name>` after adding or changing one.
+:::
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +37,7 @@ public sealed class AppDbContext(
             account => account.Orders,
             order => order.AccountId
         );
-        
+
         modelBuilder.ApplyUniqueIndex<Account>(
             account => account.Email
         );
@@ -41,18 +45,8 @@ public sealed class AppDbContext(
 }
 ```
 
-Every helper returns the same `ModelBuilder`, so calls can be chained or written one per line. Configuration applied through a helper can still be extended afterwards with the standard fluent API on the same entity.
-
-Adding or changing a helper call changes the model, so generate a migration afterwards:
-
-```sh
-dotnet ef migrations add AddAccountEmailIndex
-```
-
 ## Provider support
 
-Only one thing here is relational: the `filter` argument on [`ApplyUniqueIndex`](./extensions/apply-unique-index), which is why the package takes the relational dependency. Everything else uses core EF Core APIs that carry no provider assumption.
+Only one thing here is relational: the `filter` argument on [`ApplyUniqueIndex`](./extensions/apply-unique-index), which is raw SQL whose identifier quoting differs per provider. That argument is why the package takes the relational dependency; everything else uses provider-agnostic Entity Framework Core APIs.
 
-One parameter carries provider-specific behavior: `filter` on [`ApplyUniqueIndex`](./extensions/apply-unique-index) is raw SQL, and identifier quoting differs per provider, `[Slug]` on SQL Server, `"Slug"` on PostgreSQL and SQLite, `` `Slug` `` on MySQL and MariaDB.
-
-On a document provider such as Cosmos, whether a filter is honoured and how far these relationship shapes apply is that provider's own business; the helpers do no provider branching of their own.
+On a document provider such as Cosmos, how far these relationship shapes apply is that provider's own business. The helpers do no provider branching of their own.

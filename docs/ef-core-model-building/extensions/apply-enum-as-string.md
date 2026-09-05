@@ -8,7 +8,7 @@ params:
       type: int
       default: '32'
 
-returns: The same `ModelBuilder` instance.
+returns: The `ModelBuilder` instance with the property stored as text.
 ---
 
 # ApplyEnumAsString
