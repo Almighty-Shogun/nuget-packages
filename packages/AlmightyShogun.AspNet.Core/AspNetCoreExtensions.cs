@@ -7,12 +7,13 @@ using AlmightyShogun.AspNet.Localization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
 /// The package's startup surface: each helper registers one feature, and none of them registers another's dependencies,
-/// so the composition stays explicit and a feature can be adopted without pulling in the rest.
+/// so a feature can be adopted without pulling in the rest.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -21,7 +22,7 @@ public static class AspNetCoreExtensions
 {
     /// <summary>
     /// Provides the startup helpers as extensions on the collection. Each registers one feature and nothing else, so
-    /// the ones a feature depends on have to be called too; every summary below names what it expects.
+    /// the ones a feature depends on have to be called too.
     /// </summary>
     ///
     /// <param name="serviceCollection">
@@ -56,8 +57,10 @@ public static class AspNetCoreExtensions
         /// </exception>
         ///
         /// <remarks>
-        /// Thrown while the CORS options are being built, which happens the first time the policy is resolved rather
-        /// than during this call.
+        /// Thrown while the <c>CorsOptions</c> configure delegate runs rather than during this call, which is still at
+        /// startup: <c>UseCors</c> builds <c>CorsMiddleware</c> as the pipeline is built, and the <c>CorsService</c> it
+        /// takes reads the options in its constructor. An application that never calls <c>UseCors</c> builds no
+        /// <c>CorsMiddleware</c>, so nothing on that path reaches the guard.
         /// </remarks>
         ///
         /// <remarks>
@@ -148,15 +151,21 @@ public static class AspNetCoreExtensions
         /// <returns>The <see cref="IServiceCollection"/> instance with the response writer registered.</returns>
         ///
         /// <remarks>
-        /// Takes no configuration: the body shape is fixed, so there is nothing to bind. Register it once, before the
-        /// handlers or the pipeline helper that resolve it. Every error body the package writes goes through it, so an
-        /// application missing this registration fails when the first error is answered rather than at startup.
+        /// Takes no configuration: the body shape is fixed, so there is nothing to bind. The default is registered only
+        /// when nothing has claimed <see cref="IHttpErrorResponseWriter"/> yet, so an application that registers its own
+        /// implementation before this call keeps it, and calling this more than once still leaves one registration.
+        /// Every error body the package writes goes through it, so an application missing this registration fails when
+        /// the first error is answered rather than at startup.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
-        public IServiceCollection AddHttpErrorResponseWriter() => serviceCollection
-            .AddSingleton<IHttpErrorResponseWriter, HttpErrorResponseWriter>();
+        public IServiceCollection AddHttpErrorResponseWriter()
+        {
+            serviceCollection.TryAddSingleton<IHttpErrorResponseWriter, HttpErrorResponseWriter>();
+
+            return serviceCollection;
+        }
 
         /// <summary>
         /// Registers the two exception handlers this package owns, in the order they must run: the framework exceptions
@@ -178,8 +187,9 @@ public static class AspNetCoreExtensions
         /// does not register, and <c>UseHttpErrorResponses</c> to run the chain. It answers nothing an application threw
         /// deliberately: register your own handler ahead of this call, built on <see cref="IExceptionMapper"/>, or every
         /// domain exception becomes a <c>500</c>. Order is the reason these two are registered together: the fallback
-        /// claims every exception it is given, so a handler registered after it runs only in the one case the fallback
-        /// declines, which is a response that has already started.
+        /// claims every exception it is given, so a handler registered after it never runs. The one case the fallback
+        /// declines is a response that has already started, which <c>ExceptionHandlerMiddlewareImpl</c> rethrows before
+        /// it reaches the chain at all.
         /// </remarks>
         ///
         /// <remarks>
@@ -220,10 +230,12 @@ public static class AspNetCoreExtensions
         ///
         /// <remarks>
         /// Call it early, before routing and authentication, so a failure in those still produces the standard body.
-        /// The exception handler is given a no-op delegate because <c>UseExceptionHandler</c> requires either a
-        /// delegate or an exception-handling path, and a path would re-execute the pipeline. It is reached only when no
-        /// registered <see cref="IExceptionHandler"/> claimed the exception, which the fallback handler does for
-        /// everything except a response that has already started.
+        /// The exception handler is given a no-op delegate because <c>ExceptionHandlerMiddlewareImpl</c> throws at
+        /// startup only when an exception handler, an exception-handling path and an <c>IProblemDetailsService</c> are
+        /// all absent, and the other two are worse here: a path re-executes the pipeline, and the problem details
+        /// service answers with a <c>ProblemDetails</c> body instead of this package's shape. The delegate itself runs
+        /// only when no registered <see cref="IExceptionHandler"/> claimed the exception, and the fallback handler
+        /// claims everything the middleware passes to the chain, so it is not reached in practice.
         /// </remarks>
         ///
         /// <remarks>
