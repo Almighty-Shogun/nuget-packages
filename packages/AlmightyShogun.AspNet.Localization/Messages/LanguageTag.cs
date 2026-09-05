@@ -39,6 +39,8 @@ internal static partial class LanguageTag
     /// <c>english</c>, and anything carrying a path separator, a drive letter, or a relative segment.
     /// </returns>
     ///
+    /// <exception cref="ArgumentNullException"><paramref name="language"/> is <c>null</c>.</exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     internal static bool IsValid(string language) => LanguageTagRegex().IsMatch(language);

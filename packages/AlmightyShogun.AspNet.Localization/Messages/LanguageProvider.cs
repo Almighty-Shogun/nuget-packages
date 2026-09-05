@@ -5,14 +5,13 @@ namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
 /// Resolves the message language from the request <c>Accept-Language</c> header, falling back to the configured default
-/// when the header is absent or names nothing usable. Registered by <c>AddMessageLocalization</c> as the default
-/// <see cref="ILanguageProvider"/>, and only when nothing else has claimed the interface, so register your own before
-/// that call to negotiate from a cookie or a user profile.
+/// when the header is absent or names nothing usable. This is the default <see cref="ILanguageProvider"/> that
+/// <see cref="LocalizationExtensions"/> registers, under the substitution rule documented there.
 /// </summary>
 ///
 /// <param name="httpContextAccessor">
-/// The accessor used to reach the current request. Registered as a singleton, so the context is read per call rather
-/// than captured; outside a request there is none, and the default language is used.
+/// The accessor used to reach the current request. The context is read per call rather than captured; outside a request
+/// there is none, and the default language is used.
 /// </param>
 /// <param name="localizationOptions">The settings supplying the language used when the request asks for none.</param>
 ///

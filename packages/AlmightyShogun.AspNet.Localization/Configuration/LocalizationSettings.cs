@@ -12,15 +12,13 @@ namespace AlmightyShogun.AspNet.Localization;
 public sealed record LocalizationSettings
 {
     /// <summary>
-    /// Gets the language used when the request asks for none, and tried last when nothing the caller did ask for has
-    /// any messages at all. Set it to a language that actually has message files: it ends the fallback chain, so a key
-    /// missing from whichever language wins is returned to the client verbatim.
+    /// The language used when the request asks for none. Set it to a language that actually has message files; see
+    /// <see cref="IMessageResolver.ResolveLanguage"/> for where it sits in the fallback chain.
     /// </summary>
     ///
     /// <remarks>
-    /// Validated at startup against the same shape the message provider accepts, so a malformed value fails the host
-    /// rather than resolving no messages for the life of the process. Blank is rejected separately, since the pattern
-    /// check on its own treats an empty value as valid.
+    /// Constrained to the same shape the message provider accepts as a directory name. Blank is rejected separately,
+    /// since the pattern check on its own treats an empty value as valid.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -30,15 +28,9 @@ public sealed record LocalizationSettings
     public string DefaultLanguage { get; init; } = "en";
 
     /// <summary>
-    /// Gets whether message files are watched and reloaded while the application runs. Disabled by default, because the
-    /// files are normally deployed with the application and a watcher does not fire reliably on container bind mounts
-    /// or network filesystems.
+    /// Whether message files are watched and reloaded while the application runs. Disabled by default, and
+    /// intended for development, since the files are normally deployed with the application.
     /// </summary>
-    ///
-    /// <remarks>
-    /// A change drops the cache for every language rather than the file that changed, so the next request for each pays
-    /// to reload. Intended for development; the watchers are created once, on the first message resolved.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

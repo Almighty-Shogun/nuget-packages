@@ -26,7 +26,6 @@ namespace AlmightyShogun.AspNet.Localization;
 /// Every lookup is cached, a language with no directory included, so an <c>Accept-Language</c> header naming languages
 /// the deployment does not have cannot make each request re-walk the filesystem. That means a directory added while the
 /// process runs is picked up only with <c>AutomaticReload</c> on, which is the same rule already governing file edits.
-/// A tag that is not well-formed is rejected outright, since the value is used as a directory name.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -76,8 +75,8 @@ internal sealed class JsonMessageProvider(
     private readonly List<FileSystemWatcher> _watchers = [];
 
     /// <summary>
-    /// Serializes watcher creation. Only the setup path takes it; message lookups stay lock-free, since the cache is
-    /// concurrent on its own.
+    /// Serializes watcher setup against disposal. Only those two paths take it; message lookups stay lock-free, since
+    /// the cache is concurrent on its own.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

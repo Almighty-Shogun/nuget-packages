@@ -57,8 +57,8 @@ public static class HttpResponseExtensions
         /// <remarks>
         /// Reporting the refusal rather than throwing, as a direct header assignment would, is what makes it safe to
         /// call late. Call it from an <c>OnStarting</c> callback when the language is only settled after the body is.
-        /// The value is checked rather than trusted, so a tag taken from user input cannot turn a header assignment
-        /// into an exception raised while the response is being sent.
+        /// The value is checked rather than trusted, so a blank tag or one carrying a control character is refused here
+        /// instead of being handed to the header assignment.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>

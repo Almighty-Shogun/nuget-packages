@@ -43,6 +43,10 @@ internal sealed class JsonMessageResolver(
     /// <exception cref="NullReferenceException">
     /// A custom <see cref="ILanguageProvider"/> returned <c>null</c> from <see cref="ILanguageProvider.GetLanguages"/>.
     /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// A custom <see cref="ILanguageProvider"/> returned a list holding <c>null</c>, which reaches the tag check as the
+    /// language to look up.
+    /// </exception>
     public string Resolve(string key) => Resolve(key, []);
 
     /// <inheritdoc />
@@ -55,6 +59,10 @@ internal sealed class JsonMessageResolver(
     /// </exception>
     /// <exception cref="NullReferenceException">
     /// A custom <see cref="ILanguageProvider"/> returned <c>null</c> from <see cref="ILanguageProvider.GetLanguages"/>.
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// A custom <see cref="ILanguageProvider"/> returned a list holding <c>null</c>, which reaches the tag check as the
+    /// language to look up.
     /// </exception>
     ///
     /// <remarks>
@@ -85,6 +93,10 @@ internal sealed class JsonMessageResolver(
     /// </exception>
     /// <exception cref="NullReferenceException">
     /// A custom <see cref="ILanguageProvider"/> returned <c>null</c> from <see cref="ILanguageProvider.GetLanguages"/>.
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// A custom <see cref="ILanguageProvider"/> returned a list holding <c>null</c>, which reaches the tag check as the
+    /// language to look up.
     /// </exception>
     public string ResolveLanguage()
     {

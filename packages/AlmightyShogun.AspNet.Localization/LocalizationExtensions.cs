@@ -82,7 +82,8 @@ public static class LocalizationExtensions
         /// <returns>The <see cref="IApplicationBuilder"/> instance with the message localization middleware configured.</returns>
         ///
         /// <remarks>
-        /// The header is set from a response callback, so this only needs to run before anything that writes a body.
+        /// The middleware sets the header from an <c>OnStarting</c> callback, so this only needs to run before anything
+        /// that writes a body.
         /// Requires <see cref="AddMessageLocalization"/>, which it does not register.
         /// </remarks>
         ///
