@@ -4,8 +4,8 @@ using AlmightyShogun.AspNet.Auth;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Builds the claim set an access token carries for a user, so this package decides what a token says and
-/// <see cref="IAuthTokenGenerator"/> decides only how it is signed.
+/// Builds the claim set an access token carries for a user, so this package decides who a token speaks for while
+/// <see cref="IAuthTokenGenerator"/> signs it and stamps the issuer, audience, and expiry over these claims.
 /// </summary>
 ///
 /// <remarks>

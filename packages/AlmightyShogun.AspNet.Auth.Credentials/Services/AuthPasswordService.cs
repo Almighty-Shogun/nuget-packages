@@ -275,7 +275,7 @@ internal sealed class AuthPasswordService<TUser>(
     /// <param name="token">The token as it arrived from the reset link, matched by hash.</param>
     /// <param name="cancellationToken">Cancels the lookup.</param>
     ///
-    /// <returns>The redeemable token, tracked so the caller can read the user it belongs to.</returns>
+    /// <returns>The redeemable token, read for the user it belongs to and for the row the caller then claims.</returns>
     ///
     /// <exception cref="InvalidPasswordResetTokenException">
     /// No live token matches the hash. Unknown, spent, and expired are not distinguished, so the response cannot be

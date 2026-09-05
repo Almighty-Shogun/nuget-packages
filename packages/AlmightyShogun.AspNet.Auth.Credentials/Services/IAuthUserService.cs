@@ -15,12 +15,13 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
 {
     /// <summary>
     /// Signs a user in and opens a session, refusing a wrong identifier, a wrong password, a locked account, and a disabled
-    /// one. An unknown identifier still costs a password verification, so timing does not reveal which accounts exist.
+    /// one. An unknown identifier still costs a password verification, so the hash is not what separates the two. With
+    /// lockout enabled a known identifier additionally pays the lockout statements the unknown path never reaches.
     /// </summary>
     ///
     /// <param name="request">The submitted credentials, matched against username and email alike.</param>
     /// <param name="context">
-    /// The current request, read for the host that decides the application scope and for the address and user agent
+    /// The current request, read for the address and user agent
     /// recorded on the session.
     /// </param>
     /// <param name="cancellationToken">Cancels the database work, rolling the session back with the transaction.</param>
@@ -33,9 +34,9 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     /// this is thrown, and that count is committed even though the sign-in fails.
     /// </exception>
     /// <exception cref="AccountLockedException">
-    /// A lockout is in force. Carries the moment it lifts, and is only ever thrown while lockout is enabled. Also thrown
-    /// when concurrent failed attempts lock the account after the check that let this sign-in through, so a correct
-    /// password cannot clear a lockout that had already taken effect.
+    /// A lockout is in force. Carries the moment it lifts, and is only ever thrown while lockout is enabled. The check
+    /// runs before the password is verified and is not repeated afterwards, so a lockout applied by concurrent failures
+    /// while this sign-in was verifying does not stop it: a correct password deletes the whole run instead.
     /// </exception>
     /// <exception cref="AccountDisabledException">
     /// The account is deactivated. Thrown after the password is checked, so it cannot be used to discover which
@@ -61,6 +62,10 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     ///
     /// <exception cref="UsernameTakenException">Another account holds that username under the database's collation.</exception>
     /// <exception cref="EmailTakenException">Another account holds that address under the database's collation.</exception>
+    /// <exception cref="Microsoft.EntityFrameworkCore.DbUpdateException">
+    /// The insert failed at the database. A duplicate claimed between the availability check and the insert surfaces this
+    /// way rather than as one of the two above, since the unique indexes on username and email are what settle that race.
+    /// </exception>
     ///
     /// <remarks>
     /// This saves but opens no transaction of its own, so it commits on its own unless a caller has already started one.
@@ -78,7 +83,7 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     /// <param name="user">The user to insert, carrying no role or permissions a client supplied.</param>
     /// <param name="password">The initial password, hashed here and never stored as given.</param>
     /// <param name="context">
-    /// The current request, read for the host that decides the application scope and for the address and user agent
+    /// The current request, read for the address and user agent
     /// recorded on the session.
     /// </param>
     /// <param name="cancellationToken">Cancels the database work, rolling both the account and the session back.</param>
@@ -87,6 +92,10 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     ///
     /// <exception cref="UsernameTakenException">Another account holds that username under the database's collation.</exception>
     /// <exception cref="EmailTakenException">Another account holds that address under the database's collation.</exception>
+    /// <exception cref="Microsoft.EntityFrameworkCore.DbUpdateException">
+    /// The insert failed at the database, raised by the same unique indexes as in <see cref="CreateUserAsync"/> and left
+    /// to escape here, so the transaction rolls back and no account is created.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

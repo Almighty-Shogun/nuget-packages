@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Configures how repeated failed logins lock an account. Disabled by default, because locking on failure count alone
-/// lets anyone deny service to a known account by failing logins against it deliberately.
+/// Configures how repeated failed logins lock an account. Every value here is read only while <see cref="Enabled"/> is
+/// set, which it is not by default.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

@@ -10,8 +10,9 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
 /// Signs users in and creates them. An unknown identifier and a wrong password are refused identically, and an unknown one
-/// still pays a decoy verification so the timing does not separate them. A locked and a disabled account are each refused
-/// distinctly, and a lockout is answered before the password is checked at all.
+/// still pays a decoy verification, so the hash is not what separates them; with lockout enabled a known identifier also
+/// pays the lockout statements the unknown path never reaches. A locked and a disabled account are each refused distinctly,
+/// and a lockout is answered before the password is checked at all.
 /// </summary>
 ///
 /// <typeparam name="TUser">The application's own user entity, both inserted on creation and returned on sign-in.</typeparam>
@@ -185,8 +186,9 @@ internal sealed class AuthUserService<TUser>(
     /// issue the same update; exactly one reports a row, and the other is refused. The row's unique key on the user
     /// settles the same race for the first attempt of a run, where there is no row to update yet.
     ///
-    /// A successful sign-in deletes the row through <see cref="ClearLockoutAsync"/> , so the attempt claimed here costs
-    /// the caller nothing once the password proves correct.
+    /// A sign-in that completes deletes the row through <see cref="ClearLockoutAsync"/>, so the attempt claimed here costs
+    /// the caller nothing. A correct password that is then refused, as a deactivated account is, leaves the claimed
+    /// attempt standing, because the delete is never reached.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -271,8 +273,9 @@ internal sealed class AuthUserService<TUser>(
     /// <param name="cancellationToken">Cancels the insert.</param>
     ///
     /// <returns>
-    /// <c>true</c> when this caller inserted the row and so took the attempt; <c>false</c> when a row already existed,
-    /// either because one was there all along or because a concurrent attempt inserted it first.
+    /// <c>true</c> when the save succeeded and this caller therefore took the attempt; <c>false</c> when it raised
+    /// <see cref="DbUpdateException"/>, which the unique key on the user does when a row already exists, and which any
+    /// other failed write does too, since the save flushes everything the context is tracking rather than this row alone.
     /// </returns>
     ///
     /// <remarks>
@@ -386,7 +389,7 @@ internal sealed class AuthUserService<TUser>(
     /// </param>
     /// <param name="cancellationToken">Cancels the lookups.</param>
     ///
-    /// <returns>A task that completes when both values are free; the caller may then insert without a further check.</returns>
+    /// <returns>A task that completes when neither value was in use at the moment it was checked.</returns>
     ///
     /// <exception cref="UsernameTakenException">Another account already uses that username.</exception>
     /// <exception cref="EmailTakenException">Another account already uses that email address.</exception>

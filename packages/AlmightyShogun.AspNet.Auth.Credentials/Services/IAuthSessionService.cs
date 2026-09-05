@@ -16,12 +16,14 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
 {
     /// <summary>
     /// Renews a session and issues a new refresh token, invalidating the presented one. The session remembers the token it
-    /// just replaced, so presenting that one afterwards is treated as a replay and revokes every session the user holds.
+    /// just replaced, so presenting that one again is refused, and once the rotation is more than thirty seconds old it is
+    /// also treated as a replay and revokes every session the user holds.
     /// </summary>
     ///
     /// <param name="refreshToken">The token as the client holds it, matched by hash.</param>
     /// <param name="httpContext">
-    /// The current request, read for the application scope and for the address and user agent recorded on the session.
+    /// The current request, read for the address and user agent recorded on the session. The application scope comes from
+    /// the ambient request instead, through the host resolver's own accessor.
     /// </param>
     /// <param name="cancellationToken">Cancels the database work, rolling the rotation back with the transaction.</param>
     ///
@@ -43,6 +45,8 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     /// <remarks>
     /// Only the immediately previous token is remembered. Across a chain of rotations a client that replays the token
     /// before last is refused as an unknown token rather than recognised as a replay, so nothing is revoked in that case.
+    /// Nothing is revoked either while the rotation is under thirty seconds old, which covers a client that retried before
+    /// it had stored the new token: inside that window the replay is still refused, but the sessions stand.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

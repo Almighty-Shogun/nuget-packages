@@ -30,7 +30,8 @@ public static class AuthCredentialsExtensions
     {
         /// <summary>
         /// Registers every credential service against the application's own context and user entity, so auth data lives in the
-        /// application's database rather than a separate one. Call it after the JWT auth registration it builds on.
+        /// application's database rather than a separate one. The JWT auth registration it builds on has to be made too,
+        /// in either order, since nothing here reads it at registration time.
         /// </summary>
         ///
         /// <typeparam name="TDbContext">The application's own context, resolved per request and handed to every service.</typeparam>
@@ -42,7 +43,8 @@ public static class AuthCredentialsExtensions
         /// <param name="registerExceptionHandler">
         /// Whether to register the handler that turns this package's exceptions into standardized responses. It needs
         /// <c>AddHttpErrorResponseWriter</c> and <c>AddMessageLocalization</c> from <c>AlmightyShogun.AspNet.Core</c>. The
-        /// mapper is registered either way, so a replacement handler can still resolve it.
+        /// mapper is registered either way, though it is internal to this package and only that handler consults it, so
+        /// passing <c>false</c> leaves these exceptions to whatever handler the application registers itself.
         /// </param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the credential authentication services registered.</returns>

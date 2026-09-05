@@ -4,8 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// One single-use recovery code. A row rather than an entry in a serialized list, so spending one updates a single row
-/// instead of rewriting every remaining code, and so the codes can be counted without loading them.
+/// One single-use recovery code. A row rather than an entry in a serialized list, so spending one is a guarded update
+/// against that row instead of a rewrite of every remaining code.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

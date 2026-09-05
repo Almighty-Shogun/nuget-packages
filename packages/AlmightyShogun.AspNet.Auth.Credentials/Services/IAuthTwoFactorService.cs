@@ -38,7 +38,7 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
     /// <remarks>
     /// A user who already has a working second factor keeps it, codes and all, until this enrolment is confirmed.
     /// Abandoning the enrolment therefore costs them nothing, and the offered secret stops being confirmable on its own
-    /// after ten minutes.
+    /// after <see cref="TwoFactorPolicy.PendingSecretMinutes"/>.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

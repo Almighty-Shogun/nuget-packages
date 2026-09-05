@@ -13,7 +13,8 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
 /// Creates, renews, and ends refresh-token sessions. Renewal rotates the token every time and remembers the one it
-/// replaced, so presenting that spent token afterwards is recognised as a replay and ends every session the user holds.
+/// replaced, so presenting that spent token once the rotation grace has passed is recognised as a replay and ends every
+/// session the user holds.
 /// </summary>
 ///
 /// <typeparam name="TUser">The application's own user entity, returned alongside the tokens a session yields.</typeparam>
@@ -34,8 +35,12 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// <remarks>
 /// Only one step of the chain is remembered. A session that has rotated <c>a</c> to <c>b</c> to <c>c</c> holds
 /// <c>b</c> as its previous token, so replaying <c>b</c> is detected while replaying <c>a</c> reads as an unknown token
-/// and is refused without revoking anything. Detection therefore covers the token most recently spent, which is the one
-/// a thief racing the legitimate client would hold, and not every token the session has ever issued.
+/// and is refused without revoking anything. Detection therefore covers the token most recently spent, and not every
+/// token the session has ever issued.
+///
+/// It also covers only a replay arriving more than <see cref="AuthSessionDefaults.RotationGrace"/> after the session was
+/// last refreshed. Inside that window the replay is refused like any unusable token and nothing is revoked, so a thief
+/// presenting the spent token while the legitimate client is still rotating goes undetected.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

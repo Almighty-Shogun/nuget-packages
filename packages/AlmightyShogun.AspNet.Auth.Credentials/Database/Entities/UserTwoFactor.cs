@@ -31,8 +31,9 @@ public sealed class UserTwoFactor
     public int UserId { get; set; }
 
     /// <summary>
-    /// Gets or sets whether a second factor is required to sign in. Set only once an enrolment has been confirmed with
-    /// a valid code, so an abandoned enrolment cannot lock the owner out.
+    /// Gets or sets whether a confirmed enrolment is in force. Set only once an enrolment has been confirmed with a valid
+    /// code, so an abandoned enrolment cannot lock the owner out. Nothing in the package requires a second factor at
+    /// sign-in: verification is the one path that reads this, and it refuses every code while the flag is unset.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -83,7 +84,9 @@ public sealed class UserTwoFactor
     public long? LastWindow { get; set; }
 
     /// <summary>
-    /// Gets or sets when the enrolment was created, for showing a user when their second factor was set up.
+    /// Gets or sets when the enrolment row was created, which is when an enrolment was first begun rather than when one
+    /// was confirmed. Beginning enrolment again reuses the row, so this is not moved forward, but disabling deletes it
+    /// and a later enrolment then starts a new row with a fresh value.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

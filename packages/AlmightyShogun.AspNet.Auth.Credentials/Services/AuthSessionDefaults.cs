@@ -15,8 +15,9 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 internal static class AuthSessionDefaults
 {
     /// <summary>
-    /// How long a just-rotated refresh token is still accepted, covering the window where a client retried before it
-    /// stored the new token. Outside it, presenting a spent token is treated as a replay rather than a race.
+    /// How long after a rotation a spent refresh token is refused without revoking anything, covering the window where a
+    /// client retried before it stored the new token. The spent token is never accepted either way, since it no longer
+    /// matches; outside this window presenting it is treated as a replay and ends every session the user holds.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

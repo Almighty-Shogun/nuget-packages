@@ -17,8 +17,8 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed record AuthCredentialsSettings
 {
     /// <summary>
-    /// Gets the nested <c>Lockout</c> object. Off by default, because locking on failure count alone lets anyone deny
-    /// service to a known account by failing logins against it deliberately.
+    /// Gets the nested <c>Lockout</c> object, present with its defaults when the section is absent. Nothing in it takes
+    /// effect until <see cref="LockoutPolicy.Enabled"/> is set.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

@@ -34,8 +34,9 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     public DbSet<UserSession> UserSessions => Set<UserSession>();
 
     /// <summary>
-    /// Gets the outstanding password resets, at most one row per user. A spent row stays until that user requests
-    /// another reset and it is reused, so a replay can be told from an unknown token in the meantime.
+    /// Gets the outstanding password resets, at most one row per user. A spent row stays until that user requests another
+    /// reset and it is reused. No package service distinguishes a spent token from an unknown one; both are refused the
+    /// same way, though an application querying this set itself can tell them apart.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -52,7 +53,9 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
 
     /// <summary>
-    /// Gets the two-factor enrolments, one per user who has ever enrolled. Kept separate from the user row so a secret
+    /// Gets the two-factor enrolments, one per user with an enrolment begun and not since disabled. A row appears when
+    /// enrolment starts rather than when it is confirmed, and disabling deletes it. Kept separate from the user row so a
+    /// secret
     /// is only read when a code is being verified.
     /// </summary>
     ///

@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public interface IAuthPasswordService
 {
     /// <summary>
-    /// Changes a signed-in user's password, verifying the current one first and refusing a replacement that matches it or a
+    /// Changes a signed-in user's password, refusing a confirmation that does not match, then a wrong current password, then a
     /// confirmation that does not.
     /// </summary>
     ///
@@ -25,8 +25,9 @@ public interface IAuthPasswordService
     /// <returns>A task that completes once the password is changed and the other sessions are revoked.</returns>
     ///
     /// <exception cref="InvalidCredentialsException">
-    /// The identifier matches no account, or the current password is wrong. The same exception a failed sign-in raises,
-    /// so a caller cannot use this route to test passwords and learn more than login would tell it.
+    /// The identifier matches no account, or the current password is wrong. The exception does not distinguish the two,
+    /// but the work does: an unknown identifier is refused before any hash is verified, while a wrong password costs a
+    /// verification first. Nothing here counts a failure towards the lockout, so guesses against this route are unmetered.
     /// </exception>
     /// <exception cref="PasswordMismatchException">The confirmation differs from the replacement.</exception>
     /// <exception cref="PasswordReusedException">
@@ -47,11 +48,11 @@ public interface IAuthPasswordService
     /// never returned to the requester.
     /// </summary>
     ///
-    /// <param name="request">The address to reset, matched exactly.</param>
+    /// <param name="request">The address to reset, matched under the column's own collation.</param>
     /// <param name="requestIpAddress">The address the request came from, recorded for auditing an unexpected reset.</param>
     /// <param name="cancellationToken">
-    /// Cancels the lookup and the write. It does not cancel the minimum-duration wait, so a cancelled call still cannot
-    /// return faster than an uncancelled one.
+    /// Cancels the lookup and the write, both of which throw before the padding wait is reached. The wait itself ignores
+    /// it, so a call that gets that far is held to the floor whether or not the token was signalled.
     /// </param>
     ///
     /// <returns>
@@ -60,10 +61,11 @@ public interface IAuthPasswordService
     /// </returns>
     ///
     /// <remarks>
-    /// Both outcomes are held to <see cref="AuthCredentialsSettings.ForgotPasswordMinimumMilliseconds"/>, so the time this
-    /// takes says nothing about whether the address exists. That work is wasted unless the controller above it answers
-    /// identically too: returning a body, a status, or a header that differs between a token and <c>null</c> tells an
-    /// attacker directly what the timing was hiding.
+    /// Both outcomes are held to <see cref="AuthCredentialsSettings.ForgotPasswordMinimumMilliseconds"/>, which pads a
+    /// path that finished sooner and shortens none. Issuing a token also runs a serializable transaction with a read and
+    /// a write, so the floor only hides the difference while it stays above what that path costs on the deployment's own
+    /// hardware. It is wasted anyway unless the controller above answers identically too: returning a body, a status, or
+    /// a header that differs between a token and <c>null</c> tells an attacker directly what the timing was hiding.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

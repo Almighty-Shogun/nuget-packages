@@ -16,8 +16,8 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed class EmailVerificationToken
 {
     /// <summary>
-    /// Gets or sets the surrogate key. It is never handed to a client: the emailed token is the only handle a caller
-    /// has on this row, so the key can stay a plain incrementing integer.
+    /// Gets or sets the surrogate key. No package service reads or writes this table, so whether it ever reaches a client
+    /// is the application's own decision.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -55,8 +55,8 @@ public sealed class EmailVerificationToken
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets when the verification was requested. Kept after the token is spent, so repeated requests against
-    /// one address remain visible afterwards.
+    /// Gets or sets when the verification was requested, defaulted to the moment the entity is constructed. Nothing in
+    /// the package writes it afterward.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -64,8 +64,8 @@ public sealed class EmailVerificationToken
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
-    /// Gets or sets when the token stops being usable. Fixed at issue rather than extended on each attempt, so an
-    /// unopened verification email cannot keep an address claimable indefinitely.
+    /// Gets or sets when the token stops being usable, which is what <see cref="IsActive"/> measures against. The package
+    /// sets no value here, so how long a verification lives is decided by the application's own flow.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -73,8 +73,8 @@ public sealed class EmailVerificationToken
     public DateTimeOffset ExpiresAt { get; set; }
 
     /// <summary>
-    /// Gets or sets when the token was spent, or <c>null</c> while it is still usable. Set instead of deleting the row,
-    /// so a second attempt with the same value is answered as a replay.
+    /// Gets or sets when the token was spent, or <c>null</c> while it is still usable. The package never sets it. A flow
+    /// that stamps it leaves the row in the table, where <see cref="IsActive"/> reports it as no longer accepted.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

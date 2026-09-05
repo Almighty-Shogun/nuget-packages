@@ -35,8 +35,9 @@ public sealed class UserLockout
     public int UserId { get; set; }
 
     /// <summary>
-    /// Gets or sets how many failures have happened in a row. Reset to zero when the count reaches the configured limit
-    /// and the lockout is applied, so it counts towards the next lockout rather than a lifetime total.
+    /// Gets or sets how many failures have happened in a row. Reaching the configured limit applies the lockout and
+    /// leaves the count standing; it is zeroed only by an attempt arriving after that lockout has expired, and a
+    /// successful sign-in deletes the row rather than resetting it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

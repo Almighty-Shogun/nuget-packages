@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Identity;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Holds the fixed values a sign-in path uses to spend the same work on an unknown identifier as on a real one, so the
-/// response time does not tell an attacker which usernames exist.
+/// Holds the fixed values a sign-in path uses to spend a password verification on an unknown identifier, so the hash is
+/// not what separates it from a known one. Only that verification is equalized: with lockout enabled a known identifier
+/// also pays the lockout statements this path never reaches.
 /// </summary>
 ///
 /// <remarks>
