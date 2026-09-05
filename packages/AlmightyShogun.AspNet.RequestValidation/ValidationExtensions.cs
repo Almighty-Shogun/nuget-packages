@@ -60,7 +60,7 @@ public static class ValidationExtensions
         /// </exception>
         ///
         /// <remarks>
-        /// Requires <c>AddMessageLocalization</c> from <c>AlmightyShogun.AspNet.Localization</c> , which every failure message is
+        /// Requires <c>AddMessageLocalization</c> from <c>AlmightyShogun.AspNet.Localization</c>, which every failure message is
         /// resolved through.
         ///
         /// MVC is configured rather than added. The filters and the model-state response take effect if the application registers

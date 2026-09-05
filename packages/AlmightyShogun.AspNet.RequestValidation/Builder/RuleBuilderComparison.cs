@@ -13,7 +13,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
-    /// Requires the field to contain an accepted value such as <c>true</c> , <c>yes</c> , <c>on</c> , or <c>1</c> .
+    /// Requires the field to contain an accepted value such as <c>true</c>, <c>yes</c>, <c>on</c>, or <c>1</c>.
     /// </summary>
     ///
     /// <returns>The same builder, so rules chain.</returns>
@@ -64,7 +64,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field to contain a declined value such as <c>false</c> , <c>no</c> , <c>off</c> , or <c>0</c> .
+    /// Requires the field to contain a declined value such as <c>false</c>, <c>no</c>, <c>off</c>, or <c>0</c>.
     /// </summary>
     ///
     /// <returns>The same builder, so rules chain.</returns>

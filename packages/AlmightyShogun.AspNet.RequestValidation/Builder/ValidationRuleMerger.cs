@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <remarks>
-/// Composition rather than caching: this decides what the rule set for a request type <em>is</em> , and
+/// Composition rather than caching: this decides what the rule set for a request type <em>is</em>, and
 /// <see cref="ValidationRuleCache"/> decides only how long the answer is kept.
 /// </remarks>
 ///
@@ -58,7 +58,7 @@ internal static class ValidationRuleMerger
     /// <param name="rule">The rule to fold in.</param>
     ///
     /// <returns>
-    /// <c>true</c> when an existing rule absorbed it; otherwise <c>false</c> , which is the caller's signal to keep the rule as a new
+    /// <c>true</c> when an existing rule absorbed it; otherwise <c>false</c>, which is the caller's signal to keep the rule as a new
     /// entry rather than discard it.
     /// </returns>
     ///

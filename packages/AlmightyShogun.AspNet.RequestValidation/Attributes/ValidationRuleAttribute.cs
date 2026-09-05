@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <remarks>
-/// The constructor is <c>private protected</c> , so deriving from this class directly is closed to this assembly. An application extends
+/// The constructor is <c>private protected</c>, so deriving from this class directly is closed to this assembly. An application extends
 /// the surface through <see cref="CustomRuleAttribute"/> and <see cref="ICustomValidationRule{TRequest, TProperty}"/> instead, which is
 /// public and carries a <c>protected</c> constructor, and is the supported way to run logic the built-in rules cannot express.
 /// </remarks>

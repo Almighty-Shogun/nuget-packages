@@ -108,7 +108,7 @@ internal static class ValidationSize
     ///
     /// <returns>
     /// <c>true</c> for anything <see cref="ValidationValue.TryGetNumber"/> reads exactly, and additionally for an infinity or a floating
-    /// value beyond decimal's range. <c>false</c> for <c>NaN</c> , which no comparison against it can be true of, and for anything that is
+    /// value beyond decimal's range. <c>false</c> for <c>NaN</c>, which no comparison against it can be true of, and for anything that is
     /// not numeric at all.
     /// </returns>
     ///

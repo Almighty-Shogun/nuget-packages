@@ -40,8 +40,8 @@ internal static class ValidationValue
     /// </param>
     ///
     /// <returns>
-    /// <c>true</c> for <c>null</c> , an empty string, a zero-length uploaded file, and an empty collection. A <c>false</c> boolean and a
-    /// zero number are values, not absences, so both come back <c>false</c> .
+    /// <c>true</c> for <c>null</c>, an empty string, a zero-length uploaded file, and an empty collection. A <c>false</c> boolean and a
+    /// zero number are values, not absences, so both come back <c>false</c>.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
@@ -64,7 +64,7 @@ internal static class ValidationValue
     /// </param>
     ///
     /// <returns>
-    /// <c>true</c> for anything that is not <c>null</c> , an empty string included. Presence rules need that distinction: a field posted
+    /// <c>true</c> for anything that is not <c>null</c>, an empty string included. Presence rules need that distinction: a field posted
     /// blank was still posted.
     /// </returns>
     ///
@@ -119,7 +119,7 @@ internal static class ValidationValue
     /// </param>
     ///
     /// <returns>
-    /// <c>true</c> for a string or <c>null</c> ; otherwise <c>false</c> , which includes a number bound to an object property.
+    /// <c>true</c> for a string or <c>null</c>; otherwise <c>false</c>, which includes a number bound to an object property.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
@@ -127,7 +127,7 @@ internal static class ValidationValue
     public static bool IsString(object? value) => value is null or string;
 
     /// <summary>
-    /// Matches text against the accepted vocabulary, case-insensitively, so <c>Yes</c> and <c>YES</c> read the same as <c>yes</c> .
+    /// Matches text against the accepted vocabulary, case-insensitively, so <c>Yes</c> and <c>YES</c> read the same as <c>yes</c>.
     /// </summary>
     ///
     /// <param name="text">The text to check.</param>
@@ -288,7 +288,7 @@ internal static class ValidationValue
     /// <returns>
     /// <c>true</c> for any numeric type whose value a decimal can hold exactly, or text parsed under the invariant culture. Text is
     /// deliberately not parsed under the request's culture, so the same payload validates identically wherever the application runs.
-    /// <c>NaN</c> , the infinities, and a floating value beyond decimal's range all report <c>false</c> , since no decimal stands for
+    /// <c>NaN</c>, the infinities, and a floating value beyond decimal's range all report <c>false</c>, since no decimal stands for
     /// them.
     /// </returns>
     ///
@@ -490,10 +490,10 @@ internal static class ValidationValue
     /// Converts a floating value to a decimal only when one can hold it, so a conversion that would throw reports a failed read instead.
     /// </summary>
     ///
-    /// <param name="value">The floating value to convert, which may be <c>NaN</c> , infinite, or simply too large.</param>
+    /// <param name="value">The floating value to convert, which may be <c>NaN</c>, infinite, or simply too large.</param>
     ///
     /// <returns>
-    /// The converted number paired with <c>true</c> , or zero paired with <c>false</c> when no decimal stands for the value.
+    /// The converted number paired with <c>true</c>, or zero paired with <c>false</c> when no decimal stands for the value.
     /// </returns>
     ///
     /// <remarks>

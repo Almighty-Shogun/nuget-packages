@@ -46,7 +46,7 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider, Validat
     /// <param name="cancellationToken">Cancels the work a rule does on its own, such as reading an uploaded file.</param>
     ///
     /// <returns>
-    /// The failures, empty when the request passed, when it was <c>null</c> , and when its type declares no rules at all.
+    /// The failures, empty when the request passed, when it was <c>null</c>, and when its type declares no rules at all.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>

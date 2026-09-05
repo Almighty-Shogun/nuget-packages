@@ -83,7 +83,7 @@ internal sealed class StringCharacterValidationRule<TRequest, TProperty>(
     /// <param name="text">The value read as text.</param>
     ///
     /// <returns>
-    /// <c>true</c> when every cased character is lowercase and at least one character is cased; otherwise, <c>false</c> . Digits and
+    /// <c>true</c> when every cased character is lowercase and at least one character is cased; otherwise, <c>false</c>. Digits and
     /// punctuation neither pass nor fail it on their own, so <c>"abc-1"</c> passes while <c>"123"</c> does not.
     /// </returns>
     ///
@@ -103,7 +103,7 @@ internal sealed class StringCharacterValidationRule<TRequest, TProperty>(
     /// <param name="text">The value read as text.</param>
     ///
     /// <returns>
-    /// <c>true</c> when every cased character is uppercase and at least one character is cased; otherwise, <c>false</c> .
+    /// <c>true</c> when every cased character is uppercase and at least one character is cased; otherwise, <c>false</c>.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>

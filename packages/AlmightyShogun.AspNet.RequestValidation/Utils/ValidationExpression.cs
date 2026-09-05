@@ -30,7 +30,7 @@ internal static class ValidationExpression
     ///
     /// <exception cref="ArgumentOutOfRangeException">
     /// The expression is not a direct property read: a method call, a literal, a field, or a nested read such as
-    /// <c>request => request.User.Email</c> . A nested read is refused rather than supported, because the name derived from it would be the
+    /// <c>request => request.User.Email</c>. A nested read is refused rather than supported, because the name derived from it would be the
     /// leaf property's alone and the compiled reader would throw whenever an intermediate value is null. Thrown as the rule is built rather
     /// than when a request arrives.
     /// </exception>

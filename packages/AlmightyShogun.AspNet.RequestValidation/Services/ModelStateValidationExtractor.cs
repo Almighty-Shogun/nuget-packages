@@ -149,7 +149,7 @@ internal static class ModelStateValidationExtractor
     ///
     /// <returns>
     /// The full path with every segment renamed, so <c>BillingAddress.Street</c> reads as <c>billingAddress.street</c> and
-    /// <c>Items[0].Name</c> as <c>items[0].name</c> . An empty key reports as <c>request</c> , since a failure against the whole payload
+    /// <c>Items[0].Name</c> as <c>items[0].name</c>. An empty key reports as <c>request</c>, since a failure against the whole payload
     /// has no field to name.
     /// </returns>
     ///
@@ -168,7 +168,7 @@ internal static class ModelStateValidationExtractor
     /// Renames one segment of a key, leaving any indexer attached to it untouched so the position it names survives the rename.
     /// </summary>
     ///
-    /// <param name="segment">One dot-separated segment, such as <c>Street</c> or <c>Items[0]</c> .</param>
+    /// <param name="segment">One dot-separated segment, such as <c>Street</c> or <c>Items[0]</c>.</param>
     ///
     /// <returns>The segment with its name part converted and its indexer, when it has one, reattached.</returns>
     ///
