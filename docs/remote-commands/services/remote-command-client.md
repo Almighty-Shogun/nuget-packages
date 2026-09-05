@@ -2,7 +2,7 @@
 
 Sends commands to a [`RemoteCommandHandler`](./remote-command-handler) over TCP, using the same framing and JSON options as the listener so the two sides cannot drift apart.
 
-Construct it with the host, port, and the pre-shared `Secret` when the server requires one. It is `IAsyncDisposable` and keeps the connection open, so commands are sent one after another over a single socket, and it is not safe for concurrent use because two callers would interleave frames and each read the other's response.
+Construct it with the host, port, the pre-shared `Secret` when the server requires one, and the largest response frame it will accept, 1 MiB by default. It is `IAsyncDisposable` and keeps the connection open, so commands are sent one after another over a single socket, and it is not safe for concurrent use because two callers would interleave frames and each read the other's response.
 
 ## SendAsync
 
