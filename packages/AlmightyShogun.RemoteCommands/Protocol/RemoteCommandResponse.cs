@@ -13,7 +13,8 @@ public sealed record RemoteCommandResponse
 {
     /// <summary>
     /// Gets why the request was declined, or <c>null</c> when it was served. Serialized as the underlying number, so a
-    /// value a newer server introduces still arrives and is read as <see cref="RemoteCommandRefusal.Other"/>.
+    /// value a newer server introduces still arrives and is kept here as that raw number. The client maps an unrecognized
+    /// one onto <see cref="RemoteCommandRefusal.Other"/> when it builds the exception, not on this property.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

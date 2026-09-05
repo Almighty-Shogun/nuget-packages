@@ -43,7 +43,8 @@ internal static class RemoteCommandProtocol
     /// </returns>
     ///
     /// <exception cref="EndOfStreamException">
-    /// The connection ended part-way through a message, which means the peer died rather than disconnected.
+    /// The connection ended part-way through a message. A peer that died and a peer that closed cleanly mid-frame are
+    /// indistinguishable here; only a close between messages is told apart, and that returns <c>null</c> instead.
     /// </exception>
     /// <exception cref="InvalidDataException">
     /// The declared length was zero, negative, or above the accepted maximum, so the frame is unreadable and the
@@ -86,8 +87,8 @@ internal static class RemoteCommandProtocol
     }
 
     /// <summary>
-    /// Writes one whole message as a length prefix followed by the body, flushing so the frame has actually left before
-    /// the caller waits for an answer to it.
+    /// Writes one whole message as a length prefix followed by the body, then flushes the stream. Completion means the
+    /// bytes were handed to the stream, not that the peer has received them.
     /// </summary>
     ///
     /// <typeparam name="T">The value's type, serialized with the shared web defaults.</typeparam>
@@ -96,8 +97,7 @@ internal static class RemoteCommandProtocol
     /// <param name="cancellationToken">Signaled when the read timeout elapses or the listener is stopping.</param>
     ///
     /// <returns>
-    /// A task that completes once the length prefix and body have both been written and flushed, so a caller awaiting it
-    /// knows the whole frame has left rather than half of it.
+    /// A task that completes once the length prefix and the body have both been written and the stream flushed.
     /// </returns>
     ///
     /// <exception cref="IOException">

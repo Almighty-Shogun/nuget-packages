@@ -25,9 +25,9 @@ internal interface IInternalRemoteCommand
     /// <returns>A task that completes when the command has finished.</returns>
     ///
     /// <exception cref="JsonException">
-    /// The payload could not become the command's message type. The dispatcher turns this into a
-    /// <see cref="RemoteCommandRefusal.InvalidMessage"/> refusal, so it reaches the client as an answer rather than a
-    /// dropped connection.
+    /// The payload could not become the command's message type. The dispatcher answers with a
+    /// <see cref="RemoteCommandRefusal.InvalidMessage"/> refusal, unless the command had already claimed the write slot, in
+    /// which case the refusal is suppressed and the client is left waiting.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>

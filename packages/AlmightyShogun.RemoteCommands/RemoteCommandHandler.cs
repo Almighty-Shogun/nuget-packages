@@ -116,8 +116,9 @@ internal sealed class RemoteCommandHandler(
     private readonly Lock _lifecycleGate = new();
 
     /// <summary>
-    /// The connections still being served, awaited for five seconds on shutdown so a client receiving a response is not
-    /// cut off mid-frame. Completed entries are pruned as new ones are added.
+    /// The connections still being served, awaited for five seconds on shutdown so the listener does not return while they
+    /// are still running. The same cancellation that starts that wait aborts their writes, so a response in flight is cut
+    /// off regardless. Completed entries are pruned as new ones are added.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -271,16 +272,17 @@ internal sealed class RemoteCommandHandler(
     }
 
     /// <summary>
-    /// Serves one connection and swallows whatever escapes, because nothing awaits the task this returns and an escaping
-    /// failure would surface as an unobserved exception instead of a log line.
+    /// Serves one connection, turning whatever escapes into a log line, and releases the connection slot however the
+    /// connection ends.
     /// </summary>
     ///
     /// <param name="client">The accepted connection, disposed by the inner call whatever happens.</param>
     /// <param name="cancellationToken">Signaled when the listener is stopping.</param>
     ///
     /// <returns>
-    /// A task that always completes successfully. Nothing awaits it for a result, so a failure allowed to escape would
-    /// surface as an unobserved exception rather than a log line.
+    /// A task that always completes successfully. Nothing awaits it for a result: shutdown reaches it only through a
+    /// <c>Task.WhenAny</c>, which completes without unwrapping the task it selects, so a failure allowed to escape here
+    /// would surface as an unobserved exception rather than a log line.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
@@ -303,14 +305,15 @@ internal sealed class RemoteCommandHandler(
 
     /// <summary>
     /// Checks the client against the whitelist, then serves its requests one at a time until it disconnects, goes idle
-    /// past the timeout, or sends something unreadable.
+    /// past the timeout, sends something unreadable, or the listener stops.
     /// </summary>
     ///
     /// <param name="client">The accepted connection, taken over and disposed when this returns.</param>
     /// <param name="cancellationToken">Signaled when the listener is stopping.</param>
     ///
     /// <returns>
-    /// A task that completes when the client disconnects, goes idle past the timeout, or sends something unreadable. The
+    /// A task that completes when the address fails the whitelist and is dropped without an answer, or afterwards when
+    /// the client disconnects, goes idle past the timeout, sends something unreadable, or the listener stops. The
     /// connection is kept open between requests, so one client may run many commands on it.
     /// </returns>
     ///
@@ -382,13 +385,20 @@ internal sealed class RemoteCommandHandler(
     ///
     /// <returns>
     /// A task that completes once one envelope has been sent, whether it carries the command's own response, a refusal, or
-    /// the acknowledgement that stands in for a command which returned without answering. A command that throws is logged
-    /// and answered with a refusal, so a failing command still leaves the client with a frame rather than a silent wait.
+    /// the acknowledgement that stands in for a command which returned without answering. A command that throws is logged,
+    /// and answered with a refusal only while the write slot is still free: <see cref="StreamCommandResponse"/> claims that
+    /// slot before it serializes, so a command whose own write failed on a value it could not serialize leaves the client
+    /// with no frame at all, waiting until the idle timeout closes the connection under it.
     /// </returns>
     ///
     /// <exception cref="OperationCanceledException">
-    /// The read timeout elapsed or the listener is stopping while the command was running. This is deliberately not
-    /// answered with a refusal: the connection is going away, so nothing is sent and the caller closes it.
+    /// The read timeout elapsed or the listener is stopping, either while the command was running or while any of the
+    /// frames written here was going out. This is deliberately not answered with a refusal: the connection is going away,
+    /// so nothing is sent and the caller closes it.
+    /// </exception>
+    /// <exception cref="IOException">
+    /// The connection failed while a refusal or the acknowledgement was being written. The same failure inside the
+    /// command's own write is caught and logged instead, because it escapes the command rather than these calls.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>

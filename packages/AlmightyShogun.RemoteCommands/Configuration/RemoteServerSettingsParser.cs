@@ -8,9 +8,8 @@ namespace AlmightyShogun.RemoteCommands;
 /// </summary>
 ///
 /// <remarks>
-/// Parsing lives here rather than on the record because a bound options type is reloaded, compared, and serialized, and a
-/// method that throws on a value the binder happily accepted does not belong on something treated as data. Both members
-/// are called once when the handler is constructed, so a bad value is reported when the listener is resolved.
+/// Both members are called once when the handler is constructed, so a bad value is reported when the listener is
+/// resolved rather than when it first tries to bind or match.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

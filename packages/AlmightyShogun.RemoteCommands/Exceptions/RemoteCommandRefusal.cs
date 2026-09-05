@@ -10,8 +10,10 @@ namespace AlmightyShogun.RemoteCommands;
 public enum RemoteCommandRefusal
 {
     /// <summary>
-    /// A reason this client has no name for, which is how a value introduced by a newer server arrives. The value itself
-    /// is not kept, so all that survives is that the server refused and this client could not say why.
+    /// What this package's own server answers with when a command threw anything but a cancellation or a
+    /// <c>JsonException</c>, so between a matched pair of ends it means the command ran and failed rather than that it
+    /// was declined. It is also what a value introduced by a newer server arrives as, since the client maps anything it
+    /// has no name for onto this and does not keep the original number.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -19,8 +21,9 @@ public enum RemoteCommandRefusal
     Other = 0,
 
     /// <summary>
-    /// The request was not readable as JSON, so the server never looked for a command name. From this package's own
-    /// client that means the frame was corrupted in transit.
+    /// The request was not readable as JSON, so the server never looked for a command name. This package's own client
+    /// serializes every request before sending it, so from such a client the bytes were valid when they left and the
+    /// fault is on the connection: frames out of step with each other, or corruption in transit.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -55,8 +58,9 @@ public enum RemoteCommandRefusal
     CommandNotFound,
 
     /// <summary>
-    /// The command exists but the data could not become its message type, because a property carried the wrong JSON type
-    /// or the payload was not an object. An omitted property binds to its default, unless the message marks it
+    /// The command exists but a <c>JsonException</c> escaped it, usually because the data could not become its message type,
+    /// a property carried the wrong JSON type, or the payload was not an object. A command that itself raises one after
+    /// running is reported the same way. An omitted property binds to its default, unless the message marks it
     /// <c>required</c>, which is refused here the same way a wrong type is.
     /// </summary>
     ///

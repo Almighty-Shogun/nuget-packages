@@ -2,7 +2,7 @@ namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
 /// Writes the single response frame a command is allowed to send. Commands depend on this rather than on a
-/// <c>NetworkStream</c>, so a command is testable with a fake and the transport can change without touching it.
+/// <c>NetworkStream</c>.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -30,6 +30,10 @@ public interface ICommandResponse
     /// A response was already written for this request. The protocol is one frame per request, so a second write would
     /// be read by the client as the answer to whatever it sends next. The slot is claimed before the frame is written, so
     /// a write that fails still spends it and no retry is possible.
+    /// </exception>
+    /// <exception cref="System.Text.Json.JsonException">
+    /// <paramref name="data"/> could not be serialized. The slot is claimed before serialization, so this spends it with
+    /// no frame reaching the client, and the dispatcher then sends nothing in its place.
     /// </exception>
     /// <exception cref="IOException">The connection failed while writing the frame.</exception>
     /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled mid-write.</exception>

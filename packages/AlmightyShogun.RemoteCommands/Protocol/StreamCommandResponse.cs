@@ -32,8 +32,9 @@ internal sealed class StreamCommandResponse(Stream stream) : ICommandResponse
     ///
     /// <remarks>
     /// Read through <see cref="Volatile"/> because the slot may have been claimed on another thread, and it turns
-    /// <c>true</c> when a write begins rather than when it finishes. The dispatcher reads this only after the command has
-    /// returned, by which point any write it started has completed or thrown.
+    /// <c>true</c> when a write begins rather than when it finishes. <see cref="RemoteCommandHandler"/> reads it only
+    /// after the command has returned, so a command that awaited its own write has already seen it complete or throw; one
+    /// that returns without awaiting leaves this <c>true</c> with the write still in flight.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

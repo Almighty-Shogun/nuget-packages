@@ -97,8 +97,8 @@ public sealed record RemoteServerSettings
     public int IdleTimeout { get; init; } = 120;
 
     /// <summary>
-    /// Gets how many connections are served at once. A further client waits for a slot rather than being refused, so
-    /// this bounds memory and thread use without dropping traffic.
+    /// Gets how many connections are served at once. A further client is not accepted until a slot frees, so this bounds
+    /// the memory and threads the listener spends on connections.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
