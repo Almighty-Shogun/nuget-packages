@@ -13,8 +13,8 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 public sealed record MaintenanceSettings
 {
     /// <summary>
-    /// Gets the path that answers with the maintenance details rather than being blocked, so a blocked visitor has somewhere to be sent and
-    /// a status page has something to poll. A leading slash is added when it is missing and a trailing one is dropped.
+    /// The path reserved for maintenance mode. The middleware answers this path itself rather than passing it on, so an application
+    /// route there is never reached, and a request for it outside a window is answered <c>404</c>.
     /// </summary>
     ///
     /// <remarks>
@@ -32,7 +32,7 @@ public sealed record MaintenanceSettings
     public string MaintenancePath { get; init; } = "/maintenance";
 
     /// <summary>
-    /// Gets the message shown when the window that was opened supplied none. Left unset, a blocked request carries no explanation at all.
+    /// The message shown when the window that was opened supplied none. Left unset, a blocked request carries no explanation at all.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -40,7 +40,7 @@ public sealed record MaintenanceSettings
     public string? DefaultMessage { get; init; }
 
     /// <summary>
-    /// Gets whether a window lifts itself once its end time passes. Off by default, so a window outlives its estimate rather than reopening
+    /// Whether a window lifts itself once its end time passes. Off by default, so a window outlives its estimate rather than reopening
     /// the site while nobody is watching.
     /// </summary>
     ///
@@ -49,8 +49,7 @@ public sealed record MaintenanceSettings
     public bool AutoDisableWhenExpired { get; init; }
 
     /// <summary>
-    /// Gets whether a blocked request is redirected to the maintenance path instead of receiving the maintenance response directly. Only a
-    /// client that accepts <c>text/html</c> is redirected; anything else gets the response body whatever this says.
+    /// Whether a blocked request is redirected to the maintenance path instead of receiving the maintenance response directly.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -58,7 +57,7 @@ public sealed record MaintenanceSettings
     public bool RedirectBlockedRequests { get; init; } = true;
 
     /// <summary>
-    /// Gets the paths that stay reachable, matched exactly. A window that names its own list replaces this rather than adding to it.
+    /// The paths that stay reachable while a window is open.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -66,8 +65,7 @@ public sealed record MaintenanceSettings
     public IReadOnlyList<string> AllowedPaths { get; init; } = [];
 
     /// <summary>
-    /// Gets the prefixes that stay reachable. Matching respects segment boundaries, so <c>/api</c> opens <c>/api/orders</c> but not
-    /// <c>/apixyz</c> .
+    /// The path prefixes that stay reachable while a window is open.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -75,7 +73,7 @@ public sealed record MaintenanceSettings
     public IReadOnlyList<string> AllowedPathPrefixes { get; init; } = [];
 
     /// <summary>
-    /// Gets the IP addresses allowed through while maintenance mode is enabled, used when a request does not supply its own list.
+    /// The IP addresses allowed through while maintenance mode is enabled.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

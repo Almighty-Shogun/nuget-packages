@@ -37,9 +37,8 @@ internal sealed class FileMaintenanceStore(
     private readonly SemaphoreSlim _writeLock = new(1, 1);
 
     /// <summary>
-    /// Guards watcher setup and disposal, so the watcher is built exactly once and never after the store is disposed. Taken on every read
-    /// through <see cref="EnsureWatching"/> on every read, cache hit or not, though once setup has run it is held only for a
-    /// flag test.
+    /// Guards watcher setup and disposal, so the watcher is built exactly once and never after the store is disposed. Taken through
+    /// <see cref="EnsureWatching"/> on every read, cache hit or not, though once setup has run it is held only for a flag test.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -206,6 +205,9 @@ internal sealed class FileMaintenanceStore(
     /// <summary>
     /// Deletes the state file when it is there, which is what closing a window amounts to on disk.
     /// </summary>
+    ///
+    /// <exception cref="IOException">The file exists but could not be deleted, so the window it holds stays open.</exception>
+    /// <exception cref="UnauthorizedAccessException">The process may not delete the file, so the window it holds stays open.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

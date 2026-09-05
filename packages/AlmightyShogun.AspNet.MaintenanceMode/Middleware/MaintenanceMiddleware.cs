@@ -33,7 +33,7 @@ internal sealed class MaintenanceMiddleware(
     private readonly PathString _maintenancePath = MaintenancePath.Normalize(maintenanceOptions.Value.MaintenancePath, "/maintenance");
 
     /// <summary>
-    /// Handles the request and either passes it through or returns the maintenance response.
+    /// Handles the request, either passing it on or answering it from the current window.
     /// </summary>
     ///
     /// <param name="context">The request being considered, read for its path, its accepted media types, and its connecting address.</param>
@@ -47,6 +47,18 @@ internal sealed class MaintenanceMiddleware(
     /// <exception cref="UnauthorizedAccessException">
     /// The process may not delete the state file of an expired window, which fails the request in the same way.
     /// </exception>
+    ///
+    /// <remarks>
+    /// The maintenance path is claimed before the window is checked and before every allow list, and the rest of the pipeline never runs
+    /// for it: with a window in force it answers <c>503</c> and the window as JSON, and with none it answers <c>404</c>. An application
+    /// route at that path is therefore unreachable, and a status page polling it is answered <c>404</c> while the site is up.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// Any other request is passed on when no window is in force or <see cref="ShouldPassThrough"/> lets it through, and is otherwise
+    /// blocked: redirected to the maintenance path when the window redirects and the caller accepts HTML, and given the <c>503</c> error
+    /// body otherwise.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -173,6 +185,12 @@ internal sealed class MaintenanceMiddleware(
     ///
     /// <returns><c>true</c> when the request should be served normally.</returns>
     ///
+    /// <remarks>
+    /// An allowed path is compared against the whole request path, ordinal and case-insensitive, so it opens that one path and nothing
+    /// beneath it. An allowed prefix is matched on segment boundaries instead, so <c>/api</c> opens <c>/api/orders</c> but not
+    /// <c>/apixyz</c>. Both lists are consulted before the address allow list.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private static bool ShouldPassThrough(HttpContext context, PersistedMaintenanceState state)
@@ -209,6 +227,17 @@ internal sealed class MaintenanceMiddleware(
     /// That only holds where the connection address is the caller's. Behind a reverse proxy it is the proxy's until
     /// <c>UseForwardedHeaders</c> has rewritten it, so an application behind one has to run that first and declare its trusted proxies;
     /// otherwise every caller arrives as the proxy and the allow list either matches all of them or none.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// An entry opens one address and nothing else: it is parsed as a single <see cref="IPAddress"/> and compared for equality, so CIDR
+    /// notation and ranges never match. An entry that fails to parse is skipped in silence, with no log and no startup validation, so a
+    /// mistyped address is a bypass that never fires and says nothing about it.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// A connection address arriving IPv4-mapped over a dual-stack socket is folded down to IPv4 first, which is what lets a plain
+    /// <c>127.0.0.1</c> entry match it. That folding is applied to the connection address only, never to the configured entry.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

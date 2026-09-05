@@ -15,8 +15,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 public sealed record MaintenanceResponse
 {
     /// <summary>
-    /// Gets the explanation recorded on the window itself. A window opened through <see cref="IMaintenanceService.EnableAsync"/> falls back
-    /// to the configured default when it supplied none; a hand-edited file that omits it carries no message at all.
+    /// The explanation recorded on the window, absent when it carries none.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -24,7 +23,7 @@ public sealed record MaintenanceResponse
     public required string? Message { get; init; }
 
     /// <summary>
-    /// Gets when the window starts, when scheduled ahead.
+    /// When the window starts, when scheduled ahead.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -32,7 +31,7 @@ public sealed record MaintenanceResponse
     public required DateTimeOffset? StartsAt { get; init; }
 
     /// <summary>
-    /// Gets when the window is expected to end.
+    /// When the window is expected to end.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -40,7 +39,7 @@ public sealed record MaintenanceResponse
     public required DateTimeOffset? EndsAt { get; init; }
 
     /// <summary>
-    /// Gets when maintenance mode was enabled.
+    /// When maintenance mode was enabled.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

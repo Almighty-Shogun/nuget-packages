@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 public sealed record MaintenanceState
 {
     /// <summary>
-    /// Gets whether a window is open at all. A scheduled window that has not started yet still reads as enabled here.
+    /// Whether a window is recorded as open.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -22,8 +22,7 @@ public sealed record MaintenanceState
     public bool IsEnabled { get; init; }
 
     /// <summary>
-    /// Gets the explanation shown to a blocked caller. A window opened through the service falls back to the configured
-    /// default when it supplied none, but nothing fills this in on read, so a hand-edited file omitting it carries none.
+    /// The explanation recorded on the window, absent when it carries none.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -31,7 +30,7 @@ public sealed record MaintenanceState
     public string? Message { get; init; }
 
     /// <summary>
-    /// Gets the scheduled start, absent for a window that began immediately. A window is only active once this has passed.
+    /// The scheduled start, absent for a window that began immediately.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -39,7 +38,7 @@ public sealed record MaintenanceState
     public DateTimeOffset? StartsAt { get; init; }
 
     /// <summary>
-    /// Gets the estimated end of the window, which drives the <c>Retry-After</c> header and the automatic lift when that is enabled.
+    /// The estimated end of the window, absent for one opened with no estimate.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -47,7 +46,7 @@ public sealed record MaintenanceState
     public DateTimeOffset? EndsAt { get; init; }
 
     /// <summary>
-    /// Gets when the window was opened, which is what tells an operator how long the site has been down.
+    /// When the window was opened, which is what tells an operator how long the site has been down.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
