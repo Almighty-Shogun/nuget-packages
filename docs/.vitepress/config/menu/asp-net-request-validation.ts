@@ -43,11 +43,17 @@ export const aspNetRequestValidation: DefaultTheme.SidebarItem[] = [
         ]
     },
     {
+        text: 'Utilities',
+        collapsed: false,
+        items: [
+            { text: 'ValidationErrorResult', link: '/asp-net-request-validation/utilities/validation-error-result' }
+        ]
+    },
+    {
         text: 'Types',
         collapsed: false,
         items: [
-            { text: 'ComparisonTarget', link: '/asp-net-request-validation/types/comparison-target' },
-            { text: 'ValidationErrorResult', link: '/asp-net-request-validation/types/validation-error-result' }
+            { text: 'ComparisonTarget', link: '/asp-net-request-validation/types/comparison-target' }
         ]
     },
     {
