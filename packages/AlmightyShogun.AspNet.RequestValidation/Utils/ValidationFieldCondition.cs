@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// Points at the controlling property, compiled to a reader once when the condition is built rather than on each request.
 /// </param>
 /// <param name="values">
-/// The values the controlling field is compared against by <see cref="Matches"/> , and the list <see cref="ValuesText"/> renders for the
+/// The values the controlling field is compared against by <see cref="Matches"/>, and the list <see cref="ValuesText"/> renders for the
 /// failure message. The truthiness checks ignore them entirely.
 /// </param>
 ///

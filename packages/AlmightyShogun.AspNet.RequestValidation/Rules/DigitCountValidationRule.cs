@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="mode">Which count comparison to perform, which also decides the message a failure reports.</param>
 /// <param name="value">The digit count compared against, or the lower bound of a range.</param>
 /// <param name="maxValue">
-/// The upper bound of a range, read only by <see cref="DigitMode.Between"/> . A range built without one fails every non-empty value,
+/// The upper bound of a range, read only by <see cref="DigitMode.Between"/>. A range built without one fails every non-empty value,
 /// since the comparison against a missing bound is never true.
 /// </param>
 ///

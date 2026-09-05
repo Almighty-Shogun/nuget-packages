@@ -19,7 +19,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 ///
 /// The type needs a public parameterless constructor and should not take dependencies. It runs once, outside any request scope, so a
 /// service captured here would outlive the scope it came from. A rule that genuinely needs services belongs in
-/// <see cref="ICustomValidationRule{TRequest, TProperty}"/> , which is resolved per request.
+/// <see cref="ICustomValidationRule{TRequest, TProperty}"/>, which is resolved per request.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

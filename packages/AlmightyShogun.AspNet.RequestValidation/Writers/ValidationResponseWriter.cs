@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// Returns a validation failure to the client. Validation carries a per-field error dictionary, which the shared
 /// <see cref="IHttpErrorResponseWriter"/> deliberately does not model, so this package returns its own body and leaves each caller to
 /// choose between writing it and handing back a result. The body itself is built by
-/// <see cref="ValidationErrorResponseFactory"/> , which every other path shares.
+/// <see cref="ValidationErrorResponseFactory"/>, which every other path shares.
 /// </summary>
 ///
 /// <param name="messageResolver">The resolver used to produce the description and the per-field messages.</param>

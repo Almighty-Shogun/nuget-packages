@@ -16,7 +16,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal sealed class ValidationField<TRequest> where TRequest : class
 {
     /// <summary>
-    /// The field's public name, resolved through <see cref="ValidationFieldName"/> , so it is the name the client sent rather than the
+    /// The field's public name, resolved through <see cref="ValidationFieldName"/>, so it is the name the client sent rather than the
     /// name the property was declared with.
     /// </summary>
     ///
@@ -59,7 +59,7 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     /// <returns>The field's current value, <c>null</c> when the property holds none.</returns>
     ///
     /// <exception cref="TargetInvocationException">
-    /// The property's own getter threw, on a field built by <see cref="FromPropertyName"/> , which reads the value through reflection.
+    /// The property's own getter threw, on a field built by <see cref="FromPropertyName"/>, which reads the value through reflection.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -115,7 +115,7 @@ internal sealed class ValidationField<TRequest> where TRequest : class
     /// Builds several fields from names, which is the attribute spelling since an attribute cannot hold expressions.
     /// </summary>
     ///
-    /// <param name="propertyNames">One name per field to watch, each resolved on the same terms as <see cref="FromPropertyName"/> .</param>
+    /// <param name="propertyNames">One name per field to watch, each resolved on the same terms as <see cref="FromPropertyName"/>.</param>
     ///
     /// <returns>One field per name, in the order given.</returns>
     ///

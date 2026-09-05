@@ -16,7 +16,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule<TRequest> where TRequest : class
 {
     /// <summary>
-    /// The name failures are reported under, resolved through <see cref="ValidationFieldName"/> , so it is the name the client sent
+    /// The name failures are reported under, resolved through <see cref="ValidationFieldName"/>, so it is the name the client sent
     /// rather than the name the property was declared with.
     /// </summary>
     ///
@@ -26,7 +26,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
 
     /// <summary>
     /// The property's name as the type declares it, which the confirmation convention needs so it can look for a sibling property by
-    /// name. Kept apart from <see cref="FieldName"/> , since that one may have been renamed for the client.
+    /// name. Kept apart from <see cref="FieldName"/>, since that one may have been renamed for the client.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

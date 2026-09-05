@@ -97,7 +97,7 @@ internal sealed class StringCharacterValidationRule<TRequest, TProperty>(
     private static bool IsLowercase(string text) => text.Any(IsCasedCharacter) && !text.Any(char.IsUpper);
 
     /// <summary>
-    /// Checks that text is uppercase, on the same terms as <see cref="IsLowercase"/> .
+    /// Checks that text is uppercase, on the same terms as <see cref="IsLowercase"/>.
     /// </summary>
     ///
     /// <param name="text">The value read as text.</param>

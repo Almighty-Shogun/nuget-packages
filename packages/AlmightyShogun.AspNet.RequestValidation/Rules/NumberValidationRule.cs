@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <param name="mode">Which numeric check to perform, which also decides the message a failure reports.</param>
 /// <param name="value">
 /// The bound the check compares against: the decimal place count for <see cref="NumberMode.DecimalPlaces"/> and the divisor for
-/// <see cref="NumberMode.MultipleOf"/> . Neither of the other two modes reads it.
+/// <see cref="NumberMode.MultipleOf"/>. Neither of the other two modes reads it.
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>

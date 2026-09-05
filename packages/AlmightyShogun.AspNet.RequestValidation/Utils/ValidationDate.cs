@@ -139,7 +139,7 @@ internal static class ValidationDate
     public static string ToMessageValue(DateTimeOffset date) => date.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture);
 
     /// <summary>
-    /// Converts a <see cref="DateTime"/> to a UTC <see cref="DateTimeOffset"/> .
+    /// Converts a <see cref="DateTime"/> to a UTC <see cref="DateTimeOffset"/>.
     /// </summary>
     ///
     /// <param name="dateTime">The value to normalize, whose kind decides whether it is treated as local or already universal.</param>

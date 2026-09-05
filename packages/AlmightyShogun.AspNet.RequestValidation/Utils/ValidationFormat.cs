@@ -19,7 +19,7 @@ internal static class ValidationFormat
     private static readonly EmailAddressAttribute _emailAddressAttribute = new();
 
     /// <summary>
-    /// Checks an address by handing it to <see cref="EmailAddressAttribute"/> , so whatever the framework accepts is what this package
+    /// Checks an address by handing it to <see cref="EmailAddressAttribute"/>, so whatever the framework accepts is what this package
     /// accepts, and no second definition of a valid address is kept here.
     /// </summary>
     ///

@@ -22,7 +22,7 @@ internal static class ValidationExpression
     /// </typeparam>
     /// <param name="expression">
     /// Points at the property, supplying both the name failures are reported under and the reader used to fetch its value. A conversion
-    /// wrapped around the read, which the compiler inserts when a value-typed property is read as <see cref="object"/> , is unwrapped
+    /// wrapped around the read, which the compiler inserts when a value-typed property is read as <see cref="object"/>, is unwrapped
     /// first.
     /// </param>
     ///
@@ -64,7 +64,7 @@ internal static class ValidationExpression
     ///
     /// <exception cref="ArgumentOutOfRangeException">
     /// The expression is not a direct property read, on the same terms as
-    /// <see cref="GetProperty{TRequest, TProperty}(Expression{Func{TRequest, TProperty}})"/> .
+    /// <see cref="GetProperty{TRequest, TProperty}(Expression{Func{TRequest, TProperty}})"/>.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>

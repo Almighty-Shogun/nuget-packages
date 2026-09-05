@@ -160,8 +160,8 @@ internal sealed class RequestBodyValidationFilter(
     /// </returns>
     ///
     /// <remarks>
-    /// The collection is typed as <see cref="IInputFormatter"/> , and only the abstract <see cref="InputFormatter"/> carries
-    /// <see cref="InputFormatter.SupportedMediaTypes"/> . A formatter implementing the interface directly is asked through
+    /// The collection is typed as <see cref="IInputFormatter"/>, and only the abstract <see cref="InputFormatter"/> carries
+    /// <see cref="InputFormatter.SupportedMediaTypes"/>. A formatter implementing the interface directly is asked through
     /// <see cref="IApiRequestFormatMetadataProvider"/> instead, and one implementing neither cannot be interrogated at all.
     /// </remarks>
     ///
