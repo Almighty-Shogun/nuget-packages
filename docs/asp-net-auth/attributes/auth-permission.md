@@ -1,9 +1,15 @@
+---
+params:
+    - name: permission
+      description: The permission the principal must hold, compared case-insensitively against every `permission` claim it carries, so grant several permissions as several claims rather than one comma-separated value. A granted claim ending in `.*` satisfies everything beneath it, so a principal holding `users.*` passes `users.read` and `users.read.all`.
+      type: string
+---
+
 # AuthPermission
 
 Requires the authenticated principal to hold a permission claim satisfying the named permission. Applies to a controller, an action, or a minimal API endpoint through `RequireAuthorization`.
 
 The attribute builds a policy named `permission:{name}`, resolved and cached by the package's policy provider.
-
 
 ## Usage
 
@@ -46,9 +52,8 @@ AuthToken token = tokenGenerator.Generate([
 
 :::
 
-## Wildcards
-
-A granted claim ending in `.*` satisfies any permission beneath it, so one claim can stand for a group:
+::: warning
+The wildcard is honored only in the claim, never in the requirement. `[AuthPermission("users.*")]` demands a claim of literally `users.*`, and a principal holding only `users.read` is refused.
 
 | Claim held | Endpoint requires | Result |
 |---|---|---|
@@ -56,19 +61,16 @@ A granted claim ending in `.*` satisfies any permission beneath it, so one claim
 | `users.*` | `users.read` | allowed |
 | `users.*` | `users.read.all` | allowed |
 | `users.*` | `orders.read` | denied |
-| `users.read` | `users.*` | **denied** |
-
-::: warning
-The wildcard is honored **only in the claim**, never in the requirement. Writing `[AuthPermission("users.*")]` requires a claim of literally `users.*`; it does not accept `users.read`.
-
-That asymmetry is deliberate. If requirements expanded, an endpoint asking for `users.*` would be satisfied by a principal holding only `users.read`, and the endpoint would accept less access than it asked for.
+| `users.read` | `users.*` | denied |
 :::
 
-Grant several permissions as several claims, not one comma-separated value.
+<FrontmatterDocs/>
 
 ## Type signature
 
 ```csharp
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
-public sealed class AuthPermissionAttribute : AuthorizeAttribute;
+public sealed class AuthPermissionAttribute : AuthorizeAttribute
+{
+    public AuthPermissionAttribute(string permission);
+}
 ```

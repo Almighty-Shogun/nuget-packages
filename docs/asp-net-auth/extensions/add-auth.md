@@ -14,15 +14,11 @@ returns: The `IServiceCollection` instance with JWT authentication and authoriza
 
 # AddAuth
 
-Registers everything the package needs: the bound [`AuthSettings`](../configuration), JWT bearer authentication, the host resolver, and the app-audience and permission authorization services. It also registers a mapper covering this package's [exceptions](../exceptions), so each becomes a standardized error response.
+Registers everything the package needs: the bound [`AuthSettings`](../configuration), JWT bearer authentication, the host resolver, the token generator, and the app-audience and permission authorization services. It also registers a mapper covering this package's [exceptions](../exceptions), so each becomes a standardized error response.
 
-A non-empty [`Hosts`](../configuration) mapping turns on audience validation and decorates every policy, generated or declared, with the app-audience requirement.
+Every policy, generated or declared, carries the app-audience requirement, which checks a token's audience against the app the request host resolves to whenever a non-empty [`Hosts`](../configuration) mapping is configured.
 
 ## Usage
-
-::: warning
-Requires an `Auth` section in application configuration, usually from `appsettings.json`.
-:::
 
 ```csharp
 using AlmightyShogun.AspNet.Core;

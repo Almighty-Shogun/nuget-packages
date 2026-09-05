@@ -8,7 +8,7 @@ fields:
                 type: string
 
             -   name: Secret
-                description: The symmetric signing secret. Must be at least 32 bytes, which is what the signing algorithm requires; a shorter one fails validation at startup rather than at the first request.
+                description: The symmetric signing secret. Must be at least 32 characters, which covers the 32 bytes HMAC-SHA256 requires; a shorter one fails validation at startup rather than at the first request.
                 type: string
 
             -   name: AccessTokenMinutes
@@ -77,20 +77,3 @@ required; fill it in and a token's audience must match the app the request host 
 :::
 
 <FrontmatterDocs/>
-
-## Usage
-
-Inject `IOptions<AuthSettings>` wherever application code needs the configured lifetimes or the resolved audiences.
-
-```csharp
-using Microsoft.Extensions.Options;
-using AlmightyShogun.AspNet.Auth;
-
-public sealed class TokenIssuer(IOptions<AuthSettings> options)
-{
-    public DateTimeOffset GetAccessTokenExpiry() => DateTimeOffset.UtcNow
-        .AddMinutes(options.Value.AccessTokenMinutes);
-
-    public bool IsScoped => options.Value.IsScoped();
-}
-```

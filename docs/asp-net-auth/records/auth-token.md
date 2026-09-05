@@ -15,14 +15,14 @@ A minted access token and when it expires, returned by [`IAuthTokenGenerator.Gen
 
 `ExpiresAt` is returned so a client can refresh proactively rather than waiting for a `401`. It is the same value as the token's `exp` claim, exposed so the caller does not have to decode the token to read it.
 
-## Usage
+<FrontmatterDocs/>
+
+## Type signature
 
 ```csharp
-using AlmightyShogun.AspNet.Auth;
-
-AuthToken token = tokenGenerator.Generate(claims);
-
-return Ok(new { accessToken = token.Token, expiresAt = token.ExpiresAt });
+public sealed record AuthToken
+{
+    public required string Token { get; init; }
+    public required DateTimeOffset ExpiresAt { get; init; }
+}
 ```
-
-<FrontmatterDocs/>

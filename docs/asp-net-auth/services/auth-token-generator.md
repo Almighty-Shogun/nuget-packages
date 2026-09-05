@@ -4,7 +4,11 @@ Mints signed access tokens from the configured issuer, secret, and lifetime, wit
 
 The generator adds the audience itself, from the request host when host scoping is active and from `DefaultApp` otherwise. An explicit audience overrides both, which a background job minting a token outside a request needs.
 
-## Usage
+## Generate
+
+Creates a signed token carrying the supplied claims, plus the resolved audience, issuer, and expiry.
+
+With host scoping active the audience comes from the current request, so minting from an unmapped host, or outside a request entirely, throws [`UnknownAppException`](../exceptions) unless an audience is passed. Grant multiple permissions by adding multiple `permission` claims, not one comma-separated claim.
 
 ::: code-group
 
@@ -47,18 +51,10 @@ AuthToken token = tokenGenerator.Generate(
 
 :::
 
-## Generate
-
-Creates a signed token carrying the supplied claims, plus the resolved audience, issuer, and expiry.
-
-Throws `InvalidOperationException` when no audience can be resolved, which happens only if the request host is unmapped and `DefaultApp` is unset. Startup validation normally prevents that configuration from existing.
-
-Grant multiple permissions by adding multiple `permission` claims, not one comma-separated claim.
-
 ### Type signature
 
 ```csharp
-AuthToken Generate(
+public AuthToken Generate(
     IEnumerable<Claim> claims,
     string? audience = null
 );

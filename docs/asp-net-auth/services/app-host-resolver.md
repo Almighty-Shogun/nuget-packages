@@ -4,22 +4,11 @@ Resolves which application a request belongs to, from its host, which is the map
 
 [`Hosts`](../configuration) supplies the mapping and decides whether scoping is active at all, with [`LocalhostApp`](../configuration) covering localhost in development.
 
-## Usage
-
-```csharp
-using AlmightyShogun.AspNet.Auth;
-
-public sealed class CurrentAppService(IAppHostResolver appHostResolver)
-{
-    public string? GetCurrentApp() => appHostResolver.Resolve();
-}
-```
-
 ## Resolve
 
 Resolves the authentication app for the current request. The method returns the configured app when app scoping is active and the current request host maps to an app. It returns `null` only when app scoping is disabled.
 
-When app scoping is active and the current request cannot be resolved, the method throws [`UnknownAppException`](../exceptions), which reaches the client as `403`. Use [`TryResolve`](#tryresolve) when application code wants to decide how to handle an unknown host without an exception.
+When app scoping is active and the request host maps to nothing, or there is no request in flight at all, the method throws [`UnknownAppException`](../exceptions), which reaches the client as `403`. Use [`TryResolve`](#tryresolve) when application code wants to decide how to handle an unknown host without an exception.
 
 ```csharp
 using AlmightyShogun.AspNet.Auth;
@@ -60,9 +49,9 @@ public bool TryResolve(out string? app);
 
 ## ResolveAppFromHost
 
-Resolves a provided host to its configured application audience name. This method is kept for existing code that already depends on the older host resolver contract. For new request-scoped app resolution, prefer [`Resolve`](#resolve) or [`TryResolve`](#tryresolve).
+Resolves a host the caller already holds rather than the one on the current request, such as a background job acting on behalf of a tenant. Use [`Resolve`](#resolve) or [`TryResolve`](#tryresolve) when the host should come from the request being served.
 
-The method returns the configured application name when the host exists in [`AuthSettings.Hosts`](../configuration), or when the host is a localhost value and [`AuthSettings.LocalhostApp`](../configuration) has a value. It throws [`UnknownAppException`](../exceptions), carrying the host it could not resolve, when the host is missing or maps to no configured application.
+The method returns the configured application name when the host exists in [`AuthSettings.Hosts`](../configuration), matched case-insensitively, or when the host is a localhost value and [`AuthSettings.LocalhostApp`](../configuration) has a value. It throws [`UnknownAppException`](../exceptions), carrying the host it could not resolve, when the host is blank or maps to no configured application.
 
 ```csharp
 using AlmightyShogun.AspNet.Auth;
@@ -84,7 +73,7 @@ public string ResolveAppFromHost(string? host);
 
 Attempts to map a provided host to an application audience name without throwing for unknown input. Use this method when application code already has a host string and wants to decide how to respond when that host is not configured.
 
-The method returns `false` for `null`, empty, whitespace, unknown hosts, and localhost requests without a configured [`AuthSettings.LocalhostApp`](../configuration). When a host is known, the `app` out parameter receives the configured audience name.
+The method returns `false` for `null`, empty, whitespace, unknown hosts, and localhost requests without a configured [`AuthSettings.LocalhostApp`](../configuration). When a host is known, the `app` out parameter receives the configured audience name; otherwise it is an empty string rather than `null`.
 
 ```csharp
 using AlmightyShogun.AspNet.Auth;

@@ -1,5 +1,5 @@
 ---
-returns: The authenticated user's numeric user id.
+returns: The caller's public identifier.
 ---
 
 # GetCurrentUserId

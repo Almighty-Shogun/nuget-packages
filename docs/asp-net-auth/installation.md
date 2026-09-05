@@ -26,13 +26,7 @@ dotnet add package AlmightyShogun.AspNet.Auth
 
 ## Startup Registration
 
-Register the package once while configuring application services. [`AddAuth`](./extensions/add-auth) configures JWT bearer authentication, authorization services, `IHttpContextAccessor`, host-to-application resolution, app-audience authorization, refresh-token support, and the dynamic permission policy provider.
-
-The helpers and host resolution throw the package's own [exceptions](./exceptions), which [`AddAuth`](./extensions/add-auth) maps to standardized responses. Add [`UseHttpErrorResponses`](/asp-net-core/extensions/use-http-error-responses) to the pipeline for those responses to reach the client as JSON.
-
-::: warning
-Requires an `Auth` section in application configuration, usually from `appsettings.json`.
-:::
+Register the package once while configuring application services. [`AddAuth`](./extensions/add-auth) binds and validates the `Auth` section, turns on JWT bearer authentication, and registers the host resolver, the token generator, and the permission policy provider. The package's [exceptions](./exceptions) reach the client as JSON only once [`UseHttpErrorResponses`](/asp-net-core/extensions/use-http-error-responses) is in the pipeline.
 
 ```csharp
 using AlmightyShogun.AspNet.Core;
