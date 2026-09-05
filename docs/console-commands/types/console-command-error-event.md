@@ -45,7 +45,7 @@ public sealed class CommandFailureReporter(
     {
         string command = args.CommandName;
         string message = args.Exception.Message;
-        
+
         Console.Error .WriteLine($"{command} failed: {message}");
 
         lifetime.StopApplication();
