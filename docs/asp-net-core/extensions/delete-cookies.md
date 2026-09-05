@@ -1,6 +1,13 @@
+---
+params:
+    - name: cookieNames
+      description: Names of the cookies to delete. Blank and whitespace-only names are skipped, so a name read from configuration can be passed without a guard.
+      type: 'string[]'
+---
+
 # DeleteCookies
 
-Deletes one or more cookies by name, emitting an expired `Set-Cookie` for each. Blank and whitespace-only names are ignored, so a name read from configuration that turns out to be empty does not throw. The expiry is scoped to the root path and the current host, so a cookie written with a different path or domain is a different cookie to the browser and survives this call.
+Deletes one or more cookies by name, emitting an expired `Set-Cookie` for each. The expiry is scoped to the root path and the current host, so a cookie written with a different path or domain is a different cookie to the browser and survives this call.
 
 ## Usage
 
@@ -21,6 +28,8 @@ public sealed class SessionsController : ControllerBase
     }
 }
 ```
+
+<FrontmatterDocs/>
 
 ## Type signature
 

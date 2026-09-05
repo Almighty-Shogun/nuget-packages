@@ -6,7 +6,7 @@ params:
       default: CF-Connecting-IP
     - name: additionalNetworks
       description: Extra trusted networks, for an application behind Cloudflare and an internal load balancer.
-      type: IEnumerable<IPNetwork>?
+      type: 'IEnumerable<IPNetwork>?'
       default: 'null'
     - name: forwardLimit
       description: Number of proxy hops to walk. `null` walks every trusted hop.

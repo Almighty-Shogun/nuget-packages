@@ -1,8 +1,6 @@
 # HttpErrorResult
 
-An MVC `ObjectResult` carrying a standardized [`HttpErrorResponse`](../records/http-error-response), with the result's status code taken from the response's `Code`.
-
-Use it in a controller or filter that needs to return the standard error body as an action result. In middleware or a minimal API endpoint, use [`IHttpErrorResponseWriter`](../services/http-error-response-writer) instead, which writes directly to the response.
+An MVC `ObjectResult` carrying a standardized [`HttpErrorResponse`](../records/http-error-response), with the result's status code taken from the response's `Code` at construction. Use it in a controller or filter that needs to return the standard error body as an action result. In middleware or a minimal API endpoint, use [`IHttpErrorResponseWriter`](../services/http-error-response-writer) instead, which writes directly to the response.
 
 ## Usage
 
@@ -35,14 +33,8 @@ public sealed class OrdersController(
 This result is serialized by MVC's formatters, so its property casing comes from `AddJsonOptions`, while [`IHttpErrorResponseWriter`](../services/http-error-response-writer) uses `ConfigureHttpJsonOptions`. Move both together, or the same error reaches clients spelled two ways.
 :::
 
-## Constructor
-
-Wraps the response in a result whose `StatusCode` is the response's `Code`, so the two cannot disagree.
-
-### Type signature
+## Type signature
 
 ```csharp
-public HttpErrorResult(
-    HttpErrorResponse response
-);
+public HttpErrorResult(HttpErrorResponse response);
 ```

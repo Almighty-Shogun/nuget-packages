@@ -1,27 +1,25 @@
 ---
 fields:
-    - name: AllowedOrigins
-      description: The optional `AllowedOrigins` section, read directly by [`AddCorsPolicy`](./extensions/add-cors-policy) rather than bound to a settings record. An absent section leaves the policy with no permitted origin, which blocks every cross-origin caller.
+    - name: CORS policy
+      description: Three root-level sections read directly by [`AddCorsPolicy`](./extensions/add-cors-policy) rather than bound to a settings record, which is why they have no type of their own. The policy they build always allows credentials.
       fields:
           - name: AllowedOrigins
-            description: Origins permitted by the CORS policy. The `*` wildcard is rejected, because browsers refuse it when credentials are allowed.
+            description: Origins permitted by the CORS policy. Because the policy allows credentials, a `*` entry is refused at startup rather than silently widening the policy. Absent or empty permits no cross-origin caller at all.
             type: 'string[]'
             default: '[]'
           - name: AllowedHeaders
-            description: Request headers the CORS policy permits. An empty list allows any header.
+            description: Request headers the CORS policy permits. Absent or empty permits every header.
             type: 'string[]'
             default: '[]'
           - name: AllowedMethods
-            description: HTTP methods the CORS policy permits. An empty list allows any method.
+            description: HTTP methods the CORS policy permits. Absent or empty permits every method.
             type: 'string[]'
             default: '[]'
 ---
 
 # Configuration
 
-The `AllowedOrigins` section lists the origins the CORS policy permits, and the optional `AllowedHeaders` and `AllowedMethods` sections narrow what those origins may send. All three are bare arrays read directly rather than bound to a settings record, which is why they have no type of their own, and they are only needed by an application that serves cross-origin callers.
-
-Leaving `AllowedHeaders` or `AllowedMethods` out allows any header or any method.
+The `AllowedOrigins` section lists the origins the CORS policy permits, and the optional `AllowedHeaders` and `AllowedMethods` sections narrow what those origins may send. All three are bare arrays read directly rather than bound to a settings record, and they are only needed by an application that serves cross-origin callers.
 
 ```json
 {
@@ -34,22 +32,8 @@ Leaving `AllowedHeaders` or `AllowedMethods` out allows any header or any method
 }
 ```
 
-::: warning
-Listing `*` does not work. Browsers refuse the wildcard on a policy that allows credentials, so the value is rejected rather than silently widening the policy.
+::: danger
+The three sections fail in opposite directions. Omit `AllowedOrigins` and no cross-origin caller is permitted at all; omit `AllowedHeaders` or `AllowedMethods` and every header or every method is permitted. Narrowing what origins may send means listing the values, never leaving the section out.
 :::
 
 <FrontmatterDocs/>
-
-## Usage
-
-The section binds to no record, so an application that needs the list itself reads it straight from configuration.
-
-```csharp
-using Microsoft.Extensions.Configuration;
-
-public sealed class OriginReporter(IConfiguration configuration)
-{
-    public string[] GetAllowedOrigins()
-        => configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
-}
-```

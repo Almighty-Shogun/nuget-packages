@@ -23,7 +23,7 @@ public sealed class AnalyticsController : ControllerBase
     {
         UserAgent userAgent = HttpContext.GetUserAgent();
 
-        return userAgent.IsBot ? NoContent() : Ok(new 
+        return userAgent.IsBot ? NoContent() : Ok(new
         {
             userAgent.Browser,
             userAgent.Os

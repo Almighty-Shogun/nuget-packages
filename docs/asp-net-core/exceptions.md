@@ -25,12 +25,13 @@ public sealed class AppExceptionMapper : IExceptionMapper
 {
     public ErrorMapping? Map(Exception exception) => exception switch
     {
-        AccountLockedException lockedOut => new ErrorMapping(
-            StatusCodes.Status423Locked,
-            "account_locked_out",
-            "auth.locked-out",
-            [lockedOut.LockoutEnd]
-        ),
+        AccountLockedException lockedOut => new ErrorMapping
+        {
+            StatusCode = StatusCodes.Status423Locked,
+            Code = "account_locked_out",
+            MessageKey = "auth.locked-out",
+            MessageParameters = [lockedOut.LockoutEnd]
+        },
 
         _ => null
     };
@@ -41,6 +42,7 @@ public sealed class AppExceptionMapper : IExceptionMapper
 using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.Core;
 using Microsoft.AspNetCore.Diagnostics;
+using AlmightyShogun.AspNet.Localization;
 
 public sealed class AppExceptionHandler(
     AppExceptionMapper exceptionMapper,
@@ -51,7 +53,8 @@ public sealed class AppExceptionHandler(
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
         Exception exception,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         if (httpContext.Response.HasStarted
             || exceptionMapper.Map(exception) is not { } mapping)

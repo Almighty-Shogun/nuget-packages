@@ -3,12 +3,10 @@ fields:
     - name: IpAddress
       description: The client IP address from the connection, or `null` when it is not available.
       type: string?
-      default: 'null'
 
     - name: UserAgent
       description: The raw User-Agent header value.
       type: string?
-      default: 'null'
 ---
 
 # ClientContext
@@ -23,28 +21,14 @@ Neither value identifies a caller: an address is shared by everyone behind a pro
 For an application behind a proxy, configure forwarded headers with [`AddCloudflareHeaders`](../extensions/add-cloudflare-headers) and `app.UseForwardedHeaders()`. That rewrites the connection address from a trusted proxy only, so this value stays accurate without becoming forgeable.
 :::
 
-## Usage
+<FrontmatterDocs/>
+
+## Type signature
 
 ```csharp
-using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Core;
-
-[ApiController]
-[Route("sessions")]
-public sealed class SessionsController : ControllerBase
+public sealed record ClientContext
 {
-    [HttpPost]
-    public IActionResult Create()
-    {
-        ClientContext clientContext = HttpContext.GetClientContext();
-
-        return Ok(new 
-        {
-            clientContext.IpAddress,
-            clientContext.UserAgent
-        });
-    }
+    public required string? IpAddress { get; init; }
+    public required string? UserAgent { get; init; }
 }
 ```
-
-<FrontmatterDocs/>

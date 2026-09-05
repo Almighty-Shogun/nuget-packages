@@ -26,24 +26,15 @@ The standardized error body returned by every package in this repository. `Error
 }
 ```
 
-## Usage
+<FrontmatterDocs/>
 
-Construct one directly only when returning it through [`HttpErrorResult`](../types/http-error-result). Everywhere else, [`IHttpErrorResponseWriter`](../services/http-error-response-writer) builds it.
+## Type signature
 
 ```csharp
-using Microsoft.AspNetCore.Http;
-using AlmightyShogun.AspNet.Core;
-
-HttpErrorResponse response = new()
+public record HttpErrorResponse
 {
-    Code = StatusCodes.Status409Conflict,
-    Error = "order_already_shipped",
-    ErrorDescription = messageResolver.Resolve("orders.already-shipped")
-};
+    public required int Code { get; init; }
+    public required string Error { get; init; }
+    public string? ErrorDescription { get; init; }
+}
 ```
-
-::: tip
-Property names are camel-cased by the default ASP.NET Core serializer, so `ErrorDescription` appears as `errorDescription` on the wire.
-:::
-
-<FrontmatterDocs/>

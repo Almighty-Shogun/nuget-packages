@@ -15,58 +15,28 @@ fields:
     - name: IsBot
       description: Whether the User-Agent was recognized as a crawler or spider.
       type: bool
-      default: 'false'
 ---
 
 # UserAgent
 
 Simplified client information parsed from a User-Agent header, read through [`GetUserAgent`](../extensions/get-user-agent).
 
-An absent or unparseable header yields `Unknown` for all three string values and `false` for `IsBot`, so the result is never null and never throws. Every field is pattern matching on a header the client chooses, so none of it is trustworthy enough to make an authorization or billing decision on.
+An absent header yields `Unknown` for all three string values and `false` for `IsBot`, while an unrecognized one yields `Other` for whichever part failed to match. Every field is pattern matching on a header the client chooses, so none of it is trustworthy enough to make an authorization or billing decision on.
 
-## Usage
-
-::: code-group
-
-```csharp [AnalyticsController.cs]
-using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Core;
-
-[ApiController]
-[Route("analytics")]
-public sealed class AnalyticsController : ControllerBase
-{
-    [HttpPost("visit")]
-    public IActionResult Record()
-    {
-        UserAgent userAgent = HttpContext.GetUserAgent();
-
-        if (userAgent.IsBot)
-        {
-            return NoContent();
-        }
-
-        return Ok(new 
-        {
-            userAgent.Browser,
-            userAgent.Os,
-            userAgent.Device
-        });
-    }
-}
-```
-
-```csharp [Parse.cs]
-using AlmightyShogun.AspNet.Core;
-
-UserAgent userAgent = UserAgent.Parse(storedHeaderValue);
-```
-
-:::
+<FrontmatterDocs/>
 
 ## Parse
 
-Parses a raw header value. The underlying parser is created once for the process, because building it compiles a large regular expression set.
+Parses a raw header value, for one held outside the current request such as a value read back from an audit record. The underlying parser is created once for the process, because building it compiles a large regular expression set.
+
+```csharp
+using AlmightyShogun.AspNet.Core;
+
+ClientContext clientContext = httpContext.GetClientContext();
+
+UserAgent userAgent = UserAgent
+    .Parse(clientContext.UserAgent ?? string.Empty);
+```
 
 ### Type signature
 
@@ -74,4 +44,14 @@ Parses a raw header value. The underlying parser is created once for the process
 public static UserAgent Parse(string userAgent);
 ```
 
-<FrontmatterDocs/>
+## Type signature
+
+```csharp
+public sealed record UserAgent
+{
+    public required string Browser { get; init; }
+    public required string Os { get; init; }
+    public required string Device { get; init; }
+    public required bool IsBot { get; init; }
+}
+```

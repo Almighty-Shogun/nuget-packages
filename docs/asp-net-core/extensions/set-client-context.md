@@ -21,10 +21,11 @@ public sealed class ClientContextMiddleware(RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext context)
     {
-        context.SetClientContext(new ClientContext(
-            context.GetIpAddress(),
-            context.Request.Headers.UserAgent.ToString()
-        ));
+        context.SetClientContext(new ClientContext
+        {
+            IpAddress = context.GetIpAddress(),
+            UserAgent = context.Request.Headers.UserAgent.ToString()
+        });
 
         await next(context);
     }

@@ -17,7 +17,7 @@ Registers a named CORS policy from the `AllowedOrigins` configuration array, wit
 An absent or empty `AllowedOrigins` produces a policy with no origins, which blocks every cross-origin request rather than allowing them.
 
 ::: warning
-Because the policy allows credentials, the `*` wildcard cannot be used &mdash; browsers reject that combination. A `*` entry throws at startup with a message saying so, rather than producing a policy that fails only in the browser.
+Because the policy allows credentials, the `*` wildcard cannot be used &mdash; browsers reject that combination. A `*` entry throws while the CORS options are built, the first time the policy is resolved rather than during this call, instead of producing a policy that fails only in the browser.
 :::
 
 ## Usage

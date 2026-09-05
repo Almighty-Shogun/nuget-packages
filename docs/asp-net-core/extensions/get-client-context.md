@@ -21,7 +21,7 @@ public sealed class SessionsController : ControllerBase
     {
         ClientContext clientContext = HttpContext.GetClientContext();
 
-        return Ok(new 
+        return Ok(new
         {
             clientContext.IpAddress,
             clientContext.UserAgent

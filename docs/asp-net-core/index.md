@@ -2,7 +2,7 @@
 
 Provides the shared ASP.NET Core layer the other web packages build on: one standardized error response shape, exception mapping, request metadata capture, CORS setup, and forwarded-header configuration for a Cloudflare-proxied application.
 
-Every error body produced by this repository is written in exactly one place, [`HttpErrorResponseWriter`](./services/http-error-response-writer), so the shape stays consistent and can be changed once.
+Every error body shares one shape, whether [`HttpErrorResponseWriter`](./services/http-error-response-writer) writes it from middleware and exception handlers or an action returns it as an [`HttpErrorResult`](./types/http-error-result), so a client sees the same envelope wherever the failure came from.
 
 Adopting it is a set of independent registrations followed by one middleware call, so an application can take the error response shape without the exception handlers, or the reverse. Everything beyond that is a helper reached from `HttpContext`, `HttpRequest`, or `HttpResponse`.
 
@@ -13,7 +13,8 @@ Adopting it is a set of independent registrations followed by one middleware cal
 - [HTTP Error Messages](./http-error-messages) &mdash; the `http-error.json` files every status description is resolved from.
 - [Extensions](./extensions/add-exception-handling) &mdash; registration, middleware, and request helpers.
 - [Services](./services/http-error-response-writer) &mdash; error response writing.
-- [Utilities](./utilities/cloudflare-defaults) &mdash; the Cloudflare edge ranges and the MVC error result helper.
+- [Utilities](./utilities/cloudflare-defaults) &mdash; the Cloudflare edge ranges and the client address header.
+- [Types](./types/http-error-result) &mdash; the MVC result that returns the standardized error body.
 - [Records](./records/http-error-response) &mdash; the response body, session context, and parsed User-Agent.
 
 ## Quick Example
@@ -48,12 +49,13 @@ public sealed class OrderExceptionMapper : IExceptionMapper
 {
     public ErrorMapping? Map(Exception exception) => exception switch
     {
-        OrderNotFoundException notFound => new ErrorMapping(
-            StatusCodes.Status404NotFound,
-            "order_not_found",
-            "orders.not-found",
-            [notFound.OrderId]
-        ),
+        OrderNotFoundException notFound => new ErrorMapping
+        {
+            StatusCode = StatusCodes.Status404NotFound,
+            Code = "order_not_found",
+            MessageKey = "orders.not-found",
+            MessageParameters = [notFound.OrderId]
+        },
         _ => null
     };
 }
