@@ -1,6 +1,6 @@
 # ASP.NET Maintenance Mode
 
-File-backed maintenance mode for ASP.NET Core. Middleware blocks traffic while a maintenance window is active, a service turns the window on and off, and the state survives process restarts without a database table or an external coordinator.
+Blocks traffic while a maintenance window is active, with a service that turns the window on and off and a file on disk holding the state, so a window survives process restarts without a database table or an external coordinator.
 
 It ships no endpoint for controlling maintenance mode, because how that is exposed and who may call it is an application decision.
 

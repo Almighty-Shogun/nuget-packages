@@ -1,6 +1,6 @@
 # Console Commands
 
-Attribute-discovered console commands for dependency-injected .NET applications. The package scans assemblies for command classes, maps names and aliases, converts string input into `ExecuteAsync` parameters, and dispatches from an input loop.
+Turns a class into a command an operator can type at a running .NET application. Assemblies are scanned for command classes, names and aliases are mapped, string input is converted into `ExecuteAsync` parameters, and each line is dispatched from an input loop.
 
 Commands are ordinary DI-created classes: one that needs application services declares its own constructor, and one that needs none declares no constructor at all.
 
