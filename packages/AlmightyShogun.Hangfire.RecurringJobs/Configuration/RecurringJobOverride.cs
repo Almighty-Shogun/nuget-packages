@@ -5,10 +5,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </summary>
 ///
 /// <remarks>
-/// Every property is nullable, so a section only has to name what changes. An unset one keeps the attribute's value for the
-/// cron expression, time zone and queue, but not for <c>Enabled</c>: a job whose attribute never set it falls through to the
-/// section's <c>EnabledByDefault</c> instead, which can leave it disabled where the attribute alone would have run it.
-/// Overridden values are validated exactly like declared ones, which means a bad cron expression here stops the host.
+/// Every property is nullable, so a section only has to name what changes.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -16,8 +13,8 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 public sealed record RecurringJobOverride
 {
     /// <summary>
-    /// Gets whether the job is scheduled, outranking both the attribute and <c>EnabledByDefault</c>. This is the value that
-    /// turns a job off in one environment and leaves it on everywhere else.
+    /// Whether the job is scheduled. This is the value that turns a job off in one environment and leaves it on
+    /// everywhere else.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -25,7 +22,7 @@ public sealed record RecurringJobOverride
     public bool? Enabled { get; init; }
 
     /// <summary>
-    /// Gets the cron expression to schedule with instead of the declared one, for retuning a schedule per environment or
+    /// The cron expression to schedule with instead of the declared one, for retuning a schedule per environment or
     /// without a deployment.
     /// </summary>
     ///
@@ -34,7 +31,7 @@ public sealed record RecurringJobOverride
     public string? CronExpression { get; init; }
 
     /// <summary>
-    /// Gets the time zone to evaluate the expression in instead of the declared one. It cannot be cleared back to UTC, since
+    /// The time zone to evaluate the expression in instead of the declared one. It cannot be cleared back to UTC, since
     /// an unset value means the attribute wins.
     /// </summary>
     ///
@@ -43,7 +40,7 @@ public sealed record RecurringJobOverride
     public string? TimeZone { get; init; }
 
     /// <summary>
-    /// Gets the queue to enqueue on instead of the declared one, for steering a job onto a queue only some environments
+    /// The queue to enqueue on instead of the declared one, for steering a job onto a queue only some environments
     /// have a server listening on.
     /// </summary>
     ///

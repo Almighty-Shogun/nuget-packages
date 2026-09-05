@@ -135,10 +135,9 @@ public static class RecurringJobExtensions
         /// <returns>The <see cref="IServiceCollection"/> instance with recurring jobs and the startup scheduler registered.</returns>
         ///
         /// <remarks>
-        /// The scan itself is deferred to the singleton registry, so an invalid cron expression, an unknown time zone, a
-        /// duplicate job id, or an override naming a job nothing declares fails while the host starts rather than here. Job
-        /// classes are registered scoped, so a job may depend on scoped services such as a database context, given that
-        /// Hangfire's job activator resolves each run from its own scope.
+        /// The scan itself is deferred to the singleton <see cref="IRecurringJobRegistry"/>, so anything it rejects fails
+        /// while the host starts rather than here. Job classes are registered scoped, so a job may depend on scoped
+        /// services such as a database context, given that Hangfire's job activator resolves each run from its own scope.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>

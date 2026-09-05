@@ -8,9 +8,8 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 ///
 /// <param name="sources">The assemblies to scan, supplied by the registration call.</param>
 /// <param name="settings">
-/// The <c>RecurringJobs</c> options. Their per-job entries override what an attribute declares, while <c>EnabledByDefault</c>
-/// sits beneath one. They carry the bound section only when the registration call was given a configuration, and their
-/// defaults otherwise.
+/// The <c>RecurringJobs</c> options. They carry the bound section only when the registration call was given a
+/// configuration, and their defaults otherwise.
 /// </param>
 ///
 /// <exception cref="ArgumentNullException">

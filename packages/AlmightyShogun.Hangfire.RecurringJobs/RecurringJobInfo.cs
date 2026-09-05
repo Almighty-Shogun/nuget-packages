@@ -10,7 +10,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 public sealed record RecurringJobInfo
 {
     /// <summary>
-    /// Gets the stable Hangfire recurring job id, unique across the application and never overridable.
+    /// The stable Hangfire recurring job id, unique across the application.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -18,7 +18,7 @@ public sealed record RecurringJobInfo
     public required string JobId { get; init; }
 
     /// <summary>
-    /// Gets the cron expression the job is scheduled with, validated during discovery.
+    /// The cron expression the job is scheduled with, in the standard five-field format.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -26,8 +26,7 @@ public sealed record RecurringJobInfo
     public required string CronExpression { get; init; }
 
     /// <summary>
-    /// Gets the class implementing the job, registered scoped so that Hangfire's job activator resolves it from its own
-    /// scope on every run.
+    /// The class implementing the job, which is the concrete type rather than <see cref="IRecurringJob"/>.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -35,7 +34,7 @@ public sealed record RecurringJobInfo
     public required Type JobType { get; init; }
 
     /// <summary>
-    /// Gets the time zone the cron expression is evaluated in, or <c>null</c> for UTC.
+    /// The time zone the cron expression is evaluated in, or <c>null</c> for UTC.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -43,7 +42,7 @@ public sealed record RecurringJobInfo
     public required string? TimeZone { get; init; }
 
     /// <summary>
-    /// Gets the queue the job is enqueued on, or <c>null</c> for the Hangfire default.
+    /// The queue the job is enqueued on, or <c>null</c> for the Hangfire default.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

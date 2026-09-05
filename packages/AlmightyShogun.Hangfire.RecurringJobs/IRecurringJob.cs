@@ -6,10 +6,9 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </summary>
 ///
 /// <remarks>
-/// Registration is scoped, and Hangfire's job activator resolves the class from its own scope for every run, so a
-/// constructor dependency may be a scoped service such as a database context, and no field survives from one run to the
-/// next. An exception that escapes a run is left to Hangfire, whose own retry policy decides what happens next; this
-/// package installs no job filter of its own.
+/// A run gets its own instance, so no field survives from one run to the next, and the lifetime the registration gives a
+/// job class is described on <see cref="RecurringJobExtensions"/>. An exception that escapes a run is left to Hangfire,
+/// whose own retry policy decides what happens next; this package installs no job filter of its own.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

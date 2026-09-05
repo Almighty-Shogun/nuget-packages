@@ -1,7 +1,8 @@
 namespace AlmightyShogun.Hangfire.RecurringJobs;
 
 /// <summary>
-/// Represents the <c>RecurringJobs</c> configuration section, which adjusts what the attribute scan found.
+/// Represents the <c>RecurringJobs</c> configuration section, which adjusts what the attribute scan found. Whether a job is
+/// scheduled is decided by its per-job override first, then by what its attribute declared, then by <c>EnabledByDefault</c>.
 /// </summary>
 ///
 /// <remarks>
@@ -14,8 +15,8 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 public sealed record RecurringJobSettings
 {
     /// <summary>
-    /// Gets whether a job whose attribute does not state either way is scheduled. Setting it to <c>false</c> in one
-    /// environment parks everything except the jobs that opt in explicitly.
+    /// The enablement a job falls back on when nothing else states one. Setting it to <c>false</c> in one environment
+    /// parks everything except the jobs that opt in explicitly.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -23,8 +24,7 @@ public sealed record RecurringJobSettings
     public bool EnabledByDefault { get; init; } = true;
 
     /// <summary>
-    /// Gets the per-job overrides, keyed by job id. Matching ignores case, and a key naming a job the scan did not find
-    /// stops the host rather than being ignored, since that is nearly always a typo in a job id.
+    /// The per-job overrides, keyed by job id.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

@@ -9,10 +9,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </summary>
 ///
 /// <param name="recurringJobManager">The Hangfire manager used to add or update recurring jobs.</param>
-/// <param name="registry">
-/// The singleton holding the scan result. Resolving it is what runs the scan, so a bad attribute argument or a bad override
-/// fails here rather than at the first cron tick.
-/// </param>
+/// <param name="registry">The singleton holding the scan result, as <see cref="IRecurringJobRegistry"/> describes.</param>
 ///
 /// <remarks>
 /// Scheduling is an <c>AddOrUpdate</c> against a stable job id, which is how Hangfire re-declares an existing schedule
@@ -26,6 +23,15 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 internal sealed class JobSchedulerStartup(IRecurringJobManager recurringJobManager, IRecurringJobRegistry registry) : IHostedService
 {
     /// <inheritdoc />
+    ///
+    /// <exception cref="ArgumentException">
+    /// A job's merged queue name is not one Hangfire accepts. Nothing checks it during the scan, so
+    /// <see cref="RecurringJobDiscovery.CreateExecutionMethod"/> surfaces it here and the host does not start.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// A job type exposes no public run method taking a cancellation token, which
+    /// <see cref="RecurringJobDiscovery.CreateExecutionMethod"/> also surfaces here rather than during the scan.
+    /// </exception>
     public Task StartAsync(CancellationToken cancellationToken)
     {
         foreach (RecurringJobInfo job in registry.Jobs)

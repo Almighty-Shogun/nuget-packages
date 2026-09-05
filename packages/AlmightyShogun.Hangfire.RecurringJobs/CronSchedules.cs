@@ -6,9 +6,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 ///
 /// <remarks>
 /// These are ordinary cron strings rather than helper calls, so any other expression in the standard five-field format can
-/// be written out by hand instead. Validation parses them with the five-field overload, so a six-field expression carrying
-/// seconds stops the host rather than scheduling, even though Hangfire itself accepts one. All of them are evaluated in UTC
-/// unless the job sets <see cref="RecurringJobAttribute.TimeZone"/> or the configuration section overrides it.
+/// be written out by hand instead.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

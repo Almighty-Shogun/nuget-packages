@@ -25,11 +25,7 @@ internal static class RecurringJobDiscovery
     /// The assemblies to scan. An <see cref="IRecurringJob"/> implementation without the attribute is passed over silently,
     /// since a job invoked directly by other code is a legitimate reason to implement it.
     /// </param>
-    /// <param name="settings">
-    /// The configuration section. Its per-job entries override what an attribute declares, while <c>EnabledByDefault</c> sits
-    /// beneath one, standing in only for a job whose attribute never set <c>Enabled</c>. Pass the defaults when the
-    /// application has no section.
-    /// </param>
+    /// <param name="settings">The configuration section. Pass the defaults when the application has no section.</param>
     ///
     /// <returns>The recurring jobs to schedule, in the order the scan found them.</returns>
     ///
@@ -41,7 +37,7 @@ internal static class RecurringJobDiscovery
     /// A job declares a blank job id, or declares or is overridden with an unparseable cron expression or an unknown time
     /// zone, two jobs share a job id, or an override names a job id the scan did not find. The job id comes from the
     /// attribute alone and cannot be overridden. A disabled job is checked and claims its id like any other, so a collision
-    /// cannot lie dormant until someone enables it. The merged queue is not among the checked values.
+    /// cannot lie dormant until someone enables it.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -119,10 +115,11 @@ internal static class RecurringJobDiscovery
 
     /// <summary>
     /// Checks the merged job id, cron expression and time zone up front, so a mistake in one of them stops the host with a
-    /// message naming the offending type. Each would stop the host anyway, from the time zone lookup or from Hangfire's own
-    /// cron validation, but without naming which job caused it. The merged queue is not
-    /// checked, here or anywhere else in the package, so a name Hangfire rejects surfaces from
-    /// <see cref="CreateExecutionMethod"/> instead.
+    /// message naming the offending type. The expression is parsed with the five-field Cronos overload, so one carrying
+    /// seconds is rejected here even though Hangfire itself accepts it. An unknown time zone or an unparseable expression
+    /// would stop the host anyway, from the time zone lookup or from Hangfire's own cron validation, but without naming
+    /// which job caused it. The merged queue is not checked, here or anywhere else in the package, so a name Hangfire
+    /// rejects surfaces from <see cref="CreateExecutionMethod"/> instead.
     /// </summary>
     ///
     /// <param name="type">The job type being validated.</param>
@@ -174,7 +171,7 @@ internal static class RecurringJobDiscovery
     /// concrete type's method.
     /// </summary>
     ///
-    /// <param name="type">The job type.</param>
+    /// <param name="type">The job class, whose own public declaration is searched rather than the interface's.</param>
     ///
     /// <returns>The method Hangfire should invoke.</returns>
     ///

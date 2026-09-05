@@ -5,12 +5,9 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// implement <see cref="IRecurringJob"/>, since the scan only looks for that contract.
 /// </summary>
 ///
-/// <param name="jobId">
-/// The id the schedule is stored under. Must be unique across the application, since a second job claiming it stops the host.
-/// </param>
+/// <param name="jobId">The id the schedule is stored under. Must be unique across the application.</param>
 /// <param name="cronExpression">
-/// The schedule, as a cron expression in the standard five-field format. A six-field expression carrying seconds is
-/// rejected while the host starts, even though Hangfire itself accepts one. <see cref="CronSchedules"/> holds the common ones.
+/// The schedule, as a cron expression in the standard five-field format. <see cref="CronSchedules"/> holds the common ones.
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
@@ -19,8 +16,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 public sealed class RecurringJobAttribute(string jobId, string cronExpression) : Attribute
 {
     /// <summary>
-    /// Gets the id the schedule is stored under. Changing it on a job that has already run leaves the previous schedule in
-    /// Hangfire storage under the old id, and nothing in this package removes it.
+    /// The id the schedule is stored under, which must be unique across the application.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -28,9 +24,7 @@ public sealed class RecurringJobAttribute(string jobId, string cronExpression) :
     public string JobId { get; } = jobId;
 
     /// <summary>
-    /// Gets the cron expression the schedule uses. It is parsed while the host starts, so a malformed expression stops the
-    /// application with a message naming this job rather than reaching Hangfire's own validation, which stops it too but
-    /// names only the expression.
+    /// The cron expression the schedule uses, in the standard five-field format.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -38,7 +32,7 @@ public sealed class RecurringJobAttribute(string jobId, string cronExpression) :
     public string CronExpression { get; } = cronExpression;
 
     /// <summary>
-    /// Gets or sets the time zone the cron expression is evaluated in. Defaults to UTC when unset.
+    /// The time zone the cron expression is evaluated in. Defaults to UTC when unset.
     /// </summary>
     ///
     /// <remarks>
@@ -51,30 +45,22 @@ public sealed class RecurringJobAttribute(string jobId, string cronExpression) :
     public string? TimeZone { get; set; }
 
     /// <summary>
-    /// Gets or sets the Hangfire queue the job is enqueued on. Naming a queue no Hangfire server listens on leaves the job
-    /// enqueued and never processed, which looks the same from the outside as a job that never fired.
+    /// The Hangfire queue the job is enqueued on, or <c>null</c> for the Hangfire default.
     /// </summary>
-    ///
-    /// <remarks>
-    /// Nothing in this package checks the value, so a name Hangfire itself rejects stops the host while the schedules are
-    /// handed over rather than during the scan. Hangfire accepts lowercase letters, digits, underscores and dashes only.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public string? Queue { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the job is scheduled at all. Set it to <c>false</c> to park a job without deleting the class.
-    /// A parked job is still validated and still claims its job id, so it cannot hide a broken cron expression or a
-    /// collision until someone switches it back on.
+    /// Whether the job is scheduled at all. Set it to <c>false</c> to park a job without deleting the class.
     /// </summary>
     ///
     /// <remarks>
-    /// Leaving it alone is not the same as setting it to <c>true</c>: an untouched job follows the configuration section's
-    /// <see cref="RecurringJobSettings.EnabledByDefault"/>, while a job that states either way ignores it. The distinction
-    /// is carried by <see cref="DeclaredEnabled"/> because a nullable type cannot be an attribute argument, so this has to
-    /// present as <see cref="bool"/> while recording whether it was ever assigned. A per-job override outranks both.
+    /// Leaving it alone is not the same as setting it to <c>true</c>: an untouched job declares nothing and defers to
+    /// configuration, as <see cref="RecurringJobSettings"/> describes. The distinction is carried by <c>DeclaredEnabled</c>
+    /// because a nullable type cannot be an attribute argument, so this has to present as <see cref="bool"/> while
+    /// recording whether it was ever assigned.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -86,7 +72,7 @@ public sealed class RecurringJobAttribute(string jobId, string cronExpression) :
     }
 
     /// <summary>
-    /// Gets what the class actually declared, with <c>null</c> meaning the job never mentioned <see cref="Enabled"/> and so
+    /// What the class actually declared, with <c>null</c> meaning the job never mentioned <see cref="Enabled"/> and so
     /// defers to configuration. Written only by that setter, which is why it is private to set rather than assigned anywhere.
     /// </summary>
     ///
