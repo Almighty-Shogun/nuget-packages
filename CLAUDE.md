@@ -19,7 +19,7 @@ The `Almighty-Shogun/nuget-packages` monorepo: C#/.NET NuGet packages under `pac
 
 ## XML Documentation Style
 
-Follow the **XML Documentation Style** section in my global instructions. It is the single standard for every package and every API; do not let a package drift its own way. The only binding recorded here: `max_line_length` is **140 columns**, counting the indentation and the `///` prefix.
+The **XML Documentation Style** section in my global instructions and the `/csharp-docs` skill are together the single standard for every package and every API; do not let a package drift its own way. The global section carries the rules that apply to any C# edit, `/csharp-docs` carries the tag mechanics and the audit. The only binding recorded here: `max_line_length` is **140 columns**, counting the indentation and the `///` prefix.
 
 Check a package with:
 
@@ -28,7 +28,7 @@ dotnet build packages/<Package>/<Package>.csproj --no-incremental
 awk 'length($0)>140 {print FILENAME":"FNR}' packages/<Package>/*.cs
 ```
 
-The build covers completeness and cref resolution, since `GenerateDocumentationFile` is on with no `NoWarn`. Neither check can read a sentence, so a package whose build is clean may still be wrong on every claim it makes. Accuracy is checked by reading: run `/verify-xml-docs packages/<Package>` for a full pass, which reads each block against the implementation and reports what it could not confirm. At minimum, whenever a body changes, re-read that member's whole doc block and correct what the change falsified.
+The build covers completeness and cref resolution, since `GenerateDocumentationFile` is on with no `NoWarn`. Neither check can read a sentence, so a package whose build is clean may still be wrong on every claim it makes. Accuracy is checked by reading: run `/csharp-docs packages/<Package> --verify` for a full pass, which reads each block against the implementation and reports what it could not confirm. At minimum, whenever a body changes, re-read that member's whole doc block and correct what the change falsified.
 
 ## Build And Validation
 
