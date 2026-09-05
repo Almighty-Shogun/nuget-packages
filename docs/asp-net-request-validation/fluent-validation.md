@@ -125,11 +125,12 @@ For the same reason a validator takes no dependencies and needs a public paramet
 
 ## Only direct property reads
 
-`RuleFor` accepts a property read straight off the request. A nested read is refused when the rule is built, rather than being accepted and then naming the field after the leaf property and throwing whenever an intermediate value is null:
+`RuleFor` accepts a property read straight off the request. A nested read is refused when the rule is built, rather than being accepted and then naming the field after the leaf property and throwing whenever an intermediate value is null. A conversion the compiler inserts, such as a value type read through an `object` selector, is unwrapped and accepted; any other operator applied to the property is refused the same way a nested read is:
 
 ```csharp
 RuleFor(x => x.Email);        // fine
 RuleFor(x => x.User.Email);   // throws ArgumentOutOfRangeException
+RuleFor(x => !x.IsActive);    // throws ArgumentOutOfRangeException
 ```
 
 ## One validator per request
