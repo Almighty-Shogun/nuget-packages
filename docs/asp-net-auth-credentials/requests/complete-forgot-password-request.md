@@ -17,27 +17,15 @@ fields:
 
 What [`CompleteForgotPasswordAsync`](../services/auth-password-service#completeforgotpasswordasync) takes to finish a reset. No signed-in caller is needed, because the token is what proves who is asking.
 
-## Usage
-
-```csharp
-using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Auth.Credentials;
-
-public sealed class ResetPasswordController(IAuthPasswordService passwords) : ControllerBase
-{
-    public async Task<IActionResult> Complete(CompleteForgotPasswordRequest request)
-    {
-        await passwords.CompleteForgotPasswordAsync(request);
-
-        return NoContent();
-    }
-}
-```
-
 <FrontmatterDocs/>
 
 ## Type signature
 
 ```csharp
-public class CompleteForgotPasswordRequest;
+public sealed record CompleteForgotPasswordRequest
+{
+    public required string Token { get; set; }
+    public required string NewPassword { get; set; }
+    public required string ConfirmPassword { get; set; }
+}
 ```

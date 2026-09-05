@@ -1,8 +1,6 @@
 # TokenHasher
 
-Hashes the tokens the package stores. Refresh tokens, password reset tokens, and recovery codes are all kept as a digest, so this is what turns a token an application holds into the value a row is found by.
-
-It is a plain SHA-256 digest rather than a password hash. These are long random values, not guessable secrets, so the work factor a password needs would only slow every lookup down.
+Hashes the tokens the package stores. Refresh tokens, password reset tokens, and recovery codes are all kept as a digest, so this is what turns a token an application holds into the value a row is found by. It is a plain SHA-256 digest rather than a password hash.
 
 ## Hash
 
@@ -22,7 +20,8 @@ public sealed class PasswordResetTokenChecker(AppDbContext database)
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
         return database.PasswordResetTokens
-            .AnyAsync(stored => stored.TokenHash == hash && stored.UsedAt == null && stored.ExpiresAt > now);
+            .Where(stored.UsedAt == null && stored.ExpiresAt > now)
+            .AnyAsync(stored => stored.TokenHash == hash);
     }
 }
 ```

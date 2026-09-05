@@ -17,24 +17,14 @@ What [`BeginEnrolmentAsync`](../services/auth-two-factor-service#beginenrolmenta
 Both values are the secret itself. Return them only to the authenticated user enrolling, over the response to their own request, and never write them to a log.
 :::
 
-## Usage
-
-```csharp
-using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Auth;
-using Microsoft.AspNetCore.Authorization;
-using AlmightyShogun.AspNet.Auth.Credentials;
-
-[Authorize]
-[HttpPost("two-factor/begin")]
-public async Task<ActionResult<AuthTwoFactorResult>> Begin()
-    => Ok(await twoFactor.BeginEnrolmentAsync(User.GetCurrentUserId(), "Example"));
-```
-
 <FrontmatterDocs/>
 
 ## Type signature
 
 ```csharp
-public sealed record AuthTwoFactorResult(string Secret, string Uri);
+public sealed record AuthTwoFactorResult
+{
+    public required string Secret { get; init; }
+    public required string Uri { get; init; }
+}
 ```

@@ -17,36 +17,15 @@ fields:
 
 The three values a user may supply about themselves when signing up. It carries no role or permission field on purpose, since anything a client can send there ends up as claims in its own access token.
 
-## Usage
-
-```csharp
-using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Auth;
-using AlmightyShogun.AspNet.Auth.Credentials;
-
-public sealed class RegisterController(IAuthUserService<AppUser> authUsers) : ControllerBase
-{
-    public async Task<ActionResult<AppUser>> Register(RegisterRequest request)
-    {
-        AppUser user = new()
-        {
-            Email = request.Email,
-            Username = request.Username
-        };
-
-        AuthSessionResult<AppUser> result = await authUsers.RegisterAsync(user, request.Password, HttpContext);
-
-        Response.SetRefreshTokenCookie(result.RefreshToken, 30);
-
-        return Ok(result.User);
-    }
-}
-```
-
 <FrontmatterDocs/>
 
 ## Type signature
 
 ```csharp
-public class RegisterRequest;
+public sealed record RegisterRequest
+{
+    public required string Username { get; set; }
+    public required string Email { get; set; }
+    public required string Password { get; set; }
+}
 ```

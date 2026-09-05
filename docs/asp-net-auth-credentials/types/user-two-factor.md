@@ -23,7 +23,7 @@ fields:
       default: 'null'
 
     - name: PendingSecretExpiresAt
-      description: When the pending secret stops being confirmable, ten minutes after `BeginEnrolmentAsync` issued it. A confirmation arriving later is refused as a wrong code.
+      description: When the pending secret stops being confirmable, set from `PendingSecretMinutes` when `BeginEnrolmentAsync` issued it. A confirmation arriving later is refused as a wrong code.
       type: DateTimeOffset?
       default: 'null'
 
@@ -48,6 +48,10 @@ One user's TOTP enrolment, held in its own table so signing in does not load a s
 
 Reach it through [`IAuthTwoFactorService<TUser>`](../services/auth-two-factor-service) for anything that changes it. Read it directly only to ask whether a user is enrolled, which is what gating a login on a second factor needs.
 
+::: danger
+`UserTwoFactor` is a database entity. Never return it from an endpoint: it carries the TOTP secret, the pending secret, and the surrogate keys. Map it to a DTO that exposes only the fields the client needs, such as `IsEnabled`.
+:::
+
 ## Usage
 
 ```csharp
@@ -57,7 +61,9 @@ using AlmightyShogun.AspNet.Auth.Credentials;
 public sealed class TwoFactorGate(AppDbContext database)
 {
     public Task<bool> IsRequiredAsync(int userId)
-        => database.UserTwoFactors.AnyAsync(twoFactor => twoFactor.UserId == userId && twoFactor.IsEnabled);
+        => database.UserTwoFactors
+            .Where(twoFactor => twoFactor.IsEnabled)
+            .AnyAsync(twoFactor => twoFactor.UserId == userId);
 }
 ```
 

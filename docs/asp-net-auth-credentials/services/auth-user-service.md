@@ -4,6 +4,10 @@ Signs users in and creates new accounts. Application code depends on `IAuthUserS
 
 A failed login costs the same time as a successful one: when no user matches the identifier, the password is still verified against a throwaway hash before the failure is thrown, so response timing does not reveal which identifiers exist.
 
+::: danger
+`result.User` is the database entity. Returned as written here, it serializes with the password hash, the surrogate key, and any loaded sessions, so map it to a DTO that exposes only the fields the client needs before returning it.
+:::
+
 ## LoginAsync
 
 Matches `Identifier` against both username and email, verifies the password, and creates a refresh-token session for the resolved application. The stored hash is upgraded in place when ASP.NET Core's password hasher reports an outdated format, so raising the work factor takes effect as users sign in.
@@ -15,11 +19,14 @@ using Microsoft.AspNetCore.Mvc;
 using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.Auth.Credentials;
 
-public sealed class LoginController(IAuthUserService<AppUser> authUsers) : ControllerBase
+public sealed class LoginController(
+    IAuthUserService<AppUser> authUsers
+) : ControllerBase
 {
     public async Task<ActionResult<AppUser>> Login(LoginRequest request)
     {
-        AuthSessionResult<AppUser> result = await authUsers.LoginAsync(request, HttpContext);
+        AuthSessionResult<AppUser> result = await authUsers
+            .LoginAsync(request, HttpContext);
 
         Response.SetRefreshTokenCookie(result.RefreshToken, 30);
 
@@ -81,9 +88,13 @@ using Microsoft.AspNetCore.Mvc;
 using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.Auth.Credentials;
 
-public sealed class RegisterController(IAuthUserService<AppUser> authUsers) : ControllerBase
+public sealed class RegisterController(
+    IAuthUserService<AppUser> authUsers
+) : ControllerBase
 {
-    public async Task<ActionResult<AppUser>> Register(RegisterRequest request)
+    public async Task<ActionResult<AppUser>> Register(
+        RegisterRequest request
+    )
     {
         AppUser user = new()
         {
@@ -91,7 +102,8 @@ public sealed class RegisterController(IAuthUserService<AppUser> authUsers) : Co
             Username = request.Username
         };
 
-        AuthSessionResult<AppUser> result = await authUsers.RegisterAsync(user, request.Password, HttpContext);
+        AuthSessionResult<AppUser> result = await authUsers
+            .RegisterAsync(user, request.Password, HttpContext);
 
         Response.SetRefreshTokenCookie(result.RefreshToken, 30);
 

@@ -12,20 +12,24 @@ Application code depends on small service contracts rather than one aggregate, s
 - [Exceptions](./exceptions) &mdash; every credential failure, with the status code and `error` value it becomes.
 - [Localization](./localization) &mdash; the `auth` and `passwords` message files those failures resolve through.
 - [Extensions](./extensions/add-auth-credentials) &mdash; service registration against the application's context and user entity.
-- [Services](./services/auth-user-service) &mdash; dependency-injection contracts for login, session, password, token, and two-factor operations.
 - [Requests](./requests/login-request) &mdash; request models for login, registration, and password flows.
 - [Results](./results/auth-session-result) &mdash; what a credential flow returns when it creates a session or an enrolment.
+- [Services](./services/auth-user-service) &mdash; dependency-injection contracts for login, session, password, token, and two-factor operations.
 - [Utilities](./utilities/token-hasher) &mdash; the digest every stored token is matched by.
 - [Types](./types/auth-db-context) &mdash; the base context and the entities it maps.
 
 ## Quick Example
 
+::: danger
+`result.User` is the database entity. Returned as written here, it serializes with the password hash, the surrogate key, and any loaded sessions, so map it to a DTO that exposes only the fields the client needs before returning it.
+:::
+
 ::: code-group
 
 ```csharp [Program.cs]
 using AlmightyShogun.AspNet.Core;
-using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.Auth;
+using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.Localization;
 using AlmightyShogun.AspNet.Auth.Credentials;
 using AlmightyShogun.AspNet.RequestValidation;

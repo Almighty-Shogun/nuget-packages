@@ -104,24 +104,3 @@ Changing `Digits` or `PeriodSeconds` invalidates every existing enrolment. An au
 :::
 
 <FrontmatterDocs/>
-
-## Usage
-
-```csharp
-using Microsoft.Extensions.Options;
-using AlmightyShogun.AspNet.Auth.Credentials;
-
-public sealed class PasswordResetLinkBuilder(
-    IOptions<AuthCredentialsSettings> options
-)
-{
-    public string BuildEmailBody(string token)
-    {
-        string url = $"https://example.com/reset?token={token}";
-        int minutes = options.Value.PasswordResetMinutes;
-
-        return $"Reset your password at {url}. "
-               + $"The link stops working in {minutes} minutes.";
-    }
-}
-```

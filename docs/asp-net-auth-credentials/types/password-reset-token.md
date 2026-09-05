@@ -37,9 +37,13 @@ fields:
 
 # PasswordResetToken
 
-A user's password reset, at most one row per account. Requesting another rewrites this row rather than adding a second, and a spent row is kept until then, so presenting a spent token is recognised as a replay instead of looking like a token that never existed.
+A user's password reset, at most one row per account. Requesting another rewrites this row rather than adding a second, so a fresh link invalidates the previous one.
 
-Normal flows go through [`IAuthPasswordService`](../services/auth-password-service), which issues, redeems, and invalidates these consistently. Read the entity directly for audit views and cleanup jobs.
+Normal flows go through [`IAuthPasswordService`](../services/auth-password-service), which issues, redeems, and invalidates these consistently; read the entity directly for audit views and cleanup jobs.
+
+::: danger
+`PasswordResetToken` is a database entity. Never return it from an endpoint: it carries the token hash, the requesting address, and the surrogate keys. Map it to a DTO that exposes only the fields the client needs.
+:::
 
 ## Usage
 

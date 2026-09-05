@@ -10,7 +10,7 @@ The package stores and verifies the second factor but never requires it. [`Login
 
 Generates a secret, stores it encrypted as a pending enrolment, and returns it alongside an `otpauth://` URI to render as a QR code. Calling it again discards the previous pending secret and offers a fresh one, so only the newest QR can be confirmed.
 
-A second factor already in force is left untouched, codes and all, until [`CompleteEnrolmentAsync`](#completeenrolmentasync) verifies a code against the pending secret. Abandoning enrolment halfway therefore changes nothing, and the pending secret stops being confirmable ten minutes after it was issued. `issuer` is the label an authenticator app shows, and is ignored when [`TwoFactorPolicy.Issuer`](../configuration) is set.
+A second factor already in force is left untouched, codes and all, until [`CompleteEnrolmentAsync`](#completeenrolmentasync) verifies a code against the pending secret. Abandoning enrolment halfway therefore changes nothing, and the pending secret stops being confirmable [`TwoFactorPolicy.PendingSecretMinutes`](../configuration) after it was issued. `issuer` is the label an authenticator app shows, and is ignored when [`TwoFactorPolicy.Issuer`](../configuration) is set.
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
@@ -26,8 +26,13 @@ public sealed class TwoFactorController(
 ) : ControllerBase
 {
     [HttpPost("begin")]
-    public async Task<ActionResult<AuthTwoFactorResult>> Begin(CancellationToken cancellationToken)
-        => Ok(await twoFactor.BeginEnrolmentAsync(User.GetCurrentUserId(), "Example", cancellationToken));
+    public async Task<ActionResult<AuthTwoFactorResult>> Begin(
+        CancellationToken cancellationToken
+    ) => Ok(await twoFactor.BeginEnrolmentAsync(
+            User.GetCurrentUserId(),
+            "Example",
+            cancellationToken
+         ));
 }
 ```
 
@@ -51,7 +56,8 @@ Only hashes of the recovery codes are kept, so these are shown to the user once 
 using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.AspNet.Auth.Credentials;
 
-IReadOnlyList<string> recoveryCodes = await twoFactor.CompleteEnrolmentAsync(User.GetCurrentUserId(), code);
+IReadOnlyList<string> recoveryCodes = await twoFactor
+    .CompleteEnrolmentAsync(User.GetCurrentUserId(), code);
 ```
 
 ### Type signature

@@ -15,29 +15,8 @@ Every exception the package throws is a plain exception carrying no message of i
 | `EmailTakenException` | `422` | `email_taken` |
 | `AccountLockedException` | `423` | `account_locked_out` |
 
-## Usage
-
-```csharp
-using AlmightyShogun.AspNet.Auth.Credentials;
-
-try
-{
-    AuthSessionResult<AppUser> result = await authUserService
-        .LoginAsync(request, HttpContext);
-}
-catch (AccountLockedException exception)
-{
-    logger.LogInformation(
-        "Login blocked until {LockoutEnd}",
-        exception.LockoutEnd
-    );
-
-    throw;
-}
-```
-
 ::: tip
-Pass `registerExceptionHandler: false` to [`AddAuthCredentials`](./extensions/add-auth-credentials) to answer these with a handler of your own. The mapper stays registered either way, so a replacement can resolve it and reuse the table above.
+Pass `registerExceptionHandler: false` to [`AddAuthCredentials`](./extensions/add-auth-credentials) to answer these with a handler of your own. The mapper that produces the statuses above is internal, so a replacement maps these exceptions itself rather than reusing it.
 :::
 
 ## InvalidCredentialsException

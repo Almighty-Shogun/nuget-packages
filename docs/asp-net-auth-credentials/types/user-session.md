@@ -77,6 +77,10 @@ fields:
 
 One refresh-token session. Created at login and registration, rotated on refresh, and revoked by logout, a password change, or reuse detection.
 
+::: danger
+`UserSession` is a database entity. Never return it from an endpoint: it carries the current and previous refresh-token hashes and the surrogate keys. Map it to a DTO that exposes only the fields the client needs, such as `Device`, `Browser`, `Os`, and `LastActiveAt` for a session list.
+:::
+
 ## Usage
 
 ```csharp
@@ -87,7 +91,8 @@ public sealed class SessionAuditService(AppDbContext database)
 {
     public Task<List<UserSession>> GetActiveSessionsAsync(int userId)
         => database.UserSessions
-            .Where(session => session.UserId == userId && !session.IsRevoked)
+            .Where(session => !session.IsRevoked)
+            .Where(session => session.UserId == userId)
             .Where(session => session.ExpiresAt > DateTimeOffset.UtcNow)
             .ToListAsync();
 }

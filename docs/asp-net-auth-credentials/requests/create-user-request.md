@@ -31,31 +31,17 @@ Everything an administrator supplies to create an account, including the role an
 Never bind this model on a route a normal user can reach. `Role` and `Permissions` become claims in the created account's own token, so exposing it publicly lets a caller grant themselves anything.
 :::
 
-## Usage
-
-```csharp
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using AlmightyShogun.AspNet.Auth.Credentials;
-
-[Authorize(Roles = "Admin")]
-public sealed class AdminUsersController(IAuthUserService<AppUser> authUsers) : ControllerBase
-{
-    public Task<AppUser> Create(CreateUserRequest request)
-        => authUsers.CreateUserAsync(new AppUser
-        {
-            Role = request.Role,
-            Email = request.Email,
-            Username = request.Username,
-            Permissions = request.Permissions
-        }, request.Password);
-}
-```
-
 <FrontmatterDocs/>
 
 ## Type signature
 
 ```csharp
-public class CreateUserRequest;
+public sealed record CreateUserRequest
+{
+    public required string Username { get; set; }
+    public required string Password { get; set; }
+    public required string Email { get; set; }
+    public string Role { get; set; } = "User";
+    public string[] Permissions { get; set; } = [];
+}
 ```

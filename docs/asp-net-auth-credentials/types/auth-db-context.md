@@ -48,7 +48,8 @@ The credential users in `users`, typed as the application's own `TUser`. Login m
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.Auth.Credentials;
 
-AppUser? user = await database.Users.FirstOrDefaultAsync(candidate => candidate.Email == email);
+AppUser? user = await database.Users
+    .FirstOrDefaultAsync(candidate => candidate.Email == email);
 ```
 
 ### Type signature
@@ -85,7 +86,8 @@ using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.Auth.Credentials;
 
 int outstanding = await database.PasswordResetTokens
-    .CountAsync(token => token.UserId == user.Id && token.UsedAt == null);
+    .Where(token => token.UsedAt == null)
+    .CountAsync(token => token.UserId == user.Id);
 ```
 
 ### Type signature
@@ -104,8 +106,10 @@ using AlmightyShogun.AspNet.Auth.Credentials;
 
 string hash = TokenHasher.Hash(token);
 
-EmailVerificationToken? verification = await database.EmailVerificationTokens
-    .FirstOrDefaultAsync(stored => stored.TokenHash == hash && stored.UsedAt == null);
+EmailVerificationToken? verification = await database
+    .EmailVerificationTokens
+    .Where(stored => stored.UsedAt == null)
+    .FirstOrDefaultAsync(stored => stored.TokenHash == hash);
 ```
 
 ### Type signature
@@ -144,7 +148,8 @@ using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.Auth.Credentials;
 
 bool enrolled = await database.UserTwoFactors
-    .AnyAsync(twoFactor => twoFactor.UserId == user.Id && twoFactor.IsEnabled);
+    .Where(twoFactor => twoFactor.IsEnabled)
+    .AnyAsync(twoFactor => twoFactor.UserId == user.Id);
 ```
 
 ### Type signature
@@ -162,7 +167,8 @@ using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.Auth.Credentials;
 
 int remaining = await database.TwoFactorRecoveryCodes
-    .CountAsync(code => code.UserTwoFactorId == enrolmentId && code.UsedAt == null);
+    .Where(code => code.UsedAt == null)
+    .CountAsync(code => code.UserTwoFactorId == enrolmentId);
 ```
 
 ### Type signature

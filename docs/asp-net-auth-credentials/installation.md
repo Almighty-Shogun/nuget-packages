@@ -37,8 +37,8 @@ Register JWT auth first. Credential auth resolves [`AuthSettings`](/asp-net-auth
 
 ```csharp [Program.cs]
 using AlmightyShogun.AspNet.Core;
-using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.Auth;
+using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.Localization;
 using AlmightyShogun.AspNet.Auth.Credentials;
 using AlmightyShogun.AspNet.RequestValidation;

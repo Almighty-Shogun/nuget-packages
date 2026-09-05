@@ -1,8 +1,6 @@
 # Localization
 
-Auth Credentials resolves the message for each of its [exceptions](./exceptions) through [ASP.NET Localization](/asp-net-localization/localization). The resolver loads JSON files from `messages/{language}`, uses the file name as the message group, and returns the original message key when no language, file, or entry is found.
-
-Messages live in the `auth` and `passwords` groups. The `auth` file is shared with [ASP.NET Auth](/asp-net-auth/localization) when both are installed, so add these keys alongside its own rather than replacing the file. Request validation messages still come from the `validation` group documented by [ASP.NET Request Validation](/asp-net-request-validation/localization).
+Auth Credentials resolves the message for each of its [exceptions](./exceptions) through [ASP.NET Localization](/asp-net-localization/localization), from the `auth` and `passwords` message groups. The resolver loads JSON files from `messages/{language}`, uses the file name as the message group, and returns the original message key when no language, file, or entry is found. Request validation messages come from the `validation` group documented by [ASP.NET Request Validation](/asp-net-request-validation/localization).
 
 ## Auth Messages
 
@@ -46,6 +44,10 @@ Create `messages/{language}/auth.json` for every language the API should support
 }
 ```
 
+:::
+
+::: warning
+The `auth` file is shared with [ASP.NET Auth](/asp-net-auth/localization) when both packages are installed. Add these keys alongside the ones that page lists rather than replacing the file.
 :::
 
 ## Password Messages

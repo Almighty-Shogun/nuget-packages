@@ -38,8 +38,8 @@ fields:
 
 One issued email verification. [`AuthDbContext<TUser>`](./auth-db-context) maps the table and exposes the set, but no package service writes to it: issuing, emailing, and redeeming a verification is the application's own flow.
 
-::: warning
-Match a presented token by its hash, never by the value itself. [`TokenHasher.Hash`](../utilities/token-hasher#hash) produces the form `TokenHash` holds.
+::: danger
+`EmailVerificationToken` is a database entity. Never return it from an endpoint: it carries the token hash and the surrogate keys, so map it to a DTO that exposes only the fields the client needs. Match a presented token by its hash, never by the value itself. [`TokenHasher.Hash`](../utilities/token-hasher#hash) produces the form `TokenHash` holds.
 :::
 
 ## Usage
@@ -55,8 +55,10 @@ public sealed class EmailVerifier(AppDbContext database)
         string hash = TokenHasher.Hash(token);
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        EmailVerificationToken? stored = await database.EmailVerificationTokens
-            .FirstOrDefaultAsync(candidate => candidate.TokenHash == hash && candidate.UsedAt == null);
+        EmailVerificationToken? stored = await database
+            .EmailVerificationTokens
+            .Where(candidate => candidate.UsedAt == null)
+            .FirstOrDefaultAsync(candidate => candidate.TokenHash == hash);
 
         if (stored is null || stored.ExpiresAt <= now)
             return false;

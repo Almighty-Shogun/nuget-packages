@@ -17,11 +17,11 @@ fields:
       type: string
 
     - name: Password
-      description: The password hash produced by ASP.NET Core's hasher. Ignored during JSON serialization, and rehashed in place on sign-in when the hasher reports an outdated format.
+      description: The password hash produced by ASP.NET Core's hasher. Rehashed in place on sign-in when the hasher reports an outdated format.
       type: string
 
     - name: Sessions
-      description: The user's refresh-token sessions. Ignored during JSON serialization, and not loaded unless explicitly included.
+      description: The user's refresh-token sessions. Not loaded unless explicitly included.
       type: 'List<UserSession>'
       default: '[]'
 
@@ -55,8 +55,8 @@ fields:
 
 The base user entity every credential service works against. Applications inherit from it to add their own profile fields, and the derived type becomes the `TUser` of the context and the services.
 
-::: warning
-`Role` and `Permissions` are ordinary settable properties that become claims in the user's own access token. Never bind a client payload straight onto the entity; build it from a [`RegisterRequest`](../requests/register-request) and set those values in application code.
+::: danger
+`AuthUser` is a database entity and must not cross the API boundary in either direction. Never return it from an endpoint: it carries the password hash, the surrogate key, and any loaded sessions, so map it to a DTO that exposes only the fields the client needs. Never bind a client payload straight onto it either: `Role` and `Permissions` are ordinary settable properties that become claims in the user's own access token, so build it from a [`RegisterRequest`](../requests/register-request) and set those values in application code.
 :::
 
 ## Usage

@@ -9,7 +9,7 @@ fields:
       type: string
 
     - name: User
-      description: The authenticated user, tracked by the context. `Password` and `Sessions` are ignored during JSON serialization, so returning it directly leaks neither.
+      description: The authenticated user, tracked by the context. It is the database entity and serializes with the password hash, the surrogate key, and any loaded sessions, so map it to a DTO before returning it.
       type: TUser
 ---
 
@@ -17,30 +17,8 @@ fields:
 
 What every flow that establishes a session returns: [`LoginAsync`](../services/auth-user-service#loginasync), [`RegisterAsync`](../services/auth-user-service#registerasync), and [`RefreshSessionAsync`](../services/auth-session-service#refreshsessionasync).
 
-## Usage
-
-```csharp
-using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Auth;
-using AlmightyShogun.AspNet.Auth.Credentials;
-
-public sealed class SessionResponseController : ControllerBase
-{
-    public ActionResult<object> CreateResponse(AuthSessionResult<AppUser> result)
-    {
-        Response.SetRefreshTokenCookie(result.RefreshToken, 30);
-
-        return Ok(new
-        {
-            result.User,
-            result.AccessToken
-        });
-    }
-}
-```
-
 ::: danger
-Do not return this type straight from a controller. `User` is the live database entity, so every column a consumer adds to their own type derived from [`AuthUser`](../types/auth-user) is serialized with it, including ones that were never meant to leave the server. Project the fields the client needs onto a response type of your own instead.
+`User` is the database entity. Never return it from an endpoint: it serializes with the password hash, the surrogate key, and any loaded sessions. Map it to a DTO that exposes only the fields the client needs.
 :::
 
 <FrontmatterDocs/>
@@ -48,5 +26,10 @@ Do not return this type straight from a controller. `User` is the live database 
 ## Type signature
 
 ```csharp
-public sealed class AuthSessionResult<TUser> where TUser : AuthUser;
+public sealed class AuthSessionResult<TUser> where TUser : AuthUser
+{
+    public required string AccessToken { get; init; }
+    public required string RefreshToken { get; init; }
+    public required TUser User { get; init; }
+}
 ```

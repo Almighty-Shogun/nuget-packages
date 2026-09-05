@@ -24,6 +24,10 @@ One single-use recovery code, accepted by [`VerifyAsync`](../services/auth-two-f
 
 Codes are issued as a set by [`CompleteEnrolmentAsync`](../services/auth-two-factor-service#completeenrolmentasync) and returned in plain text exactly once. One row per code means spending one is a single update rather than a rewrite of the whole set.
 
+::: danger
+`TwoFactorRecoveryCode` is a database entity. Never return it from an endpoint: it carries the code hash and the surrogate keys. Map it to a DTO that exposes only the fields the client needs.
+:::
+
 ## Usage
 
 ```csharp
@@ -34,7 +38,8 @@ public sealed class RecoveryCodeCounter(AppDbContext database)
 {
     public Task<int> CountRemainingAsync(int enrolmentId)
         => database.TwoFactorRecoveryCodes
-            .CountAsync(code => code.UserTwoFactorId == enrolmentId && code.UsedAt == null);
+            .Where(code => code.UsedAt == null)
+            .CountAsync(code => code.UserTwoFactorId == enrolmentId);
 }
 ```
 

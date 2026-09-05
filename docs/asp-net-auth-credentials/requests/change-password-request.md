@@ -17,31 +17,15 @@ fields:
 
 What [`ChangePasswordAsync`](../services/auth-password-service#changepasswordasync) takes from a signed-in user. Validation checks shape and strength only; the three password comparisons are made by the service against the stored hash.
 
-## Usage
-
-```csharp
-using Microsoft.AspNetCore.Mvc;
-using AlmightyShogun.AspNet.Auth;
-using AlmightyShogun.AspNet.Auth.Credentials;
-
-public sealed class ChangePasswordController(IAuthPasswordService passwords) : ControllerBase
-{
-    public async Task<IActionResult> Change(ChangePasswordRequest request)
-    {
-        Guid identifier = User.GetCurrentUserId();
-        string refreshToken = Request.GetRefreshTokenCookie();
-
-        await passwords.ChangePasswordAsync(identifier, request, refreshToken);
-
-        return NoContent();
-    }
-}
-```
-
 <FrontmatterDocs/>
 
 ## Type signature
 
 ```csharp
-public class ChangePasswordRequest;
+public sealed record ChangePasswordRequest
+{
+    public required string CurrentPassword { get; set; }
+    public required string NewPassword { get; set; }
+    public required string ConfirmPassword { get; set; }
+}
 ```

@@ -19,16 +19,6 @@ export const aspNetAuthCredentials: DefaultTheme.SidebarItem[] = [
         ]
     },
     {
-        text: 'Services',
-        collapsed: false,
-        items: [
-            { text: 'AuthPasswordService', link: '/asp-net-auth-credentials/services/auth-password-service' },
-            { text: 'AuthSessionService', link: '/asp-net-auth-credentials/services/auth-session-service' },
-            { text: 'AuthTwoFactorService', link: '/asp-net-auth-credentials/services/auth-two-factor-service' },
-            { text: 'AuthUserService', link: '/asp-net-auth-credentials/services/auth-user-service' }
-        ]
-    },
-    {
         text: 'Requests',
         collapsed: false,
         items: [
@@ -46,6 +36,16 @@ export const aspNetAuthCredentials: DefaultTheme.SidebarItem[] = [
         items: [
             { text: 'AuthSessionResult', link: '/asp-net-auth-credentials/results/auth-session-result' },
             { text: 'AuthTwoFactorResult', link: '/asp-net-auth-credentials/results/auth-two-factor-result' }
+        ]
+    },
+    {
+        text: 'Services',
+        collapsed: false,
+        items: [
+            { text: 'AuthPasswordService', link: '/asp-net-auth-credentials/services/auth-password-service' },
+            { text: 'AuthSessionService', link: '/asp-net-auth-credentials/services/auth-session-service' },
+            { text: 'AuthTwoFactorService', link: '/asp-net-auth-credentials/services/auth-two-factor-service' },
+            { text: 'AuthUserService', link: '/asp-net-auth-credentials/services/auth-user-service' }
         ]
     },
     {

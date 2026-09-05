@@ -22,8 +22,8 @@ Call it after [`AddAuth`](/asp-net-auth/extensions/add-auth). Credential flows r
 
 ```csharp
 using AlmightyShogun.AspNet.Core;
-using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.Auth;
+using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.Localization;
 using AlmightyShogun.AspNet.Auth.Credentials;
 using AlmightyShogun.AspNet.RequestValidation;
