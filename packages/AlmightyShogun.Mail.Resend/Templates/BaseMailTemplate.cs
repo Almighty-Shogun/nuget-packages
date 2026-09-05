@@ -9,12 +9,18 @@ namespace AlmightyShogun.Mail.Resend;
 /// HTML and the plain-text body from them, so a template never handles encoding or the shared chrome itself.
 /// </summary>
 ///
+/// <remarks>
+/// The two bodies differ in ways no single value controls: the HTML rendering encodes every value it substitutes while the
+/// plain-text one encodes nothing, a blank <see cref="Title"/> is left out of the text body, each button is repeated there as
+/// a label and URL pair, and <see cref="AdditionalValues"/> is applied to the HTML alone, after the built-in placeholders.
+/// </remarks>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>2.5.0</since>
 public abstract class BaseMailTemplate
 {
     /// <summary>
-    /// Gets the subject line. Public because the mail service reads it when building the message, and it is the one value
+    /// The subject line. Public because the mail service reads it when building the message, and it is the one value
     /// not rendered into either body.
     /// </summary>
     ///
@@ -23,9 +29,8 @@ public abstract class BaseMailTemplate
     public abstract string Subject { get; }
 
     /// <summary>
-    /// Gets the value substituted into both the <c>{{DocumentTitle}}</c> and <c>{{Title}}</c> placeholders, so where it lands
-    /// is up to the application's own base template. A blank value is omitted from the plain-text body rather than leaving a
-    /// leading blank line.
+    /// The message heading, distinct from <see cref="Subject"/>: a template may repeat the subject here or say something
+    /// different. A blank value is accepted.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -33,8 +38,7 @@ public abstract class BaseMailTemplate
     protected abstract string Title { get; }
 
     /// <summary>
-    /// Gets the opening line addressing the recipient. It is always rendered, so a template with nothing to greet should
-    /// return an empty string rather than leaving it unimplemented.
+    /// The opening line addressing the recipient, an empty string when a template has nobody to name.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -42,8 +46,7 @@ public abstract class BaseMailTemplate
     protected abstract string Greeting { get; }
 
     /// <summary>
-    /// Gets the body paragraphs, each wrapped in the shared paragraph fragment and HTML encoded. Empty by default, which
-    /// renders a message with only a greeting and buttons.
+    /// The body paragraphs, in the order they appear in the message. Empty by default.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -51,9 +54,7 @@ public abstract class BaseMailTemplate
     protected virtual IReadOnlyList<string> Paragraphs => [];
 
     /// <summary>
-    /// Gets the buttons substituted into the template's buttons placeholder, and repeated after the paragraphs in the
-    /// plain-text body as label and URL pairs so the
-    /// destination survives for a client that shows only text.
+    /// The call-to-action buttons, in the order they appear in the message. Empty by default.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -61,8 +62,7 @@ public abstract class BaseMailTemplate
     protected virtual IReadOnlyList<MailButton> Buttons => [];
 
     /// <summary>
-    /// Gets extra placeholder values for the template, written as <c>{{Key}}</c> and replaced after the built-in
-    /// placeholders. Values are HTML encoded.
+    /// Extra placeholder values for the template, keyed by the name written as <c>{{Key}}</c> in the template files.
     /// </summary>
     ///
     /// <remarks>
@@ -95,7 +95,9 @@ public abstract class BaseMailTemplate
     ///
     /// Each text value goes through <see cref="Encode"/> and each URL through <see cref="EncodeUrl"/> as it is substituted.
     /// The <c>{{BodyHtml}}</c> and <c>{{ButtonsHtml}}</c> placeholders take assembled markup instead, whose own paragraphs,
-    /// labels, and URLs were already encoded as each fragment was built.
+    /// labels, and URLs were already encoded as each fragment was built. Those two are substituted last, after every other
+    /// placeholder and after the additional values, so a placeholder appearing in caller-supplied text is left as written
+    /// rather than being filled in.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -115,8 +117,6 @@ public abstract class BaseMailTemplate
             .Replace("{{BrandName}}", Encode(settings.BrandName), StringComparison.Ordinal)
             .Replace("{{Title}}", Encode(Title), StringComparison.Ordinal)
             .Replace("{{Greeting}}", Encode(Greeting), StringComparison.Ordinal)
-            .Replace("{{BodyHtml}}", bodyHtml, StringComparison.Ordinal)
-            .Replace("{{ButtonsHtml}}", buttonsHtml, StringComparison.Ordinal)
             .Replace(
                 "{{CopyrightText}}",
                 Encode(ResolveTemplateValue(settings.Template.CopyrightTextTemplate, settings)),
@@ -128,7 +128,9 @@ public abstract class BaseMailTemplate
                 Encode(ResolveTemplateValue(settings.Template.FooterLinkText, settings)),
                 StringComparison.Ordinal
             )
-            .Replace("{{IgnoreTextHtml}}", Encode(ResolveTemplateValue(settings.Template.IgnoreText, settings)), StringComparison.Ordinal));
+            .Replace("{{IgnoreTextHtml}}", Encode(ResolveTemplateValue(settings.Template.IgnoreText, settings)), StringComparison.Ordinal))
+            .Replace("{{BodyHtml}}", bodyHtml, StringComparison.Ordinal)
+            .Replace("{{ButtonsHtml}}", buttonsHtml, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -142,6 +144,10 @@ public abstract class BaseMailTemplate
     /// <remarks>
     /// Nothing is encoded here, because there is no markup to escape. <see cref="AdditionalValues"/> is still not applied, so
     /// a template relying on an additional value for its wording renders it only in the HTML.
+    ///
+    /// A blank <see cref="Title"/> is dropped rather than opening the body with a blank line, and each entry in
+    /// <see cref="Buttons"/> follows the paragraphs as a label and URL pair, so the destination survives for a client that
+    /// shows only text.
     ///
     /// The configurable footer text goes through the same resolution the HTML body applies, so <c>{app_name}</c> and
     /// <c>{app_url}</c> read the same in both bodies rather than reaching the reader unsubstituted here.
