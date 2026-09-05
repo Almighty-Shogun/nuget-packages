@@ -9,9 +9,10 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <remarks>
-/// Attribute rules only. A rule declared in a <see cref="Validator{TRequest}"/> is enforced but not described, because a built rule
-/// carries neither the name it was written under nor the arguments it was given. A request using both therefore describes as less than it
-/// enforces, and a client generating its own checks from this must not treat the result as the complete set.
+/// Attribute rules only. A rule declared in a <see cref="Validator{TRequest}"/> is enforced but not described, because a built rule carries
+/// no record of the name it was declared under: one rule class serves several spellings, told apart only by the mode it holds. A request
+/// using both therefore describes as less than it enforces, and a client generating its own checks from this must not treat the result as
+/// the complete set.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -19,7 +20,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
 {
     /// <summary>
-    /// The descriptions built so far, keyed by request type, so publishing the same request's rules repeatedly reflects once.
+    /// The descriptions built so far, keyed by request type, so a request already described is answered without reflecting over it again.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -60,7 +61,11 @@ internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
     private static IReadOnlyList<ValidationRuleDescription> DescribeProperty(PropertyInfo property) =>
     [
         .. GetRuleAttributeData(property)
-            .Select(attributeData => new ValidationRuleDescription(GetRuleName(attributeData.AttributeType), GetArguments(attributeData)))
+            .Select(attributeData => new ValidationRuleDescription
+            {
+                Rule = GetRuleName(attributeData.AttributeType),
+                Arguments = GetArguments(attributeData)
+            })
     ];
 
     /// <summary>
@@ -76,8 +81,8 @@ internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
     /// </returns>
     ///
     /// <remarks>
-    /// Metadata rather than instances, because an attribute keeps no record of the arguments it was written with: a primary-constructor
-    /// parameter forwarded straight to the base constructor leaves no field behind to read it back from.
+    /// Metadata rather than instances, because no validation attribute exposes the arguments it was written with: each takes them as
+    /// primary-constructor parameters and reads them only from inside its own <c>CreateRule</c>.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -130,11 +135,6 @@ internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
     /// The declared argument values, in constructor order. An array argument comes back as an <see cref="object"/> array rather than as
     /// the metadata wrapper, so a caller reads the values themselves.
     /// </returns>
-    ///
-    /// <remarks>
-    /// Metadata is the only place these survive. Reading them back off the constructed attribute does not work, because a
-    /// primary-constructor parameter forwarded straight to the base constructor is never captured in a field of the derived type.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
