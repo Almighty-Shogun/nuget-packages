@@ -26,15 +26,15 @@ internal static class ValidationExpression
     /// Points at the property, supplying both the name failures are reported under and the reader used to fetch its value. Only the
     /// conversion the compiler inserts when a value-typed property is read as <see cref="object"/> is unwrapped; any other unary operator
     /// is refused rather than resolved to its operand, so <c>request => !request.IsActive</c> does not quietly become a rule on
-    /// <c>IsActive</c> .
+    /// <c>IsActive</c>.
     /// </param>
     ///
     /// <returns>The property the expression reads.</returns>
     ///
     /// <exception cref="ArgumentOutOfRangeException">
     /// The expression is not a direct property read: a method call, a literal, a field, a unary operator that is not a conversion such as
-    /// <c>request => !request.IsActive</c> , or a nested read such as
-    /// <c>request => request.User.Email</c> . A nested read is refused rather than supported, because the name derived from it would be the
+    /// <c>request => !request.IsActive</c>, or a nested read such as
+    /// <c>request => request.User.Email</c>. A nested read is refused rather than supported, because the name derived from it would be the
     /// leaf property's alone and the compiled reader would throw whenever an intermediate value is null. Thrown as the rule is built rather
     /// than when a request arrives.
     /// </exception>
@@ -74,7 +74,7 @@ internal static class ValidationExpression
     ///
     /// <exception cref="ArgumentOutOfRangeException">
     /// The expression is not a direct property read, on the same terms as
-    /// <see cref="GetProperty{TRequest, TProperty}(Expression{Func{TRequest, TProperty}})"/> .
+    /// <see cref="GetProperty{TRequest, TProperty}(Expression{Func{TRequest, TProperty}})"/>.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>

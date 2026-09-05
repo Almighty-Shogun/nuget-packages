@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
-    /// Requires the field to be present and contain a non-empty value. It fails for missing values, <c>null</c> , empty text, empty
+    /// Requires the field to be present and contain a non-empty value. It fails for missing values, <c>null</c>, empty text, empty
     /// collections, and empty uploaded files.
     /// </summary>
     ///
@@ -32,7 +32,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </summary>
     ///
     /// <typeparam name="TCompare">
-    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// The controlling field's type, which fixes the type of <paramref name="values"/>. The match is object equality, so a number does
     /// not equal its text spelling.
     /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
@@ -67,7 +67,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </summary>
     ///
     /// <typeparam name="TCompare">
-    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// The controlling field's type, which fixes the type of <paramref name="values"/>. The match is object equality, so a number does
     /// not equal its text spelling.
     /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
@@ -98,7 +98,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field when another field contains an accepted value such as <c>true</c> , <c>yes</c> , <c>on</c> , or <c>1</c> .
+    /// Requires the field when another field contains an accepted value such as <c>true</c>, <c>yes</c>, <c>on</c>, or <c>1</c>.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -128,7 +128,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field when another field contains a declined value such as <c>false</c> , <c>no</c> , <c>off</c> , or <c>0</c> .
+    /// Requires the field when another field contains a declined value such as <c>false</c>, <c>no</c>, <c>off</c>, or <c>0</c>.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -299,7 +299,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </summary>
     ///
     /// <typeparam name="TCompare">
-    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// The controlling field's type, which fixes the type of <paramref name="values"/>. The match is object equality, so a number does
     /// not equal its text spelling.
     /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
@@ -334,7 +334,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </summary>
     ///
     /// <typeparam name="TCompare">
-    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// The controlling field's type, which fixes the type of <paramref name="values"/>. The match is object equality, so a number does
     /// not equal its text spelling.
     /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
@@ -436,7 +436,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </summary>
     ///
     /// <typeparam name="TCompare">
-    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// The controlling field's type, which fixes the type of <paramref name="values"/>. The match is object equality, so a number does
     /// not equal its text spelling.
     /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
@@ -471,7 +471,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </summary>
     ///
     /// <typeparam name="TCompare">
-    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// The controlling field's type, which fixes the type of <paramref name="values"/>. The match is object equality, so a number does
     /// not equal its text spelling.
     /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
@@ -573,7 +573,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </summary>
     ///
     /// <typeparam name="TCompare">
-    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// The controlling field's type, which fixes the type of <paramref name="values"/>. The match is object equality, so a number does
     /// not equal its text spelling.
     /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
@@ -608,7 +608,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </summary>
     ///
     /// <typeparam name="TCompare">
-    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// The controlling field's type, which fixes the type of <paramref name="values"/>. The match is object equality, so a number does
     /// not equal its text spelling.
     /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>

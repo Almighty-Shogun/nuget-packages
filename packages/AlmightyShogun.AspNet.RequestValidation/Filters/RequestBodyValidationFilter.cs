@@ -120,7 +120,7 @@ internal sealed class RequestBodyValidationFilter(
     /// <param name="request">The request whose content type is inspected.</param>
     ///
     /// <returns>
-    /// <c>true</c> when the header is missing, unparseable, or claimed by no configured formatter; otherwise <c>false</c> . A formatter
+    /// <c>true</c> when the header is missing, unparseable, or claimed by no configured formatter; otherwise <c>false</c>. A formatter
     /// that will not say what it reads counts as claiming the request, so binding decides rather than this filter.
     /// </returns>
     ///
@@ -160,8 +160,8 @@ internal sealed class RequestBodyValidationFilter(
     /// </returns>
     ///
     /// <remarks>
-    /// The collection is typed as <see cref="IInputFormatter"/> , and only the abstract <see cref="InputFormatter"/> carries
-    /// <see cref="InputFormatter.SupportedMediaTypes"/> . A formatter implementing the interface directly is asked through
+    /// The collection is typed as <see cref="IInputFormatter"/>, and only the abstract <see cref="InputFormatter"/> carries
+    /// <see cref="InputFormatter.SupportedMediaTypes"/>. A formatter implementing the interface directly is asked through
     /// <see cref="IApiRequestFormatMetadataProvider"/> instead, and one implementing neither cannot be interrogated at all.
     /// </remarks>
     ///
@@ -180,7 +180,7 @@ internal sealed class RequestBodyValidationFilter(
     /// </summary>
     ///
     /// <param name="mediaType">The request's parsed content type.</param>
-    /// <param name="supported">One content type a formatter declared, which may be a wildcard such as <c>text/*</c> .</param>
+    /// <param name="supported">One content type a formatter declared, which may be a wildcard such as <c>text/*</c>.</param>
     ///
     /// <returns><c>true</c> when the declared type covers the request's; otherwise, <c>false</c>.</returns>
     ///

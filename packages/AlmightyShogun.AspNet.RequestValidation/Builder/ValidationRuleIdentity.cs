@@ -202,7 +202,7 @@ internal readonly record struct ValidationRuleIdentity(string Value)
     /// <param name="type">The rule type to inspect.</param>
     ///
     /// <returns>
-    /// The rule's instance fields, ordered by name so reflection order cannot change an identity, less <c>_normalizedValues</c> , which
+    /// The rule's instance fields, ordered by name so reflection order cannot change an identity, less <c>_normalizedValues</c>, which
     /// is a cache derived from the configured values rather than configuration of its own.
     /// </returns>
     ///

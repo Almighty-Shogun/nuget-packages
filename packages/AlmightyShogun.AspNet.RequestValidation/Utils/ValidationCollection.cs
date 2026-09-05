@@ -131,7 +131,7 @@ internal static class ValidationCollection
     /// Clears the output and reports failure in one expression, keeping the try-pattern methods above expression-bodied.
     /// </summary>
     ///
-    /// <param name="keys">Receives an empty set rather than <c>null</c> , so a caller that reads it anyway enumerates nothing.</param>
+    /// <param name="keys">Receives an empty set rather than <c>null</c>, so a caller that reads it anyway enumerates nothing.</param>
     ///
     /// <returns><c>false</c>.</returns>
     ///

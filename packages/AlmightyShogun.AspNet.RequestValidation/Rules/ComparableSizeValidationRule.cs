@@ -46,7 +46,7 @@ internal sealed class ComparableSizeValidationRule<TRequest, TProperty> : IPrope
     /// <param name="maxValue">The upper bound, required for a range and meaningless for anything else.</param>
     ///
     /// <exception cref="ArgumentOutOfRangeException">
-    /// <see cref="ComparableSizeMode.Between"/> was asked for with no <paramref name="maxValue"/> . Refused here because the range arm
+    /// <see cref="ComparableSizeMode.Between"/> was asked for with no <paramref name="maxValue"/>. Refused here because the range arm
     /// unwraps the missing bound: a size below the lower bound would fail cleanly, and every size at or above it would raise
     /// <see cref="InvalidOperationException"/> once a request arrived.
     /// </exception>

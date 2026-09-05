@@ -65,7 +65,7 @@ internal sealed class NamedConditionalValidationRule<TRequest, TProperty>(
     /// <param name="value">The value read from the property this rule guards.</param>
     ///
     /// <returns>
-    /// <c>true</c> when the value satisfies the mode; otherwise, <c>false</c> . An absent value is not skipped: once the condition
+    /// <c>true</c> when the value satisfies the mode; otherwise, <c>false</c>. An absent value is not skipped: once the condition
     /// matches, an accepted or declined requirement is a requirement, and a field left out is exactly the case it has to catch. That
     /// matches the unconditional accepted and declined rules, which do not skip an empty value either.
     /// </returns>

@@ -3,7 +3,7 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the field when another field contains an accepted value such as <c>true</c> , <c>yes</c> , <c>on</c> , or <c>1</c> .
+/// Requires the field when another field contains an accepted value such as <c>true</c>, <c>yes</c>, <c>on</c>, or <c>1</c>.
 /// </summary>
 ///
 /// <param name="field">The request field the condition reads.</param>

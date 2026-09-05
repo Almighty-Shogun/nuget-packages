@@ -119,7 +119,7 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty> : IProperty
     /// <remarks>
     /// Membership rather than substring matching, since a collection holds values rather than text to search within. The comparison is
     /// between an element's <see cref="object.ToString"/> and the configured text, not between the values themselves, so the number
-    /// <c>123</c> matches <c>"123"</c> . An element whose rendering depends on the ambient culture, such as a decimal or a date, is
+    /// <c>123</c> matches <c>"123"</c>. An element whose rendering depends on the ambient culture, such as a decimal or a date, is
     /// therefore compared as that culture writes it.
     /// </remarks>
     ///

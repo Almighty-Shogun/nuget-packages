@@ -226,7 +226,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// <returns>The mode, once it is known to be an ordering.</returns>
     ///
     /// <exception cref="ArgumentOutOfRangeException">
-    /// The mode is <see cref="DateMode.ValidDate"/> or <see cref="DateMode.ExactFormat"/> , neither of which reads a target. Refused
+    /// The mode is <see cref="DateMode.ValidDate"/> or <see cref="DateMode.ExactFormat"/>, neither of which reads a target. Refused
     /// here rather than accepted and then ignored, since a comparison rule holding a mode that never compares would report a failure key
     /// for a check it never made.
     /// </exception>

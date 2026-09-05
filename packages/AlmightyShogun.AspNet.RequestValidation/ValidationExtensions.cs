@@ -60,7 +60,7 @@ public static class ValidationExtensions
         /// </exception>
         ///
         /// <remarks>
-        /// Requires <c>AddMessageLocalization</c> from <c>AlmightyShogun.AspNet.Localization</c> , which every failure message is
+        /// Requires <c>AddMessageLocalization</c> from <c>AlmightyShogun.AspNet.Localization</c>, which every failure message is
         /// resolved through.
         ///
         /// MVC is configured rather than added. The filters and the model-state response take effect if the application registers
@@ -69,7 +69,7 @@ public static class ValidationExtensions
         ///
         /// Two framework options are set deliberately, and both are load-bearing rather than incidental.
         /// <c>RouteHandlerOptions.ThrowOnBadRequest</c> is what turns a minimal API binding failure into a
-        /// <see cref="BadHttpRequestException"/> , which is the only form <c>InvalidRequestBodyMiddleware</c> can catch; without it such
+        /// <see cref="BadHttpRequestException"/>, which is the only form <c>InvalidRequestBodyMiddleware</c> can catch; without it such
         /// a request is answered with the framework's own empty response instead of this package's envelope.
         /// <c>MvcOptions.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes</c> stops MVC synthesising a required rule on
         /// every non-nullable reference property, which would report through model state and pre-empt this package's own presence rules

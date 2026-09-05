@@ -15,11 +15,11 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <remarks>
 /// The rules are declared once for the request type and cached for the life of the process, which is why they are declared here rather
 /// than on the request. A validator holds no request instance and so cannot branch on one, meaning a requirement that varies per request
-/// has to be expressed as a rule that varies, such as <c>RequiredIf</c> , rather than as an <c>if</c> around a rule.
+/// has to be expressed as a rule that varies, such as <c>RequiredIf</c>, rather than as an <c>if</c> around a rule.
 ///
 /// The type needs a public parameterless constructor and should not take dependencies. It runs once, outside any request scope, so a
 /// service captured here would outlive the scope it came from. A rule that genuinely needs services belongs in
-/// <see cref="ICustomValidationRule{TRequest, TProperty}"/> , which is resolved per request.
+/// <see cref="ICustomValidationRule{TRequest, TProperty}"/>, which is resolved per request.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

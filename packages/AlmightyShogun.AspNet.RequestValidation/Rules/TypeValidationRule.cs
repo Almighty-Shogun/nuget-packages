@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Checks that a bound value is the shape the rule names. An absent or empty value satisfies <see cref="TypeMode.Array"/> ,
-/// <see cref="TypeMode.List"/> and <see cref="TypeMode.File"/> , which short-circuit on it, while <see cref="TypeMode.String"/> and
+/// Checks that a bound value is the shape the rule names. An absent or empty value satisfies <see cref="TypeMode.Array"/>,
+/// <see cref="TypeMode.List"/> and <see cref="TypeMode.File"/>, which short-circuit on it, while <see cref="TypeMode.String"/> and
 /// <see cref="TypeMode.Boolean"/> apply their own narrower notion instead, so an empty collection fails the string check.
 /// </summary>
 ///

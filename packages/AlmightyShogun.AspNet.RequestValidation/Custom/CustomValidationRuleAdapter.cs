@@ -27,7 +27,7 @@ internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValid
     private readonly Type _ruleType;
 
     /// <summary>
-    /// Adapts a rule type known only at runtime, which is the case for an attribute that names its rule as a <see cref="Type"/> .
+    /// Adapts a rule type known only at runtime, which is the case for an attribute that names its rule as a <see cref="Type"/>.
     /// </summary>
     ///
     /// <param name="ruleType">The custom validation rule type.</param>

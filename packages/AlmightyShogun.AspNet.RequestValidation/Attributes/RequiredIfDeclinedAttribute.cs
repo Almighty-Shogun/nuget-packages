@@ -3,7 +3,7 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the field when another field contains a declined value such as <c>false</c> , <c>no</c> , <c>off</c> , or <c>0</c> .
+/// Requires the field when another field contains a declined value such as <c>false</c>, <c>no</c>, <c>off</c>, or <c>0</c>.
 /// </summary>
 ///
 /// <param name="field">The request field the condition reads.</param>

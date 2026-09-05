@@ -28,7 +28,7 @@ internal static class ImageSignature
 
     /// <summary>
     /// The fixed byte signatures, held as fields because a collection expression in an argument position is inferred as a span of
-    /// <see cref="int"/> rather than of <see cref="byte"/> .
+    /// <see cref="int"/> rather than of <see cref="byte"/>.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

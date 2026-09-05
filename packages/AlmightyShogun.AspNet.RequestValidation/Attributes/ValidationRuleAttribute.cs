@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <remarks>
-/// The constructor is <c>private protected</c> , so deriving from this class directly is closed to this assembly. An application extends
+/// The constructor is <c>private protected</c>, so deriving from this class directly is closed to this assembly. An application extends
 /// the surface through <see cref="CustomRuleAttribute"/> and <see cref="ICustomValidationRule{TRequest, TProperty}"/> instead, which is
 /// public and carries a <c>protected</c> constructor, and is the supported way to run logic the built-in rules cannot express.
 /// </remarks>
@@ -46,13 +46,13 @@ public abstract class ValidationRuleAttribute : Attribute
     /// </exception>
     /// <exception cref="ArgumentOutOfRangeException">
     /// An attribute taking a set of values was written with none, a confirmation attribute found neither sibling property on
-    /// <typeparamref name="TRequest"/> , or a regular expression timeout lies outside the range the runtime permits.
+    /// <typeparamref name="TRequest"/>, or a regular expression timeout lies outside the range the runtime permits.
     /// </exception>
     /// <exception cref="FormatException">
     /// A date attribute's literal target is not a date the invariant culture parses.
     /// </exception>
     /// <exception cref="InvalidCastException">
-    /// A set-membership attribute was written with an argument that is not assignable to <typeparamref name="TProperty"/> , which
+    /// A set-membership attribute was written with an argument that is not assignable to <typeparamref name="TProperty"/>, which
     /// <c>[In(1, 2)]</c> on a <c>long</c> property produces.
     /// </exception>
     /// <exception cref="InvalidOperationException">
