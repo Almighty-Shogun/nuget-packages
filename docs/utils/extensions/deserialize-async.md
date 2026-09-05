@@ -18,8 +18,6 @@ Deserializes a readable stream into `T` without buffering it into a string first
 
 The stream is read from its current position and is not disposed, and a malformed payload throws `JsonException`, which must be caught at the call site because `out` parameters are not allowed on async methods.
 
-Cancelling mid-read leaves the stream wherever reading reached, so a cancelled call cannot simply be retried unless the caller can rewind it.
-
 ## Usage
 
 ::: code-group
@@ -38,7 +36,7 @@ Order[]? orders = await stream.DeserializeAsync<Order[]>(
 using System.Text.Json;
 using AlmightyShogun.Utils;
 
-JsonSerializerOptions options = new() 
+JsonSerializerOptions options = new()
 {
     PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
 };

@@ -38,7 +38,7 @@ await ProcessAsync(order);
 using System.Text.Json;
 using AlmightyShogun.Utils;
 
-JsonSerializerOptions options = new() 
+JsonSerializerOptions options = new()
 {
     PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
 };

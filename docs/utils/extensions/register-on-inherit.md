@@ -23,7 +23,7 @@ returns: The same `IServiceCollection` instance with matching discovered types r
 
 Scans assemblies for concrete types assignable to `T` and registers each one, for command handlers, recurring jobs, validation rules, and anything else better discovered than listed by hand. Interfaces and abstract classes are never registered, and neither is a type carrying [`SkipAutoRegistration`](../attributes/skip-auto-registration).
 
-Two overloads trade brevity for control: passing no assembly scans the calling one, while passing an array scans each in order and opens up `registerAsBaseType` and `filter`. Both default the lifetime to `ServiceLifetime.Singleton`. Registrations are added rather than replaced, so scanning the same assembly twice registers everything twice.
+Registrations are added rather than replaced, so scanning the same assembly twice registers everything twice.
 
 ## Usage
 

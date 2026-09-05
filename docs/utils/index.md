@@ -21,11 +21,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 ConsoleUtils.Title("Importer");
 
-builder.Services.AddConfiguration<WorkerSettings>(
-    builder.Configuration.GetSection("Worker")
-);
-
-builder.Services.RegisterOnInherit<IImportStep>(ServiceLifetime.Scoped);
+builder.Services
+    .AddConfiguration<WorkerSettings>(
+        builder.Configuration.GetSection("Worker")
+    )
+    .RegisterOnInherit<IImportStep>(ServiceLifetime.Scoped);
 ```
 
 ```csharp [WorkerSettings.cs]

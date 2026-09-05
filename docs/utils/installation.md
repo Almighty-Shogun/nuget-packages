@@ -19,7 +19,7 @@ dotnet add package AlmightyShogun.Utils
 
 ## Usage
 
-The package registers nothing at startup. Its extension methods hang off `IServiceCollection` and are called from startup code once the namespace is imported; the [`ConsoleUtils`](./utilities/console-utils) and [`TypeDiscovery`](./utilities/type-discovery) helpers are static and called wherever they are needed:
+The package registers nothing at startup. Its `IServiceCollection` extensions are called from startup code once the namespace is imported, its [`TryDeserialize`](./extensions/try-deserialize) and [`DeserializeAsync`](./extensions/deserialize-async) extensions hang off `string` and `Stream` instead, and the [`ConsoleUtils`](./utilities/console-utils) and [`TypeDiscovery`](./utilities/type-discovery) helpers are static and called wherever they are needed:
 
 ```csharp
 using AlmightyShogun.Utils;

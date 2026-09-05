@@ -4,7 +4,11 @@ Contract for service registry modules that configure an `IServiceCollection`. A 
 
 Implementations need a public parameterless constructor, because `AddService<T>` constructs the module directly rather than resolving it from the container.
 
-## Usage
+## ConfigureService
+
+Adds the module's registrations to the provided `IServiceCollection`. [`AddService<T>`](../extensions/add-service) calls this after constructing the module, and application code can call it directly when it already owns an instance.
+
+The collection passed in is the application's live one, not a copy, so registrations made here are visible to the rest of startup and there is nothing to return. Do not resolve services or perform runtime work here; this method should only describe registrations.
 
 ::: code-group
 
@@ -21,9 +25,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 public sealed class NotificationsRegistry : IServiceRegistry
 {
-    public void ConfigureService(
-        IServiceCollection serviceCollection
-    ) => serviceCollection.AddSingleton<NotificationFormatter>();
+    public void ConfigureService(IServiceCollection serviceCollection)
+        => serviceCollection.AddSingleton<NotificationFormatter>();
 }
 ```
 
@@ -36,16 +39,8 @@ public sealed class NotificationFormatter
 
 :::
 
-## ConfigureService
-
-Adds the module's registrations to the provided `IServiceCollection`. [`AddService<T>`](../extensions/add-service) calls this after constructing the module, and application code can call it directly when it already owns an instance.
-
-The collection passed in is the application's live one, not a copy, so registrations made here are visible to the rest of startup and there is nothing to return. Do not resolve services or perform runtime work here; this method should only describe registrations.
-
 ### Type signature
 
 ```csharp
-void ConfigureService(
-    IServiceCollection serviceCollection
-);
+public void ConfigureService(IServiceCollection serviceCollection);
 ```

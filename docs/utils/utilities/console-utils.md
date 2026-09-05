@@ -1,20 +1,6 @@
 # ConsoleUtils
 
-Console primitives for a command-line application: naming the window, prompting for input, erasing a line, and taking over what `Ctrl+C` means. All members are static and none is registered in the container. Only the cursor rewrite checks for redirected output and skips itself. The window title, the prompt write, the colour change, and the cancellation guard all run either way, so a redirected stream still receives the prompt text.
-
-## Usage
-
-```csharp
-using AlmightyShogun.Utils;
-
-ConsoleUtils.Title("Importer");
-ConsoleUtils.PreventCancellation();
-
-string? environment = await ConsoleUtils.AskQuestionAsync(
-    "What is the environment?",
-    "staging"
-);
-```
+Console primitives for a command-line application: naming the window, prompting for input, erasing a line, and taking over what `Ctrl+C` means. All members are static and none is registered in the container. Only the cursor rewrite checks for redirected output and skips itself; everything else runs either way, so a redirected stream still receives the prompt text.
 
 ## Title
 
@@ -58,7 +44,9 @@ public static void RemoveLastLine();
 
 Prompts on the console and waits for an answer, repeating the prompt until one is available. The typed input is coloured, and the prompt line is erased once answered, so a sequence of questions does not fill the screen with what was already asked.
 
-Passing no `defaultValue` makes the question mandatory: an empty line re-asks rather than returning, and only a typed answer or a closed input stream ends the loop. The result is never empty, and is null only for a mandatory question whose input stream ended.
+Passing no `defaultValue` makes the question mandatory: an empty line re-asks rather than returning, and only a typed answer or a closed input stream ends the loop. The result is null only for a mandatory question whose input stream ended.
+
+`Console.In` reads synchronously whatever is asked of it, so awaiting this yields no thread back while a reader is typing. The asynchronous shape is for composing with asynchronous callers, not for scaling. The cancellation token is observed between reads, so it takes effect once the pending line is submitted rather than interrupting someone part way through typing one.
 
 ```csharp
 using AlmightyShogun.Utils;
@@ -75,10 +63,6 @@ string? name = await ConsoleUtils.AskQuestionAsync(
 
 ::: tip
 A redirected or closed input stream ends the prompt rather than looping on it. With a `defaultValue` the default is returned, and without one the result is null, so give a default to anything that might run outside an interactive terminal and treat null as "nobody was there to answer".
-:::
-
-::: warning
-`Console.In` reads synchronously whatever is asked of it, so awaiting this yields no thread back while a reader is typing. The asynchronous shape is for composing with asynchronous callers, not for scaling. The cancellation token is observed between reads, so it takes effect once the pending line is submitted rather than interrupting someone part way through typing one.
 :::
 
 ### Type signature

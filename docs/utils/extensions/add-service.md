@@ -25,9 +25,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 public sealed class NotificationsRegistry : IServiceRegistry
 {
-    public void ConfigureService(
-        IServiceCollection serviceCollection
-    ) => serviceCollection 
+    public void ConfigureService(IServiceCollection serviceCollection)
+        => serviceCollection
             .AddSingleton<NotificationFormatter>()
             .AddScoped<INotificationSender, EmailNotificationSender>();
 }

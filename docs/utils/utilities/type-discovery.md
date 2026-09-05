@@ -2,14 +2,6 @@
 
 Finds concrete implementations across assemblies by reflection, which is what the registration helpers in this package are built on. It is a raw primitive with no dependency-injection semantics: nothing here reads an attribute or decides a lifetime.
 
-## Usage
-
-```csharp
-using AlmightyShogun.Utils;
-
-IEnumerable<Type> steps = TypeDiscovery.FindAssignableTypes<IImportStep>();
-```
-
 ## FindAssignableTypes
 
 Returns the concrete types assignable to `T`. Interfaces and abstract classes are filtered out, so every returned type can be instantiated.
@@ -39,11 +31,7 @@ This is a raw reflection primitive with no dependency-injection semantics. It do
 ```csharp
 public static IEnumerable<Type> FindAssignableTypes<T>();
 
-public static IEnumerable<Type> FindAssignableTypes<T>(
-    Assembly assembly
-);
+public static IEnumerable<Type> FindAssignableTypes<T>(Assembly assembly);
 
-public static IEnumerable<Type> FindAssignableTypes<T>(
-    Assembly[] assemblies
-);
+public static IEnumerable<Type> FindAssignableTypes<T>(Assembly[] assemblies);
 ```
