@@ -117,6 +117,29 @@ builder.Services
 
 Application code derives its context from [`AuthDbContext<TUser>`](/asp-net-auth-credentials/types/auth-db-context) and its user entity from [`AuthUser`](/asp-net-auth-credentials/types/auth-user). Use [`IAuthUserService<TUser>`](/asp-net-auth-credentials/services/auth-user-service) for login and registration, [`IAuthSessionService<TUser>`](/asp-net-auth-credentials/services/auth-session-service) for refresh-token rotation, [`IAuthPasswordService`](/asp-net-auth-credentials/services/auth-password-service) for password changes and resets, and [`IAuthTwoFactorService<TUser>`](/asp-net-auth-credentials/services/auth-two-factor-service) for two-factor enrolment.
 
+## Maintenance mode
+
+Use `AlmightyShogun.AspNet.MaintenanceMode` when an application needs to turn traffic away during a deployment or an incident, and that window has to survive a process restart. State is held in a file rather than a database, so nothing else has to be reachable for the window to hold.
+
+```sh
+dotnet add package AlmightyShogun.AspNet.MaintenanceMode
+```
+
+```csharp
+using AlmightyShogun.AspNet.Core;
+using AlmightyShogun.AspNet.MaintenanceMode;
+
+builder.Services
+    .AddHttpErrorResponseWriter()
+    .AddMaintenanceMode(builder.Configuration);
+
+WebApplication app = builder.Build();
+
+app.UseMaintenanceMode();
+```
+
+Turning the window on and off is [`IMaintenanceService`](/asp-net-maintenance-mode/services/maintenance-service). The package ships no endpoint for it, because who may call it is an application decision.
+
 ## Console commands
 
 Use `AlmightyShogun.ConsoleCommands` when a hosted console application should discover command classes from its own assemblies and run them from an input loop.
@@ -149,6 +172,29 @@ public sealed class PingCommand : ConsoleCommandBase
     }
 }
 ```
+
+## Host lifetime
+
+Use `AlmightyShogun.Hosting.ConsoleLifetime` in a worker service or unattended console application, where an accidental `Ctrl+C` should not stop the process but an orchestrator's `SIGTERM` still should.
+
+```sh
+dotnet add package AlmightyShogun.Hosting.ConsoleLifetime
+```
+
+```csharp
+using Microsoft.Extensions.Hosting;
+using AlmightyShogun.Hosting.ConsoleLifetime;
+
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+
+builder.UseCustomConsoleLifetime();
+builder.ConfigureHostOptions(
+    TimeSpan.FromSeconds(30),
+    BackgroundServiceExceptionBehavior.StopHost
+);
+```
+
+Set `DOTNET_RUNNING_IN_IDE` to a non-empty value to keep `Ctrl+C` working while debugging.
 
 ## Entity Framework Core
 
@@ -260,3 +306,24 @@ using AlmightyShogun.Mail.Resend;
 
 builder.Services.AddResendEmail(builder.Configuration);
 ```
+
+## Shared utilities
+
+`AlmightyShogun.Utils` arrives transitively with every ASP.NET package here, and is worth installing directly when an application wants the same helpers on their own: typed configuration binding validated at startup, assembly scanning for registration, JSON deserialization defaults matching an ASP.NET Core API, and small console helpers.
+
+```sh
+dotnet add package AlmightyShogun.Utils
+```
+
+```csharp
+using AlmightyShogun.Utils;
+using Microsoft.Extensions.DependencyInjection;
+
+builder.Services
+    .AddConfiguration<WorkerSettings>(
+        builder.Configuration.GetSection("Worker")
+    )
+    .RegisterOnInherit<IImportStep>(ServiceLifetime.Scoped);
+```
+
+[`AddConfiguration`](/utils/extensions/add-configuration) validates the bound record while the host starts, so a missing or out-of-range value stops the application rather than surfacing on the first request that reads it.
