@@ -10,13 +10,13 @@ export default defineConfig({
     lastUpdated: true,
     srcExclude: ['guide-node/**', 'CLAUDE.md'],
     sitemap: {
-        hostname: 'https://nuget-packages.shogun.ms'
+        hostname: 'https://nuget.docs.shogun.ms'
     },
     head: [
         ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
         ['link', { rel: 'stylesheet', href: 'https://font.shogun.ms/css?family=inter-variable|jetbrains-mono' }],
         ['meta', { property: 'og:type', content: 'website' }],
-        ['meta', { property: 'og:url', content: 'https://nuget-packages.shogun.ms/' }]
+        ['meta', { property: 'og:url', content: 'https://nuget.docs.shogun.ms/' }]
     ],
     markdown: {
         config(md) {
