@@ -154,8 +154,6 @@ public static class AspNetCoreExtensions
         /// Takes no configuration: the body shape is fixed, so there is nothing to bind. The default is registered only
         /// when nothing has claimed <see cref="IHttpErrorResponseWriter"/> yet, so an application that registers its own
         /// implementation before this call keeps it, and calling this more than once still leaves one registration.
-        /// Every error body the package writes goes through it, so an application missing this registration fails when
-        /// the first error is answered rather than at startup.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
@@ -174,10 +172,10 @@ public static class AspNetCoreExtensions
         /// </summary>
         ///
         /// <param name="suppressMapClientErrors">
-        /// Whether MVC's client-error mapping is turned off. Left on, a controller marked <c>[ApiController]</c> rewrites
-        /// a bodiless error result such as a bare <c>NotFound()</c> into <c>ProblemDetails</c>, which
-        /// <c>UseHttpErrorResponses</c> then leaves alone. Pass <c>false</c> to keep that, and this package's shape
-        /// applies only to errors raised below MVC.
+        /// Whether MVC's client-error mapping is turned off. With that mapping left on, a controller marked
+        /// <c>[ApiController]</c> rewrites a bodiless error result such as a bare <c>NotFound()</c> into
+        /// <c>ProblemDetails</c>, which <c>UseHttpErrorResponses</c> then leaves alone. Pass <c>false</c> to keep that,
+        /// and this package's shape applies only to errors raised below MVC.
         /// </param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the exception handlers registered.</returns>
@@ -187,9 +185,7 @@ public static class AspNetCoreExtensions
         /// does not register, and <c>UseHttpErrorResponses</c> to run the chain. It answers nothing an application threw
         /// deliberately: register your own handler ahead of this call, built on <see cref="IExceptionMapper"/>, or every
         /// domain exception becomes a <c>500</c>. Order is the reason these two are registered together: the fallback
-        /// claims every exception it is given, so a handler registered after it never runs. The one case the fallback
-        /// declines is a response that has already started, which <c>ExceptionHandlerMiddlewareImpl</c> rethrows before
-        /// it reaches the chain at all.
+        /// claims every exception it is given, so a handler registered after it never runs.
         /// </remarks>
         ///
         /// <remarks>
@@ -234,8 +230,8 @@ public static class AspNetCoreExtensions
         /// startup only when an exception handler, an exception-handling path and an <c>IProblemDetailsService</c> are
         /// all absent, and the other two are worse here: a path re-executes the pipeline, and the problem details
         /// service answers with a <c>ProblemDetails</c> body instead of this package's shape. The delegate itself runs
-        /// only when no registered <see cref="IExceptionHandler"/> claimed the exception, and the fallback handler
-        /// claims everything the middleware passes to the chain, so it is not reached in practice.
+        /// only when no registered <see cref="IExceptionHandler"/> claimed the exception, so it is not reached in
+        /// practice once <see cref="AddExceptionHandling"/> has registered its fallback.
         /// </remarks>
         ///
         /// <remarks>

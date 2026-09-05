@@ -13,8 +13,7 @@ namespace AlmightyShogun.AspNet.Core;
 public sealed record ErrorMapping
 {
     /// <summary>
-    /// Gets the status the response is sent with, and the value carried into <see cref="HttpErrorResponse.Code"/> so the
-    /// body repeats it.
+    /// The HTTP status this failure should be answered with.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -22,7 +21,7 @@ public sealed record ErrorMapping
     public required int StatusCode { get; init; }
 
     /// <summary>
-    /// Gets the stable machine-readable identifier a client branches on, such as <c>invalid_credentials</c>. Treat it as
+    /// The stable machine-readable identifier a client branches on, such as <c>invalid_credentials</c>. Treat it as
     /// public API: renaming it breaks consumers without breaking a build.
     /// </summary>
     ///
@@ -31,8 +30,8 @@ public sealed record ErrorMapping
     public required string Code { get; init; }
 
     /// <summary>
-    /// Gets the key resolved through <see cref="IMessageResolver"/> for the human-readable description. A key no message
-    /// file defines reaches the client verbatim, so it should read as a key rather than as prose.
+    /// The key resolved through <see cref="IMessageResolver"/> for the human-readable description. It should read
+    /// as a key rather than as prose.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -40,9 +39,8 @@ public sealed record ErrorMapping
     public required string MessageKey { get; init; }
 
     /// <summary>
-    /// Gets the values substituted into the resolved template by position, as <c>{0}</c> and onwards. Pass an empty list
-    /// when the message takes none. Too few for the template leaves it unformatted rather than throwing, so a
-    /// placeholder can reach the client; surplus values are ignored.
+    /// The values substituted into the resolved template by position, as <c>{0}</c> and onwards. Pass an empty list
+    /// when the message takes none.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

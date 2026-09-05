@@ -13,8 +13,7 @@ namespace AlmightyShogun.AspNet.Core;
 public static class CloudflareDefaults
 {
     /// <summary>
-    /// The header Cloudflare puts the originating client address in. Trusted as the forwarded-for header by
-    /// <c>AddCloudflareHeaders</c>, in place of the <c>X-Forwarded-For</c> chain the framework reads by default.
+    /// The header Cloudflare puts the originating client address in, in place of the <c>X-Forwarded-For</c> chain.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -22,8 +21,7 @@ public static class CloudflareDefaults
     public const string ClientIpHeader = "CF-Connecting-IP";
 
     /// <summary>
-    /// Gets the published Cloudflare IPv4 and IPv6 ranges. An address outside every range reached the application
-    /// without passing through the edge, so its forwarded headers are not trusted.
+    /// The published Cloudflare IPv4 and IPv6 ranges, as written down here rather than fetched.
     /// </summary>
     ///
     /// <remarks>

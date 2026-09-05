@@ -13,7 +13,7 @@ namespace AlmightyShogun.AspNet.Core;
 public sealed record UserAgent
 {
     /// <summary>
-    /// Gets the browser family with its major version, such as <c>Chrome 120</c>. The version is dropped when the header
+    /// The browser family with its major version, such as <c>Chrome 120</c>. The version is dropped when the header
     /// does not carry one, leaving the family alone.
     /// </summary>
     ///
@@ -22,8 +22,7 @@ public sealed record UserAgent
     public required string Browser { get; init; }
 
     /// <summary>
-    /// Gets the operating-system family with its major version, such as <c>iOS 17</c>, formatted like
-    /// <see cref="Browser"/>.
+    /// The operating-system family with its major version, such as <c>iOS 17</c>, formatted like <see cref="Browser"/>.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -31,7 +30,7 @@ public sealed record UserAgent
     public required string Os { get; init; }
 
     /// <summary>
-    /// Gets the device family, such as <c>iPhone</c>. Desktop browsers report <c>Other</c> rather than a name, since a
+    /// The device family, such as <c>iPhone</c>. Desktop browsers report <c>Other</c> rather than a name, since a
     /// desktop User-Agent does not identify the machine.
     /// </summary>
     ///
@@ -40,7 +39,7 @@ public sealed record UserAgent
     public required string Device { get; init; }
 
     /// <summary>
-    /// Gets whether the header matched a known crawler or spider. A bot that does not announce itself is reported as
+    /// Whether the header matched a known crawler or spider. A bot that does not announce itself is reported as
     /// <c>false</c>, so this filters honest traffic rather than defending against dishonest traffic.
     /// </summary>
     ///
@@ -78,9 +77,9 @@ public sealed record UserAgent
     /// </param>
     ///
     /// <returns>
-    /// The parsed value, never <c>null</c>. An empty header yields <c>Unknown</c> for all three strings and <c>false</c> for
-    /// <see cref="IsBot"/>; an unrecognized one
-    /// yields <c>Other</c> for whichever part failed to match.
+    /// The parsed value, never <c>null</c>. An empty header yields <c>Unknown</c> for all three strings and
+    /// <c>false</c> for <see cref="IsBot"/>; an unrecognized one yields <c>Other</c> for whichever part failed to
+    /// match.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>

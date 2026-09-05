@@ -43,8 +43,9 @@ public static class HttpContextExtensions
         /// </summary>
         ///
         /// <returns>
-        /// The context a previous call or <see cref="SetClientContext"/> stored, otherwise one built from the
-        /// connection address and the User-Agent header.
+        /// The context a previous call or <see cref="SetClientContext"/> stored, otherwise one built from
+        /// <see cref="GetIpAddress"/> and the User-Agent header, whose value is blank rather than <c>null</c> for a
+        /// request that carried no header.
         /// </returns>
         ///
         /// <remarks>
@@ -121,8 +122,8 @@ public static class HttpContextExtensions
         /// </summary>
         ///
         /// <returns>
-        /// The browser, operating system, and device the header names. An absent header yields <c>Unknown</c> for all
-        /// three, and an unrecognized one yields <c>Other</c> for whichever part could not be matched.
+        /// The request's User-Agent header as <see cref="UserAgent.Parse"/> reads it, which supplies the placeholders
+        /// for a header that is absent or that matched nothing.
         /// </returns>
         ///
         /// <remarks>

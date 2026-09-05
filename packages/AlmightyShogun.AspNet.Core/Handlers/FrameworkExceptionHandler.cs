@@ -41,6 +41,24 @@ internal sealed class FrameworkExceptionHandler(
 ) : IExceptionHandler
 {
     /// <inheritdoc />
+    ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while the description was resolved.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while the description was
+    /// resolved.
+    /// </exception>
+    /// <exception cref="NullReferenceException">
+    /// A consumer-supplied <see cref="ILanguageProvider"/> returned <c>null</c> from
+    /// <see cref="ILanguageProvider.GetLanguages"/>.
+    /// </exception>
+    ///
+    /// <remarks>
+    /// Nothing here catches what <see cref="IMessageResolver.Resolve(string)"/> throws, so a resolver failure escapes
+    /// into the middleware while the error body is being built, in place of the response this would have written. Only
+    /// the <see cref="BadHttpRequestException"/> path resolves at all; every other exception is declined first.
+    /// </remarks>
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
         if (exception is OperationCanceledException && httpContext.RequestAborted.IsCancellationRequested)
