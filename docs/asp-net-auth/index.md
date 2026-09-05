@@ -1,6 +1,6 @@
 # ASP.NET Auth
 
-Adds the authentication pieces commonly needed by ASP.NET Core APIs in this package family. It wires JWT bearer authentication, binds the `Auth` configuration section, validates token issuer, signing key, lifetime, and configured audiences, and adds authorization rules that match protected requests to their configured host app.
+Adds the authentication pieces commonly needed by ASP.NET Core APIs in this package family. It wires JWT bearer authentication, binds the `Auth` configuration section, validates token issuer, signing key, lifetime, and configured audiences, and refuses a token issued for an app other than the one the request host resolves to.
 
 Use this package when an API should accept JWT access tokens, store refresh tokens in a consistent cookie, and protect controllers or actions with permission attributes. The package is intentionally focused: token issuing remains application code, while validation, cookie names, cookie helpers, host-to-app resolution, and permission policy registration are handled here.
 

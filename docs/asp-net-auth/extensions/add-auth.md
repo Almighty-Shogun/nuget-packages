@@ -14,9 +14,9 @@ returns: The `IServiceCollection` instance with JWT authentication and authoriza
 
 # AddAuth
 
-Registers everything the package needs: the bound [`AuthSettings`](../configuration), JWT bearer authentication, the host resolver, the token generator, and the app-audience and permission authorization services. It also registers a mapper covering this package's [exceptions](../exceptions), so each becomes a standardized error response.
+Registers everything the package needs: the bound [`AuthSettings`](../configuration), JWT bearer authentication, the host resolver, the token generator, and the permission authorization services. It also registers a mapper covering this package's [exceptions](../exceptions), so each becomes a standardized error response.
 
-Every policy, generated or declared, carries the app-audience requirement, which checks a token's audience against the app the request host resolves to whenever a non-empty [`Hosts`](../configuration) mapping is configured.
+A token's audience is checked as the token is validated whenever a non-empty [`Hosts`](../configuration) mapping is configured, so a token issued for a different app, or one arriving on a host that maps to none, is refused as unauthenticated with a `401`.
 
 ## Usage
 

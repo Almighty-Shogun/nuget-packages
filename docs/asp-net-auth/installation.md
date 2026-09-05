@@ -1,6 +1,6 @@
 # Installation
 
-Install `AlmightyShogun.AspNet.Auth` in the ASP.NET Core API that needs to validate JWT access tokens and register the package's permission and app-audience authorization services. The package targets `net10.0`, uses ASP.NET Core framework APIs, and expects an `Auth` configuration section to be available when authentication is registered.
+Install `AlmightyShogun.AspNet.Auth` in the ASP.NET Core API that needs to validate JWT access tokens and register the package's permission authorization services. The package targets `net10.0`, uses ASP.NET Core framework APIs, and expects an `Auth` configuration section to be available when authentication is registered.
 
 ```sh
 dotnet add package AlmightyShogun.AspNet.Auth
@@ -16,7 +16,7 @@ dotnet add package AlmightyShogun.AspNet.Auth
 
 - `Microsoft.AspNetCore.Authentication.JwtBearer` `10.0.11` &mdash; provides JWT bearer authentication middleware and token validation options.
 - `Microsoft.IdentityModel.Tokens` `8.22.0` &mdash; provides token validation parameters and symmetric signing key types used directly by JWT setup.
-- `System.IdentityModel.Tokens.Jwt` `8.22.0` &mdash; provides JWT claim name constants used by app-audience authorization.
+- `System.IdentityModel.Tokens.Jwt` `8.22.0` &mdash; provides JWT claim name constants used by the app-audience check.
 
 ### Project references
 
