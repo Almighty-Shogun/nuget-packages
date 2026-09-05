@@ -78,7 +78,7 @@ protected virtual IReadOnlyList<MailButton> Buttons { get; }
 
 Extra placeholder values for the template, written as `{{Key}}` in the template files. Override it to add template fields without changing the package or introducing a template engine. Empty by default, and every value is HTML encoded on the way in.
 
-Subclass values are applied after the built-in placeholders, so a key naming a built-in placeholder has no effect. They are applied one after another over the accumulating text, and HTML encoding leaves braces alone, so a value containing `{{OtherKey}}` is itself substituted when that key is applied later. Enumeration order therefore decides the result.
+Subclass values are applied after the built-in placeholders, so a key naming one of those has no effect, apart from `BodyHtml` and `ButtonsHtml`, which are substituted last and so are overridden by a subclass key of the same name. They are applied one after another over the accumulating text, and HTML encoding leaves braces alone, so a value containing `{{OtherKey}}` is itself substituted when that key is applied later. Enumeration order therefore decides the result.
 
 ```csharp
 using AlmightyShogun.Mail.Resend;
