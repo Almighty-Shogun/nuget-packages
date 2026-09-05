@@ -1,6 +1,6 @@
 # AppHostResolver
 
-Resolves which application a request belongs to, from its host, which is the mapping app-audience authorization is built on. Application code depends on `IAppHostResolver`.
+Resolves which application a request belongs to, from its host, which is the mapping the app-audience check is built on. Application code depends on `IAppHostResolver`.
 
 [`Hosts`](../configuration) supplies the mapping and decides whether scoping is active at all, with [`LocalhostApp`](../configuration) covering localhost in development.
 
