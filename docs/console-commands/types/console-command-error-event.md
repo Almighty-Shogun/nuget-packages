@@ -16,8 +16,8 @@ The failure passed to [`CommandFailed`](../services/console-command-handler#comm
 ## Usage
 
 ```csharp
-using AlmightyShogun.ConsoleCommands;
 using Microsoft.Extensions.Hosting;
+using AlmightyShogun.ConsoleCommands;
 
 public sealed class CommandFailureReporter(
     IConsoleCommandHandler commandHandler,
@@ -38,9 +38,15 @@ public sealed class CommandFailureReporter(
         return Task.CompletedTask;
     }
 
-    private void OnCommandFailed(object? sender, ConsoleCommandErrorEvent args)
+    private void OnCommandFailed(
+        object? sender,
+        ConsoleCommandErrorEvent args
+    )
     {
-        Console.Error.WriteLine($"{args.CommandName} failed: {args.Exception.Message}");
+        string command = args.CommandName;
+        string message = args.Exception.Message;
+        
+        Console.Error .WriteLine($"{command} failed: {message}");
 
         lifetime.StopApplication();
     }

@@ -1,7 +1,7 @@
 ---
 params:
     - name: aliases
-      description: Alternative command names that should resolve to the same command handler.
+      description: Alternative command names that resolve to the same command class, matched case-insensitively like the command name.
       type: string[]
       default: '[]'
 ---

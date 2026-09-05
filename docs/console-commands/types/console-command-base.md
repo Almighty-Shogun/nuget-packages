@@ -4,29 +4,6 @@ Base class for application-defined console commands. A command class should inhe
 
 It reads metadata and aliases from the class attributes, validates argument counts, and converts string input to the `ExecuteAsync` parameter types before invoking it.
 
-## Usage
-
-```csharp
-using AlmightyShogun.ConsoleCommands;
-
-[Alias("p")]
-[Example("production")]
-[ConsoleCommand("ping", "Writes a pong response.")]
-public sealed class PingCommand : ConsoleCommandBase
-{
-    public Task ExecuteAsync(string environment)
-    {
-        Console.WriteLine($"pong from {environment}");
-
-        return Task.CompletedTask;
-    }
-}
-```
-
-::: tip
-The base takes no constructor arguments, so a command needing nothing declares no constructor at all. One that needs application services declares its own, and the dispatcher resolves them from a fresh scope per invocation.
-:::
-
 ## ExecuteAsync
 
 Derived command classes must define exactly one public instance method named `ExecuteAsync` that returns `Task` or `ValueTask`. Parameters on that method become positional command arguments. Non-optional parameters are required, optional parameters use their C# default value when the user omits them, and invalid conversions are logged instead of invoking the command.
@@ -71,4 +48,8 @@ public interface IReleaseService
 }
 ```
 
+:::
+
+::: tip
+The base takes no constructor arguments, so a command needing nothing declares no constructor at all. One that needs application services declares its own, and the dispatcher resolves them from a fresh scope per invocation.
 :::

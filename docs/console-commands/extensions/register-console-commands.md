@@ -9,9 +9,9 @@ returns: The `IServiceCollection` instance with the discovered command classes r
 
 # RegisterConsoleCommands
 
-Registers the command classes declared in the given assemblies as transient services under their own concrete type, so [`ConsoleCommandHandler`](../services/console-command-handler) can resolve one per invocation. Pair it with [`AddConsoleCommands`](./add-console-commands), which registers the handler itself. Neither call reads what the other registered, so they may be written in either order.
+Registers each discovered command class as a transient service under its own concrete type, so [`ConsoleCommandHandler`](../services/console-command-handler) builds a fresh one from a new scope per invocation and a command may depend on scoped application services. With no argument it scans the calling assembly; pass assemblies when the commands live in another project.
 
-A fresh instance is built per invocation, so a command may depend on scoped application services.
+Pair it with [`AddConsoleCommands`](./add-console-commands), which registers the handler itself.
 
 ## Usage
 

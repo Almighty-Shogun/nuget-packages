@@ -4,9 +4,9 @@ returns: The `IServiceCollection` instance with the console command handler regi
 
 # AddConsoleCommands
 
-Registers the console command runtime services. The method adds [`ConsoleCommandHandler`](../services/console-command-handler) as the implementation for `IConsoleCommandHandler`, which is the service application code should resolve when it wants to start the command loop.
+Registers [`ConsoleCommandHandler`](../services/console-command-handler) as the singleton implementation of `IConsoleCommandHandler`, which application code resolves to start and stop the input loop. It registers no command classes, so pair it with [`RegisterConsoleCommands`](./register-console-commands).
 
-Pair it with [`RegisterConsoleCommands`](./register-console-commands), which registers the command classes themselves. Neither call reads what the other registered, so they may be written in either order.
+Neither call reads what the other registered, so they may be written in either order.
 
 ## Usage
 

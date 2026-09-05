@@ -5,12 +5,12 @@ params:
       type: string
 
     - name: description
-      description: Optional command description used when command metadata is listed.
+      description: The one-line explanation surfaced as `Description` on [`ConsoleCommand`](../types/console-command) for a help listing.
       type: string?
       default: 'null'
 
     - name: ignoreExtraArgs
-      description: Whether extra input arguments should be ignored instead of treated as an invalid argument count.
+      description: Whether extra input arguments are discarded instead of treated as an invalid argument count. It relaxes only the upper bound, so a command still refuses to run when too few arguments are supplied to fill its required parameters.
       type: bool
       default: 'false'
 ---

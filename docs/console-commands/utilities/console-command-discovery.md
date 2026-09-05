@@ -1,31 +1,12 @@
 # ConsoleCommandDiscovery
 
-Reads the metadata of every command declared in an assembly, without constructing any of them. Use it to build a `help` listing or a command reference.
-
-## Usage
-
-```csharp
-using AlmightyShogun.ConsoleCommands;
-
-foreach (ConsoleCommand command in ConsoleCommandDiscovery.GetAllCommands())
-{
-    Console.WriteLine(command.Usage);
-}
-```
+Reads the metadata of every command declared in an assembly, without constructing any of them. Use it to build a `help` listing or a command reference. Reflection runs on every call, so a listing shown often should be built once and held rather than rebuilt each time.
 
 ## GetAllCommands
 
 Builds the metadata for each command class, reading the class attributes and the parameters of its `ExecuteAsync` method. A class that breaks the command rules throws `InvalidOperationException` naming it, the same failure [`RegisterConsoleCommands`](../extensions/register-console-commands) raises.
 
-::: warning
-This does not apply `SkipAutoRegistrationAttribute`, which registration does. A command carrying that attribute appears in a listing built from here while being unreachable at the prompt.
-:::
-
 The overload taking no argument scans the calling assembly. Pass assemblies explicitly when the commands live in another project; an empty array yields nothing.
-
-::: tip
-Reflection runs on every call. A `help` command that runs often should build the listing once and hold it rather than calling this each time.
-:::
 
 ```csharp
 using AlmightyShogun.ConsoleCommands;
@@ -51,6 +32,10 @@ public sealed class HelpCommand : ConsoleCommandBase
     }
 }
 ```
+
+::: warning
+This does not apply [`SkipAutoRegistrationAttribute`](/utils/attributes/skip-auto-registration), which registration does. A command carrying that attribute appears in a listing built from here while being unreachable at the prompt.
+:::
 
 ### Type signature
 

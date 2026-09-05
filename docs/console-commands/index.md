@@ -14,10 +14,52 @@ Commands are ordinary DI-created classes: one that needs application services de
 
 ## Quick Example
 
-```csharp
+::: code-group
+
+```csharp [Program.cs]
+using Microsoft.Extensions.Hosting;
 using AlmightyShogun.ConsoleCommands;
+using Microsoft.Extensions.DependencyInjection;
+
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
     .AddConsoleCommands()
-    .RegisterConsoleCommands();
+    .RegisterConsoleCommands()
+    .AddHostedService<ConsoleCommandWorker>();
+
+await builder.Build().RunAsync();
 ```
+
+```csharp [ConsoleCommandWorker.cs]
+using Microsoft.Extensions.Hosting;
+using AlmightyShogun.ConsoleCommands;
+
+public sealed class ConsoleCommandWorker(
+    IConsoleCommandHandler commandHandler
+) : BackgroundService
+{
+    protected override Task ExecuteAsync(
+        CancellationToken cancellationToken
+    ) => commandHandler.StartAsync(cancellationToken);
+}
+```
+
+```csharp [PingCommand.cs]
+using AlmightyShogun.ConsoleCommands;
+
+[Alias("p")]
+[Example("production")]
+[ConsoleCommand("ping", "Writes a pong response.")]
+public sealed class PingCommand : ConsoleCommandBase
+{
+    public Task ExecuteAsync(string environment)
+    {
+        Console.WriteLine($"pong from {environment}");
+
+        return Task.CompletedTask;
+    }
+}
+```
+
+:::
