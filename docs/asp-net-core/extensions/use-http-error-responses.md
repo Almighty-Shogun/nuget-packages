@@ -47,7 +47,7 @@ The empty `NotFound()` above returns:
 ```
 
 ::: tip
-`errorDescription` is resolved from the [`http-error.{status}`](../http-error-messages) message key in the language the caller negotiated. A status with no entry in that language falls back to the key itself, so the client sees `http-error.404`.
+`errorDescription` is resolved from the [`http-error.{status}`](../http-error-messages) message key in the language the caller negotiated. A status with no entry in that language falls back to the key itself, so the client sees `http-error.404`, and a `500` whose description cannot be resolved at all falls back the same way.
 :::
 
 ## Pipeline order
