@@ -46,7 +46,6 @@ builder.Services
     .AddMessageLocalization(builder.Configuration)
     .AddHttpErrorResponseWriter()
     .AddExceptionHandling()
-    .AddHttpErrorResponseFilter()
     .AddCorsPolicy("DefaultCors", builder.Configuration)
     .AddAuth(builder.Configuration);
 

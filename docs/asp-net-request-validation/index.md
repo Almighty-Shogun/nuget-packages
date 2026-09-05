@@ -29,7 +29,6 @@ builder.Services
     .AddMessageLocalization(builder.Configuration)
     .AddHttpErrorResponseWriter()
     .AddExceptionHandling()
-    .AddHttpErrorResponseFilter()
     .AddAspNetValidation();
 
 builder.Services.AddControllers();
