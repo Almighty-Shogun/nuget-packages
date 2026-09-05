@@ -43,7 +43,7 @@ public sealed record MailButton
     }
 
     /// <summary>
-    /// Gets the visible text, encoded into the HTML body and written verbatim into the plain-text one.
+    /// The visible text, encoded into the HTML body and written verbatim into the plain-text one.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -51,8 +51,7 @@ public sealed record MailButton
     public string Label { get; }
 
     /// <summary>
-    /// Gets the destination, checked against the accepted schemes at construction, which is what keeps an unsafe one out of
-    /// the plain-text body the renderer does not encode.
+    /// The destination, checked against the accepted schemes at construction.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

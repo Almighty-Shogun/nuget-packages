@@ -10,10 +10,8 @@ namespace AlmightyShogun.Mail.Resend;
 public sealed record EmailTemplateSettings
 {
     /// <summary>
-    /// Gets the copyright text substituted into the template's copyright placeholder, wherever the application's own base
-    /// template puts it, and appended to the plain-text footer. The <c>{app_name}</c> and <c>{app_url}</c> placeholders are
-    /// substituted first, and the HTML rendering then encodes the result so a brand name containing markup cannot escape
-    /// into the document. The plain-text rendering encodes nothing, having no markup to escape.
+    /// The copyright text for the footer, wherever the application's own base template puts it. It may contain the
+    /// <c>{app_name}</c> and <c>{app_url}</c> placeholders.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -21,9 +19,7 @@ public sealed record EmailTemplateSettings
     public string CopyrightTextTemplate { get; init; } = "© {app_name}";
 
     /// <summary>
-    /// Gets the text substituted into the footer link placeholder and appended to the plain-text footer. It takes the same
-    /// placeholders as <see cref="CopyrightTextTemplate"/>, and still renders when <see cref="EmailSettings.AppUrl"/> is
-    /// unset or was rejected.
+    /// The visible text of the footer link. It takes the same placeholders as <see cref="CopyrightTextTemplate"/>.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -31,9 +27,8 @@ public sealed record EmailTemplateSettings
     public string FooterLinkText { get; init; } = "{app_name}";
 
     /// <summary>
-    /// Gets the line telling a recipient to disregard a message they did not expect. Empty by default, which drops the
-    /// line from the text rendering entirely and substitutes nothing for its HTML placeholder. Whether that leaves an empty
-    /// paragraph behind depends on the application's own base template, which this package does not ship.
+    /// The line telling a recipient to disregard a message they did not expect. Empty by default, and it takes the same
+    /// placeholders as <see cref="CopyrightTextTemplate"/>.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

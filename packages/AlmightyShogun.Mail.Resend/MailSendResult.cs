@@ -33,9 +33,7 @@ public sealed record MailSendResult
     }
 
     /// <summary>
-    /// Gets whether the send succeeded. A <c>true</c> means the request to Resend returned without an error, and nothing
-    /// here follows the message any further than that. A <c>false</c> does not always mean Resend declined it: a send with
-    /// no recipient fails before the provider is contacted.
+    /// Whether the send succeeded.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -43,7 +41,7 @@ public sealed record MailSendResult
     public bool IsSuccess { get; }
 
     /// <summary>
-    /// Gets the Resend id, for correlating with a webhook or the dashboard. Always <c>null</c> when the send failed, and
+    /// The Resend id, for correlating with a webhook or the dashboard. Always <c>null</c> when the send failed, and
     /// always present when it succeeded, since the only success path formats the identifier Resend returns.
     /// </summary>
     ///
@@ -52,9 +50,8 @@ public sealed record MailSendResult
     public string? MessageId { get; }
 
     /// <summary>
-    /// Gets the failure message, and <c>null</c> whenever the send succeeded. It carries either this package's own
-    /// rejection, such as a send with no recipient, or the message of the exception the send request threw, which may come
-    /// from the client library rather than from Resend. It is for logs and diagnostics rather than for showing to a user.
+    /// The failure message, and <c>null</c> whenever the send succeeded. It is for logs and diagnostics rather than for
+    /// showing to a user.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

@@ -9,8 +9,8 @@ namespace AlmightyShogun.Mail.Resend;
 public sealed record MailAttachment
 {
     /// <summary>
-    /// Gets the name carried with the attachment. It is handed to the Resend client verbatim, with no path handling applied here, so
-    /// what a recipient's client makes of it is that client's business.
+    /// The name carried with the attachment. Nothing here constrains or rewrites it, so what a recipient's client makes
+    /// of it is that client's business.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -18,7 +18,7 @@ public sealed record MailAttachment
     public required string FileName { get; init; }
 
     /// <summary>
-    /// Gets the raw bytes, held in memory for the whole send. The package imposes no size limit of its own.
+    /// The raw bytes. Nothing here imposes a size limit of its own.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -26,7 +26,7 @@ public sealed record MailAttachment
     public required byte[] Content { get; init; }
 
     /// <summary>
-    /// Gets the MIME type. Leave it unset to send none and leave the type to Resend.
+    /// The MIME type, or <c>null</c> to leave it unstated.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

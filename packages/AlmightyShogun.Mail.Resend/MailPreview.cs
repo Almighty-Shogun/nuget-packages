@@ -9,7 +9,7 @@ namespace AlmightyShogun.Mail.Resend;
 public sealed record MailPreview
 {
     /// <summary>
-    /// Gets the rendered HTML body, exactly as a send would submit it.
+    /// The rendered HTML body.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -17,7 +17,7 @@ public sealed record MailPreview
     public required string Html { get; init; }
 
     /// <summary>
-    /// Gets the plain-text alternative, sent alongside the HTML rather than instead of it.
+    /// The plain-text alternative to <see cref="Html"/>, rendered from the same template values.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

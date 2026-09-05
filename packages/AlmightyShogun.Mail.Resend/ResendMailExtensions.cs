@@ -52,10 +52,8 @@ public static class ResendMailExtensions
         /// </exception>
         ///
         /// <remarks>
-        /// The mail service is transient and the template loader a singleton, so the file cache is shared across sends.
-        /// Settings are bound through <see cref="IOptions{TOptions}"/>, so their values are fixed for the life of the process
-        /// and a reload requires a restart. The Resend client is registered as a typed <c>HttpClient</c> with the standard
-        /// resilience handler.
+        /// The mail service is transient and the template loader a singleton, so the file cache is shared across sends. The
+        /// Resend client is registered as a typed <c>HttpClient</c> with the standard resilience handler.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>

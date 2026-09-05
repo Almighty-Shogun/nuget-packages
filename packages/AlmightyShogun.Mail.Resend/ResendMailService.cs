@@ -10,7 +10,7 @@ namespace AlmightyShogun.Mail.Resend;
 /// </summary>
 ///
 /// <param name="resend">The typed client the send request goes through, already wrapped in the standard resilience handler.</param>
-/// <param name="emailTemplateLoader">The loader the shared HTML fragments are read from, caching each file after its first read.</param>
+/// <param name="emailTemplateLoader">The loader the shared HTML fragments are read from.</param>
 /// <param name="emailSettings">
 /// The bound settings, read once at construction, so a message never sees a sender changed part-way through its own send.
 /// </param>

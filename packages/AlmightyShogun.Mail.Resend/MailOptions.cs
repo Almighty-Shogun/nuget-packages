@@ -9,8 +9,7 @@ namespace AlmightyShogun.Mail.Resend;
 public sealed record MailOptions
 {
     /// <summary>
-    /// Gets the primary recipients. An empty list is refused as a failed result rather than an exception, so it reaches the
-    /// caller the same way a provider rejection does.
+    /// The primary recipients. Nothing here checks that an entry is a well-formed address.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -18,8 +17,7 @@ public sealed record MailOptions
     public required IReadOnlyList<string> To { get; init; }
 
     /// <summary>
-    /// Gets the recipients visible to everyone else on the message. Left empty, nothing is set on the outgoing message, and
-    /// how the Resend client represents an unset field on the wire is its own concern.
+    /// The recipients visible to everyone else on the message.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -27,7 +25,7 @@ public sealed record MailOptions
     public IReadOnlyList<string> Cc { get; init; } = [];
 
     /// <summary>
-    /// Gets the recipients hidden from the others. Nothing here caps how many there are, so any limit on a large blind list
+    /// The recipients hidden from the others. Nothing here caps how many there are, so any limit on a large blind list
     /// is Resend's own.
     /// </summary>
     ///
@@ -36,7 +34,7 @@ public sealed record MailOptions
     public IReadOnlyList<string> Bcc { get; init; } = [];
 
     /// <summary>
-    /// Gets the addresses a reply is directed to instead of the configured sender, for sending from an address nobody
+    /// The addresses a reply is directed to instead of the configured sender, for sending from an address nobody
     /// monitors.
     /// </summary>
     ///
@@ -45,7 +43,7 @@ public sealed record MailOptions
     public IReadOnlyList<string> ReplyTo { get; init; } = [];
 
     /// <summary>
-    /// Gets the files delivered with the message. Each one is held in memory for the duration of the send.
+    /// The files delivered with the message.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -53,13 +51,13 @@ public sealed record MailOptions
     public IReadOnlyList<MailAttachment> Attachments { get; init; } = [];
 
     /// <summary>
-    /// Gets the idempotency key sent with the request. What Resend makes of a repeated key is the provider's own behavior,
+    /// The idempotency key sent with the request. What Resend makes of a repeated key is the provider's own behavior,
     /// not something this package enforces.
     /// </summary>
     ///
     /// <remarks>
-    /// Leave it unset to have one generated per send. Set it explicitly when the caller can itself be retried, for
-    /// example a background job, so every one of those retries sends the same key.
+    /// Set it explicitly when the caller can itself be retried, for example a background job, so every one of those retries
+    /// sends the same key.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
