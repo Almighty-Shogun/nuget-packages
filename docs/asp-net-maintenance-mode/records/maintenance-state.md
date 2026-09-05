@@ -32,19 +32,6 @@ A snapshot of maintenance mode, returned by [`IMaintenanceService.GetAsync`](../
 
 It carries only what a caller needs to report the current state; the allow lists and the redirect flag are persisted configuration and are not exposed here. Change maintenance mode through [`MaintenanceRequest`](./maintenance-request) rather than by writing the state file.
 
-## Usage
-
-```csharp
-using AlmightyShogun.AspNet.MaintenanceMode;
-
-MaintenanceState state = await maintenanceService.GetAsync();
-
-if (state.IsEnabled)
-{
-    Console.WriteLine(state.Message ?? "Maintenance mode is enabled.");
-}
-```
-
 <FrontmatterDocs/>
 
 ## Type signature

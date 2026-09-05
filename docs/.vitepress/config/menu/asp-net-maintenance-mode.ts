@@ -25,12 +25,12 @@ export const aspNetMaintenanceMode: DefaultTheme.SidebarItem[] = [
         ]
     },
     {
-        text: 'Types',
+        text: 'Records',
         collapsed: false,
         items: [
-            { text: 'MaintenanceRequest', link: '/asp-net-maintenance-mode/types/maintenance-request' },
-            { text: 'MaintenanceResponse', link: '/asp-net-maintenance-mode/types/maintenance-response' },
-            { text: 'MaintenanceState', link: '/asp-net-maintenance-mode/types/maintenance-state' }
+            { text: 'MaintenanceRequest', link: '/asp-net-maintenance-mode/records/maintenance-request' },
+            { text: 'MaintenanceResponse', link: '/asp-net-maintenance-mode/records/maintenance-response' },
+            { text: 'MaintenanceState', link: '/asp-net-maintenance-mode/records/maintenance-state' }
         ]
     },
 ];

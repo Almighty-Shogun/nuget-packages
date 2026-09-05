@@ -47,46 +47,6 @@ Describes a maintenance window, passed to [`IMaintenanceService.EnableAsync`](..
 
 Every field is nullable and every omitted field falls back to [`MaintenanceSettings`](../configuration), so a caller sends only what differs from the configured defaults. A supplied list replaces the configured one for the duration of the window; it is not merged with it.
 
-## Usage
-
-::: code-group
-
-```csharp [Immediate.cs]
-using AlmightyShogun.AspNet.MaintenanceMode;
-
-await maintenanceService.EnableAsync(new MaintenanceRequest
-{
-    Message = "Upgrading the database. Back shortly.",
-    EndsAt = DateTimeOffset.UtcNow.AddMinutes(30)
-});
-```
-
-```csharp [Planned.cs]
-using AlmightyShogun.AspNet.MaintenanceMode;
-
-await maintenanceService.EnableAsync(new MaintenanceRequest
-{
-    Message = "Scheduled maintenance.",
-    StartsAt = DateTimeOffset.Parse("2026-09-01T02:00:00Z"),
-    EndsAt = DateTimeOffset.Parse("2026-09-01T04:00:00Z"),
-    AutoDisableWhenExpired = true
-});
-```
-
-```csharp [WithAllowList.cs]
-using AlmightyShogun.AspNet.MaintenanceMode;
-
-await maintenanceService.EnableAsync(new MaintenanceRequest
-{
-    Message = "Upgrading the database.",
-    EndsAt = DateTimeOffset.UtcNow.AddHours(1),
-    AllowedPathPrefixes = ["/ops"],
-    AllowedIpAddresses = ["203.0.113.10"]
-});
-```
-
-:::
-
 <FrontmatterDocs/>
 
 ## Type signature
