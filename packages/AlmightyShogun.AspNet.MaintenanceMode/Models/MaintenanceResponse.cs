@@ -5,16 +5,45 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 /// exposed to whoever is being blocked.
 /// </summary>
 ///
-/// <param name="Message">The configured maintenance message.</param>
-/// <param name="StartsAt">When the window starts, when scheduled ahead.</param>
-/// <param name="EndsAt">When the window is expected to end.</param>
-/// <param name="EnabledAt">When maintenance mode was enabled.</param>
-///
 /// <remarks>
-/// This is a data payload that happens to carry a <c>503</c> status, not an error body, which is why it keeps its own shape rather than
-/// going through the shared error response writer.
+/// Written straight to the response as JSON under a <c>503</c> status, rather than through the shared error response writer the middleware
+/// uses for the body a blocked request receives.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public sealed record MaintenanceResponse(string? Message, DateTimeOffset? StartsAt, DateTimeOffset? EndsAt, DateTimeOffset? EnabledAt);
+public sealed record MaintenanceResponse
+{
+    /// <summary>
+    /// Gets the explanation recorded on the window itself. A window opened through <see cref="IMaintenanceService.EnableAsync"/> falls back
+    /// to the configured default when it supplied none; a hand-edited file that omits it carries no message at all.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public required string? Message { get; init; }
+
+    /// <summary>
+    /// Gets when the window starts, when scheduled ahead.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public required DateTimeOffset? StartsAt { get; init; }
+
+    /// <summary>
+    /// Gets when the window is expected to end.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public required DateTimeOffset? EndsAt { get; init; }
+
+    /// <summary>
+    /// Gets when maintenance mode was enabled.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public required DateTimeOffset? EnabledAt { get; init; }
+}

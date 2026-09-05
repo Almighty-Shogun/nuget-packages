@@ -40,6 +40,14 @@ internal sealed class MaintenanceMiddleware(
     ///
     /// <returns>A task that completes when the request has been handled.</returns>
     ///
+    /// <exception cref="IOException">
+    /// An expired window that lifts itself was being closed and its file could not be deleted. Nothing here catches it, so an ordinary
+    /// request fails rather than being served or blocked.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// The process may not delete the state file of an expired window, which fails the request in the same way.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public async Task InvokeAsync(HttpContext context)
@@ -106,7 +114,13 @@ internal sealed class MaintenanceMiddleware(
         context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
 
         await context.Response.WriteAsJsonAsync(
-            new MaintenanceResponse(state.Message, state.StartsAt, state.EndsAt, state.EnabledAt),
+            new MaintenanceResponse
+            {
+                Message = state.Message,
+                StartsAt = state.StartsAt,
+                EndsAt = state.EndsAt,
+                EnabledAt = state.EnabledAt
+            },
             context.RequestAborted
         );
     }
@@ -119,7 +133,8 @@ internal sealed class MaintenanceMiddleware(
     /// <param name="state">The window as it currently stands, with configured defaults and the expiry policy already applied.</param>
     ///
     /// <remarks>
-    /// Only written when <c>EndsAt</c> is set. Inventing a duration that is not known would be worse than omitting it.
+    /// Only written when <c>EndsAt</c> is set, and only while it is still in the future: a window that has outlived its estimate carries no
+    /// header at all.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
