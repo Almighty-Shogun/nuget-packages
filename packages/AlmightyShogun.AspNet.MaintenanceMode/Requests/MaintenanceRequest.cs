@@ -1,7 +1,8 @@
 namespace AlmightyShogun.AspNet.MaintenanceMode;
 
 /// <summary>
-/// Represents values used to enable maintenance mode.
+/// The window an operator asks for. Every field left unset falls back to the <c>Maintenance</c> configuration section, except the start and
+/// end times, which have no configured counterpart and simply stay absent.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -9,7 +10,8 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 public sealed record MaintenanceRequest
 {
     /// <summary>
-    /// Gets the message to show in maintenance responses.
+    /// Gets the explanation a blocked caller is shown. Left unset, <see cref="MaintenanceSettings.DefaultMessage"/> is used, which may
+    /// itself be unset, in which case the response carries no message.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -44,7 +46,8 @@ public sealed record MaintenanceRequest
     public bool? AutoDisableWhenExpired { get; init; }
 
     /// <summary>
-    /// Gets whether this request should override redirect behavior for blocked requests.
+    /// Gets whether a blocked request that accepts <c>text/html</c> is redirected to the maintenance path instead of receiving the error
+    /// body. A client that does not accept HTML gets the body either way. Left unset, the configured default decides.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -52,7 +55,8 @@ public sealed record MaintenanceRequest
     public bool? RedirectBlockedRequests { get; init; }
 
     /// <summary>
-    /// Gets the exact request paths that should remain available while maintenance mode is enabled.
+    /// Gets the paths that stay reachable while the window is open, matched in full. A list given here replaces the configured one rather
+    /// than adding to it, so an empty list keeps nothing open.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -60,7 +64,8 @@ public sealed record MaintenanceRequest
     public IReadOnlyList<string>? AllowedPaths { get; init; }
 
     /// <summary>
-    /// Gets the request path prefixes that should remain available while maintenance mode is enabled.
+    /// Gets the prefixes that stay reachable while the window is open, matched on segment boundaries, so <c>/api</c> opens
+    /// <c>/api/orders</c> but not <c>/apixyz</c>. A list given here replaces the configured one rather than adding to it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -68,7 +73,8 @@ public sealed record MaintenanceRequest
     public IReadOnlyList<string>? AllowedPathPrefixes { get; init; }
 
     /// <summary>
-    /// Gets the IP addresses allowed through while maintenance mode is enabled, so an operator can verify the site before lifting it.
+    /// Gets the IP addresses allowed through while maintenance mode is enabled, so an operator can verify the site before lifting it. A
+    /// list given here replaces the configured one rather than adding to it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

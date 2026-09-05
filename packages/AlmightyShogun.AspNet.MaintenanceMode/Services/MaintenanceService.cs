@@ -69,10 +69,19 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     ///
     /// <returns>The effective persisted state.</returns>
     ///
+    /// <exception cref="IOException">
+    /// An expired window was being closed and its file could not be deleted. The read itself is guarded and does not throw.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// The process may not delete the state file of an expired window that was being closed.
+    /// </exception>
+    ///
     /// <remarks>
     /// An expired window is closed through <see cref="IMaintenanceStore.TryClearAsync"/> rather than
     /// <see cref="IMaintenanceStore.ClearAsync"/>, so a window opened while this was deciding to expire the old one is not closed with it.
-    /// When the revision no longer matches, the read is repeated against whatever is recorded now.
+    /// When the revision no longer matches, the read is repeated. A competing write through the store retires the cache, so
+    /// the retry reaches the file; a change made to the file directly does not, so the retry can see the same state again
+    /// until the watcher fires.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -135,9 +144,12 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     /// <param name="supplied">
     /// What the window itself declared, which replaces the configured list rather than adding to it when present.
     /// </param>
-    /// <param name="defaults">The configured list, used only when the window declared none of its own.</param>
+    /// <param name="defaults">
+    /// The configured list, used only when <paramref name="supplied"/> is <c>null</c>. An empty supplied list is a list, so it suppresses
+    /// these rather than falling back to them.
+    /// </param>
     ///
-    /// <returns>The resolved values.</returns>
+    /// <returns>The resolved values, compared case-insensitively when duplicates are removed.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -151,9 +163,15 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     /// <param name="supplied">
     /// What the window itself declared, which replaces the configured list rather than adding to it when present.
     /// </param>
-    /// <param name="defaults">The configured list, used only when the window declared none of its own.</param>
+    /// <param name="defaults">
+    /// The configured list, used only when <paramref name="supplied"/> is <c>null</c>. An empty supplied list is a list, so it suppresses
+    /// these rather than falling back to them.
+    /// </param>
     ///
-    /// <returns>The resolved paths, normalized once so the request path does not have to be.</returns>
+    /// <returns>
+    /// The resolved paths, each carrying a leading slash and no trailing one, with the entries that normalize to nothing dropped and
+    /// duplicates removed case-insensitively.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

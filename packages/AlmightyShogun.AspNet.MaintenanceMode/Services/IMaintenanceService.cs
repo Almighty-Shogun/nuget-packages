@@ -10,11 +10,20 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 public interface IMaintenanceService
 {
     /// <summary>
-    /// Reads the current window with the configured defaults and the expiry policy already applied, so a caller sees what the middleware
-    /// sees.
+    /// Reads the current window with the configured defaults and the expiry policy already applied. It does not report what the middleware
+    /// would do with a request: the allow lists are left off <see cref="MaintenanceState"/> entirely, and its
+    /// <see cref="MaintenanceState.IsEnabled"/> is the recorded flag rather than whether the window has started.
     /// </summary>
     ///
     /// <returns>The current maintenance mode state.</returns>
+    ///
+    /// <exception cref="IOException">
+    /// An expired window that lifts itself was being closed and its file could not be deleted. The read itself is guarded and does not
+    /// throw.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// The process may not delete the state file of an expired window that was being closed.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -26,6 +35,14 @@ public interface IMaintenanceService
     /// </summary>
     ///
     /// <returns><c>true</c> when maintenance mode is enabled; otherwise, <c>false</c>.</returns>
+    ///
+    /// <exception cref="IOException">
+    /// An expired window that lifts itself was being closed and its file could not be deleted. The read itself is guarded and does not
+    /// throw.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// The process may not delete the state file of an expired window that was being closed.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -44,10 +61,11 @@ public interface IMaintenanceService
     /// <returns>A task representing the asynchronous enable operation.</returns>
     ///
     /// <exception cref="ArgumentException">
-    /// The request ends at, or before it starts, which describes a window that can never be open. Checked here rather than left to model
-    /// validation, so a caller reaching the service directly is held to the same rule. A window with only one of the two times set is
-    /// accepted: an open-ended window and one that has already begun are both meaningful.
+    /// The request ends at, or before it starts, which describes a window that can never be open. A window with only one of the two times
+    /// set is accepted: an open-ended window and one that has already begun are both meaningful.
     /// </exception>
+    /// <exception cref="IOException">The state file could not be written, so no window is opened.</exception>
+    /// <exception cref="UnauthorizedAccessException">The process may not write the state file, so no window is opened.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -58,6 +76,9 @@ public interface IMaintenanceService
     /// </summary>
     ///
     /// <returns>A task representing the asynchronous disable operation.</returns>
+    ///
+    /// <exception cref="IOException">The state file exists but could not be deleted, so the window stays open.</exception>
+    /// <exception cref="UnauthorizedAccessException">The process may not delete the state file, so the window stays open.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

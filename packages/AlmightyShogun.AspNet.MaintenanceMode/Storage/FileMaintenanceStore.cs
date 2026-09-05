@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 /// </summary>
 ///
 /// <param name="webHostEnvironment">The web host environment used to resolve the content root.</param>
-/// <param name="logger">The logger used to report unreadable state files.</param>
+/// <param name="logger">The logger used to report an unreadable state file and a watcher that could not be set up.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
@@ -27,8 +27,9 @@ internal sealed class FileMaintenanceStore(
     private static readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
 
     /// <summary>
-    /// Serializes every write, so two operators opening a window at once cannot interleave into a half-written file, and so a conditional
-    /// clear can compare against the file without a write landing in between.
+    /// Serializes every write, so a conditional clear can compare the file against the revision it expects without a write landing in
+    /// between. A half-written file is already ruled out without it, since a write goes to a uniquely named temporary file that is then
+    /// moved into place.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -37,7 +38,8 @@ internal sealed class FileMaintenanceStore(
 
     /// <summary>
     /// Guards watcher setup and disposal, so the watcher is built exactly once and never after the store is disposed. Taken on every read
-    /// through <see cref="EnsureWatching"/>, where it is uncontended once setup has run.
+    /// through <see cref="EnsureWatching"/> on every read, cache hit or not, though once setup has run it is held only for a
+    /// flag test.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -45,8 +47,8 @@ internal sealed class FileMaintenanceStore(
     private readonly Lock _watcherGate = new();
 
     /// <summary>
-    /// The cached state together with the generation it was read under. Every request reads this rather than the disk; without it each one
-    /// would cost a file read and a deserialize even with maintenance off.
+    /// The cached state together with the generation it was read under. A read whose generation still matches is answered from here; any
+    /// other read goes to the file. It starts empty, and every write and every watcher event retires it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -192,9 +194,9 @@ internal sealed class FileMaintenanceStore(
     /// <param name="state">The state now on disk, or <c>null</c> when the file was deleted.</param>
     ///
     /// <remarks>
-    /// The generation is bumped before the entry is stored, so a read that started earlier fails its own version check and reloads instead
-    /// of overwriting this. The watcher event this write triggers bumps the generation again, which costs one reload and cannot resurrect
-    /// the old value.
+    /// The generation is bumped before the entry is stored, so a read that started earlier declines to store its own result rather than
+    /// overwriting this. That read still returns the value it loaded; the reload happens on the next one. The watcher event this write
+    /// triggers bumps the generation again, which costs one reload and cannot resurrect the old value.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -279,7 +281,8 @@ internal sealed class FileMaintenanceStore(
     };
 
     /// <summary>
-    /// Starts watching the content root for changes to the state file, the first time state is read.
+    /// Starts watching the content root for changes to the state file, on the first read. Setup runs once, so when the directory does not
+    /// exist at that moment nothing is watched for the life of the store, and unlike a setup that throws, that case is not logged.
     /// </summary>
     ///
     /// <remarks>

@@ -22,7 +22,8 @@ public sealed record MaintenanceState
     public bool IsEnabled { get; init; }
 
     /// <summary>
-    /// Gets the explanation shown to a blocked caller, falling back to the configured default when the window supplied none.
+    /// Gets the explanation shown to a blocked caller. A window opened through the service falls back to the configured
+    /// default when it supplied none, but nothing fills this in on read, so a hand-edited file omitting it carries none.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

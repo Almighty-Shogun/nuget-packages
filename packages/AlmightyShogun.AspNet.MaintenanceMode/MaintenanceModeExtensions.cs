@@ -7,7 +7,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 
 /// <summary>
 /// Registers the maintenance services and the middleware as two separate calls, so an application can own the state without blocking any
-/// request, which is what a control endpoint in a separate process needs.
+/// request.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -15,10 +15,14 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 public static class MaintenanceModeExtensions
 {
     /// <summary>
-    /// Provides maintenance mode registration extension methods for the target service collection.
+    /// Provides the registration helper as an extension on the collection. It registers this package's own services and nothing else, so
+    /// the <c>IHttpErrorResponseWriter</c> the middleware writes through has to be added separately.
     /// </summary>
     ///
-    /// <param name="serviceCollection">The service collection that receives the maintenance mode registrations.</param>
+    /// <param name="serviceCollection">
+    /// The collection that receives the registrations. The helper returns it, so calls can be chained or written as separate statements
+    /// without difference.
+    /// </param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -53,10 +57,14 @@ public static class MaintenanceModeExtensions
     }
 
     /// <summary>
-    /// Provides maintenance mode middleware extension methods for the target application builder.
+    /// Provides the pipeline helper as an extension on the builder. It appends middleware, so where it is called decides which requests it
+    /// covers, and it registers none of the services that middleware resolves.
     /// </summary>
     ///
-    /// <param name="applicationBuilder">The application builder that receives the maintenance mode middleware.</param>
+    /// <param name="applicationBuilder">
+    /// The pipeline the middleware is appended to. Order matters, so this belongs at the point in <c>Program.cs</c> where the middleware
+    /// should sit rather than grouped with other registrations for tidiness.
+    /// </param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
