@@ -9,11 +9,12 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public record LoginRequest
+public sealed record LoginRequest
 {
     /// <summary>
-    /// Gets or sets the username or email address, matched against both. An unknown value fails exactly as a wrong password
-    /// does, so neither reveals whether the account exists.
+    /// Gets or sets the username or email address, matched against both. An unknown value is refused with the same exception as a wrong
+    /// password and costs a decoy verification, so the response does not reveal whether the account exists. With lockout
+    /// enabled a known identifier also runs the lockout statements an unknown one never reaches.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

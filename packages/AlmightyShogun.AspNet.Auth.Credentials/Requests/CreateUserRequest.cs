@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public class CreateUserRequest
+public sealed record CreateUserRequest
 {
     /// <summary>
     /// Gets or sets the username to claim. Refused when another account already holds it.

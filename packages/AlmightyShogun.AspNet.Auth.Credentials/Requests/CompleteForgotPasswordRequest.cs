@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public class CompleteForgotPasswordRequest
+public sealed record CompleteForgotPasswordRequest
 {
     /// <summary>
     /// Gets or sets the token from the reset email, in the form it was sent. Only its hash is stored, so it is matched by

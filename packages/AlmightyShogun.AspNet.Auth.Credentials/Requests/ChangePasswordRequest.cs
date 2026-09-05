@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
-public class ChangePasswordRequest
+public sealed class ChangePasswordRequest
 {
     /// <summary>
     /// Gets or sets the password being replaced. Verified against the stored hash, so a change cannot be made from a
