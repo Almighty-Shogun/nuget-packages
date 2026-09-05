@@ -81,8 +81,8 @@ public sealed class RemoteCommandClient(
     /// and reports <see cref="RemoteCommandRefusal.Other"/> for a reason this client does not know.
     /// </exception>
     /// <exception cref="InvalidDataException">
-    /// The frame's declared length is unusable or exceeds the one megabyte cap. The connection is discarded, so the next
-    /// call opens a fresh one.
+    /// The frame's declared length is unusable or exceeds the <c>maxPayloadBytes</c> cap this client was constructed with. The
+    /// connection is discarded, so the next call opens a fresh one.
     /// </exception>
     /// <exception cref="JsonException">
     /// <paramref name="message"/> could not be serialized into the request, in which case nothing catches it and the
