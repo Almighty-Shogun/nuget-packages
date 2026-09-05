@@ -29,7 +29,6 @@ export const remoteCommands: DefaultTheme.SidebarItem[] = [
         text: 'Services',
         collapsed: false,
         items: [
-            { text: 'CommandResponse', link: '/remote-commands/services/command-response' },
             { text: 'RemoteCommandClient', link: '/remote-commands/services/remote-command-client' },
             { text: 'RemoteCommandHandler', link: '/remote-commands/services/remote-command-handler' }
         ]
@@ -38,6 +37,7 @@ export const remoteCommands: DefaultTheme.SidebarItem[] = [
         text: 'Types',
         collapsed: false,
         items: [
+            { text: 'CommandResponse', link: '/remote-commands/types/command-response' },
             { text: 'RemoteCommand<T>', link: '/remote-commands/types/remote-command' }
         ]
     },
