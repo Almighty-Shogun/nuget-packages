@@ -40,7 +40,9 @@ public abstract class CustomRuleAttribute : ValidationRuleAttribute
     /// attribute rather than by whoever applies it.
     /// </summary>
     ///
-    /// <typeparam name="TRule">The rule to run, resolved from the container per request so it may depend on services.</typeparam>
+    /// <typeparam name="TRule">
+    /// The rule to run, taken from the container when it is registered there and activated from it when it is not.
+    /// </typeparam>
     ///
     /// <returns>The rule's type, which is all an attribute may carry since it cannot hold an instance.</returns>
     ///

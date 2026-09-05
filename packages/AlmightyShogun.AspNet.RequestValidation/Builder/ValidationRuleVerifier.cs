@@ -4,14 +4,13 @@ using AlmightyShogun.Utils;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Builds every request type's attribute rules once at startup, so a rule that cannot be constructed is reported while the application is
-/// starting rather than on whichever request reaches it first.
+/// Builds the attribute rules of every request type found in a set of assemblies and discards them, so a rule that cannot be constructed
+/// throws where the check runs rather than on the request that first reaches it.
 /// </summary>
 ///
 /// <remarks>
-/// Rules are otherwise built lazily, on the first request of each type. That is the right moment for the work but the wrong moment for the
-/// failure: a mistyped field name, an empty set of values, or a custom rule naming an incompatible type would each take down one endpoint
-/// long after deployment. Constructing them here turns all of those into a startup fault.
+/// Nothing in this package calls <see cref="Verify"/>. Rules are built lazily instead, on the first request of each type, by
+/// <c>ValidationRuleCache.GetRules</c>; <c>AddAspNetValidation</c> never runs this check.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -19,14 +18,15 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal static class ValidationRuleVerifier
 {
     /// <summary>
-    /// Finds the request types in the given assemblies and builds each one's rules, discarding the result.
+    /// Finds the request types in the given assemblies and builds each one's rules, discarding the result. Types that are not classes,
+    /// generic type definitions, and types declaring no validation attribute are skipped.
     /// </summary>
     ///
-    /// <param name="assemblies">The assemblies to scan, the same ones the validators are discovered in.</param>
+    /// <param name="assemblies">The assemblies to scan for types carrying validation attributes.</param>
     ///
     /// <exception cref="InvalidOperationException">
-    /// A request type's rules could not be built. The message names the type, since the failure it wraps describes the rule but not where
-    /// it was declared.
+    /// A request type's rules could not be built. The message names the type and the failure that caused it is kept as the inner
+    /// exception.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>

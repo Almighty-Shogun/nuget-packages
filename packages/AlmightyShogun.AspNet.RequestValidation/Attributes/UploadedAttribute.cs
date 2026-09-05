@@ -3,7 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the uploaded file to be present and non-empty. An absent or empty value passes, so pair it with <see cref="RequiredAttribute"/>
+/// Requires every uploaded file in a collection to be non-empty. A single file property is not covered: a zero-length one
+/// counts as an absent value and passes. An absent or empty value passes, so pair it with <see cref="RequiredAttribute"/>
 /// when the field is mandatory.
 /// </summary>
 ///

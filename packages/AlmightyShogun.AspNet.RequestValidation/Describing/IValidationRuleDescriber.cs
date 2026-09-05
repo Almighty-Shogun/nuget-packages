@@ -10,8 +10,8 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 public interface IValidationRuleDescriber
 {
     /// <summary>
-    /// Describes the validation rules declared on a request type. Results are cached per type, so publishing the rules for the same request
-    /// on every call costs one reflection pass for the life of the process.
+    /// Describes the validation rules declared on a request type. Results are cached per type, so a request whose rules have already been
+    /// described is answered without reflecting over it again.
     /// </summary>
     ///
     /// <typeparam name="TRequest">
@@ -26,7 +26,7 @@ public interface IValidationRuleDescriber
     ///
     /// <remarks>
     /// Only attribute rules are described. A rule declared in a <see cref="Validator{TRequest}"/> is enforced but cannot be described,
-    /// since a built rule keeps neither its name nor its arguments, so a request using both describes as less than it enforces.
+    /// since a built rule carries no record of the name it was declared under, so a request using both describes as less than it enforces.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

@@ -23,9 +23,7 @@ internal static class ValidationFormat
     /// the latter admits addresses no provider would deliver to.
     /// </summary>
     ///
-    /// <param name="value">
-    /// The bound value, of whatever type the property declared, so every branch tests the runtime type rather than a cast.
-    /// </param>
+    /// <param name="value">The text to test.</param>
     ///
     /// <returns><c>true</c> when the value is a valid email address; otherwise, <c>false</c>.</returns>
     ///

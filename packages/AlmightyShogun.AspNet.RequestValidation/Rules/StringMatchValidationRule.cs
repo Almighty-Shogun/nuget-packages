@@ -92,11 +92,11 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty> : IProperty
     };
 
     /// <summary>
-    /// Maps the configured mode onto the values a message template substitutes, so the bounds a rule was built with appear in the sentence
-    /// the client reads.
+    /// Renders the configured values as the one argument a message template substitutes, so a failure lists what the text was matched
+    /// against. The same for every mode, since all three messages take that one list.
     /// </summary>
     ///
-    /// <returns>The validation message parameters.</returns>
+    /// <returns>A single element, the configured values joined for display.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

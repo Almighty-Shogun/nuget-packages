@@ -5,8 +5,9 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <remarks>
-/// Built through <see cref="Success"/> and <see cref="Failure"/> rather than by construction, so the combinations that mean nothing cannot
-/// be written: a pass carrying a failure message, or a failure carrying no message to report.
+/// Built through <see cref="Success"/> and <see cref="Failure"/> rather than by construction, so a pass carrying a failure message cannot
+/// be written: every success is the one shared instance. A failure is not guarded the same way, since <see cref="Failure"/> takes whatever
+/// key it is given, an empty one included.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -14,7 +15,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 public sealed record ValidationRuleResult
 {
     /// <summary>
-    /// Whether the validation rule passed.
+    /// Gets whether the validation rule passed.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -22,7 +23,7 @@ public sealed record ValidationRuleResult
     public bool IsValid { get; }
 
     /// <summary>
-    /// The validation message key returned when the rule fails, and empty when it passed.
+    /// Gets the validation message key returned when the rule fails, and empty when it passed.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -30,7 +31,7 @@ public sealed record ValidationRuleResult
     public string Key { get; }
 
     /// <summary>
-    /// The validation message parameters returned when the rule fails, and empty when it passed.
+    /// Gets the validation message parameters returned when the rule fails, and empty when it passed.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

@@ -3,8 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Wraps an application's own rule so the pipeline can run it like any built-in one. The rule type is resolved from the container per
-/// request, which is what lets a custom rule depend on services a built-in rule never needs.
+/// Wraps an application's own rule so the pipeline can run it like any built-in one. The rule is taken from the container on each
+/// invocation and activated from it when it is not registered there, so registration is optional and the rule may still take dependencies.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -28,8 +28,8 @@ internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValid
     ///
     /// <exception cref="InvalidOperationException">
     /// <paramref name="ruleType"/> does not implement <see cref="ICustomValidationRule{TRequest, TProperty}"/> for this request and
-    /// property type. Checked as the rule is built rather than when it first runs, so a mismatch surfaces while the application is
-    /// starting instead of on whichever request reaches the property first.
+    /// property type. Checked as the rule is built rather than when it first runs, which is on the first request of the type declaring
+    /// it, since that is when its rules are built.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -61,7 +61,7 @@ internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValid
 }
 
 /// <summary>
-/// Adapts dependency-injected custom validation rules to property validation rules.
+/// Adapts a custom rule whose type is a compile-time argument, which is what the fluent builder produces.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

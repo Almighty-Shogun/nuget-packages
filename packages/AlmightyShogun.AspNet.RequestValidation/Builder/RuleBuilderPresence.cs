@@ -36,6 +36,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// rejects reports that rather than a later format or size failure.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// not equal its text spelling.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that trigger the requirement.</param>
     ///
@@ -66,6 +70,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// rejects reports that rather than a later format or size failure.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// not equal its text spelling.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that skip the requirement.</param>
     ///
@@ -96,6 +104,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// Presence rules run before value rules, so a field this rejects reports that rather than a later format or size failure.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The controlling field's type. Its value is read as an object and tested for an accepted spelling, so a bool, text, and a number all
+    /// serve.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field whose truthiness decides whether this rule applies.</param>
     ///
     /// <returns>
@@ -121,6 +133,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// Presence rules run before value rules, so a field this rejects reports that rather than a later format or size failure.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The controlling field's type. Its value is read as an object and tested for a declined spelling, so a bool, text, and a number all
+    /// serve.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field whose falseness decides whether this rule applies.</param>
     ///
     /// <returns>
@@ -286,6 +302,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// size failure.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// not equal its text spelling.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that trigger presence.</param>
     ///
@@ -316,6 +336,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// field this rejects reports that rather than a later format or size failure.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// not equal its text spelling.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that skip presence.</param>
     ///
@@ -415,6 +439,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// field this rejects reports that rather than a later format or size failure.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// not equal its text spelling.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that trigger missing validation.</param>
     ///
@@ -445,6 +473,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// field this rejects reports that rather than a later format or size failure.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// not equal its text spelling.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that skip missing validation.</param>
     ///
@@ -544,6 +576,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// rejects reports that rather than a later format or size failure.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// not equal its text spelling.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that trigger prohibition.</param>
     ///
@@ -574,6 +610,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// rejects reports that rather than a later format or size failure.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// not equal its text spelling.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that skip prohibition.</param>
     ///
@@ -604,6 +644,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// reports that rather than a later format or size failure.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The controlling field's type. Its value is read as an object and tested for an accepted spelling, so a bool, text, and a number all
+    /// serve.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field whose truthiness decides whether this rule applies.</param>
     ///
     /// <returns>
@@ -629,6 +673,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// reports that rather than a later format or size failure.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The controlling field's type. Its value is read as an object and tested for a declined spelling, so a bool, text, and a number all
+    /// serve.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field whose falseness decides whether this rule applies.</param>
     ///
     /// <returns>

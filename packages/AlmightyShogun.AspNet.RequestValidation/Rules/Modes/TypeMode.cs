@@ -1,7 +1,9 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Which shape the bound value must have. An absent or empty value satisfies every one of them, so none implies the field is required.
+/// Which shape the bound value must have. An absent or empty value satisfies <c>Array</c>, <c>List</c> and <c>File</c>, which
+/// short-circuit on it; <c>String</c> and <c>Boolean</c> apply their own narrower notion instead. None implies the field is
+/// required.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -33,7 +35,7 @@ internal enum TypeMode
     Array,
 
     /// <summary>
-    /// Requires a generic list-compatible value.
+    /// Requires an array, a non-generic list, or a value implementing a generic list interface.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

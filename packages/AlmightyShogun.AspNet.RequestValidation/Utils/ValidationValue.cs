@@ -177,7 +177,7 @@ internal static class ValidationValue
     /// than validating its digits.
     /// </summary>
     ///
-    /// <param name="value">The bound value to convert, which may already be the target type or may be text that has to be parsed.</param>
+    /// <param name="value">The bound value, returned only when it is already a string; nothing is parsed.</param>
     /// <param name="text">The text when the value was a string; otherwise an empty string rather than <c>null</c>.</param>
     ///
     /// <returns>
@@ -444,9 +444,7 @@ internal static class ValidationValue
     /// Checks whether text is entirely single-byte, by comparing its UTF-8 byte count against its length rather than inspecting characters.
     /// </summary>
     ///
-    /// <param name="value">
-    /// The bound value, of whatever type the property declared, so every branch tests the runtime type rather than a cast.
-    /// </param>
+    /// <param name="value">The text to test.</param>
     ///
     /// <returns><c>true</c> when every character encodes to one byte; otherwise <c>false</c>.</returns>
     ///

@@ -30,8 +30,8 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider, Validat
     );
 
     /// <summary>
-    /// The compiled entry point per request type. Static, so the delegate a type is bridged through is built once for the process
-    /// rather than once per validator instance.
+    /// The compiled entry point per request type. Static, so the delegate a type is bridged through is shared for the life of the process
+    /// rather than rebuilt for each scoped validator.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

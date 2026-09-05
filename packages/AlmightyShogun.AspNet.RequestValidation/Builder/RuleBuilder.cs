@@ -30,8 +30,8 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <summary>
     /// Requires at least one configured rule set to pass. Each callback receives an isolated rule builder for the same field, and the field
     /// is valid when one of those builders completes without a rule failure. This rule is fluent-only because attributes cannot express
-    /// nested rule groups cleanly. An absent or empty value passes, so pair it with <see cref="RuleBuilder{TRequest,TProperty}.Required"/>
-    /// when the field is mandatory.
+    /// nested rule groups cleanly. An absent or empty value is not short-circuited: whether one passes is left entirely to the nested sets,
+    /// and an empty <paramref name="ruleSets"/> passes every value.
     /// </summary>
     ///
     /// <param name="ruleSets">The rule sets that can validate the property.</param>

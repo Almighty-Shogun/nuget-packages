@@ -82,7 +82,7 @@ internal sealed class ValidatorRegistry
     ///
     /// <remarks>
     /// A fresh validator is constructed for each call and discarded after, since the rules it produced are what gets cached rather than
-    /// the validator itself. Only the rule cache calls this, and only on a miss, so it runs once per request type.
+    /// the validator itself. Only the rule cache calls this, and only when it has no entry for the type, so it does not run per request.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

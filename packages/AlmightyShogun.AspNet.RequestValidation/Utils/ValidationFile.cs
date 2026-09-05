@@ -27,7 +27,7 @@ internal static class ValidationFile
     /// Reads a value as a set of uploads, so a single-file property and a multi-file one are checked by the same rule.
     /// </summary>
     ///
-    /// <param name="value">The bound value to convert, which may already be the target type or may be text that has to be parsed.</param>
+    /// <param name="value">The bound value, accepted only as an uploaded file or a sequence of them.</param>
     /// <param name="files">The resolved uploaded files.</param>
     ///
     /// <returns><c>true</c> when files can be read; otherwise, <c>false</c>.</returns>

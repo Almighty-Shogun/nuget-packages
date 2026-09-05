@@ -31,10 +31,14 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field to contain an accepted value when another field equals one of the provided values. An absent or empty value
-    /// passes, so pair it with <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the field to contain an accepted value when another field equals one of the provided values. Once the condition matches,
+    /// an absent or empty value fails: the requirement is not skipped for a field that was left out.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// not equal its text spelling.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that trigger accepted validation.</param>
     ///
@@ -79,10 +83,14 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field to contain a declined value when another field equals one of the provided values. An absent or empty value
-    /// passes, so pair it with <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the field to contain a declined value when another field equals one of the provided values. Once the condition matches,
+    /// an absent or empty value fails: the requirement is not skipped for a field that was left out.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The controlling field's type, which fixes the type of <paramref name="values"/> . The match is object equality, so a number does
+    /// not equal its text spelling.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that trigger declined validation.</param>
     ///
@@ -112,6 +120,9 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// Requires the field value to match another request field.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The compared field's type, which need not be the validated property's: the two values are compared as objects.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field this one is compared against, so both are read from the same request.</param>
     ///
     /// <returns>
@@ -135,6 +146,9 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// Requires the field value to be different from another request field.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The compared field's type, which need not be the validated property's: the two values are compared as objects.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field this one is compared against, so both are read from the same request.</param>
     ///
     /// <returns>
@@ -179,11 +193,14 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field to match a confirmation field. Without an explicit target, the validator looks for the property name with
-    /// <c>Confirmation</c> appended, then for <c>Confirm</c> prefixed to it.
+    /// Requires the field to match the confirmation field named here. Use this spelling when the pairing does not follow the convention
+    /// the parameterless overload applies, which this one never consults.
     /// </summary>
     ///
-    /// <param name="compareExpression">Points at the confirmation field, replacing the name this rule would otherwise assume.</param>
+    /// <typeparam name="TCompare">
+    /// The confirmation field's type, which need not be the validated property's: the two values are compared as objects.
+    /// </typeparam>
+    /// <param name="compareExpression">Points at the confirmation field, so both values are read from the same request.</param>
     ///
     /// <returns>
     /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
@@ -249,6 +266,9 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The compared field's declared type. It is read as an object and enumerated, so any array-like field serves whatever it is typed as.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the collection field this value must appear in.</param>
     ///
     /// <returns>
@@ -385,8 +405,14 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Adds a custom validation rule resolved from the dependency injection container.
+    /// Adds a rule the application implements itself, which is how a rule reaches services the built-in rules never touch. The rule is
+    /// taken from the container when it is registered there and activated from it when it is not, so registering it is optional.
     /// </summary>
+    ///
+    /// <typeparam name="TRule">
+    /// The rule to run. The constraint is what makes this spelling compile-checked, unlike the attribute form, whose rule type is checked
+    /// only once the rule is built.
+    /// </typeparam>
     ///
     /// <returns>
     /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules

@@ -50,9 +50,9 @@ public static class ValidationExtensions
         /// <returns>The <see cref="IServiceCollection"/> instance with the validation services registered.</returns>
         ///
         /// <exception cref="InvalidOperationException">
-        /// Two validators cover the same request type, a validator has no public parameterless constructor, or a request type's
-        /// attribute rules cannot be built. Raised here so the offending class is named at startup rather than on whichever request
-        /// first reaches it.
+        /// Two validators cover the same request type, or a validator has no public parameterless constructor. Both come from the
+        /// validator scan this call performs, so the offending class is named at startup. Attribute rules are not built here: they are
+        /// built on the first request of each type, and a rule that cannot be constructed fails then.
         /// </exception>
         ///
         /// <remarks>

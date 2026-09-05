@@ -259,7 +259,8 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     private static partial Regex HexColorRegex();
 
     /// <summary>
-    /// The MAC pattern, accepting colon- and hyphen-separated forms of six octets.
+    /// The MAC pattern, accepting colon- and hyphen-separated forms of six octets, and the bare twelve hexadecimal digits
+    /// with no separators.
     /// </summary>
     ///
     /// <returns>The MAC address regular expression.</returns>

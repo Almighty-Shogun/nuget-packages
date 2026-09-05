@@ -1,8 +1,9 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// How this field must relate to another on the same request. The confirmation spelling differs from a plain match only in the field name
-/// it defaults to.
+/// How this field must relate to another on the same request. The confirmation spelling compares the same way as a plain
+/// match, but resolves its target by convention, reports a different message key, and sends no compared field name with the
+/// failure.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

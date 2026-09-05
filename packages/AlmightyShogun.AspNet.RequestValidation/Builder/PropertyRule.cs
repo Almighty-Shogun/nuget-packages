@@ -13,7 +13,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule<TRequest> where TRequest : class
 {
     /// <summary>
-    /// The name failures are reported under, resolved through <see cref="ValidationFieldName"/> , so it is the name the client sent
+    /// Gets the name failures are reported under, resolved through <see cref="ValidationFieldName"/> , so it is the name the client sent
     /// rather than the name the property was declared with.
     /// </summary>
     ///
@@ -159,8 +159,8 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     }
 
     /// <summary>
-    /// Drops rules identical to one already held and reorders so the presence band runs first. Both happen once per request type, when
-    /// its rules are first built, rather than on every request.
+    /// Drops rules identical to one already held and reorders so the presence band runs first. Both happen while a request type's rules
+    /// are being built, rather than on every request.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

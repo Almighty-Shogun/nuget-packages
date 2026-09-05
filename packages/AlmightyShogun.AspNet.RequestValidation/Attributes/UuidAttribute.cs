@@ -3,8 +3,9 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the value to be a valid UUID value. An absent or empty value passes, so pair it with <see cref="RequiredAttribute"/> when the
-/// field is mandatory.
+/// Requires the value to be text in UUID form. A <c>Guid</c> property is not matched, since only a runtime string is
+/// tested, so such a property fails for every value. An absent or empty value passes, so pair it with
+/// <see cref="RequiredAttribute"/> when the field is mandatory.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

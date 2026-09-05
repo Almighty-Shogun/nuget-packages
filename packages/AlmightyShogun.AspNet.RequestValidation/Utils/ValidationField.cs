@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal sealed class ValidationField<TRequest> where TRequest : class
 {
     /// <summary>
-    /// The field's public name, resolved through <see cref="ValidationFieldName"/> , so it is the name the client sent rather than the
+    /// Gets the field's public name, resolved through <see cref="ValidationFieldName"/> , so it is the name the client sent rather than the
     /// name the property was declared with.
     /// </summary>
     ///

@@ -70,7 +70,7 @@ internal static class ValidationDate
     /// means.
     /// </summary>
     ///
-    /// <param name="value">The bound value to convert, which may already be the target type or may be text that has to be parsed.</param>
+    /// <param name="value">The bound value, accepted only as text; a real date instance is rejected here.</param>
     /// <param name="format">
     /// The one format the value must match, so a date written any other way fails even when it names a real instant.
     /// </param>

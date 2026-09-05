@@ -9,8 +9,8 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 public interface ICustomValidationRule<in TRequest, in TProperty> where TRequest : class
 {
     /// <summary>
-    /// Validates a property with logic an application supplies, resolved from the container so it can depend on services the built-in rules
-    /// cannot.
+    /// Validates a property with logic an application supplies. The implementation is taken from the container when it is registered there
+    /// and activated from it when it is not, so it may depend on services the built-in rules cannot.
     /// </summary>
     ///
     /// <param name="request">The request being validated, so a rule can read another field as well as its own.</param>

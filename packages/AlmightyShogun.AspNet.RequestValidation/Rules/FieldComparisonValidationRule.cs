@@ -145,11 +145,13 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     };
 
     /// <summary>
-    /// Maps the configured mode onto the values a message template substitutes, so the bounds a rule was built with appear in the sentence
-    /// the client reads.
+    /// Maps the configured mode onto the values a message template substitutes.
     /// </summary>
     ///
-    /// <returns>The validation message parameters.</returns>
+    /// <returns>
+    /// The compared field's public name for the same and different modes, so the failure can name it, and nothing at all for the
+    /// confirmed mode, whose message speaks only of the field it sits on.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

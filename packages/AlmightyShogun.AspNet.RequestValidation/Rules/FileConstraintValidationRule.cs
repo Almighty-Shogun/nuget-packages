@@ -149,7 +149,8 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
     }
 
     /// <summary>
-    /// Applies the configured dimension comparison, which is the only check here that must read the file's bytes rather than its metadata.
+    /// Applies the configured dimension comparison against dimensions already read from the file's bytes. Dimension checks
+    /// and the image check are the two that read bytes; every other mode reads metadata alone.
     /// </summary>
     ///
     /// <param name="dimensions">The pair read from the header, compared against the constraint this rule holds.</param>
@@ -188,13 +189,15 @@ internal sealed class FileConstraintValidationRule<TRequest, TProperty>
     };
 
     /// <summary>
-    /// Maps the configured mode onto the values a message template substitutes, so the bounds a rule was built with appear in the sentence
-    /// the client reads.
+    /// Maps the configured mode onto the values a message template substitutes.
     /// </summary>
     ///
-    /// <param name="field">The field being validated.</param>
+    /// <param name="field">The field being validated, which is the argument the uploaded message names.</param>
     ///
-    /// <returns>The validation message parameters.</returns>
+    /// <returns>
+    /// <paramref name="field"/> for the uploaded mode, the configured extensions or mime types joined for display for the three list
+    /// modes, and nothing for the image and dimension modes, whose messages take no argument.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

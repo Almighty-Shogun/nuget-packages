@@ -44,7 +44,7 @@ internal static class ValidationCollection
     /// Reads a sequence into a materialized list, so a rule that must inspect it more than once does not enumerate a lazy source twice.
     /// </summary>
     ///
-    /// <param name="value">The bound value to convert, which may already be the target type or may be text that has to be parsed.</param>
+    /// <param name="value">The bound value. Text is rejected outright rather than parsed into a collection.</param>
     /// <param name="values">Receives the values read from the source, empty when none could be.</param>
     ///
     /// <returns><c>true</c> when the value can be enumerated; otherwise, <c>false</c>.</returns>
@@ -69,7 +69,7 @@ internal static class ValidationCollection
     /// Reads the keys of a dictionary-like value, for the rules that constrain which keys a payload carries.
     /// </summary>
     ///
-    /// <param name="value">The bound value to measure, accepted as text or as any numeric type.</param>
+    /// <param name="value">The bound value, read only when it is a dictionary; anything else yields no keys.</param>
     /// <param name="keys">The resolved keys.</param>
     ///
     /// <returns><c>true</c> when keys can be read; otherwise, <c>false</c>.</returns>
@@ -87,7 +87,7 @@ internal static class ValidationCollection
     /// is found by reflection instead.
     /// </summary>
     ///
-    /// <param name="value">The bound value to measure, accepted as text or as any numeric type.</param>
+    /// <param name="value">The bound value, read only when it is a dictionary; anything else yields no keys.</param>
     /// <param name="keys">The resolved keys.</param>
     ///
     /// <returns><c>true</c> when generic dictionary keys can be read; otherwise, <c>false</c>.</returns>
@@ -148,7 +148,7 @@ internal static class ValidationCollection
     /// Checks for a generic list interface on the runtime type, since a property declared as an object hides it from the compiler.
     /// </summary>
     ///
-    /// <param name="value">The bound value to measure, accepted as text or as any numeric type.</param>
+    /// <param name="value">The bound value, tested for a generic list interface on its runtime type.</param>
     ///
     /// <returns><c>true</c> when a generic list interface exists; otherwise, <c>false</c>.</returns>
     ///

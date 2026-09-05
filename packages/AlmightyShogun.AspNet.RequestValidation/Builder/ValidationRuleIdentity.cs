@@ -5,6 +5,18 @@ using System.Globalization;
 
 namespace AlmightyShogun.AspNet.RequestValidation;
 
+/// <summary>
+/// A rule's configuration written out as one string, so two rules declared the same way compare equal and deduplication can drop the
+/// second. A rule whose configuration cannot be written out yields no identity and survives as its own rule.
+/// </summary>
+///
+/// <param name="Value">
+/// The written form, built by walking the rule's fields. It is compared, never parsed, so its shape is free to change as long as two
+/// equally configured rules keep producing the same one.
+/// </param>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>Unreleased</since>
 internal readonly record struct ValidationRuleIdentity(string Value)
 {
     /// <summary>

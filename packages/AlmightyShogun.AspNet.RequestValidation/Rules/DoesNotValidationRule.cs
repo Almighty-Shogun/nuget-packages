@@ -75,15 +75,6 @@ internal sealed class DoesNotValidationRule<TRequest, TProperty> : IPropertyVali
     }
 
     /// <summary>
-    /// Maps the configured mode onto the message key its failure reports, so one rule class serves every spelling of its family without
-    /// each needing a class of its own.
-    /// </summary>
-    ///
-    /// <returns>The validation message key.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    /// <summary>
     /// Reports whether a collection value holds none of the configured values, which is how <c>DoesNotContain</c> reads a value that is
     /// not text.
     /// </summary>
@@ -105,6 +96,8 @@ internal sealed class DoesNotValidationRule<TRequest, TProperty> : IPropertyVali
     /// <summary>
     /// Picks the message key for the spelling this rule was built with, so a rejected value names the check it broke.
     /// </summary>
+    ///
+    /// <returns>The validation message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

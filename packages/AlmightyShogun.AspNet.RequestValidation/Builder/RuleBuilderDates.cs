@@ -100,6 +100,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The compared field's type. Its value is read as a date rather than cast, so text parses too, and a value that reads as no
+    /// date at all fails the rule.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field holding the date to compare against, so the bound varies per request.</param>
     ///
     /// <returns>
@@ -166,6 +170,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The compared field's type. Its value is read as a date rather than cast, so text parses too, and a value that reads as no
+    /// date at all fails the rule.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field holding the date to compare against, so the bound varies per request.</param>
     ///
     /// <returns>
@@ -232,6 +240,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The compared field's type. Its value is read as a date rather than cast, so text parses too, and a value that reads as no
+    /// date at all fails the rule.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field holding the date to compare against, so the bound varies per request.</param>
     ///
     /// <returns>
@@ -298,6 +310,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// with <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The compared field's type. Its value is read as a date rather than cast, so text parses too, and a value that reads as no
+    /// date at all fails the rule.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field holding the date to compare against, so the bound varies per request.</param>
     ///
     /// <returns>
@@ -364,6 +380,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
     /// </summary>
     ///
+    /// <typeparam name="TCompare">
+    /// The compared field's type. Its value is read as a date rather than cast, so text parses too, and a value that reads as no
+    /// date at all fails the rule.
+    /// </typeparam>
     /// <param name="compareExpression">Points at the field holding the date to compare against, so the bound varies per request.</param>
     ///
     /// <returns>

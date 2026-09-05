@@ -10,7 +10,8 @@ internal sealed class SetMembershipValidationRule<TRequest, TProperty> : IProper
     where TRequest : class
 {
     /// <summary>
-    /// The permitted or forbidden values, held as declared so the failure message can list them.
+    /// The permitted or forbidden values, tested for membership. The failure message carries only the field name, so these
+    /// do not reach the client.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

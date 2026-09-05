@@ -10,7 +10,8 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal interface IRequestValidationRule<TRequest> where TRequest : class
 {
     /// <summary>
-    /// The public field name failures are reported under, which is the camel-cased form a client sees rather than the property name.
+    /// The public field name failures are reported under, which is the name the client sent rather than the name the property was
+    /// declared with.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

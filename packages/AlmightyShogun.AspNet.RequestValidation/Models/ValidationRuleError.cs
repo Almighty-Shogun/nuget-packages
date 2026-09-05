@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 public sealed record ValidationRuleError
 {
     /// <summary>
-    /// The stable numeric code, derived from the message key so it does not shift when rules are added.
+    /// Gets the stable numeric code, derived from the message key so it does not shift when rules are added.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -17,7 +17,7 @@ public sealed record ValidationRuleError
     public required long Code { get; init; }
 
     /// <summary>
-    /// The machine-readable name a client branches on, which is the part to match rather than the description.
+    /// Gets the machine-readable name a client branches on, which is the part to match rather than the description.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -25,7 +25,7 @@ public sealed record ValidationRuleError
     public required string Error { get; init; }
 
     /// <summary>
-    /// The human sentence, already resolved into the request's language, and therefore not something to match on.
+    /// Gets the human sentence, already resolved into the request's language, and therefore not something to match on.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

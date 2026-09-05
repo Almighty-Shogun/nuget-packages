@@ -127,7 +127,8 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// <param name="targetPropertyName">The target property name.</param>
     ///
     /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="mode"/> is not an ordering, or <paramref name="targetPropertyName"/> names no property on the request type.
+    /// <paramref name="mode"/> is not an ordering. A <paramref name="targetPropertyName"/> naming no property on the request
+    /// type raises <see cref="InvalidOperationException"/> instead, from the field lookup, before this check is reached.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
