@@ -63,6 +63,10 @@ internal sealed class AuthTokenGenerator(IOptions<AuthSettings> authOptions, IAp
             Subject = new ClaimsIdentity(claims)
         };
 
-        return new AuthToken(_tokenHandler.CreateToken(descriptor), expiresAt);
+        return new AuthToken
+        {
+            Token = _tokenHandler.CreateToken(descriptor),
+            ExpiresAt = expiresAt
+        };
     }
 }
