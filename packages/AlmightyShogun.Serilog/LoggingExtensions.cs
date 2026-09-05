@@ -8,11 +8,13 @@ namespace AlmightyShogun.Serilog;
 
 /// <summary>
 /// Wires Serilog up with this package's color formatter, from either the service collection or the host builder. The two
-/// entry points build the same logger; which one to use depends only on what startup code has in hand.
+/// entry points build the same logger configuration, each producing its own logger, and register it differently: the
+/// service collection receiver adds a Serilog provider
+/// alongside the ones already registered, while the host builder receiver hands the host's logging to Serilog.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>2.1.0</since>
+/// <since>1.0.0</since>
 public static class LoggingExtensions
 {
     /// <summary>
@@ -29,28 +31,32 @@ public static class LoggingExtensions
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Registers Serilog with the color formatter as a logging provider, leaving the host's existing providers in place.
+        /// Registers Serilog as a logging provider through <c>AddLogging</c>, leaving any provider already registered on the
+        /// collection in place. The color formatter reaches the logger only when <paramref name="includeConsoleSink"/> is
+        /// <c>true</c>.
         /// </summary>
         ///
         /// <param name="configuration">
-        /// Configuration read for further Serilog settings, applied after the console sink so it can add sinks, override the
-        /// minimum level, or attach enrichers. Pass nothing to run on the formatter alone.
+        /// Configuration read for further Serilog settings, applied after this package's console sink. Its <c>Serilog</c>
+        /// section is what supplies those settings, and the root object is also handed to any sink or enricher method that
+        /// takes one.
         /// </param>
         /// <param name="includeConsoleSink">
-        /// Whether this package attaches its own console sink. Pass <c>false</c> when configuration already declares one,
-        /// otherwise every line is written twice.
+        /// Whether this package attaches its own console sink, the one carrying the color formatter. Pass <c>false</c> when
+        /// <paramref name="configuration"/> declares a console sink of its own, so a second one is not attached here. With
+        /// <c>false</c> and no configuration the logger is built with no sinks at all.
         /// </param>
         /// <param name="enableColors">
-        /// Whether escape codes are written. Left unset, they are written only when the output is not redirected and the
-        /// <c>NO_COLOR</c> environment variable is unset, which is the right answer for a process that is sometimes piped
-        /// and sometimes not.
+        /// Whether escape codes are written. Left unset, they are written only when the process output is not redirected and
+        /// the <c>NO_COLOR</c> environment variable is unset or empty. Read only when
+        /// <paramref name="includeConsoleSink"/> is <c>true</c>.
         /// </param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with logging configured.</returns>
         ///
         /// <remarks>
-        /// This adds a Serilog provider next to whatever logging the host already registered, so the host's own console
-        /// provider keeps writing unless it is removed. The <see cref="IHostBuilder"/> receiver takes over instead.
+        /// A console provider registered elsewhere on the collection keeps writing unless it is removed. The
+        /// <see cref="IHostBuilder"/> receiver takes logging over instead.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
@@ -72,8 +78,8 @@ public static class LoggingExtensions
     /// </summary>
     ///
     /// <param name="hostBuilder">
-    /// The generic host builder that takes over logging. Preferred over the service collection receiver, because it replaces
-    /// the host's own providers rather than adding one alongside them.
+    /// The generic host builder that takes over logging. Preferred over the service collection receiver, since Serilog is set
+    /// as the logging provider rather than added alongside the providers already registered.
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
@@ -81,28 +87,31 @@ public static class LoggingExtensions
     extension(IHostBuilder hostBuilder)
     {
         /// <summary>
-        /// Hands the host's logging to Serilog with the color formatter, replacing the providers it would otherwise use.
+        /// Hands the host's logging to Serilog through <c>UseSerilog</c>. The color formatter reaches the logger only when
+        /// <paramref name="includeConsoleSink"/> is <c>true</c>.
         /// </summary>
         ///
         /// <param name="configuration">
-        /// Configuration read for further Serilog settings, applied after the console sink so it can add sinks, override the
-        /// minimum level, or attach enrichers. Pass nothing to run on the formatter alone.
+        /// Configuration read for further Serilog settings, applied after this package's console sink. Its <c>Serilog</c>
+        /// section is what supplies those settings, and the root object is also handed to any sink or enricher method that
+        /// takes one.
         /// </param>
         /// <param name="includeConsoleSink">
-        /// Whether this package attaches its own console sink. Pass <c>false</c> when configuration already declares one,
-        /// otherwise every line is written twice.
+        /// Whether this package attaches its own console sink, the one carrying the color formatter. Pass <c>false</c> when
+        /// <paramref name="configuration"/> declares a console sink of its own, so a second one is not attached here. With
+        /// <c>false</c> and no configuration the logger is built with no sinks at all.
         /// </param>
         /// <param name="enableColors">
-        /// Whether escape codes are written. Left unset, they are written only when the output is not redirected and the
-        /// <c>NO_COLOR</c> environment variable is unset, which is the right answer for a process that is sometimes piped
-        /// and sometimes not.
+        /// Whether escape codes are written. Left unset, they are written only when the process output is not redirected and
+        /// the <c>NO_COLOR</c> environment variable is unset or empty. Read only when
+        /// <paramref name="includeConsoleSink"/> is <c>true</c>.
         /// </param>
         ///
         /// <returns>The <see cref="IHostBuilder"/> instance with logging configured.</returns>
         ///
         /// <remarks>
-        /// This replaces the host's logging providers rather than adding to them, so a line is written once even when the
-        /// default console provider was already in place.
+        /// Serilog documents this overload as setting Serilog as the logging provider, with only Serilog sinks receiving
+        /// events by default, so a provider the host registered does not write the line as well.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
@@ -120,7 +129,7 @@ public static class LoggingExtensions
     }
 
     /// <summary>
-    /// Builds the logger both receivers share, so they cannot drift apart in how they configure it.
+    /// Builds the logger both receivers share.
     /// </summary>
     ///
     /// <param name="configuration">Configuration applied after the console sink, or nothing to skip that step.</param>
@@ -130,12 +139,14 @@ public static class LoggingExtensions
     /// </param>
     ///
     /// <returns>
-    /// A logger the caller must arrange to dispose. Both receivers hand ownership to Serilog so it is closed with the host.
+    /// A logger the caller must arrange to dispose. Both receivers pass <c>dispose: true</c>, which Serilog documents as
+    /// disposing the logger when the framework disposes the provider.
     /// </returns>
     ///
     /// <remarks>
-    /// The console sink is wrapped in <c>WriteTo.Async</c>, so writes are queued on a background thread rather than blocking
-    /// the caller. Buffered entries are lost if the process exits without the logger being disposed.
+    /// The console sink, when one is attached, is wrapped in <c>WriteTo.Async</c>, so writes are queued on a background
+    /// thread rather than blocking the caller. The queue is left at its default size with blocking off, which Serilog
+    /// documents as dropping subsequent events once the queue is full.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

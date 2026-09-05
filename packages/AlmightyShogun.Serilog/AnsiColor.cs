@@ -4,7 +4,7 @@ namespace AlmightyShogun.Serilog;
 
 /// <summary>
 /// Holds the ANSI foreground codes the formatter writes, and the shorthand table a message template uses to pick one.
-/// Only foreground colors are covered; nothing here changes background, weight, or any other attribute.
+/// Every code here selects a foreground color, apart from <see cref="Reset"/>, which is SGR 0 and clears every attribute.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -79,7 +79,7 @@ internal static class AnsiColor
 
     /// <summary>
     /// Dark gray foreground, used for null property values and for the exception block appended below a line.
-    /// Not reachable from a template, since no shorthand maps to it.
+    /// No shorthand maps to it, so a template author cannot select it by name.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -87,8 +87,7 @@ internal static class AnsiColor
     internal const string DarkGray = "\e[90m";
 
     /// <summary>
-    /// Bright red foreground, selected by the <c>br</c> shorthand and used for the <c>Fatal</c> level, so it reads
-    /// as more severe than <c>Error</c>.
+    /// Bright red foreground, selected by the <c>br</c> shorthand and used for the <c>Fatal</c> level.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
