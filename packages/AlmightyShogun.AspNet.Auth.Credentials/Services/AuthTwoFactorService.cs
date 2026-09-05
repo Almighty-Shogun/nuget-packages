@@ -84,7 +84,11 @@ internal sealed class AuthTwoFactorService<TUser>(
                      + $"?secret={base32Secret}&issuer={HttpUtility.UrlEncode(label)}"
                      + $"&digits={_policy.Digits}&period={_policy.PeriodSeconds}";
 
-        return new AuthTwoFactorResult(base32Secret, uri);
+        return new AuthTwoFactorResult
+        {
+            Secret = base32Secret,
+            Uri = uri
+        };
     }
 
     /// <inheritdoc />
@@ -209,8 +213,9 @@ internal sealed class AuthTwoFactorService<TUser>(
     /// <returns>The enrolment, with its recovery codes loaded.</returns>
     ///
     /// <exception cref="InvalidTwoFactorCodeException">
-    /// The user has no enrolment. Reported as a bad code rather than as a missing enrolment, so the response cannot be
-    /// used to learn which accounts have a second factor.
+    /// The user has no enrolment. During enrolment confirmation that is indistinguishable from a wrong code, since both
+    /// raise this. Verification is not: it throws here while every wrong-code case returns <c>false</c>, so a caller that
+    /// surfaces the two differently lets a probe learn which accounts have ever enrolled.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
