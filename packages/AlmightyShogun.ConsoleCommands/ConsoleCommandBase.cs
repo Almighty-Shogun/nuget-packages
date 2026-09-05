@@ -11,7 +11,7 @@ namespace AlmightyShogun.ConsoleCommands;
 ///
 /// <remarks>
 /// The handler method is found by name rather than by an abstract member, so a command declares whatever parameters it
-/// wants and the binder matches them positionally. 
+/// wants and the binder matches them positionally.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
