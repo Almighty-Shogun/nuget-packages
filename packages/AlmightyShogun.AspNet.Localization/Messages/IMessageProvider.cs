@@ -20,8 +20,9 @@ internal interface IMessageProvider
     /// </param>
     ///
     /// <returns>
-    /// The messages keyed by their dot-separated key, or an empty dictionary when the language has no message files or
-    /// its tag was rejected. An empty result is how the caller tells an undefined language from a defined but silent one.
+    /// The messages keyed by their dot-separated key, or an empty dictionary. A rejected tag, a language no directory
+    /// holds messages for, and a directory whose files define no messages all come back the same way, so the caller
+    /// cannot tell them apart.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>

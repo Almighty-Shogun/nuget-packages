@@ -50,7 +50,8 @@ internal static partial class LanguageTag
     ///
     /// <returns>
     /// The generated matcher for a two or three letter primary tag followed by any number of alphanumeric subtags. It
-    /// is deliberately narrower than the grammar in the specification, since anything broader admits a path separator.
+    /// is narrower than the BCP 47 grammar and turns away tags that grammar allows, among them a primary subtag of four
+    /// letters or more and any single-character subtag, such as the <c>x</c> that opens a private-use tag.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>

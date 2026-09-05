@@ -1,9 +1,16 @@
 namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
-/// Turns a message key into text in the language the caller asked for. Resolution never fails: an unresolvable key is
-/// returned as-is, so a missing translation degrades to a readable identifier instead of an exception or a blank body.
+/// Turns a message key into text in the negotiated language, which is the first of the caller's accepted languages, their
+/// shortened forms, or the configured default that has any messages defined. A key that language does not define is
+/// returned as-is, so a missing translation degrades to a readable identifier instead of a blank body.
 /// </summary>
+///
+/// <remarks>
+/// The registered implementation reads message files from disk as it resolves, so a directory disappearing or becoming
+/// unreadable mid-request escapes as an exception rather than degrading. That matters most to the exception handlers that
+/// resolve through this, where a throw while an error body is being built replaces the response with a second failure.
+/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
@@ -24,6 +31,11 @@ public interface IMessageResolver
     /// signals a message file missing an entry, since the key is not tried against any other language.
     /// </returns>
     ///
+    /// <exception cref="DirectoryNotFoundException">A message directory was removed between being found and being enumerated.</exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     string Resolve(string key);
@@ -40,6 +52,11 @@ public interface IMessageResolver
     ///
     /// <returns>The formatted message, or the key itself when the negotiated language does not define it.</returns>
     ///
+    /// <exception cref="DirectoryNotFoundException">A message directory was removed between being found and being enumerated.</exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     string Resolve(string key, IReadOnlyList<object?> parameters);
@@ -50,9 +67,16 @@ public interface IMessageResolver
     /// </summary>
     ///
     /// <returns>
-    /// The first accepted language that has messages defined for it, or the configured default when none does. Suitable
-    /// for the <c>Content-Language</c> header, since it names what was actually served rather than what was requested.
+    /// The first candidate in the fallback chain that has messages defined for it, which is an accepted language, one of
+    /// its progressively shortened forms such as <c>nl</c> for an accepted <c>nl-BE</c>, or the configured default when
+    /// none of them does. Suitable for the <c>Content-Language</c> header, since it names what was actually served rather
+    /// than what was requested.
     /// </returns>
+    ///
+    /// <exception cref="DirectoryNotFoundException">A message directory was removed between being found and being enumerated.</exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

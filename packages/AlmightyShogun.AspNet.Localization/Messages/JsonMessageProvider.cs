@@ -14,8 +14,8 @@ namespace AlmightyShogun.AspNet.Localization;
 ///
 /// <param name="localizationOptions">The settings deciding whether the message directories are watched for changes.</param>
 /// <param name="logger">
-/// The logger a skipped message file and a rejected language tag are reported on. Neither is fatal, so these warnings
-/// are the only sign that messages are missing.
+/// The logger a skipped message file and a rejected language tag are reported on, both at warning level. A skipped file
+/// costs only the messages it defined; a rejected tag resolves nothing at all.
 /// </param>
 /// <param name="webHostEnvironment">
 /// The environment supplying the content root, which is searched ahead of the other roots. Optional so the provider can
@@ -67,8 +67,8 @@ internal sealed class JsonMessageProvider(
     private long _cacheVersion;
 
     /// <summary>
-    /// One watcher per search root that exists, held only to keep them alive and to dispose them later. Empty when
-    /// automatic reload is off, and never rebuilt afterward.
+    /// One watcher per search root that already holds a <c>messages</c> directory, held only to keep them alive and to
+    /// dispose them later. Empty when automatic reload is off, and never rebuilt afterward.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -95,6 +95,14 @@ internal sealed class JsonMessageProvider(
     private bool _watching;
 
     /// <inheritdoc />
+    ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A language directory was removed between <see cref="Directory.Exists"/> reporting it and its files being
+    /// enumerated.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// The process may not list the files of a language directory it can see.
+    /// </exception>
     public IReadOnlyDictionary<string, string> GetMessages(string language)
     {
         if (!LanguageTag.IsValid(language))
@@ -140,8 +148,18 @@ internal sealed class JsonMessageProvider(
     /// <param name="language">The exact language tag, used as the directory name under each search root.</param>
     ///
     /// <returns>
-    /// The merged messages from every search root, empty when no root holds a directory for the language.
+    /// The merged messages from every search root, empty when no root holds a directory for the language and equally
+    /// empty when the directories that do exist define no messages.
     /// </returns>
+    ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A language directory was removed between <see cref="Directory.Exists"/> reporting it and
+    /// <see cref="Directory.EnumerateFiles(string, string)"/> being walked. The enumeration sits outside the guard
+    /// <see cref="LoadFile"/> puts around a single file, so nothing here absorbs it.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// The process may not list the files of a language directory it can see.
+    /// </exception>
     ///
     /// <remarks>
     /// The first root to define a key keeps it, so the content root wins over the output and working directories rather
@@ -260,7 +278,8 @@ internal sealed class JsonMessageProvider(
     ///
     /// <remarks>
     /// Deferred to first use rather than done at construction so an application that never resolves a message pays for
-    /// no watchers. A root created after this runs is never picked up, since setup happens exactly once.
+    /// no watchers. Setup happens exactly once, and only a root whose <c>messages</c> directory already exists gets a
+    /// watcher, so neither a root nor a <c>messages</c> directory created afterwards is ever watched.
     /// </remarks>
     ///
     /// <remarks>

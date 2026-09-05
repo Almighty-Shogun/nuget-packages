@@ -31,8 +31,8 @@ public interface ILanguageProvider
     /// <returns>The accepted languages in preference order. Never empty.</returns>
     ///
     /// <remarks>
-    /// This interface's own default body returns only <see cref="GetLanguage"/>, so a provider written before this
-    /// member existed keeps working unchanged. The package's header-reading provider overrides it, and so should any
+    /// This interface's own default body returns only <see cref="GetLanguage"/>, so a provider that leaves it alone
+    /// contributes a single accepted language. The package's header-reading provider overrides it, and so should any
     /// provider whose source of the language is itself ranked.
     /// </remarks>
     ///
