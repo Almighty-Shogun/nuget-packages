@@ -61,10 +61,11 @@ public static class HttpContextExtensions
             if (httpContext.Items.TryGetValue(_clientContextKey, out object? value) && value is ClientContext clientContext)
                 return clientContext;
 
-            ClientContext created = new(
-                httpContext.GetIpAddress(),
-                httpContext.Request.Headers.UserAgent.ToString()
-            );
+            ClientContext created = new()
+            {
+                IpAddress = httpContext.GetIpAddress(),
+                UserAgent = httpContext.Request.Headers.UserAgent.ToString()
+            };
 
             httpContext.Items[_clientContextKey] = created;
 
