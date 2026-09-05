@@ -4,11 +4,6 @@ namespace AlmightyShogun.Mail.Resend;
 /// Represents the addressing and delivery choices for one message.
 /// </summary>
 ///
-/// <remarks>
-/// An options object rather than a growing parameter list, so adding another addressing concern later does not change
-/// the method signature again.
-/// </remarks>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 public sealed record MailOptions
@@ -32,8 +27,8 @@ public sealed record MailOptions
     public IReadOnlyList<string> Cc { get; init; } = [];
 
     /// <summary>
-    /// Gets the recipients hidden from the others. They still count toward whatever recipient limit the Resend account
-    /// enforces, which is what a large blind list runs into first.
+    /// Gets the recipients hidden from the others. Nothing here caps how many there are, so any limit on a large blind list
+    /// is Resend's own.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -58,13 +53,13 @@ public sealed record MailOptions
     public IReadOnlyList<MailAttachment> Attachments { get; init; } = [];
 
     /// <summary>
-    /// Gets the idempotency key. When set, Resend treats a repeated send with the same key as the same message, so a
-    /// retried request cannot deliver twice.
+    /// Gets the idempotency key sent with the request. What Resend makes of a repeated key is the provider's own behavior,
+    /// not something this package enforces.
     /// </summary>
     ///
     /// <remarks>
     /// Leave it unset to have one generated per send. Set it explicitly when the caller can itself be retried, for
-    /// example a background job, so the whole operation is idempotent rather than only the HTTP call.
+    /// example a background job, so every one of those retries sends the same key.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

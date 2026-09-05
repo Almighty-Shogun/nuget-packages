@@ -28,7 +28,7 @@ internal sealed class FileEmailTemplateLoader : IEmailTemplateLoader
     /// <remarks>
     /// Caching the task would let concurrent first-time loads share one read, at the cost of caching a faulted or canceled
     /// one forever: a template deleted after startup would then fail every later send, and one canceled send would poison
-    /// the entry for every other caller. Racing to read the same small file twice is the cheaper mistake.
+    /// the entry for every other caller.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -61,15 +61,19 @@ internal sealed class FileEmailTemplateLoader : IEmailTemplateLoader
     /// The process may not read the file. This does not derive from <see cref="IOException"/>, so a caller guarding only
     /// against that does not catch it.
     /// </exception>
+    /// <exception cref="OperationCanceledException">
+    /// <paramref name="cancellationToken"/> was signaled. It surfaces from the returned task, since the read is handed back
+    /// rather than awaited here.
+    /// </exception>
     ///
     /// <remarks>
     /// The check compares resolved paths rather than scanning for <c>..</c>, so it also covers an absolute path and a name
     /// that only escapes once the platform has normalized it.
     ///
-    /// Containment is decided by <see cref="Path.GetRelativePath"/> rather than by a string prefix. A prefix test passes any
-    /// sibling directory whose name merely starts with the templates directory, so <c>../mail-hacked/secret</c> under a
-    /// <c>mail</c> root resolves to <c>mail-hacked/secret</c> and reads clean. A relative path that is rooted or that starts
-    /// with <c>..</c> is the only thing that escapes, and that is what is rejected here.
+    /// Containment is decided by <see cref="Path.GetRelativePath"/> rather than by a string prefix. Under a <c>mail</c> root,
+    /// <c>../mail-hacked/secret</c> resolves to a full path that still begins with the root as a string, so a prefix test
+    /// would read it as contained. Its relative path starts with <c>..</c>, which is what is rejected here, along with one
+    /// that comes back rooted.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

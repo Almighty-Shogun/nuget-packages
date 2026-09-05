@@ -51,7 +51,8 @@ public sealed record MailButton
     public string Label { get; }
 
     /// <summary>
-    /// Gets the destination, already checked against the accepted schemes, so a renderer never has to validate it again.
+    /// Gets the destination, checked against the accepted schemes at construction, which is what keeps an unsafe one out of
+    /// the plain-text body the renderer does not encode.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

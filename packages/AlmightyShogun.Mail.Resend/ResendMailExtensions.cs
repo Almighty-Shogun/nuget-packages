@@ -16,8 +16,9 @@ namespace AlmightyShogun.Mail.Resend;
 public static class ResendMailExtensions
 {
     /// <summary>
-    /// The template files every rendered message is assembled from. The package ships none of them, so this list is what the
-    /// startup check reports when an application has not supplied them.
+    /// The template files every rendered message is assembled from. The package ships none of them, so
+    /// <see cref="EnsureTemplatesExist"/> names the whole list when the directory itself is missing, and only the absent
+    /// subset when the directory exists.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -53,8 +54,8 @@ public static class ResendMailExtensions
         /// <remarks>
         /// The mail service is transient and the template loader a singleton, so the file cache is shared across sends.
         /// Settings are bound through <see cref="IOptions{TOptions}"/>, so their values are fixed for the life of the process
-        /// and a reload requires a restart. The Resend client goes through a typed <c>HttpClient</c> with the standard
-        /// resilience handler, meaning a transient provider failure is retried before it reaches a caller.
+        /// and a reload requires a restart. The Resend client is registered as a typed <c>HttpClient</c> with the standard
+        /// resilience handler.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>

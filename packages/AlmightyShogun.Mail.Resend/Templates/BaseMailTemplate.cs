@@ -23,8 +23,9 @@ public abstract class BaseMailTemplate
     public abstract string Subject { get; }
 
     /// <summary>
-    /// Gets the heading rendered above the greeting, and the document title in the HTML head. A blank value is omitted from
-    /// the plain-text body rather than leaving a leading blank line.
+    /// Gets the value substituted into both the <c>{{DocumentTitle}}</c> and <c>{{Title}}</c> placeholders, so where it lands
+    /// is up to the application's own base template. A blank value is omitted from the plain-text body rather than leaving a
+    /// leading blank line.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -50,7 +51,8 @@ public abstract class BaseMailTemplate
     protected virtual IReadOnlyList<string> Paragraphs => [];
 
     /// <summary>
-    /// Gets the buttons rendered after the paragraphs, and repeated in the plain-text body as label and URL pairs so the
+    /// Gets the buttons substituted into the template's buttons placeholder, and repeated after the paragraphs in the
+    /// plain-text body as label and URL pairs so the
     /// destination survives for a client that shows only text.
     /// </summary>
     ///
@@ -64,7 +66,7 @@ public abstract class BaseMailTemplate
     /// </summary>
     ///
     /// <remarks>
-    /// Override this to add template fields without changing the package or introducing a template engine.
+    /// Override this to add template fields beyond the built-in placeholders.
     ///
     /// The default is the shared empty <see cref="FrozenDictionary{TKey,TValue}"/> rather than a new dictionary, because this
     /// is read on every render and a template that adds no fields should allocate nothing to say so.
@@ -84,12 +86,16 @@ public abstract class BaseMailTemplate
     /// <param name="buttonTemplateHtml">The fragment repeated once per entry in <see cref="Buttons"/>.</param>
     /// <param name="settings">The bound settings supplying the brand, logo, and footer values.</param>
     ///
-    /// <returns>The rendered HTML body, with every interpolated value encoded.</returns>
+    /// <returns>The rendered HTML body, with the chrome and content placeholders substituted.</returns>
     ///
     /// <remarks>
     /// Built-in placeholders are replaced before the subclass ones, so a value returned by <see cref="AdditionalValues"/>
-    /// cannot inject a placeholder that then gets substituted. Every value is encoded on its way in, which is why the
-    /// fragments are plain HTML rather than a template language.
+    /// cannot inject a built-in placeholder that then gets substituted. It can still inject an additional one, as
+    /// <see cref="ApplyAdditionalValues"/> describes.
+    ///
+    /// Each text value goes through <see cref="Encode"/> and each URL through <see cref="EncodeUrl"/> as it is substituted.
+    /// The <c>{{BodyHtml}}</c> and <c>{{ButtonsHtml}}</c> placeholders take assembled markup instead, whose own paragraphs,
+    /// labels, and URLs were already encoded as each fragment was built.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -219,7 +225,7 @@ public abstract class BaseMailTemplate
         .Aggregate(html, (current, value) => current.Replace($"{{{{{value.Key}}}}}", Encode(value.Value), StringComparison.Ordinal));
 
     /// <summary>
-    /// Encodes text for safe HTML output, applied to every interpolated value without exception.
+    /// Encodes text for safe HTML output, applied to each text value as it is substituted into a placeholder.
     /// </summary>
     ///
     /// <param name="value">The text to encode.</param>

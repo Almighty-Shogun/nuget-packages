@@ -10,8 +10,10 @@ namespace AlmightyShogun.Mail.Resend;
 public sealed record EmailTemplateSettings
 {
     /// <summary>
-    /// Gets the copyright line closing the footer. The <c>{app_name}</c> and <c>{app_url}</c> placeholders are substituted
-    /// before the result is HTML encoded, so a brand name containing markup cannot escape into the document.
+    /// Gets the copyright text substituted into the template's copyright placeholder, wherever the application's own base
+    /// template puts it, and appended to the plain-text footer. The <c>{app_name}</c> and <c>{app_url}</c> placeholders are
+    /// substituted first, and the HTML rendering then encodes the result so a brand name containing markup cannot escape
+    /// into the document. The plain-text rendering encodes nothing, having no markup to escape.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -19,8 +21,9 @@ public sealed record EmailTemplateSettings
     public string CopyrightTextTemplate { get; init; } = "© {app_name}";
 
     /// <summary>
-    /// Gets the label of the footer link pointing at <see cref="EmailSettings.AppUrl"/>. It takes the same placeholders as
-    /// <see cref="CopyrightTextTemplate"/>, and still renders when that URL is unset or was rejected.
+    /// Gets the text substituted into the footer link placeholder and appended to the plain-text footer. It takes the same
+    /// placeholders as <see cref="CopyrightTextTemplate"/>, and still renders when <see cref="EmailSettings.AppUrl"/> is
+    /// unset or was rejected.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

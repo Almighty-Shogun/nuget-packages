@@ -10,7 +10,7 @@ namespace AlmightyShogun.Mail.Resend;
 internal static class MailUrl
 {
     /// <summary>
-    /// Determines whether a URL is absolute and uses a scheme that cannot execute script when a mail client follows it.
+    /// Determines whether a URL is absolute and uses one of the accepted schemes.
     /// </summary>
     ///
     /// <param name="url">The URL to check. <c>null</c> and blank are rejected rather than treated as absent.</param>

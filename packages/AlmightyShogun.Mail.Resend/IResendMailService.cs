@@ -1,8 +1,8 @@
 namespace AlmightyShogun.Mail.Resend;
 
 /// <summary>
-/// Renders mail templates and sends them through Resend. Registered as transient by <c>AddResendEmail</c>, so it can be
-/// injected into a scoped service or a background job without capturing a shorter-lived dependency.
+/// Renders mail templates and sends them through Resend. Registered as transient by <c>AddResendEmail</c>, so every
+/// resolution gets its own instance.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -14,8 +14,8 @@ public interface IResendMailService
     /// </summary>
     ///
     /// <param name="recipientEmail">
-    /// The sole recipient. It is not checked here, so a malformed address comes back as a failed result from Resend rather
-    /// than as an argument exception.
+    /// The sole recipient, passed through unvalidated. A malformed address raises no argument exception here, so whatever
+    /// becomes of it is settled by the send request.
     /// </param>
     /// <param name="mail">The template rendered into both bodies, and whose subject becomes the message subject.</param>
     /// <param name="cancellationToken">The token cancelling the template reads and the send request.</param>
@@ -99,7 +99,7 @@ public interface IResendMailService
     /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled during a read.</exception>
     ///
     /// <remarks>
-    /// Nothing is sent and Resend is never contacted, so a preview works with an API token that would be rejected by a send.
+    /// Nothing is sent and Resend is never contacted, so the configured API token is not used at all on this path.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

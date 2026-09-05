@@ -12,8 +12,8 @@ namespace AlmightyShogun.Mail.Resend;
 public sealed record EmailSettings
 {
     /// <summary>
-    /// Gets the sender as Resend expects it, omitting the display name when none is configured so the value does not
-    /// start with a stray space.
+    /// Gets the sender, as <c>Name &lt;address&gt;</c> when a display name is configured and as the bare address otherwise,
+    /// so an unset name does not leave the value starting with a stray space.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -40,8 +40,8 @@ public sealed record EmailSettings
     public string BrandName { get; init; } = string.Empty;
 
     /// <summary>
-    /// Gets the address messages are sent from. It must sit on a domain verified with Resend, which startup validation
-    /// cannot check, so an unverified domain surfaces as a failed send rather than a failed start.
+    /// Gets the address messages are sent from. The annotations check only that a value is present and shaped like an
+    /// address, so anything Resend requires of the sender beyond that goes unchecked until a send is attempted.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -60,8 +60,9 @@ public sealed record EmailSettings
     public string? FromName { get; init; }
 
     /// <summary>
-    /// Gets the logo shown in the base template header. It is dropped from the rendered HTML unless it is an absolute URL
-    /// on an accepted scheme, because an unsafe value cannot be encoded into a <c>src</c> attribute.
+    /// Gets the logo URL substituted into the template's logo placeholder, wherever the application's own base template
+    /// puts it. It is dropped from the rendered HTML unless it is an absolute URL
+    /// on an accepted scheme, since dropping it keeps one bad configured URL from failing every send.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

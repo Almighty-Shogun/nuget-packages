@@ -1,8 +1,7 @@
 namespace AlmightyShogun.Mail.Resend;
 
 /// <summary>
-/// Represents the outcome of a send, reporting a provider failure as a value rather than an exception so a caller sending
-/// in a loop does not have to wrap each message.
+/// Represents the outcome of a send, reporting a provider failure as a value rather than an exception.
 /// </summary>
 ///
 /// <remarks>
@@ -34,9 +33,9 @@ public sealed record MailSendResult
     }
 
     /// <summary>
-    /// Gets whether the send succeeded. Acceptance is not delivery, which is reported later by a webhook, so a <c>true</c>
-    /// here means the provider took responsibility for the message and nothing more. A <c>false</c> does not always mean
-    /// Resend declined it: a send with no recipient fails before the provider is contacted.
+    /// Gets whether the send succeeded. A <c>true</c> means the request to Resend returned without an error, and nothing
+    /// here follows the message any further than that. A <c>false</c> does not always mean Resend declined it: a send with
+    /// no recipient fails before the provider is contacted.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -54,8 +53,8 @@ public sealed record MailSendResult
 
     /// <summary>
     /// Gets the failure message, and <c>null</c> whenever the send succeeded. It carries either this package's own
-    /// rejection, such as a send with no recipient, or the text the provider returned. Provider text is not localized, so
-    /// this is for logs and diagnostics rather than for showing to a user.
+    /// rejection, such as a send with no recipient, or the message of the exception the send request threw, which may come
+    /// from the client library rather than from Resend. It is for logs and diagnostics rather than for showing to a user.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
