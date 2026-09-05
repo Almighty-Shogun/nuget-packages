@@ -1,7 +1,7 @@
 ---
 params:
     - name: configuration
-      description: Application configuration to read the optional `Serilog` section from. Omit it and Serilog's own defaults apply.
+      description: Application configuration to read the optional [`Serilog`](../configuration) section from. Omit it to run on the console sink and log-context enrichment alone.
       type: IConfiguration?
       default: 'null'
     - name: includeConsoleSink
@@ -18,11 +18,13 @@ returns: The same service collection or host builder instance, with Serilog conf
 
 # AddCustomLogging
 
-Configures Serilog with log-context enrichment and the package's asynchronous colored console sink. Inject `ILogger<T>` as usual afterwards.
-
-The `IHostBuilder` receiver replaces the host's logging with Serilog. The `IServiceCollection` receiver adds Serilog as an additional provider and leaves any provider the host already registered in place, so a default console provider keeps writing and every line appears twice. The logger is registered for disposal, which flushes the asynchronous sink's buffer during an orderly [shutdown](../installation#flushing-on-shutdown).
+Configures Serilog with log-context enrichment and the package's asynchronous colored console sink, and registers it so an injected `ILogger<T>` writes through it. The `IHostBuilder` receiver replaces the host's logging providers; the `IServiceCollection` receiver adds Serilog next to them. Both hand the logger to Serilog for disposal, which flushes the buffered console sink during an orderly [shutdown](../installation#flushing-on-shutdown).
 
 ## Usage
+
+::: warning
+A host that already registered console logging keeps writing through it under the `IServiceCollection` receiver, so every line appears twice. Use the `IHostBuilder` receiver, or clear the host's own providers, when only the Serilog output is wanted.
+:::
 
 ::: code-group
 

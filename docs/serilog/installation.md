@@ -21,7 +21,7 @@ dotnet add package AlmightyShogun.Serilog
 
 ## Startup Registration
 
-Call the extension method once during startup. Both overloads take the same optional arguments.
+Call [`AddCustomLogging`](./extensions/add-custom-logging) once during startup. The `IHostBuilder` receiver hands the host's logging to Serilog outright, while the `IServiceCollection` receiver adds it as one more provider, for startup code that never sees the host builder.
 
 ::: code-group
 

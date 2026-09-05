@@ -1,6 +1,6 @@
 # Formatter
 
-The console formatter is registered automatically by [`AddCustomLogging`](./extensions/add-custom-logging). It is internal to the package, so application code never constructs it; write normal Serilog message templates and the registered logger applies it to console output.
+[`AddCustomLogging`](./extensions/add-custom-logging) attaches this formatter to the console sink it adds, unless `includeConsoleSink` is `false`. The formatter is internal to the package, so application code never constructs it; write normal Serilog message templates and the console output comes back colored.
 
 ## Usage
 
@@ -51,26 +51,26 @@ An exception is written on the following line in dark gray.
 
 ### Level colors
 
-| Level | Color |
+| Color | Level |
 | --- | --- |
-| `Verbose` | White |
-| `Debug` | White |
-| `Information` | Green |
-| `Warning` | Yellow |
-| `Error` | Red |
-| `Fatal` | Bright red |
+| White | `Verbose` |
+| White | `Debug` |
+| Green | `Information` |
+| Yellow | `Warning` |
+| Red | `Error` |
+| Bright red | `Fatal` |
 
 ### Default property colors
 
 A property with no color code is colored by the type of its value:
 
-| Value | Color |
+| Color | Value |
 | --- | --- |
-| `string` | White |
-| Any numeric type, including `byte`, `short`, `int`, `long`, their unsigned forms, `nint`, `nuint`, `Half`, `float`, `double`, and `decimal` | Cyan |
-| `bool` | Magenta |
-| `null` | Dark gray |
-| Anything else | White |
+| White | `string` |
+| Cyan | Any numeric type, including `byte`, `short`, `int`, `long`, their unsigned forms, `nint`, `nuint`, `Half`, `float`, `double`, and `decimal` |
+| Magenta | `bool` |
+| Dark gray | `null` |
+| White | Anything else |
 
 ## Template syntax
 

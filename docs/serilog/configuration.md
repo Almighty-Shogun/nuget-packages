@@ -1,16 +1,22 @@
 ---
 fields:
     - name: Serilog
-      description: Root section read by Serilog's configuration package.
-      type: object
+      description: The optional `Serilog` section itself, read by `Serilog.Settings.Configuration`. Every key that package understands is accepted here, including sinks and enrichers this package does not add on its own. Nothing binds it to an options type, and it is read once while the logger is being built, so there is no settings object to inject afterwards.
+      fields:
+          - name: MinimumLevel
+            description: The nested `MinimumLevel` object.
+            type: object
 
     - name: MinimumLevel
-      description: Controls the minimum log levels used by Serilog.
-      type: object
+      description: The nested `Serilog:MinimumLevel` object, deciding which events reach the sinks at all.
+      fields:
+          - name: Default
+            description: Level applied to every source without an override, as one of `Verbose`, `Debug`, `Information`, `Warning`, `Error`, or `Fatal`.
+            type: string
 
-    - name: MinimumLevel:Override
-      description: Sets namespace-specific minimum levels.
-      type: 'Dictionary<string, string>'
+          - name: Override
+            description: Minimum level per source-context prefix, usually a namespace, so one noisy component can be raised without moving the default for everything else.
+            type: 'Dictionary<string, string>'
 ---
 
 # Configuration
