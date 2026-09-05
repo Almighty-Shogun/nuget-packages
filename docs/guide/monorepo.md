@@ -65,7 +65,6 @@ AlmightyShogun.AspNet.Localization
 AlmightyShogun.AspNet.MaintenanceMode
     -> AlmightyShogun.Utils
     -> AlmightyShogun.AspNet.Core
-    -> AlmightyShogun.AspNet.Localization
 
 AlmightyShogun.AspNet.RequestValidation
     -> AlmightyShogun.AspNet.Core
