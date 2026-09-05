@@ -19,8 +19,7 @@ public static class ConsoleCommandDiscovery
     /// <returns>One entry per command class the calling assembly declares.</returns>
     ///
     /// <exception cref="InvalidOperationException">
-    /// A discovered class breaks one of the command rules. Reported rather than skipped, so a malformed command is the
-    /// same failure here as it is at registration.
+    /// A discovered class breaks one of the rules named on <see cref="ConsoleCommandBase"/>. Reported rather than skipped.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -40,8 +39,7 @@ public static class ConsoleCommandDiscovery
     /// <returns>One entry per command class, grouped by assembly in the order the assemblies were given.</returns>
     ///
     /// <exception cref="InvalidOperationException">
-    /// A discovered class breaks one of the command rules. Reported rather than skipped, so a malformed command is the
-    /// same failure here as it is at registration.
+    /// A discovered class breaks one of the rules named on <see cref="ConsoleCommandBase"/>. Reported rather than skipped.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -59,8 +57,8 @@ public static class ConsoleCommandDiscovery
     /// <returns>The concrete types assignable to <see cref="IConsoleCommand"/>, lazily.</returns>
     ///
     /// <remarks>
-    /// Nothing is filtered here. A silent filter is what previously let a class carrying the attribute disappear from the
-    /// help listing while registration reported it as an error, which meant the two disagreed about what a command is.
+    /// Nothing is filtered here. A class that breaks the command rules is returned like any other, and so is one carrying
+    /// <see cref="SkipAutoRegistrationAttribute"/>.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -79,7 +77,7 @@ public static class ConsoleCommandDiscovery
     /// <see cref="CancellationToken"/> is left out, because the dispatcher supplies it rather than the user typing it.
     /// </returns>
     ///
-    /// <exception cref="InvalidOperationException">The class breaks one of the command rules.</exception>
+    /// <exception cref="InvalidOperationException">The class breaks one of the rules named on <see cref="ConsoleCommandBase"/>.</exception>
     ///
     /// <remarks>
     /// Only a trailing token is dropped, matching the one position <see cref="ConsoleCommandBase"/> fills in. A token

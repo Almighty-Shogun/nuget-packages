@@ -33,7 +33,7 @@ internal interface IInternalConsoleCommand
     /// arguments raised, rethrown with its original stack trace rather than wrapped in
     /// <see cref="System.Reflection.TargetInvocationException"/>. The dispatcher catches it, logs it, and raises
     /// <see cref="IConsoleCommandHandler.CommandFailed"/>, except for a cancellation raised once the token it passed in was
-    /// already signaled, which it rethrows and lets end the read loop.
+    /// already signaled, which it rethrows.
     /// </exception>
     ///
     /// <remarks>

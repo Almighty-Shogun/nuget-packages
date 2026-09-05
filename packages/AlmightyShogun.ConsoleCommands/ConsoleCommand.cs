@@ -32,7 +32,7 @@ public sealed class ConsoleCommand
     }
 
     /// <summary>
-    /// Gets the name the command is invoked by, which is also what the usage and example text are prefixed with.
+    /// The name the command is invoked by, which is also what the usage and example text are prefixed with.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -40,7 +40,7 @@ public sealed class ConsoleCommand
     public string Name { get; }
 
     /// <summary>
-    /// Gets the explanation for a listing, or <c>null</c> when the command was declared without one.
+    /// The explanation for a listing, or <c>null</c> when the command was declared without one.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -48,7 +48,7 @@ public sealed class ConsoleCommand
     public string? Description { get; }
 
     /// <summary>
-    /// Gets the extra names the command answers to, or an empty list when it declares none.
+    /// The extra names the command answers to, or an empty list when it declares none.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -56,7 +56,7 @@ public sealed class ConsoleCommand
     public IReadOnlyList<string> Aliases { get; }
 
     /// <summary>
-    /// Gets the full line to type, as the name followed by one <c>&lt;name:Type&gt;</c> placeholder per handler parameter,
+    /// The full line to type, as the name followed by one <c>&lt;name:Type&gt;</c> placeholder per handler parameter,
     /// excluding a trailing <see cref="CancellationToken"/>, which the dispatcher supplies rather than the user. A command
     /// taking no arguments yields the bare name, never a trailing space.
     /// </summary>
@@ -66,7 +66,7 @@ public sealed class ConsoleCommand
     public string Usage { get; }
 
     /// <summary>
-    /// Gets a complete sample invocation including the command name, or <c>null</c> when the command declares no example.
+    /// A complete sample invocation including the command name, or <c>null</c> when the command declares no example.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

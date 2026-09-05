@@ -3,10 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Validates that a type is a usable console command, so the base constructor and the assembly scanner agree on what
-/// valid means. Both treat an invalid one as a failure rather than something to pass over: the scanner calls
-/// <see cref="Describe"/>, which throws, and <see cref="ConsoleCommandBase"/> calls <see cref="TryDescribe"/> and raises
-/// the same message itself. Nothing filters a malformed command out silently.
+/// Validates that a type is a usable console command, in the one place both the base constructor and the assembly scanner
+/// check it, so they cannot drift apart about what valid means.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -119,8 +117,9 @@ internal static class CommandMetadata
     /// it is typed. Rejecting it here is what stops such a command registering and then never responding. Every other
     /// whitespace character is rejected with it, which is wider than the split strictly requires.
     ///
-    /// Aliases never reach this check. An <see cref="AliasAttribute"/> name goes straight into the descriptor and into the
-    /// dispatcher's table, which drops only a blank one, so an alias containing whitespace registers and then never matches.
+    /// Aliases never reach this check. An <see cref="AliasAttribute"/> name goes straight into the descriptor and into
+    /// <see cref="ConsoleCommandHandler"/>, which does not apply this rule, so an alias containing whitespace registers and
+    /// then never matches.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

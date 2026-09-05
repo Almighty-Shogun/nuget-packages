@@ -7,12 +7,10 @@ namespace AlmightyShogun.ConsoleCommands;
 ///
 /// <param name="Name">The name from <see cref="ConsoleCommandAttribute"/>, already checked to be typeable.</param>
 /// <param name="Aliases">
-/// The alternative names from <see cref="AliasAttribute"/>, empty when the class declares none. Each claims a slot in the
-/// same table as <paramref name="Name"/>, so an alias colliding with a real name is reported the same way.
+/// The alternative names from <see cref="AliasAttribute"/>, empty when the class declares none.
 /// </param>
 /// <param name="ImplementationType">
-/// The command class, resolved from a fresh scope for each invocation. Registered as a transient service under this exact
-/// type, so resolving it never returns a shared instance.
+/// The command class, registered by <see cref="ConsoleCommandExtensions"/> and resolved by that same type.
 /// </param>
 ///
 /// <remarks>

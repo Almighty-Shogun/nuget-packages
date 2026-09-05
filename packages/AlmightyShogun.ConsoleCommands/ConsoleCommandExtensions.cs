@@ -18,8 +18,8 @@ public static class ConsoleCommandExtensions
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Registers the console command handler service. It only runs the input loop, so the command classes it dispatches to
-        /// still have to be registered with <see cref="RegisterConsoleCommands(IServiceCollection)"/>.
+        /// Registers the console command handler as a singleton. It only runs the input loop, so the command classes it
+        /// dispatches to still have to be registered with <see cref="RegisterConsoleCommands(IServiceCollection)"/>.
         /// </summary>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the console command handler registered.</returns>
@@ -53,9 +53,8 @@ public static class ConsoleCommandExtensions
         /// <returns>The <see cref="IServiceCollection"/> instance with the console commands registered.</returns>
         ///
         /// <exception cref="InvalidOperationException">
-        /// A discovered class breaks one of the command rules: no <see cref="ConsoleCommandAttribute"/>, a name that cannot
-        /// be typed, or anything other than one public <c>ExecuteAsync</c> returning an awaitable. Raised here so the
-        /// offending class is named at startup rather than quietly never answering the prompt.
+        /// A discovered class breaks one of the rules named on <see cref="ConsoleCommandBase"/>. Raised here so the offending
+        /// class is named at startup rather than quietly never answering the prompt.
         /// </exception>
         ///
         /// <remarks>

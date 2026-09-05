@@ -9,8 +9,8 @@ namespace AlmightyShogun.ConsoleCommands;
 /// <param name="exception">The exception the command let escape, with its original stack trace.</param>
 ///
 /// <remarks>
-/// Raised after the failure has already been logged, so a subscriber adds to the report rather than replacing it. The
-/// prompt keeps reading unless a subscriber itself throws, which ends the loop.
+/// Raised after the failure has already been logged, so a subscriber adds to the report rather than replacing it. See
+/// <see cref="IConsoleCommandHandler.StartAsync"/> for what a subscriber that throws does to the loop.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -18,7 +18,7 @@ namespace AlmightyShogun.ConsoleCommands;
 public sealed class ConsoleCommandErrorEvent(string commandName, Exception exception) : EventArgs
 {
     /// <summary>
-    /// Gets the name the user typed. An alias resolves to the alias, not to the command's declared name, because it is
+    /// The name the user typed. An alias resolves to the alias, not to the command's declared name, because it is
     /// what the person at the prompt actually wrote.
     /// </summary>
     ///
@@ -27,7 +27,7 @@ public sealed class ConsoleCommandErrorEvent(string commandName, Exception excep
     public string CommandName { get; } = commandName;
 
     /// <summary>
-    /// Gets the exception that failed the command, which is what its <c>ExecuteAsync</c> threw or what binding its arguments
+    /// The exception that failed the command, which is what its <c>ExecuteAsync</c> threw or what binding its arguments
     /// raised before it ran. Already logged as an error by the dispatcher before this was raised.
     /// </summary>
     ///

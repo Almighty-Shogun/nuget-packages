@@ -11,7 +11,7 @@ namespace AlmightyShogun.ConsoleCommands;
 public sealed class ExampleAttribute : Attribute
 {
     /// <summary>
-    /// Gets the argument values as one space-separated string. The command name is not part of it; the metadata builder
+    /// The argument values as one space-separated string. The command name is not part of it; the metadata builder
     /// prefixes that when it assembles <see cref="ConsoleCommand.Example"/>.
     /// </summary>
     ///

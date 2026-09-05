@@ -220,15 +220,24 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     /// <param name="cancellationToken">Signalled when the handler is stopping, forwarded to a command that accepts one.</param>
     ///
     /// <returns>
-    /// A task that completes when the command has finished, or immediately when no command matched. A command that fails
-    /// with anything but the cancellation below is logged and raises <see cref="CommandFailed"/> rather than faulting the
-    /// task.
+    /// A task that completes when the command has finished, or immediately when no command matched. A failure inside the
+    /// command is logged and raises <see cref="CommandFailed"/> rather than faulting the task; the exceptions below are the
+    /// ones that fault it instead.
     /// </returns>
     ///
     /// <exception cref="OperationCanceledException">
     /// Thrown out of the command while <paramref name="cancellationToken"/> is already signaled. The filter tests that
     /// token alone, so one raised for an unrelated token during shutdown is rethrown with it. Either way it escapes into
-    /// <see cref="StartAsync"/>, which ends the loop and logs it as an unexpected stop.
+    /// <see cref="StartAsync"/>.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// The command class could not be resolved from the scope, which is what a constructor dependency of its own that was
+    /// never registered produces. Resolution happens before the <c>try</c>, so this is neither logged nor turned into
+    /// <see cref="CommandFailed"/>.
+    /// </exception>
+    /// <exception cref="Exception">
+    /// Whatever the command's own constructor threw, for the same reason, or whatever a <see cref="CommandFailed"/>
+    /// subscriber threw, since the event is raised from inside the <c>catch</c> that would otherwise have handled it.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
