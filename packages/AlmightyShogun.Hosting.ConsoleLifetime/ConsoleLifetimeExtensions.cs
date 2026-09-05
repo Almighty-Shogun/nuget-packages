@@ -42,7 +42,8 @@ public static class ConsoleLifetimeExtensions
         /// <see cref="IHostApplicationLifetime.StopApplication"/>, or when it is killed from outside.
         ///
         /// The default lifetime is replaced rather than added, so calling this twice still leaves exactly one registration.
-        /// The replacement is appended, though, so a later plain <c>Add</c> for <see cref="IHostLifetime"/> still wins.
+        /// The ordering that still applies is documented on
+        /// <see cref="ServiceCollectionExtensions.ReplaceService{TService, TImplementation}"/>.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
@@ -58,10 +59,9 @@ public static class ConsoleLifetimeExtensions
         /// truncates work that was mid-flight; too long leaves the process alive after it has stopped serving.
         /// </param>
         /// <param name="backgroundServiceExceptionBehavior">
-        /// What an unhandled exception in a <see cref="BackgroundService"/> does.
-        /// <see cref="BackgroundServiceExceptionBehavior.StopHost"/> stops the <see cref="IHost"/> while the process itself
-        /// continues; <see cref="BackgroundServiceExceptionBehavior.Ignore"/> logs it and leaves the process running with
-        /// that one service dead.
+        /// What an unhandled exception in a <see cref="BackgroundService"/> does, either
+        /// <see cref="BackgroundServiceExceptionBehavior.StopHost"/> or
+        /// <see cref="BackgroundServiceExceptionBehavior.Ignore"/>.
         /// </param>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the host options configured.</returns>
@@ -165,8 +165,9 @@ public static class ConsoleLifetimeExtensions
         /// <remarks>
         /// Registration is deferred into
         /// <see cref="HostingHostBuilderExtensions.ConfigureServices(IHostBuilder, Action{IServiceCollection})"/>, so it
-        /// lands whenever the builder runs its callbacks rather than at the moment this is called. Setting
-        /// <c>DOTNET_RUNNING_IN_IDE</c> leaves <c>Ctrl+C</c> working, so a stop button still ends the process.
+        /// lands whenever the builder runs its callbacks rather than at the moment this is called. The registration itself
+        /// delegates to the <see cref="IServiceCollection"/> receiver, so the behavior and the <c>DOTNET_RUNNING_IN_IDE</c>
+        /// escape hatch documented there apply unchanged.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>

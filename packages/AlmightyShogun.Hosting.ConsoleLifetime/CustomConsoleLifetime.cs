@@ -16,12 +16,6 @@ namespace AlmightyShogun.Hosting.ConsoleLifetime;
 /// the process ending where it stands.
 /// </param>
 ///
-/// <remarks>
-/// The host resolves a single <see cref="IHostLifetime"/> and takes the last registration. Replacing the default rather
-/// than adding alongside it keeps the count at one, but the outcome is still order-dependent: <c>Replace</c> removes the
-/// first matching registration and appends the new one, so a later plain <c>Add</c> for <see cref="IHostLifetime"/> wins.
-/// </remarks>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>2.0.0</since>
 internal sealed class CustomConsoleLifetime(IHostApplicationLifetime applicationLifetime) : IHostLifetime, IDisposable
@@ -38,10 +32,7 @@ internal sealed class CustomConsoleLifetime(IHostApplicationLifetime application
 
     /// <summary>
     /// Holds the <c>SIGTERM</c> handler so it can be released with the lifetime. Stays null on Windows, where no
-    /// registration is made. Since <c>Ctrl+C</c> is suppressed there too, nothing in this type asks the host to stop on
-    /// Windows at all; only a call to <see cref="IHostApplicationLifetime.StopApplication"/> or to <c>IHost.StopAsync</c>
-    /// does. Setting <c>DOTNET_RUNNING_IN_IDE</c> stops suppressing the key press, which terminates the process rather than
-    /// shutting the host down in an orderly way.
+    /// registration is made.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -86,8 +77,8 @@ internal sealed class CustomConsoleLifetime(IHostApplicationLifetime application
     ///
     /// <remarks>
     /// Nothing to wait for. Shutdown is driven by the <c>SIGTERM</c> handler where one was registered, by anything that calls
-    /// <see cref="IHostApplicationLifetime.StopApplication"/>, and by a direct <c>IHost.StopAsync</c>, so by the time this
-    /// runs the decision has already been made. <paramref name="cancellationToken"/> is not observed.
+    /// <see cref="IHostApplicationLifetime.StopApplication"/>, and by a direct <see cref="IHost.StopAsync"/>, so by the
+    /// time this runs the decision has already been made. <paramref name="cancellationToken"/> is not observed.
     /// </remarks>
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
