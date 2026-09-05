@@ -9,15 +9,9 @@ returns: The `IServiceCollection` instance with remote command services configur
 
 # AddRemoteCommands
 
-Registers the listener behind [`IRemoteCommandHandler`](../services/remote-command-handler) and binds the [`RemoteServer`](../configuration) section it runs on. The section's data annotations, such as the port and the timeouts, are validated while the host starts. The address and the whitelist entries are parsed when the handler itself is resolved, so a malformed address or a whitelist entry that is neither an address nor a CIDR range surfaces there rather than at host start.
-
-Pair it with [`RegisterRemoteCommands`](./register-remote-commands), which registers the command classes themselves. Neither call reads what the other registered, so they may be written in either order.
+Registers the listener behind [`IRemoteCommandHandler`](../services/remote-command-handler) and binds the [`RemoteServer`](../configuration) section it runs on. The section's range annotations, such as the port and the timeouts, are checked while the host starts, while the address and the whitelist entries are parsed only when the handler itself is resolved. Pair it with [`RegisterRemoteCommands`](./register-remote-commands), which registers the command classes themselves.
 
 ## Usage
-
-::: warning
-Requires a `RemoteServer` section in application configuration, usually from `appsettings.json`.
-:::
 
 ```csharp
 using AlmightyShogun.RemoteCommands;

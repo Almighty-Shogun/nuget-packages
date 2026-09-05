@@ -21,11 +21,7 @@ dotnet add package AlmightyShogun.RemoteCommands
 
 ## Startup Registration
 
-Register the listener services, then scan the assemblies that contain remote command classes. Resolve [`IRemoteCommandHandler`](./services/remote-command-handler) from dependency injection when the application is ready to start or stop the listener.
-
-::: warning
-Requires a `RemoteServer` section in application configuration, usually from `appsettings.json`.
-:::
+[`AddRemoteCommands`](./extensions/add-remote-commands) binds the `RemoteServer` section and registers the listener behind [`IRemoteCommandHandler`](./services/remote-command-handler), and [`RegisterRemoteCommands`](./extensions/register-remote-commands) discovers the command classes in the calling assembly and registers each as a transient service. Nothing starts listening on its own: resolve the handler and call `StartAsync`, usually from a hosted service.
 
 ```csharp
 using AlmightyShogun.RemoteCommands;

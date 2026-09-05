@@ -9,9 +9,7 @@ returns: The `IServiceCollection` instance with discovered remote command classe
 
 # RegisterRemoteCommands
 
-Registers remote command classes from one or more assemblies as transient services under their own concrete type, so [`RemoteCommandHandler`](../services/remote-command-handler) can resolve one per request. Pair it with [`AddRemoteCommands`](./add-remote-commands), passing explicit assemblies when commands live outside the startup assembly. Neither call reads what the other registered, so they may be written in either order.
-
-A class is discovered by inheriting [`RemoteCommand<T>`](../types/remote-command) and must declare [`RemoteCommandAttribute`](../attributes/remote-command-attribute), whose name is what registration records, so a class without one throws here.
+Registers remote command classes from one or more assemblies as transient services under their own concrete type, so [`RemoteCommandHandler`](../services/remote-command-handler) can resolve one per request. Pair it with [`AddRemoteCommands`](./add-remote-commands), passing explicit assemblies when commands live outside the startup assembly. A class is discovered by inheriting [`RemoteCommand<T>`](../types/remote-command) and must declare [`RemoteCommandAttribute`](../attributes/remote-command-attribute), whose name is what registration records, so a class without one throws here.
 
 ## Usage
 

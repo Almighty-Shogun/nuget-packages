@@ -4,7 +4,11 @@ Binds the configured address and port and dispatches each accepted request to th
 
 Command classes are discovered separately, by [`RegisterRemoteCommands`](../extensions/register-remote-commands).
 
-## Usage
+## StartAsync
+
+Binds the configured endpoint, refuses connections from outside the whitelist, and serves length-prefixed UTF-8 JSON requests until the token is cancelled or [`Stop`](#stop) is called. A connection is kept open between requests, so one client may run many commands on it.
+
+Only one listener may run at a time. Calling this while one is already running logs an error and returns. A failure to bind, such as the port already being in use, is logged rather than thrown.
 
 ::: code-group
 
@@ -33,21 +37,6 @@ builder.Services
 ```
 
 :::
-
-## StartAsync
-
-Binds the configured endpoint, refuses connections from outside the whitelist, and serves length-prefixed UTF-8 JSON requests until the token is cancelled or [`Stop`](#stop) is called. A connection is kept open between requests, so one client may run many commands on it.
-
-Only one listener may run at a time. Calling this while one is already running logs an error and returns. A failure to bind, such as the port already being in use, is logged rather than thrown.
-
-```csharp
-using AlmightyShogun.RemoteCommands;
-using Microsoft.Extensions.DependencyInjection;
-
-await serviceProvider
-    .GetRequiredService<IRemoteCommandHandler>()
-    .StartAsync(applicationLifetime.ApplicationStopping);
-```
 
 ### Type signature
 

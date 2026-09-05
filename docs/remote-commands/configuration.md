@@ -63,7 +63,7 @@ The `RemoteServer` section configures the listener and is required, because `Por
         ],
         "Secret": "a-shared-key",
         "EnableReceiveLog": true,
-        "MaxPayloadBytes": 1048576,
+        "MaxPayloadBytes": 1048576, /* 1 MiB */
         "ReadTimeout": 30,
         "IdleTimeout": 120,
         "MaxConcurrentConnections": 100
@@ -76,20 +76,3 @@ The `RemoteServer` section configures the listener and is required, because `Por
 :::
 
 <FrontmatterDocs/>
-
-## Usage
-
-Inject `IOptions<RemoteServerSettings>` wherever application code needs the configured endpoint or limits.
-
-```csharp
-using Microsoft.Extensions.Options;
-using AlmightyShogun.RemoteCommands;
-
-public sealed class RemoteCommandDiagnostics(
-    IOptions<RemoteServerSettings> options
-)
-{
-    public string Endpoint
-        => $"{options.Value.Address}:{options.Value.Port}";
-}
-```

@@ -2,7 +2,11 @@
 
 Base type for typed remote commands. A command class inherits from it, specifies its message type as `T`, and implements `HandleCommandAsync`. The base reads [`RemoteCommandAttribute`](../attributes/remote-command-attribute) for the command name and deserializes the incoming JSON into `T` before dispatching.
 
-## Usage
+## HandleCommandAsync
+
+Handles the command after the incoming JSON payload has been deserialized into `T`. Write a reply through [`ICommandResponse`](./command-response) when the client expects one; a command that returns nothing simply completes.
+
+Deserialization failure never reaches this method. A payload whose `Data` does not produce a `T` raises a `JsonException` while the command is being dispatched, which the handler answers with a refused [`RemoteCommandResponse`](../records/remote-command-response) carrying `InvalidMessage`, sent on the wire as its underlying number.
 
 ::: code-group
 
@@ -47,12 +51,6 @@ public sealed record PingCommandResponse(
 ::: warning
 A class must declare [`RemoteCommandAttribute`](../attributes/remote-command-attribute), because the name on it is what [`RegisterRemoteCommands`](../extensions/register-remote-commands) records. A class without one throws `InvalidOperationException` during registration, so a missing attribute stops startup rather than reaching the first request, and constructing such a command directly throws the same exception.
 :::
-
-## HandleCommandAsync
-
-Handles the command after the incoming JSON payload has been deserialized into `T`. Write a reply through [`ICommandResponse`](../services/command-response) when the client expects one; a command that returns nothing simply completes.
-
-Deserialization failure never reaches this method. A payload whose `Data` does not produce a `T` raises a `JsonException` while the command is being dispatched, which the handler answers with a refused [`RemoteCommandResponse`](../records/remote-command-response) carrying `InvalidMessage`, sent on the wire as its underlying number.
 
 ### Type signature
 

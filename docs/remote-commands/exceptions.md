@@ -1,16 +1,6 @@
 # Exceptions
 
-[`RemoteCommandClient`](./services/remote-command-client) throws four exceptions deriving from `RemoteCommandException`, so a single
-`catch` covers an unreachable server, a refusal, and a disconnection. Three further failures escape that base type: a framing error raises
-`InvalidDataException`, an unreadable envelope raises `JsonException`, and cancelling the token propagates as
-`OperationCanceledException` after the connection is disposed, because a caller shutting down asked for it rather than
-suffering it. The listener itself throws none: it answers a bad request with a [
-`RemoteCommandResponse`](./records/remote-command-response) instead.
-
-Note that only `RemoteCommandUnreachableException` and `RemoteCommandRefusedException` prove the command did not run. The server runs a
-command and only then writes its response, so a disconnection may mean it ran and the answer never came back.
-
-Which type is thrown says whether the problem was the connection, the wire format, or the server's own decision.
+[`RemoteCommandClient`](./services/remote-command-client) throws four exceptions deriving from `RemoteCommandException`, so a single `catch` covers an unreachable server, a refusal, and a disconnection. Three further failures escape that base type: a framing error raises `InvalidDataException`, an unreadable envelope raises `JsonException`, and a cancelled token propagates as `OperationCanceledException`. The listener raises none of them, because it answers a request it cannot serve with a refused [`RemoteCommandResponse`](./records/remote-command-response) instead.
 
 | Exception                            | Cause                                           | Retry      |
 |--------------------------------------|-------------------------------------------------|------------|
@@ -18,36 +8,6 @@ Which type is thrown says whether the problem was the connection, the wire forma
 | `RemoteCommandDisconnectedException` | Closed before a response arrived                | See below  |
 | `RemoteCommandProtocolException`     | The frame deserialized to `null`                | Pointless  |
 | `RemoteCommandRefusedException`      | The server answered and declined                | Pointless  |
-
-## Usage
-
-```csharp
-using AlmightyShogun.RemoteCommands;
-
-try
-{
-    await client.SendAsync(
-        "restart",
-        new RestartMessage(),
-        cancellationToken
-    );
-}
-catch (RemoteCommandUnreachableException exception)
-{
-    logger.LogWarning(
-        "No listener at {Host}:{Port}",
-        exception.Host,
-        exception.Port
-    );
-}
-catch (RemoteCommandRefusedException exception)
-{
-    logger.LogError(
-        "The server refused the command: {Reason}",
-        exception.Reason
-    );
-}
-```
 
 ## RemoteCommandUnreachableException
 
@@ -72,6 +32,10 @@ public sealed class RemoteCommandUnreachableException(
 
 The connection opened but closed before a response arrived. The usual cause is the address not being in [`Whitelisted`](./configuration),
 because the listener drops such a client without answering rather than explaining itself.
+
+Only `RemoteCommandUnreachableException` and `RemoteCommandRefusedException` prove the command did not run. The server runs a command and only
+then writes its response, so a disconnection may mean it ran and the answer never came back, which is why retrying one is a decision about the
+command rather than about the connection.
 
 ### Type signature
 
@@ -118,7 +82,7 @@ The reason on a refusal, and the only place the package names one. It travels on
 code, and a value introduced by a newer server is read as `Other` rather than rejected.
 
 ::: tip
-A property the payload omits binds to its default, so a message missing an optional field reaches the command with that field null. A
+A property the payload omits binds to its default, so a message missing an optional field reaches the command with that field at its default. A
 property the message marks `required` is different: its absence makes deserialization throw, which is answered with `InvalidMessage` just as
 a wrong type is.
 :::

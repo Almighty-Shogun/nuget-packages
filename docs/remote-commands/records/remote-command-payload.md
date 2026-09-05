@@ -18,24 +18,15 @@ The request frame a client sends, as a big-endian four-byte length prefix follow
 
 [`RemoteCommandClient`](../services/remote-command-client) builds it, so this matters only to a client written in another language.
 
-## Usage
-
-```json
-{
-    "command": "restart",
-    "data": { "force": true },
-    "secret": "a-shared-key"
-}
-```
-
 <FrontmatterDocs/>
 
 ## Type signature
 
 ```csharp
-public sealed record RemoteCommandPayload(
-    string Command,
-    JsonElement Data,
-    string? Secret = null
-);
+public sealed record RemoteCommandPayload
+{
+    public string Command { get; init; } = string.Empty;
+    public JsonElement Data { get; init; }
+    public string? Secret { get; init; }
+}
 ```

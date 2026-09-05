@@ -13,36 +13,7 @@ fields:
 
 The frame the listener sends back for every request, carrying either a refusal or the command's own response. Both travel in one envelope, so a client decides which it received by reading `Refusal` rather than by guessing from the shape.
 
-[`RemoteCommandClient`](../services/remote-command-client) unwraps it and throws a [`RemoteCommandRefusedException`](../exceptions) on a refusal, so a client using this package never handles the record directly. It is documented because a client written in another language has to produce and read the same shape.
-
-## Usage
-
-::: code-group
-
-```json [Refused.json]
-{
-    "refusal": 4,
-    "data": null
-}
-```
-
-```json [Served.json]
-{
-    "refusal": null,
-    "data": {
-        "reindexed": 1420
-    }
-}
-```
-
-```json [Acknowledged.json]
-{
-    "refusal": null,
-    "data": null
-}
-```
-
-:::
+[`RemoteCommandClient`](../services/remote-command-client) unwraps it and throws a [`RemoteCommandRefusedException`](../exceptions) on a refusal, so this shape matters only to a client written in another language.
 
 <FrontmatterDocs/>
 
