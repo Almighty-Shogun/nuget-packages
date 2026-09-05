@@ -77,14 +77,15 @@ public static class AuthExtensions
                 .AddSingleton<IAppHostResolver, AppHostResolver>()
                 .AddSingleton<IAuthTokenGenerator, AuthTokenGenerator>()
                 .ReplaceService<IAuthorizationPolicyProvider, PermissionPolicyProvider>()
-                .AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>()
-                .AddScoped<IAuthorizationHandler, AppAudienceAuthorizationHandler>();
+                .AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
         }
     }
 
     /// <summary>
     /// Applies the bound settings to the bearer options, so issuer, signing key, audience, and lifetime come from the
-    /// same validated instance the rest of the package resolves rather than from a second read of configuration.
+    /// same validated instance the rest of the package resolves rather than from a second read of configuration. It also
+    /// attaches <see cref="ValidateAppAudience"/>, which narrows the audience from the configured list to the application
+    /// the request addressed.
     /// </summary>
     ///
     /// <param name="options">The bearer options being built for the authentication scheme.</param>
@@ -110,5 +111,46 @@ public static class AuthExtensions
             ValidAudiences = authSettings.ValidAudiences,
             IssuerSigningKey = AuthSigningKey.Create(authSettings.Secret)
         };
+
+        options.Events = new JwtBearerEvents { OnTokenValidated = ValidateAppAudience };
+    }
+
+    /// <summary>
+    /// Narrows the audience check from the configured list to the application the request host resolves to, so a token
+    /// minted for one application does not authenticate a request to another. <see cref="TokenValidationParameters"/>
+    /// accepts any entry in <see cref="AuthSettings.ValidAudiences"/>, which is every application in the deployment, and
+    /// only the request can say which one was addressed. Running here rather than in an authorization requirement is what
+    /// makes the check unavoidable: the framework builds the policy for an <see cref="AuthorizeAttribute"/> carrying only
+    /// roles without consulting <see cref="IAuthorizationPolicyProvider"/> at all, so anything added to a policy is
+    /// bypassed by that attribute, while a token that fails here never authenticates and reaches no endpoint.
+    /// </summary>
+    ///
+    /// <param name="context">
+    /// The validated token together with the request that carried it. Failing it here answers 401, the same answer an
+    /// audience outside <see cref="AuthSettings.ValidAudiences"/> already produces.
+    /// </param>
+    ///
+    /// <returns>A completed task; the check is synchronous and reads only the request host and the principal's claims.</returns>
+    ///
+    /// <remarks>
+    /// With host scoping off there is no application to resolve and the token's audience was already checked against the
+    /// configured list, so the check does nothing.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static Task ValidateAppAudience(TokenValidatedContext context)
+    {
+        if (!context.HttpContext.RequestServices.GetRequiredService<IOptions<AuthSettings>>().Value.IsScoped())
+            return Task.CompletedTask;
+
+        IAppHostResolver appHostResolver = context.HttpContext.RequestServices.GetRequiredService<IAppHostResolver>();
+
+        if (!appHostResolver.TryResolveAppFromHost(context.HttpContext.Request.Host.Host, out string app))
+            context.Fail("The request host resolves to no configured application.");
+        else if (!AppAudience.Matches(context.Principal, app))
+            context.Fail("The token was issued for a different application.");
+
+        return Task.CompletedTask;
     }
 }
