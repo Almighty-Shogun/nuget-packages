@@ -15,8 +15,10 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </param>
 ///
 /// <remarks>
-/// Scheduling is an add-or-update against a stable job id, so a restart re-declares the same schedules instead of
-/// duplicating them. A job removed from the code is not removed from storage, which only matters for a durable store.
+/// Scheduling is an <c>AddOrUpdate</c> against a stable job id, which is how Hangfire re-declares an existing schedule
+/// rather than adding a second one, so a restart does not duplicate anything. Nothing in this package ever removes a
+/// schedule, so a job deleted from the code leaves its entry behind in Hangfire storage, which only matters for a durable
+/// store.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

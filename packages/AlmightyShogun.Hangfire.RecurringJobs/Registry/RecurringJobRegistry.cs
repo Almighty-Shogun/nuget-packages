@@ -7,12 +7,20 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </summary>
 ///
 /// <param name="sources">The assemblies to scan, supplied by the registration call.</param>
-/// <param name="settings">The bound <c>RecurringJobs</c> section, applied on top of what each attribute declares.</param>
+/// <param name="settings">
+/// The <c>RecurringJobs</c> options. Their per-job entries override what an attribute declares, while <c>EnabledByDefault</c>
+/// sits beneath one. They carry the bound section only when the registration call was given a configuration, and their
+/// defaults otherwise.
+/// </param>
 ///
+/// <exception cref="ArgumentNullException">
+/// A job's attribute declares a <c>null</c> job id, which fails while the per-job overrides are looked up, before the job
+/// id is checked at all.
+/// </exception>
 /// <exception cref="InvalidOperationException">
-/// A job declares or is overridden with an empty or invalid job id, an empty or invalid cron expression, or an invalid
-/// time zone; two jobs share a job id; or an override names a job id nothing declares. Because the scheduler resolves this
-/// type, the failure surfaces while the host starts and prevents it from starting.
+/// A job declares an empty or whitespace job id; a job declares or is overridden with an empty or invalid cron expression,
+/// or an invalid time zone; two jobs share a job id; or an override names a job id nothing declares. Because the scheduler
+/// resolves this type, the failure surfaces while the host starts and prevents it from starting.
 /// </exception>
 ///
 /// <remarks>

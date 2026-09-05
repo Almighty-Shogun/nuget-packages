@@ -22,8 +22,10 @@ public static class RecurringJobExtensions
     /// </summary>
     ///
     /// <param name="serviceCollection">
-    /// The collection that receives the Hangfire services, the job classes, the bound settings, the singleton registry, and
-    /// the hosted service that puts the schedules into Hangfire. Every helper returns it, so the calls chain.
+    /// The collection that receives the Hangfire services, the job classes, the <see cref="RecurringJobSettings"/> options,
+    /// the singleton registry, and the hosted service that puts the schedules into Hangfire. Those options are bound to the
+    /// <c>RecurringJobs</c> section only when a configuration is passed, and are left at their defaults otherwise. Every
+    /// helper returns the collection, so the calls chain.
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
@@ -42,8 +44,9 @@ public static class RecurringJobExtensions
         /// <returns>The <see cref="IServiceCollection"/> instance with Hangfire configured.</returns>
         ///
         /// <remarks>
-        /// In-memory storage loses job state on restart and gives every replica its own store, so an application running more
-        /// than one replica runs each recurring job once per replica. Reach for the delegate overload to point Hangfire at a
+        /// Storage is Hangfire's own in-memory provider, so its limits are Hangfire's rather than this package's: job state
+        /// is lost on restart and every replica keeps its own store, which leaves an application running more than one
+        /// replica running each recurring job once per replica. Reach for the delegate overload to point Hangfire at a
         /// durable store instead.
         /// </remarks>
         ///
@@ -60,8 +63,9 @@ public static class RecurringJobExtensions
         /// </summary>
         ///
         /// <param name="configure">
-        /// Selects the storage provider and data compatibility level. Hangfire throws when no storage is set by the final
-        /// configuration; the compatibility level has a default and may be left alone.
+        /// Selects the storage provider and data compatibility level. The package sets neither, so it is Hangfire that
+        /// rejects a configuration leaving the storage unset, and Hangfire's own default that stands in when the
+        /// compatibility level is left alone.
         /// </param>
         /// <param name="addServer">
         /// Whether to run a background processing server in this application. Set it to <c>false</c> for a client that only
@@ -74,7 +78,7 @@ public static class RecurringJobExtensions
         /// The package still applies the simple assembly-name type serializer and recommended serializer settings, but the
         /// delegate owns the storage and data compatibility level. An application sharing a store with one running a
         /// different Hangfire version calls <c>SetDataCompatibilityLevel</c> to match it, since a newer level writes payloads
-        /// an older reader cannot deserialize.
+        /// an older Hangfire reader cannot deserialize.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
@@ -133,8 +137,8 @@ public static class RecurringJobExtensions
         /// <remarks>
         /// The scan itself is deferred to the singleton registry, so an invalid cron expression, an unknown time zone, a
         /// duplicate job id, or an override naming a job nothing declares fails while the host starts rather than here. Job
-        /// classes are registered scoped, so a job may depend on scoped services such as a database context; each run gets
-        /// its own scope.
+        /// classes are registered scoped, so a job may depend on scoped services such as a database context, given that
+        /// Hangfire's job activator resolves each run from its own scope.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>

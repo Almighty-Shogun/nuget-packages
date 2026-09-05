@@ -20,7 +20,7 @@ public sealed class RecurringJobAttribute(string jobId, string cronExpression) :
 {
     /// <summary>
     /// Gets the id the schedule is stored under. Changing it on a job that has already run leaves the previous schedule in
-    /// storage under the old id, where nothing removes it.
+    /// Hangfire storage under the old id, and nothing in this package removes it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -29,7 +29,8 @@ public sealed class RecurringJobAttribute(string jobId, string cronExpression) :
 
     /// <summary>
     /// Gets the cron expression the schedule uses. It is parsed while the host starts, so a malformed expression stops the
-    /// application instead of leaving a job that quietly never fires.
+    /// application with a message naming this job rather than reaching Hangfire's own validation, which stops it too but
+    /// names only the expression.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -50,9 +51,14 @@ public sealed class RecurringJobAttribute(string jobId, string cronExpression) :
     public string? TimeZone { get; set; }
 
     /// <summary>
-    /// Gets or sets the Hangfire queue the job is enqueued on. Naming a queue no server listens on leaves the job enqueued
-    /// and never processed, which looks the same from the outside as a job that never fired.
+    /// Gets or sets the Hangfire queue the job is enqueued on. Naming a queue no Hangfire server listens on leaves the job
+    /// enqueued and never processed, which looks the same from the outside as a job that never fired.
     /// </summary>
+    ///
+    /// <remarks>
+    /// Nothing in this package checks the value, so a name Hangfire itself rejects stops the host while the schedules are
+    /// handed over rather than during the scan. Hangfire accepts lowercase letters, digits, underscores and dashes only.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

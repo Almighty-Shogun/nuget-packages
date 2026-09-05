@@ -5,7 +5,9 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </summary>
 ///
 /// <remarks>
-/// Every property is nullable and an unset one keeps the attribute's value, so a section only has to name what changes.
+/// Every property is nullable, so a section only has to name what changes. An unset one keeps the attribute's value for the
+/// cron expression, time zone and queue, but not for <c>Enabled</c>: a job whose attribute never set it falls through to the
+/// section's <c>EnabledByDefault</c> instead, which can leave it disabled where the attribute alone would have run it.
 /// Overridden values are validated exactly like declared ones, which means a bad cron expression here stops the host.
 /// </remarks>
 ///

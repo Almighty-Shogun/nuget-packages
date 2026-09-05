@@ -6,9 +6,10 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </summary>
 ///
 /// <remarks>
-/// Jobs are registered scoped and resolved from a fresh scope for every run, so a constructor dependency may be a scoped
-/// service such as a database context, and no field survives from one run to the next. An exception that escapes a run is
-/// handled by Hangfire, which retries the job on its own policy rather than dropping it.
+/// Registration is scoped, and Hangfire's job activator resolves the class from its own scope for every run, so a
+/// constructor dependency may be a scoped service such as a database context, and no field survives from one run to the
+/// next. An exception that escapes a run is left to Hangfire, whose own retry policy decides what happens next; this
+/// package installs no job filter of its own.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -21,8 +22,9 @@ public interface IRecurringJob
     /// </summary>
     ///
     /// <param name="cancellationToken">
-    /// Signalled when the job is aborted or the server is shutting down. A job with nothing to unwind can ignore it, but a
-    /// long-running one that never observes it delays shutdown until Hangfire gives up waiting.
+    /// Hangfire supplies the running server's own token here, signalled when the job is aborted or the server is shutting
+    /// down. A job with nothing to unwind can ignore it, but Hangfire waits on a long-running one that never observes it,
+    /// which delays shutdown.
     /// </param>
     ///
     /// <returns>A task that represents the asynchronous execution of the recurring job.</returns>
