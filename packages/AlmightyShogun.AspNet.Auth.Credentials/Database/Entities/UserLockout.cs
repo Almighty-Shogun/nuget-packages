@@ -18,7 +18,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed class UserLockout
 {
     /// <summary>
-    /// Gets or sets the surrogate key. The row is always reached through its user, so this value appears in no response
+    /// The surrogate key. The row is always reached through its user, so this value appears in no response
     /// and in no query a caller writes.
     /// </summary>
     ///
@@ -27,7 +27,7 @@ public sealed class UserLockout
     public int Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the user this run of failures belongs to. Unique, so an account cannot accumulate two counters.
+    /// The user this run of failures belongs to. Unique, so an account cannot accumulate two counters.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -35,9 +35,7 @@ public sealed class UserLockout
     public int UserId { get; set; }
 
     /// <summary>
-    /// Gets or sets how many failures have happened in a row. Reaching the configured limit applies the lockout and
-    /// leaves the count standing; it is zeroed only by an attempt arriving after that lockout has expired, and a
-    /// successful sign-in deletes the row rather than resetting it.
+    /// How many failures stand against the account, which never exceeds the configured limit.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -45,7 +43,7 @@ public sealed class UserLockout
     public int AccessFailedCount { get; set; }
 
     /// <summary>
-    /// Gets or sets when the current lockout expires, or <c>null</c> while failures are only being counted. Stored
+    /// When the current lockout expires, or <c>null</c> while failures are only being counted. Stored
     /// rather than derived, so a lockout survives a restart.
     /// </summary>
     ///
@@ -54,7 +52,7 @@ public sealed class UserLockout
     public DateTimeOffset? LockoutEnd { get; set; }
 
     /// <summary>
-    /// Gets whether the account is locked right now, which is a lockout end in the future rather than merely one that
+    /// Whether the account is locked right now, which is a lockout end in the future rather than merely one that
     /// was set. An expired lockout needs no clearing before the next attempt.
     /// </summary>
     ///

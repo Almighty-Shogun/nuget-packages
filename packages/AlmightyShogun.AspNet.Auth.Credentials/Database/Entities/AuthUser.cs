@@ -17,7 +17,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public class AuthUser
 {
     /// <summary>
-    /// Gets or sets the primary key, which the other tables point at. Use <see cref="Identifier"/> in anything a client
+    /// The primary key, which the other tables point at. Use <see cref="Identifier"/> in anything a client
     /// sees: this value is not hidden from serialization, so returning the entity exposes a sequential number.
     /// </summary>
     ///
@@ -26,7 +26,7 @@ public class AuthUser
     public int Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the identifier the outside world sees, carried in the <c>userId</c> claim and accepted by every
+    /// The identifier the outside world sees, carried in the <c>userId</c> claim and accepted by every
     /// service that takes a user. Version 7, so it still sorts by creation time and indexes without fragmenting.
     /// </summary>
     ///
@@ -35,7 +35,7 @@ public class AuthUser
     public Guid Identifier { get; set; } = Guid.CreateVersion7();
 
     /// <summary>
-    /// Gets or sets the name the account signs in under, uniquely indexed and accepted by login alongside the address.
+    /// The name the account signs in under, uniquely indexed and accepted by login alongside the address.
     /// Uniqueness is decided by the column's collation, so a case-sensitive one lets two accounts differ only in casing.
     /// </summary>
     ///
@@ -45,7 +45,7 @@ public class AuthUser
     public required string Username { get; set; }
 
     /// <summary>
-    /// Gets or sets the address the account signs in under and the forgot-password flow matches on. Uniquely indexed,
+    /// The address the account signs in under and the forgot-password flow matches on. Uniquely indexed,
     /// under the column's own collation.
     /// </summary>
     ///
@@ -55,8 +55,8 @@ public class AuthUser
     public required string Email { get; set; }
 
     /// <summary>
-    /// Gets or sets the hash produced by ASP.NET Core's password hasher, never the password itself. Rehashed in place
-    /// on sign-in when the hasher reports an outdated format, so raising the work factor takes effect as users return.
+    /// The hash produced by ASP.NET Core's password hasher, never the password itself. Empty on a new entity
+    /// until one of the credential services writes a hash into it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -65,8 +65,8 @@ public class AuthUser
     public string Password { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the refresh-token sessions opened against the account, one per signed-in device. Not loaded unless
-    /// explicitly included.
+    /// The refresh-token sessions opened against the account. Not loaded unless explicitly included, and see
+    /// <see cref="UserSession"/> for what one row stands for.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -75,7 +75,7 @@ public class AuthUser
     public List<UserSession> Sessions { get; set; } = [];
 
     /// <summary>
-    /// Gets or sets the single role written into the access token as a role claim. Settable like any other property, so
+    /// The single role written into the access token as a role claim. Settable like any other property, so
     /// never bind a client payload straight onto the entity.
     /// </summary>
     ///
@@ -85,7 +85,7 @@ public class AuthUser
     public string Role { get; set; } = "User";
 
     /// <summary>
-    /// Gets or sets the permissions written into the access token, one claim each. Prefix them per application, as in
+    /// The permissions written into the access token, one claim each. Prefix them per application, as in
     /// <c>api:users.read</c>, only when routes are scoped that way; otherwise store the plain value.
     /// </summary>
     ///
@@ -94,8 +94,8 @@ public class AuthUser
     public string[] Permissions { get; set; } = [];
 
     /// <summary>
-    /// Gets or sets whether the account may authenticate at all. Checked after the password, so refusing a disabled
-    /// account cannot be used to discover which addresses are registered.
+    /// Whether the account may authenticate at all. Clearing it deactivates the account without deleting the
+    /// row or its credentials, so setting it again restores the account as it was.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -103,7 +103,7 @@ public class AuthUser
     public bool IsActive { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets the lockout state, held in its own table so a deployment that leaves lockout disabled never writes
+    /// The lockout state, held in its own table so a deployment that leaves lockout disabled never writes
     /// one. Nothing in the package loads this navigation, reading that table directly instead, so it is populated only when
     /// the change tracker happens to hold a matching row from the same context, as it does after a lockout check on the
     /// login and refresh paths. Do not read it as a reliable answer to whether a lockout exists.
@@ -114,7 +114,7 @@ public class AuthUser
     public UserLockout? Lockout { get; set; }
 
     /// <summary>
-    /// Gets or sets the two-factor enrolment, or <c>null</c> when the user has never enrolled. Not loaded with the user,
+    /// The two-factor enrolment, or <c>null</c> when the user has never enrolled. Not loaded with the user,
     /// so an ordinary read does not pull the secret along with it.
     /// </summary>
     ///

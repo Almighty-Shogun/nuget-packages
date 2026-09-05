@@ -12,9 +12,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed record ForgotPasswordRequest
 {
     /// <summary>
-    /// Gets or sets the address a reset link should go to, matched against the stored address under the column's own
-    /// collation. One matching no
-    /// account is not an error: the service returns <c>null</c> instead of throwing.
+    /// The address a reset link should go to, matched against the stored address under the column's own collation.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed record AuthTwoFactorResult
 {
     /// <summary>
-    /// Gets the base32 shared secret, for an app that cannot scan a code. Show it only during enrolment, and never store
+    /// The base32 shared secret, for an app that cannot scan a code. Show it only during enrolment, and never store
     /// it anywhere the user's account could be reached from.
     /// </summary>
     ///
@@ -19,7 +19,7 @@ public sealed record AuthTwoFactorResult
     public required string Secret { get; init; }
 
     /// <summary>
-    /// Gets the <c>otpauth://</c> URI to render as a QR code, carrying the same secret plus the configured issuer, digit
+    /// The <c>otpauth://</c> URI to render as a QR code, carrying the same secret plus the configured issuer, digit
     /// count, and period, so the app agrees with the server about how codes are generated.
     /// </summary>
     ///

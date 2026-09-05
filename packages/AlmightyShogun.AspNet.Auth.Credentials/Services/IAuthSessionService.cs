@@ -4,8 +4,8 @@ using AlmightyShogun.AspNet.Core;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Opens, renews, and ends the refresh-token sessions behind a signed-in user. A session is per device, so these act on
-/// one device rather than on the account.
+/// Opens, renews, and ends the refresh-token sessions behind a signed-in user. Each acts on the one session a refresh
+/// token names rather than on the account, and a user may hold several at once.
 /// </summary>
 ///
 /// <typeparam name="TUser">The application's own user entity, returned alongside the tokens a session yields.</typeparam>
@@ -29,6 +29,10 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     ///
     /// <returns>A new access token, the rotated refresh token, and the user they belong to.</returns>
     ///
+    /// <exception cref="AlmightyShogun.AspNet.Auth.UnknownAppException">
+    /// Application scoping is on and the request's host maps to no configured application, so the session cannot be
+    /// matched against one. Thrown before the presented token is looked up.
+    /// </exception>
     /// <exception cref="InvalidSessionException">
     /// The token matches no usable session, whether unknown, expired, revoked, or scoped to a different application. Also
     /// thrown when another request rotated the same session first, since only one of two concurrent refreshes may win.
@@ -47,6 +51,9 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     /// before last is refused as an unknown token rather than recognised as a replay, so nothing is revoked in that case.
     /// Nothing is revoked either while the rotation is under thirty seconds old, which covers a client that retried before
     /// it had stored the new token: inside that window the replay is still refused, but the sessions stand.
+    ///
+    /// This opens a transaction of its own. A rotation lost to a concurrent one rolls back before the refusal, while the
+    /// revocations a detected replay causes are committed before the exception is thrown, so they survive the failure.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -66,6 +73,10 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     /// <param name="cancellationToken">Cancels the database work, rolling the revocation back with the transaction.</param>
     ///
     /// <returns>A task that completes once the session can no longer be refreshed.</returns>
+    ///
+    /// <remarks>
+    /// This opens a transaction of its own, and commits it even when the token matched nothing.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

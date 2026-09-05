@@ -20,14 +20,15 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     /// </summary>
     ///
     /// <param name="request">The submitted credentials, matched against username and email alike.</param>
-    /// <param name="context">
-    /// The current request, read for the address and user agent
-    /// recorded on the session.
-    /// </param>
+    /// <param name="context">The current request, read for the address and user agent recorded on the session.</param>
     /// <param name="cancellationToken">Cancels the database work, rolling the session back with the transaction.</param>
     ///
     /// <returns>The access token, the refresh token, and the user they were issued for.</returns>
     ///
+    /// <exception cref="AlmightyShogun.AspNet.Auth.UnknownAppException">
+    /// Application scoping is on and the request's host maps to no configured application. Resolved before the identifier
+    /// is even looked up, so this reports a mapping or deployment problem rather than a failed sign-in.
+    /// </exception>
     /// <exception cref="InvalidCredentialsException">
     /// The identifier matches no account, or the password is wrong. One exception covers both, so a caller cannot tell
     /// them apart and neither can whoever is calling the caller. A wrong password is counted towards the lockout before
@@ -42,6 +43,14 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     /// The account is deactivated. Thrown after the password is checked, so it cannot be used to discover which
     /// addresses are registered.
     /// </exception>
+    ///
+    /// <remarks>
+    /// A stored hash the hasher reports as outdated is rewritten in place once the password verifies, so raising the work
+    /// factor takes effect as users return rather than needing a migration.
+    ///
+    /// This opens a transaction of its own, covering that rehash, the lockout clear, and the session insert. The lockout
+    /// attempt is claimed before the transaction opens, which is what leaves that count standing when the sign-in fails.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -82,14 +91,15 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     ///
     /// <param name="user">The user to insert, carrying no role or permissions a client supplied.</param>
     /// <param name="password">The initial password, hashed here and never stored as given.</param>
-    /// <param name="context">
-    /// The current request, read for the address and user agent
-    /// recorded on the session.
-    /// </param>
+    /// <param name="context">The current request, read for the address and user agent recorded on the session.</param>
     /// <param name="cancellationToken">Cancels the database work, rolling both the account and the session back.</param>
     ///
     /// <returns>The access token, the refresh token, and the user they were issued for.</returns>
     ///
+    /// <exception cref="AlmightyShogun.AspNet.Auth.UnknownAppException">
+    /// Application scoping is on and the request's host maps to no configured application. Resolved before the user is
+    /// inserted, so a deployment with an unmapped host creates no accounts at all.
+    /// </exception>
     /// <exception cref="UsernameTakenException">Another account holds that username under the database's collation.</exception>
     /// <exception cref="EmailTakenException">Another account holds that address under the database's collation.</exception>
     /// <exception cref="Microsoft.EntityFrameworkCore.DbUpdateException">

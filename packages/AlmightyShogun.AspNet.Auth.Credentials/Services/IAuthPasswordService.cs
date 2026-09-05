@@ -10,8 +10,8 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public interface IAuthPasswordService
 {
     /// <summary>
-    /// Changes a signed-in user's password, refusing a confirmation that does not match, then a wrong current password, then a
-    /// confirmation that does not.
+    /// Changes a signed-in user's password, refusing in that order a confirmation that does not match, a wrong current
+    /// password, and a replacement that verifies against the one already stored.
     /// </summary>
     ///
     /// <param name="identifier">The public identifier of the user whose password should be changed.</param>
@@ -33,6 +33,11 @@ public interface IAuthPasswordService
     /// <exception cref="PasswordReusedException">
     /// The replacement verifies against the password already stored, so the change would change nothing.
     /// </exception>
+    ///
+    /// <remarks>
+    /// This opens a transaction of its own, so the new hash and the revocation of the other sessions land together or
+    /// not at all.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -62,10 +67,10 @@ public interface IAuthPasswordService
     ///
     /// <remarks>
     /// Both outcomes are held to <see cref="AuthCredentialsSettings.ForgotPasswordMinimumMilliseconds"/>, which pads a
-    /// path that finished sooner and shortens none. Issuing a token also runs a serializable transaction with a read and
-    /// a write, so the floor only hides the difference while it stays above what that path costs on the deployment's own
-    /// hardware. It is wasted anyway unless the controller above answers identically too: returning a body, a status, or
-    /// a header that differs between a token and <c>null</c> tells an attacker directly what the timing was hiding.
+    /// path that finished sooner and shortens none. Issuing a token also opens a serializable transaction of its own for a
+    /// read and a write, which is the slower of the two paths the floor has to cover. It is wasted anyway unless the
+    /// controller above answers identically too: returning a body, a status, or a header that differs between a token and
+    /// <c>null</c> tells an attacker directly what the timing was hiding.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -94,6 +99,11 @@ public interface IAuthPasswordService
     /// <exception cref="PasswordReusedException">
     /// The replacement verifies against the password already stored, so the reset would restore the same password.
     /// </exception>
+    ///
+    /// <remarks>
+    /// This opens a transaction of its own, so spending the token, writing the new hash, and revoking every session land
+    /// together or not at all.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

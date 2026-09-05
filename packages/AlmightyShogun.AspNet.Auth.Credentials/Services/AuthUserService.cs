@@ -16,7 +16,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <typeparam name="TUser">The application's own user entity, both inserted on creation and returned on sign-in.</typeparam>
-/// <param name="databaseContext">The application's context, so auth writes join whatever transaction it is in.</param>
+/// <param name="databaseContext">The application's context, which the credential tables live in.</param>
 /// <param name="credentialOptions">The bound credential settings, read for the lockout policy.</param>
 /// <param name="appHostResolver">
 /// The resolver deciding which application the current request belongs to, so a session and its token are scoped to the

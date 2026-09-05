@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed record CreateUserRequest
 {
     /// <summary>
-    /// Gets or sets the username to claim. Refused when another account already holds it.
+    /// The username to claim. Refused when another account already holds it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -21,7 +21,7 @@ public sealed record CreateUserRequest
     public required string Username { get; set; }
 
     /// <summary>
-    /// Gets or sets the initial password, hashed before it is stored and never persisted as given.
+    /// The initial password, hashed before it is stored and never persisted as given.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -32,7 +32,7 @@ public sealed record CreateUserRequest
     public required string Password { get; set; }
 
     /// <summary>
-    /// Gets or sets the email address to claim. Refused when another account already holds it.
+    /// The email address to claim. Refused when another account already holds it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -42,7 +42,7 @@ public sealed record CreateUserRequest
     public required string Email { get; set; }
 
     /// <summary>
-    /// Gets or sets the role written into the user's tokens. Trusted from the caller, which is why this request is for
+    /// The role written into the user's tokens. Trusted from the caller, which is why this request is for
     /// administrative use only.
     /// </summary>
     ///
@@ -51,7 +51,7 @@ public sealed record CreateUserRequest
     public string Role { get; set; } = "User";
 
     /// <summary>
-    /// Gets or sets the permissions written into the user's tokens, one claim each. Trusted from the caller, so a public
+    /// The permissions written into the user's tokens, one claim each. Trusted from the caller, so a public
     /// endpoint must never bind to this model.
     /// </summary>
     ///

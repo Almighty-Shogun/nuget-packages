@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed class AccountLockedException(DateTimeOffset lockoutEnd) : Exception
 {
     /// <summary>
-    /// Gets when the lockout lifts, so a client can say how long to wait rather than only that the account is locked.
+    /// When the lockout lifts, so a client can say how long to wait rather than only that the account is locked.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

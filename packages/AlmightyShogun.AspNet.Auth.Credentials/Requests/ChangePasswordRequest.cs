@@ -12,8 +12,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed class ChangePasswordRequest
 {
     /// <summary>
-    /// Gets or sets the password being replaced. Verified against the stored hash, so a change cannot be made from a
-    /// session alone if the password itself is unknown.
+    /// The password the account currently signs in with, which is the one being replaced.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -22,7 +21,7 @@ public sealed class ChangePasswordRequest
     public required string CurrentPassword { get; set; }
 
     /// <summary>
-    /// Gets or sets the replacement. Refused when it matches the current one, so a forced rotation actually rotates.
+    /// The password the account should sign in with afterwards.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -33,8 +32,7 @@ public sealed class ChangePasswordRequest
     public required string NewPassword { get; set; }
 
     /// <summary>
-    /// Gets or sets the repeat of the new password, refused when the two differ. Catches a typo before it becomes a
-    /// credential nobody knows.
+    /// The repeat of the new password, which catches a typo before it becomes a credential nobody knows.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

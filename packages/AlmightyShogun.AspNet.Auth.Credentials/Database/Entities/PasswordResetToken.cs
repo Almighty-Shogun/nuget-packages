@@ -17,7 +17,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed class PasswordResetToken
 {
     /// <summary>
-    /// Gets or sets the surrogate key. It is never handed to a client: the emailed token is the only handle a caller
+    /// The surrogate key. It is never handed to a client: the emailed token is the only handle a caller
     /// has on this row, so the key can stay a plain incrementing integer.
     /// </summary>
     ///
@@ -26,7 +26,7 @@ public sealed class PasswordResetToken
     public int Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the user the reset was issued for. Unique, so an account cannot hold two reset tokens at once, and
+    /// The user the reset was issued for. Unique, so an account cannot hold two reset tokens at once, and
     /// cascades with the user.
     /// </summary>
     ///
@@ -35,7 +35,7 @@ public sealed class PasswordResetToken
     public int UserId { get; set; }
 
     /// <summary>
-    /// Gets or sets the hash of the token that was emailed. Only the hash is stored, so the value in the email cannot be
+    /// The hash of the token that was emailed. Only the hash is stored, so the value in the email cannot be
     /// recovered from the database.
     /// </summary>
     ///
@@ -46,7 +46,7 @@ public sealed class PasswordResetToken
     public string TokenHash { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets when the reset now held was requested. Rewritten each time the user requests another, so it dates the
+    /// When the reset now held was requested. Rewritten each time the user requests another, so it dates the
     /// current link rather than the first one ever issued.
     /// </summary>
     ///
@@ -55,7 +55,7 @@ public sealed class PasswordResetToken
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
-    /// Gets or sets when the token stops being usable, set from the configured reset lifetime at issue.
+    /// When the token stops being usable, set from the configured reset lifetime at issue.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -63,7 +63,7 @@ public sealed class PasswordResetToken
     public DateTimeOffset ExpiresAt { get; set; }
 
     /// <summary>
-    /// Gets or sets when the token was spent, or <c>null</c> while it is still usable. Set instead of deleting the row,
+    /// When the token was spent, or <c>null</c> while it is still usable. Set instead of deleting the row,
     /// so a second attempt with the same value is refused as if unknown; it goes back to <c>null</c> when the user
     /// requests a new reset and this row is reused for it.
     /// </summary>
@@ -73,7 +73,7 @@ public sealed class PasswordResetToken
     public DateTimeOffset? UsedAt { get; set; }
 
     /// <summary>
-    /// Gets or sets the address the reset was requested from, kept for auditing an unexpected reset.
+    /// The address the reset was requested from, kept for auditing an unexpected reset.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -82,7 +82,7 @@ public sealed class PasswordResetToken
     public string? RequestedIpAddress { get; set; }
 
     /// <summary>
-    /// Gets whether the token would still be accepted, which is unspent and not past its expiry.
+    /// Whether the token would still be accepted, which is unspent and not past its expiry.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

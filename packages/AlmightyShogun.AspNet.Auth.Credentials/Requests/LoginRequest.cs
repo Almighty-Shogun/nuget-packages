@@ -12,9 +12,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed record LoginRequest
 {
     /// <summary>
-    /// Gets or sets the username or email address, matched against both. An unknown value is refused with the same exception as a wrong
-    /// password and costs a decoy verification, so the response does not reveal whether the account exists. With lockout
-    /// enabled a known identifier also runs the lockout statements an unknown one never reaches.
+    /// The username or email address, matched against both columns rather than against one chosen by shape.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -23,7 +21,7 @@ public sealed record LoginRequest
     public required string Identifier { get; set; }
 
     /// <summary>
-    /// Gets or sets the submitted password, verified against the stored hash.
+    /// The submitted password, verified against the stored hash.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

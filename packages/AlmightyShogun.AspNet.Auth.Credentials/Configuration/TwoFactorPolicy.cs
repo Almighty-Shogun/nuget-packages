@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed record TwoFactorPolicy
 {
     /// <summary>
-    /// Gets the name shown beside the account in an authenticator app, which is how a user tells one code apart from
+    /// The name shown beside the account in an authenticator app, which is how a user tells one code apart from
     /// another. Overrides the issuer passed to enrolment; leave it unset to let each call supply its own.
     /// </summary>
     ///
@@ -21,7 +21,7 @@ public sealed record TwoFactorPolicy
     public string? Issuer { get; init; }
 
     /// <summary>
-    /// Gets how many recovery codes are issued when an enrolment is confirmed. Each is single use, so this is how many
+    /// How many recovery codes are issued when an enrolment is confirmed. Each is single use, so this is how many
     /// times a user can sign in after losing their authenticator before they must enrol again.
     /// </summary>
     ///
@@ -31,7 +31,7 @@ public sealed record TwoFactorPolicy
     public int RecoveryCodeCount { get; init; } = 10;
 
     /// <summary>
-    /// Gets how many digits a generated code carries. Authenticator apps overwhelmingly expect six, so changing this
+    /// How many digits a generated code carries. Authenticator apps overwhelmingly expect six, so changing this
     /// requires the user's app to support it.
     /// </summary>
     ///
@@ -41,7 +41,7 @@ public sealed record TwoFactorPolicy
     public int Digits { get; init; } = 6;
 
     /// <summary>
-    /// Gets how long one code stays valid, in seconds. Thirty is what authenticator apps assume, so a different value
+    /// How long one code stays valid, in seconds. Thirty is what authenticator apps assume, so a different value
     /// only works where the user's app can be told about it.
     /// </summary>
     ///
@@ -51,7 +51,7 @@ public sealed record TwoFactorPolicy
     public int PeriodSeconds { get; init; } = 30;
 
     /// <summary>
-    /// Gets how long a secret offered by an enrolment stays confirmable, in minutes. Long enough to scan a code and wait
+    /// How long a secret offered by an enrolment stays confirmable, in minutes. Long enough to scan a code and wait
     /// out a time step, short enough that a code left open on a shared screen stops being redeemable. An enrolment that
     /// expires leaves any existing secret working, since it was never replaced.
     /// </summary>

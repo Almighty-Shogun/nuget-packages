@@ -4,7 +4,8 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
 /// The second half of a forgot-password flow, exchanging a reset token for a new password. The token is spent on
-/// success, so the same one cannot set the password twice.
+/// success, so the same one cannot set the password twice. The service re-checks the token, the confirmation, and reuse,
+/// but not the length and strength rules below, so an application posting its own shape has to enforce those itself.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -12,8 +13,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed record CompleteForgotPasswordRequest
 {
     /// <summary>
-    /// Gets or sets the token from the reset email, in the form it was sent. Only its hash is stored, so it is matched by
-    /// hashing what arrives rather than by looking the value up.
+    /// The token from the reset email, in the form it was sent rather than a decoded or trimmed one.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -22,7 +22,7 @@ public sealed record CompleteForgotPasswordRequest
     public required string Token { get; set; }
 
     /// <summary>
-    /// Gets or sets the replacement. Refused when it matches the password already in use.
+    /// The password the account should sign in with afterwards.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -33,7 +33,7 @@ public sealed record CompleteForgotPasswordRequest
     public required string NewPassword { get; set; }
 
     /// <summary>
-    /// Gets or sets the repeat of the new password, refused when the two differ.
+    /// The repeat of the new password, which catches a typo before it becomes a credential nobody knows.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

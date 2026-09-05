@@ -17,7 +17,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed record AuthCredentialsSettings
 {
     /// <summary>
-    /// Gets the nested <c>Lockout</c> object, present with its defaults when the section is absent. Nothing in it takes
+    /// The nested <c>Lockout</c> object, present with its defaults when the section is absent. Nothing in it takes
     /// effect until <see cref="LockoutPolicy.Enabled"/> is set.
     /// </summary>
     ///
@@ -26,7 +26,7 @@ public sealed record AuthCredentialsSettings
     public LockoutPolicy Lockout { get; init; } = new();
 
     /// <summary>
-    /// Gets the nested <c>TwoFactor</c> section. Present with its defaults when the section is absent, because the
+    /// The nested <c>TwoFactor</c> section. Present with its defaults when the section is absent, because the
     /// feature is opt-in: nothing here takes effect until an application calls the enrolment methods.
     /// </summary>
     ///
@@ -35,8 +35,8 @@ public sealed record AuthCredentialsSettings
     public TwoFactorPolicy TwoFactor { get; init; } = new();
 
     /// <summary>
-    /// Gets the maximum age a session may reach regardless of refreshing, in days. An explicit <c>null</c> means a
-    /// session can be refreshed indefinitely; an absent key uses the default.
+    /// The maximum age a session may reach regardless of refreshing, in days. A <c>null</c> value caps nothing, so a
+    /// session then lasts as long as it keeps being refreshed.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -45,7 +45,7 @@ public sealed record AuthCredentialsSettings
     public int? AbsoluteSessionLifetimeDays { get; init; } = 30;
 
     /// <summary>
-    /// Gets how long a reset token stays redeemable, in minutes. Shorter is safer: the token travels by email, and the
+    /// How long a reset token stays redeemable, in minutes. Shorter is safer: the token travels by email, and the
     /// window is how long a leaked message stays useful to whoever finds it.
     /// </summary>
     ///
@@ -55,7 +55,7 @@ public sealed record AuthCredentialsSettings
     public int PasswordResetMinutes { get; init; } = 60;
 
     /// <summary>
-    /// Gets the floor a forgot-password request is held to, in milliseconds. A request that finishes sooner waits out the
+    /// The floor a forgot-password request is held to, in milliseconds. A request that finishes sooner waits out the
     /// remainder, so issuing a token and finding no account take the same time and the response cannot be timed to learn
     /// which addresses are registered. Raise it above the slowest of the two paths on the deployment's own hardware; a
     /// value below that leaves the difference measurable.

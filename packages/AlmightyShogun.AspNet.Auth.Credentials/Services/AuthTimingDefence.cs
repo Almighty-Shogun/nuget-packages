@@ -35,7 +35,9 @@ internal static class AuthTimingDefence
     private static readonly PasswordHasher<AuthUser> _decoyHasher = new();
 
     /// <summary>
-    /// A hash computed once at startup, so verifying against it costs what verifying a real password costs.
+    /// A hash computed once, at this class's first use rather than at startup, so verifying against it costs what verifying
+    /// a real password costs. Nothing touches the class during registration, so the first sign-in against an unknown
+    /// identifier pays for producing it as well as for the verification.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

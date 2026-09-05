@@ -42,7 +42,8 @@ public static class AuthCredentialsExtensions
         /// </param>
         /// <param name="registerExceptionHandler">
         /// Whether to register the handler that turns this package's exceptions into standardized responses. It needs
-        /// <c>AddHttpErrorResponseWriter</c> and <c>AddMessageLocalization</c> from <c>AlmightyShogun.AspNet.Core</c>. The
+        /// <c>AddHttpErrorResponseWriter</c> from <c>AlmightyShogun.AspNet.Core</c> and <c>AddMessageLocalization</c> from
+        /// <c>AlmightyShogun.AspNet.Localization</c>, which is what registers the message resolver it reads. The
         /// mapper is registered either way, though it is internal to this package and only that handler consults it, so
         /// passing <c>false</c> leaves these exceptions to whatever handler the application registers itself.
         /// </param>

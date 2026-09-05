@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed record RegisterRequest
 {
     /// <summary>
-    /// Gets or sets the username to claim. Refused when another account already holds it.
+    /// The username to claim. Refused when another account already holds it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -21,7 +21,7 @@ public sealed record RegisterRequest
     public required string Username { get; set; }
 
     /// <summary>
-    /// Gets or sets the email address to claim. Refused when another account already holds it.
+    /// The email address to claim. Refused when another account already holds it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -31,7 +31,7 @@ public sealed record RegisterRequest
     public required string Email { get; set; }
 
     /// <summary>
-    /// Gets or sets the chosen password, hashed before it is stored and never persisted as given.
+    /// The chosen password, hashed before it is stored and never persisted as given.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

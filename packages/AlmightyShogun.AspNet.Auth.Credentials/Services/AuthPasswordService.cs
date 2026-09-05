@@ -16,7 +16,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <typeparam name="TUser">The application's own user entity, whose password column these paths read and write.</typeparam>
-/// <param name="databaseContext">The application's context, so auth writes join whatever transaction it is in.</param>
+/// <param name="databaseContext">The application's context, which the credential tables live in.</param>
 /// <param name="credentialOptions">
 /// The bound credential settings, read for how long a reset token lives and for the floor a forgot-password request is
 /// held to.

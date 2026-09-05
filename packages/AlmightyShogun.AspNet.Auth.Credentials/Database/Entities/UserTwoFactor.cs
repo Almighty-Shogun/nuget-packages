@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed class UserTwoFactor
 {
     /// <summary>
-    /// Gets or sets the surrogate key. The enrolment is always reached through its user, so this value appears in no
+    /// The surrogate key. The enrolment is always reached through its user, so this value appears in no
     /// response and in no query a caller writes.
     /// </summary>
     ///
@@ -23,7 +23,7 @@ public sealed class UserTwoFactor
     public int Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the user this enrolment belongs to. Unique, so a user has at most one enrolment.
+    /// The user this enrolment belongs to. Unique, so a user has at most one enrolment.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -31,9 +31,8 @@ public sealed class UserTwoFactor
     public int UserId { get; set; }
 
     /// <summary>
-    /// Gets or sets whether a confirmed enrolment is in force. Set only once an enrolment has been confirmed with a valid
-    /// code, so an abandoned enrolment cannot lock the owner out. Nothing in the package requires a second factor at
-    /// sign-in: verification is the one path that reads this, and it refuses every code while the flag is unset.
+    /// Whether a confirmed enrolment is in force. Unset while an enrolment has been begun but not confirmed,
+    /// which is a state the row exists in too, so its presence is not the answer to whether two-factor is on.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -41,10 +40,9 @@ public sealed class UserTwoFactor
     public bool IsEnabled { get; set; }
 
     /// <summary>
-    /// Gets or sets the protected TOTP shared secret currently in force. Stored encrypted, so a database copy alone does
-    /// not let an attacker mint valid codes. The column is sized for the protected form, which is several times the
-    /// secret itself. Empty until an enrolment has been confirmed, and only ever replaced by a confirmed
-    /// <see cref="PendingSecret"/>.
+    /// The protected TOTP shared secret currently in force. Stored encrypted, so a database copy alone does not let an
+    /// attacker mint valid codes. The column is sized for the protected form, which is several times the secret itself.
+    /// Empty until an enrolment has been confirmed, and only ever replaced by a confirmed <see cref="PendingSecret"/>.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -54,9 +52,9 @@ public sealed class UserTwoFactor
     public string Secret { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the protected secret an enrolment in progress is offering, or <c>null</c> when none is outstanding.
-    /// Written by <c>BeginEnrolmentAsync</c> and promoted to <see cref="Secret"/> only once a code proves the
-    /// authenticator holds it, so an abandoned enrolment leaves a working second factor untouched.
+    /// The protected secret an enrolment in progress is offering, or <c>null</c> when none is outstanding.
+    /// Held apart from <see cref="Secret"/> so that a secret on offer is never one in force. See
+    /// <see cref="IAuthTwoFactorService{TUser}"/> for when it moves across.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -65,9 +63,9 @@ public sealed class UserTwoFactor
     public string? PendingSecret { get; set; }
 
     /// <summary>
-    /// Gets or sets when the outstanding <see cref="PendingSecret"/> stops being confirmable, or <c>null</c> when none is
-    /// outstanding. A confirmation arriving after this is refused as a wrong code, so a QR left on screen does not stay
-    /// redeemable indefinitely.
+    /// When the outstanding <see cref="PendingSecret"/> stops being confirmable, or <c>null</c> when none is
+    /// outstanding. Set <see cref="TwoFactorPolicy.PendingSecretMinutes"/> ahead when an enrolment begins, and cleared
+    /// again when one is confirmed.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -75,8 +73,7 @@ public sealed class UserTwoFactor
     public DateTimeOffset? PendingSecretExpiresAt { get; set; }
 
     /// <summary>
-    /// Gets or sets the last TOTP time step accepted for this user. A code from that step or earlier is refused, which
-    /// is what stops one intercepted code being used twice inside its validity window.
+    /// The last TOTP time step accepted for this user, or <c>null</c> before any code has been accepted.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -84,7 +81,7 @@ public sealed class UserTwoFactor
     public long? LastWindow { get; set; }
 
     /// <summary>
-    /// Gets or sets when the enrolment row was created, which is when an enrolment was first begun rather than when one
+    /// When the enrolment row was created, which is when an enrolment was first begun rather than when one
     /// was confirmed. Beginning enrolment again reuses the row, so this is not moved forward, but disabling deletes it
     /// and a later enrolment then starts a new row with a fresh value.
     /// </summary>
@@ -94,7 +91,7 @@ public sealed class UserTwoFactor
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
-    /// Gets or sets the recovery codes issued when the enrolment was confirmed, spent ones included, since a spent code
+    /// The recovery codes issued when the enrolment was confirmed, spent ones included, since a spent code
     /// keeps its row. Verification filters them by <see cref="TwoFactorRecoveryCode.UsedAt"/> rather than relying on this.
     /// </summary>
     ///

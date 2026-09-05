@@ -14,8 +14,8 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed class AuthSessionResult<TUser> where TUser : AuthUser
 {
     /// <summary>
-    /// Gets the signed access token to return to the client. Short-lived and not revocable once issued, so it is meant to
-    /// be held in memory rather than stored.
+    /// The signed access token to return to the client, ready to send as a bearer token. Its lifetime, issuer, and
+    /// audience come from <see cref="AlmightyShogun.AspNet.Auth.AuthSettings"/>, which is where its validation lives too.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -23,8 +23,8 @@ public sealed class AuthSessionResult<TUser> where TUser : AuthUser
     public required string AccessToken { get; init; }
 
     /// <summary>
-    /// Gets the refresh token in plain text, the only point at which it exists in that form. Only its hash is stored, so a
-    /// caller that discards this cannot recover it.
+    /// The refresh token in plain text, which the client presents to renew the session. This is the only place it
+    /// appears in that form; see <see cref="UserSession.RefreshTokenHash"/> for what the row holds instead.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -32,7 +32,7 @@ public sealed class AuthSessionResult<TUser> where TUser : AuthUser
     public required string RefreshToken { get; init; }
 
     /// <summary>
-    /// Gets the user the tokens were issued for, already loaded, so a caller does not query again for the details it is
+    /// The user the tokens were issued for, already loaded, so a caller does not query again for the details it is
     /// about to return.
     /// </summary>
     ///

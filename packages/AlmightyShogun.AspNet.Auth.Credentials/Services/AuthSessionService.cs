@@ -18,7 +18,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <typeparam name="TUser">The application's own user entity, returned alongside the tokens a session yields.</typeparam>
-/// <param name="databaseContext">The application's context, so auth writes join whatever transaction it is in.</param>
+/// <param name="databaseContext">The application's context, which the credential tables live in.</param>
 /// <param name="authOptions">The bound JWT settings, read for how long a refresh token lives.</param>
 /// <param name="credentialOptions">
 /// The bound credential settings, read for the lockout policy and for the absolute lifetime a renewal is capped at.

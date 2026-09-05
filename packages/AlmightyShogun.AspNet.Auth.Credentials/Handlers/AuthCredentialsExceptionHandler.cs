@@ -7,8 +7,9 @@ using AlmightyShogun.AspNet.Localization;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Answers this package's exceptions with the standardized error response, using AuthCredentialsExceptionMapper to decide the
-/// status, code, and message for each. Declines everything else, so the rest of the handler chain still gets a turn.
+/// Answers this package's exceptions with the standardized error response, using <see cref="AuthCredentialsExceptionMapper"/>
+/// to decide the status, code, and message for each. Declines everything else, so the rest of the handler chain still gets
+/// a turn.
 /// </summary>
 ///
 /// <param name="exceptionMapper">The mapper naming the exceptions this package owns and what each becomes.</param>

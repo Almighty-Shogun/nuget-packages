@@ -18,7 +18,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <typeparam name="TUser">The application's own user entity, looked up to reach its enrolment.</typeparam>
-/// <param name="databaseContext">The application's context, so auth writes join whatever transaction it is in.</param>
+/// <param name="databaseContext">The application's context, which the credential tables live in.</param>
 /// <param name="credentialOptions">
 /// The bound credential settings, read for the two-factor policy that decides the issuer shown, how many recovery codes
 /// are issued, and the shape of a generated code.
