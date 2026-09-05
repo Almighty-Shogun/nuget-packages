@@ -11,8 +11,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
 {
     /// <summary>
     /// Adds several password requirements at once. By default it requires letters, mixed casing, numbers, and symbols; pass <c>false</c>
-    /// for a requirement to skip that part. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// for a requirement to skip that part.
     /// </summary>
     ///
     /// <param name="letters">Whether a letter requirement should be added.</param>
@@ -20,10 +19,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <param name="numbers">Whether a number requirement should be added.</param>
     /// <param name="symbols">Whether a symbol requirement should be added.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -45,14 +41,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the password to contain at least one letter. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the password to contain at least one letter.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -64,14 +56,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the password to contain at least one lowercase and one uppercase letter. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the password to contain at least one lowercase and one uppercase letter.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -83,14 +71,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the password to contain at least one number. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the password to contain at least one number.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -102,14 +86,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the password to contain at least one punctuation or symbol character. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the password to contain at least one punctuation or symbol character.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -121,14 +101,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the password to contain mixed-case letters, at least one number, and at least one symbol. An absent or empty value passes,
-    /// so pair it with <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the password to contain mixed-case letters, at least one number, and at least one symbol.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

@@ -19,13 +19,13 @@ internal static class ValidationFormat
     private static readonly EmailAddressAttribute _emailAddressAttribute = new();
 
     /// <summary>
-    /// Checks an address by the shape a mail system will actually accept rather than by the full grammar the specification allows, since
-    /// the latter admits addresses no provider would deliver to.
+    /// Checks an address by handing it to <see cref="EmailAddressAttribute"/> , so whatever the framework accepts is what this package
+    /// accepts, and no second definition of a valid address is kept here.
     /// </summary>
     ///
     /// <param name="value">The text to test.</param>
     ///
-    /// <returns><c>true</c> when the value is a valid email address; otherwise, <c>false</c>.</returns>
+    /// <returns><c>true</c> when <see cref="EmailAddressAttribute"/> accepts the text; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

@@ -10,14 +10,10 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
-    /// Requires the value to be numeric. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be numeric.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -29,14 +25,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be an integer. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be an integer.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -48,17 +40,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be at least the provided number. For strings, collections, and files, the number is interpreted as length,
-    /// count, or kilobytes. An absent or empty value passes, so pair it with <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when
-    /// the field is mandatory.
+    /// Requires the value to be at least the provided number.
     /// </summary>
     ///
     /// <param name="min">The minimum size or value.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -70,17 +57,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be no greater than the provided number. For strings, collections, and files, the number is interpreted as
-    /// length, count, or kilobytes. An absent or empty value passes, so pair it with <see cref="RuleBuilder{TRequest,TProperty}.Required"/>
-    /// when the field is mandatory.
+    /// Requires the value to be no greater than the provided number.
     /// </summary>
     ///
     /// <param name="max">The maximum size or value.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -92,17 +74,13 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be between the inclusive minimum and maximum. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be between the inclusive minimum and maximum.
     /// </summary>
     ///
     /// <param name="min">The minimum size or value.</param>
     /// <param name="max">The maximum size or value.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -114,16 +92,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to match the exact numeric value, string length, collection count, or file size. An absent or empty value passes,
-    /// so pair it with <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to match the provided number exactly.
     /// </summary>
     ///
     /// <param name="size">The expected size or value.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -135,16 +109,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the numeric value to have the configured number of decimal places. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the numeric value to have the configured number of decimal places.
     /// </summary>
     ///
     /// <param name="places">The expected decimal place count.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -156,16 +126,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to contain exactly the provided number of digits. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to contain exactly the provided number of digits.
     /// </summary>
     ///
     /// <param name="digits">How many digits the value must be written with, counting leading zeroes.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -177,17 +143,13 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the digit count to be between the inclusive minimum and maximum. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the digit count to be between the inclusive minimum and maximum.
     /// </summary>
     ///
     /// <param name="min">The minimum digit count.</param>
     /// <param name="max">The maximum digit count.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -199,16 +161,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to contain at least the provided number of digits. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to contain at least the provided number of digits.
     /// </summary>
     ///
     /// <param name="min">The minimum digit count.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -220,16 +178,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Allows the value to contain at most the provided number of digits. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Allows the value to contain at most the provided number of digits.
     /// </summary>
     ///
     /// <param name="max">The maximum digit count.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -241,16 +195,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the numeric value to be a multiple of the provided number. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the numeric value to be a multiple of the provided number.
     /// </summary>
     ///
     /// <param name="multipleOf">The value the property must be a multiple of.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -262,18 +212,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be greater than the provided number. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be greater than the provided number.
     /// </summary>
     ///
-    /// <param name="value">
-    /// The bound the value is compared against, widened to a decimal so the comparison does not depend on the declared type.
-    /// </param>
+    /// <param name="value">The number the bound value is compared against.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -285,18 +229,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be greater than or equal to the provided number. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be greater than or equal to the provided number.
     /// </summary>
     ///
-    /// <param name="value">
-    /// The bound the value is compared against, widened to a decimal so the comparison does not depend on the declared type.
-    /// </param>
+    /// <param name="value">The number the bound value is compared against.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -308,18 +246,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be less than the provided number. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be less than the provided number.
     /// </summary>
     ///
-    /// <param name="value">
-    /// The bound the value is compared against, widened to a decimal so the comparison does not depend on the declared type.
-    /// </param>
+    /// <param name="value">The number the bound value is compared against.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -331,18 +263,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be less than or equal to the provided number. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be less than or equal to the provided number.
     /// </summary>
     ///
-    /// <param name="value">
-    /// The bound the value is compared against, widened to a decimal so the comparison does not depend on the declared type.
-    /// </param>
+    /// <param name="value">The number the bound value is compared against.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

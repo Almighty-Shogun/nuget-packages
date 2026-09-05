@@ -2,8 +2,11 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
 /// Compares a measured size against one or two bounds. What is measured depends on the bound type, so one rule serves numbers, strings,
-/// collections, and uploads.
+/// collections, and uploads. An absent or empty value passes without being checked, so the rule never implies the field is required.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, read as an object rather than constrained here.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
@@ -43,8 +46,9 @@ internal sealed class ComparableSizeValidationRule<TRequest, TProperty> : IPrope
     /// <param name="maxValue">The upper bound, required for a range and meaningless for anything else.</param>
     ///
     /// <exception cref="ArgumentOutOfRangeException">
-    /// A range was asked for without an upper bound, which would compare every size against nothing and so fail every value. Refused
-    /// here rather than surfacing as a rule that rejects whatever it is given.
+    /// <see cref="ComparableSizeMode.Between"/> was asked for with no <paramref name="maxValue"/> . Refused here because the range arm
+    /// unwraps the missing bound: a size below the lower bound would fail cleanly, and every size at or above it would raise
+    /// <see cref="InvalidOperationException"/> once a request arrived.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>

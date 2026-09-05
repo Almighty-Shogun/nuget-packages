@@ -1,8 +1,12 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Checks that a value is a date, matches an exact format, or orders correctly against a literal date or another field.
+/// Checks that a value is a date, matches an exact format, or orders correctly against a literal date or another field. An absent or
+/// empty value passes without being checked, so the rule never implies the field is required.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, and the one a target field is read from.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, read as an object and parsed as a date.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
@@ -127,8 +131,12 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// <param name="targetPropertyName">The target property name.</param>
     ///
     /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="mode"/> is not an ordering. A <paramref name="targetPropertyName"/> naming no property on the request
-    /// type raises <see cref="InvalidOperationException"/> instead, from the field lookup, before this check is reached.
+    /// <paramref name="mode"/> is not an ordering, so pairing it with a target property is meaningless.
+    /// </exception>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="targetPropertyName"/> names no public instance property on the request type. Raised by the field lookup, which
+    /// runs before the mode is checked.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>

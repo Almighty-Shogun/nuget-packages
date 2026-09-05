@@ -4,6 +4,20 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// The attribute form of the value-conditional rule, reading its controlling field by name because an attribute cannot hold an expression.
 /// </summary>
 ///
+/// <typeparam name="TRequest">The request type the rule is declared on and reads the controlling field from.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, read as an object and tested against the target mode.</typeparam>
+/// <param name="targetMode">
+/// What this field must be once the condition holds: required, present, missing, prohibited, accepted, or declined.
+/// </param>
+/// <param name="conditionMode">Whether the requirement applies when the condition matches or when it does not.</param>
+/// <param name="comparePropertyName">Names the controlling field, resolved once when the rule is built.</param>
+/// <param name="values">The values the controlling field is compared against, matched as objects.</param>
+///
+/// <exception cref="InvalidOperationException">
+/// <paramref name="comparePropertyName"/> names no public instance property on the request type. Thrown as the rule is built rather than
+/// when a request arrives.
+/// </exception>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class NamedConditionalValidationRule<TRequest, TProperty>(

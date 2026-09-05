@@ -4,8 +4,15 @@ using System.Text.RegularExpressions;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Matches text against one of the known shapes, each a self-contained check rather than a pattern the caller supplies.
+/// Matches text against one of the known shapes, each a self-contained check rather than a pattern the caller supplies. An absent or empty
+/// value passes without being checked, so the rule never implies the field is required.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">
+/// The bound property's type. Every shape is checked on a string, so a non-empty value of any other type fails.
+/// </typeparam>
+/// <param name="mode">Which shape the text must have, which also decides the message a failure reports.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

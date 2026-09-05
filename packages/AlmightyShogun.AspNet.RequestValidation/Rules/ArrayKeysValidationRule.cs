@@ -1,8 +1,12 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires a keyed value to carry the named keys, either any of them or all of them.
+/// Requires a keyed value to carry the named keys, either any of them or all of them. An absent or empty value passes without being
+/// checked, so the rule never implies the field is required.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, read as an object rather than constrained here.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

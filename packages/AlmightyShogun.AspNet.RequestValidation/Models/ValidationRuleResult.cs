@@ -15,7 +15,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 public sealed record ValidationRuleResult
 {
     /// <summary>
-    /// Gets whether the validation rule passed.
+    /// Whether the validation rule passed.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -23,7 +23,7 @@ public sealed record ValidationRuleResult
     public bool IsValid { get; }
 
     /// <summary>
-    /// Gets the validation message key returned when the rule fails, and empty when it passed.
+    /// The validation message key returned when the rule fails, and empty when it passed.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -31,7 +31,7 @@ public sealed record ValidationRuleResult
     public string Key { get; }
 
     /// <summary>
-    /// Gets the validation message parameters returned when the rule fails, and empty when it passed.
+    /// The validation message parameters returned when the rule fails, and empty when it passed.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

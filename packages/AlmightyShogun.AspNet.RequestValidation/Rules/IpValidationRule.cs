@@ -4,8 +4,13 @@ using System.Net.Sockets;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires text to be an IP address, of either family or of one specifically.
+/// Requires text to be an IP address, of either family or of one specifically. An absent or empty value passes without being checked, so
+/// the rule never implies the field is required.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type; a non-empty value that cannot be read as text fails.</typeparam>
+/// <param name="mode">Which address family to insist on, which also decides the message a failure reports.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

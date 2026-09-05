@@ -1,8 +1,18 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Counts the digits a value is written with, rather than comparing the number it spells, so a leading zero counts as the digit it is.
+/// Counts the digits a value is written with, rather than comparing the number it spells, so a leading zero counts as the digit it is. An
+/// absent or empty value passes without being checked, so the rule never implies the field is required.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type; text and integral numbers yield digits, and anything else fails.</typeparam>
+/// <param name="mode">Which count comparison to perform, which also decides the message a failure reports.</param>
+/// <param name="value">The digit count compared against, or the lower bound of a range.</param>
+/// <param name="maxValue">
+/// The upper bound of a range, read only by <see cref="DigitMode.Between"/> . A range built without one fails every non-empty value,
+/// since the comparison against a missing bound is never true.
+/// </param>
 ///
 /// <remarks>
 /// Only a run of ASCII digits is counted. A sign, a decimal point, or a thousands separator is not skipped over: a value carrying one is

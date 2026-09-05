@@ -24,6 +24,11 @@ internal static class ModelStateValidationResponseFactory
     /// belongs to; anything else reports per field.
     /// </returns>
     ///
+    /// <exception cref="InvalidOperationException">
+    /// No <see cref="IMessageResolver"/> is registered. It comes from <c>AddMessageLocalization</c>, which <c>AddAspNetValidation</c> does
+    /// not call, so an application that registers validation alone fails here on its first binding failure.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public static IActionResult Create(ActionContext context)

@@ -1,8 +1,13 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Checks one character-class requirement of a password, so an application composes the policy it wants from several rules.
+/// Checks one character-class requirement of a password, so an application composes the policy it wants from several rules. An absent or
+/// empty value passes without being checked, so the rule never implies the field is required.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type; a non-empty value that cannot be read as text fails.</typeparam>
+/// <param name="requirement">Which character class the text must carry, which also decides the message a failure reports.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

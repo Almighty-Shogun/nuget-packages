@@ -8,10 +8,10 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// One failure as it is held while validating: a message key and its parameters, resolved into text only when the response is built.
 /// </summary>
 ///
-/// <param name="Code">The stable numeric validation error code.</param>
-/// <param name="Key">The validation message key.</param>
-/// <param name="Error">The public validation error identifier.</param>
-/// <param name="Parameters">The validation message parameters.</param>
+/// <param name="Code">The numeric identifier, reaching the client unchanged.</param>
+/// <param name="Key">The message key the description is resolved from when the response is written.</param>
+/// <param name="Error">The machine-readable name a client matches on instead of the description.</param>
+/// <param name="Parameters">The values the message template substitutes by position, empty when it takes none.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

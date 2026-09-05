@@ -1,8 +1,12 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires text to contain, start with, or end with one of the configured values.
+/// Requires text to contain, start with, or end with one of the configured values. An absent or empty value passes without being checked,
+/// so the rule never implies the field is required.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, read as text, or as a collection for the contain mode alone.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

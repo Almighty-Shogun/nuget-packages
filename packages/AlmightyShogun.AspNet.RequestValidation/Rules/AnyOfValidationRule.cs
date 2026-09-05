@@ -2,8 +2,13 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
 /// Passes when any one of the grouped rule sets passes. Failures from the losing sets are discarded and the field reports a single
-/// <c>validation.any-of</c> failure instead, naming no particular alternative.
+/// <c>validation.any-of</c> failure instead, naming no particular alternative. Emptiness is not tested here at all: each grouped rule
+/// applies whatever handling of an empty value it has of its own.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on and hands to every grouped rule.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, shared with the grouped rules, which are handed the same value.</typeparam>
+/// <param name="ruleSets">The alternatives, each a set whose rules must all pass. An empty outer list passes.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

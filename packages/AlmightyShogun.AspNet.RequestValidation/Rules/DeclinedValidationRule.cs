@@ -4,6 +4,9 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// Requires a value that reads as a no. Like its opposite it does not skip an empty value, since absence is the case it exists to catch.
 /// </summary>
 ///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, read as an object rather than constrained here.</typeparam>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class DeclinedValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty> where TRequest : class

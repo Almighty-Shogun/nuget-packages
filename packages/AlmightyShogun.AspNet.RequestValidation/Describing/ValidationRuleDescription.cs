@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 public sealed record ValidationRuleDescription
 {
     /// <summary>
-    /// Gets the rule name, taken from the attribute without its <c>Attribute</c> suffix, such as <c>Min</c>.
+    /// The rule name, taken from the attribute without its <c>Attribute</c> suffix, such as <c>Min</c>.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -17,7 +17,7 @@ public sealed record ValidationRuleDescription
     public required string Rule { get; init; }
 
     /// <summary>
-    /// Gets the values the rule was declared with, in constructor order.
+    /// The values the rule was declared with, in constructor order.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

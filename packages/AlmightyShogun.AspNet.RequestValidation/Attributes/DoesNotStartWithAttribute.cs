@@ -3,11 +3,11 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Rejects text that starts with one of the provided prefixes. An absent or empty value passes, so pair it with
+/// Requires the text value to start with none of the provided prefixes. An absent or empty value passes, so pair it with
 /// <see cref="RequiredAttribute"/> when the field is mandatory.
 /// </summary>
 ///
-/// <param name="values">The prefixes that the value must not start with.</param>
+/// <param name="values">The prefixes the text is checked against.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

@@ -3,7 +3,7 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the value to be between the inclusive minimum and maximum. An absent or empty value passes, so pair it with
+/// Requires the field to measure between the inclusive minimum and maximum. An absent or empty value passes, so pair it with
 /// <see cref="RequiredAttribute"/> when the field is mandatory.
 /// </summary>
 ///

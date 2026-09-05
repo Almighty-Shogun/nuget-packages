@@ -1,8 +1,13 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires text to name a time zone the host system knows, which differs between Windows and everything else.
+/// Requires text to name a time zone the host system resolves, so what passes is decided by the machine the application runs on rather
+/// than by a list this package holds. An absent or empty value passes without being checked, so the rule never implies the field is
+/// required.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type; a non-empty value that cannot be read as text fails.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

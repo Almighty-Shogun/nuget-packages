@@ -3,8 +3,21 @@ using System.Linq.Expressions;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Applies a presence requirement to this field only when a controlling field reads as accepted or declined.
+/// Applies a presence requirement to this field only when a controlling field reads as accepted or declined. An empty value is not
+/// skipped: once the controlling field matches, emptiness is exactly what the requirement tests.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on and reads the controlling field from.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, read as an object and tested only for emptiness.</typeparam>
+/// <typeparam name="TCompare">The controlling field's type, whose value is read as an object for the accepted or declined test.</typeparam>
+/// <param name="targetMode">Whether the matched condition requires this field or prohibits it.</param>
+/// <param name="stateMode">Which reading of the controlling field, accepted or declined, makes the requirement apply.</param>
+/// <param name="compareExpression">Points at the controlling field, resolved once when the rule is built.</param>
+///
+/// <exception cref="ArgumentOutOfRangeException">
+/// <paramref name="compareExpression"/> is not a property read directly off the request. Thrown as the rule is built rather than when a
+/// request arrives.
+/// </exception>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

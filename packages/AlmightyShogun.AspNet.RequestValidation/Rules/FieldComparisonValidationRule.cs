@@ -4,8 +4,16 @@ using System.Linq.Expressions;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Compares this field against another on the same request, for confirmation pairings and must-differ pairings.
+/// Compares this field against another on the same request, for confirmation pairings and must-differ pairings. An empty value is not
+/// skipped: it is compared like any other, so a blank field satisfies a confirmation only when its partner is blank too.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on and reads the compared field from.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, compared as an object against the other field's value.</typeparam>
+/// <typeparam name="TCompare">
+/// The compared field's type, named only by the expression constructor. The comparison is made on boxed values, so this argument does not
+/// change how the two are matched.
+/// </typeparam>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
@@ -45,6 +53,11 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     /// <param name="mode">How this field must relate to the other one, which also decides the message the failure reports.</param>
     /// <param name="compareExpression">Points at the field this one is compared against, so both are read from the same request.</param>
     ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request. Thrown as the rule is built rather than when
+    /// a request arrives.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public FieldComparisonValidationRule(FieldComparisonMode mode, Expression<Func<TRequest, TCompare>> compareExpression)
@@ -65,6 +78,11 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     /// <param name="comparePropertyName">
     /// Names the field this one is compared against, which is the attribute spelling of the expression form.
     /// </param>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="comparePropertyName"/> names no public instance property on the request type. Thrown as the rule is built rather
+    /// than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -158,12 +176,14 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
     private object?[] GetMessageParameters() => _mode == FieldComparisonMode.Confirmed ? [] : [_compareFieldName];
 
     /// <summary>
-    /// Finds the property the confirmation convention names, so the rule holds a reader rather than searching per request.
+    /// Finds the property the confirmation convention names, so the rule holds a reader rather than searching per request. The convention
+    /// is <c>{Name}Confirmation</c> first and <c>Confirm{Name}</c> as the fallback, each matched case-sensitively against the declared
+    /// name rather than the name a client sees.
     /// </summary>
     ///
     /// <param name="declaredPropertyName">The validated property's declared name, which both conventional spellings are built from.</param>
     ///
-    /// <returns>The confirmation property.</returns>
+    /// <returns>Whichever of the two conventional properties is declared, the <c>Confirmation</c> suffix taking precedence.</returns>
     ///
     /// <exception cref="ArgumentOutOfRangeException">
     /// Neither <c>{Name}Confirmation</c> nor <c>Confirm{Name}</c> exists on the request type. Refused here rather than treated as an

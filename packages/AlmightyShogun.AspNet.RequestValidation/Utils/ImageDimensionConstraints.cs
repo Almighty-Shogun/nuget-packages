@@ -4,6 +4,13 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// The width and height a dimension rule compares against, held together so the general file constructor stays free of dimension arguments.
 /// </summary>
 ///
+/// <param name="width">
+/// The pixel width compared against, read as an exact size, a floor, or a ceiling by whichever of the three checks the rule calls.
+/// </param>
+/// <param name="height">
+/// The pixel height compared against, on the same terms as the width, and tested alongside it rather than instead of it.
+/// </param>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class ImageDimensionConstraints(int width, int height)

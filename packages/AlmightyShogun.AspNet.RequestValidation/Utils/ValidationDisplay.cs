@@ -3,8 +3,8 @@ using System.Globalization;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Renders values for a failure message, so what a client reads is written the way a person would write it rather than the way the runtime
-/// prints it.
+/// Renders values for a failure message, as the single comma-separated string a message template substitutes, and with an absent value
+/// written out as <c>null</c> rather than left blank.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -36,12 +36,15 @@ internal static class ValidationDisplay
     public static string JoinDisplayValues(IEnumerable<object?> values) => string.Join(", ", values.Select(ToDisplayValue));
 
     /// <summary>
-    /// Renders one value for a failure message, so a boolean or an absent value reads as a person would write it.
+    /// Renders one value for a failure message. An absent value is the only special case; everything else is written out under the
+    /// invariant culture where it can be, so the same value reads the same whichever culture the server runs under.
     /// </summary>
     ///
     /// <param name="value">The value to render.</param>
     ///
-    /// <returns>The text a message shows for it.</returns>
+    /// <returns>
+    /// The text a message shows for it: <c>null</c> for an absent value, and otherwise the value's own text, empty when it has none.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

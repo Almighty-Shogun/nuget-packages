@@ -10,14 +10,11 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
-    /// Requires the value to be a string. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be a string. Only text and an absent value pass, so unlike most rules here an empty collection or a
+    /// zero-length upload fails rather than counting as empty.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -29,14 +26,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be an enumerable value that is not a string. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be an enumerable value that is not a string.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -48,14 +41,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be an array or list-like value. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be an array or list-like value.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -67,14 +56,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be a boolean value. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be a boolean, or text that parses as one. An absent value, blank text and an empty collection pass, but unlike
+    /// most rules here a zero-length upload fails rather than counting as empty.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -86,15 +72,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be parseable as the provided enum type. When the enum type is omitted, the validator uses the request property
-    /// type. An absent or empty value passes, so pair it with <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is
-    /// mandatory.
+    /// Requires the value to be a member <typeparamref name="TProperty"/> defines, so the validated property's own type is what supplies
+    /// the member set.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -106,17 +88,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be parseable as the provided enum type. When the enum type is omitted, the validator uses the request property
-    /// type. An absent or empty value passes, so pair it with <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is
-    /// mandatory.
+    /// Requires the value to be a member <typeparamref name="TEnum"/> defines, rather than any value its underlying type can hold.
     /// </summary>
     ///
     /// <typeparam name="TEnum">The enum type to validate against.</typeparam>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -128,19 +105,14 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be parseable as the provided enum type. When the enum type is omitted, the validator uses the request property
-    /// type. An absent or empty value passes, so pair it with <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is
-    /// mandatory.
+    /// Requires the value to be a member the provided enum type defines, rather than any value its underlying type can hold.
     /// </summary>
     ///
     /// <param name="enumType">
     /// The enum whose defined values the input must be one of, named at runtime rather than as a type argument.
     /// </param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

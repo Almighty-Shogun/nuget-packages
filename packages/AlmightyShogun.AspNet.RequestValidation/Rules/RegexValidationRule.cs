@@ -4,7 +4,12 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
 /// Matches text against a caller-supplied pattern, in either direction, under a timeout so a pathological pattern cannot hang a request.
+/// Reaching that timeout is caught and reported as a failure rather than thrown. An absent or empty value passes without being checked, so
+/// the rule never implies the field is required.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type; a non-empty value that cannot be read as text fails.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
@@ -56,6 +61,16 @@ internal sealed class RegexValidationRule<TRequest, TProperty>
     /// catastrophically on hostile input.
     /// </param>
     ///
+    /// <exception cref="ArgumentException">
+    /// <paramref name="pattern"/> does not parse as a regular expression. The <see cref="RegexParseException"/> raised for it derives from
+    /// this type. Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="options"/> is not a combination of <see cref="RegexOptions"/> values, or <paramref name="matchTimeout"/> is outside
+    /// the range <see cref="Regex"/> permits.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public RegexValidationRule(
@@ -102,7 +117,8 @@ internal sealed class RegexValidationRule<TRequest, TProperty>
     }
 
     /// <summary>
-    /// Builds the failure result, passing the description as a message parameter when one was supplied.
+    /// Builds the failure result, passing the description as the message's only parameter when one was supplied and no parameters at all
+    /// when it was not.
     /// </summary>
     ///
     /// <returns>The validation failure result.</returns>

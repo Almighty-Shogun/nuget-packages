@@ -8,12 +8,15 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// above deals in fields rather than in individual rules.
 /// </summary>
 ///
+/// <typeparam name="TRequest">The request type the property is read from.</typeparam>
+/// <typeparam name="TProperty">The property's type, which every rule held here is typed against.</typeparam>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule<TRequest> where TRequest : class
 {
     /// <summary>
-    /// Gets the name failures are reported under, resolved through <see cref="ValidationFieldName"/> , so it is the name the client sent
+    /// The name failures are reported under, resolved through <see cref="ValidationFieldName"/> , so it is the name the client sent
     /// rather than the name the property was declared with.
     /// </summary>
     ///
@@ -105,7 +108,7 @@ internal sealed class PropertyRule<TRequest, TProperty> : IRequestValidationRule
     ///
     /// <param name="property">The property metadata.</param>
     ///
-    /// <returns>The property rule for the reflected property.</returns>
+    /// <returns>A rule holding none yet, reading the property through reflection rather than through a compiled expression.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

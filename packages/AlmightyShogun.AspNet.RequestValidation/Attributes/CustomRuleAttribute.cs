@@ -25,8 +25,8 @@ public abstract class CustomRuleAttribute : ValidationRuleAttribute
         => new CustomValidationRuleAdapter<TRequest, TProperty>(CreateCustomRule());
 
     /// <summary>
-    /// Builds the adapter that runs the named rule. Sealed because the rule type is the only thing a derived attribute decides, and the
-    /// adapter around it should not vary.
+    /// Names the rule type to run. A derived attribute implements this rather than being handed the type, so the type is fixed by the
+    /// attribute rather than by whoever applies it.
     /// </summary>
     ///
     /// <returns>The custom validation rule type.</returns>
@@ -36,8 +36,8 @@ public abstract class CustomRuleAttribute : ValidationRuleAttribute
     protected abstract Type CreateCustomRule();
 
     /// <summary>
-    /// Names the rule type to run. A derived attribute implements this rather than being handed the type, so the type is fixed by the
-    /// attribute rather than by whoever applies it.
+    /// Hands back a rule type named as a type argument, so a derived attribute writes the rule name once inside its
+    /// <see cref="CreateCustomRule"/> override.
     /// </summary>
     ///
     /// <typeparam name="TRule">

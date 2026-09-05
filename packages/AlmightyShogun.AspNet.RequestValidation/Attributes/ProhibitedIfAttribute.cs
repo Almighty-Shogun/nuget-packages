@@ -3,12 +3,11 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Prohibits the field when another field equals one of the provided values. Presence rules run before value rules, so a field this rejects
-/// reports that rather than a later format or size failure.
+/// Prohibits the field when another field equals one of the provided values.
 /// </summary>
 ///
-/// <param name="field">The request field that controls whether this field is prohibited.</param>
-/// <param name="values">The values that trigger prohibited validation.</param>
+/// <param name="field">The request field the condition reads.</param>
+/// <param name="values">The values the controlling field is matched against.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

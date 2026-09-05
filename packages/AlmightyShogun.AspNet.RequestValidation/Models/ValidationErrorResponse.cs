@@ -11,7 +11,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 public sealed record ValidationErrorResponse : HttpErrorResponse
 {
     /// <summary>
-    /// Gets the failures, keyed by field, with one entry per field that failed rather than one per rule that broke.
+    /// The failures, keyed by field, with one entry per field that failed rather than one per rule that broke.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

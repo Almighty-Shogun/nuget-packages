@@ -42,6 +42,10 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
     ///
     /// <returns>A task representing the asynchronous middleware operation.</returns>
     ///
+    /// <exception cref="BadHttpRequestException">
+    /// One was raised that does not describe a body this middleware could not read, so it travels on instead of being answered here.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     public async Task InvokeAsync(HttpContext context)
@@ -108,12 +112,16 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
     );
 
     /// <summary>
-    /// Determines whether the current response should be replaced with an invalid-body response.
+    /// Reports whether the pipeline left behind the empty <c>415</c> that answers a content type nothing could read, which is the failure
+    /// that arrives as a bare status rather than as an exception.
     /// </summary>
     ///
-    /// <param name="context">The context whose response is written to, left untouched once the response has started.</param>
+    /// <param name="context">The context whose response status and request method are inspected.</param>
     ///
-    /// <returns><c>true</c> when the response is an empty unsupported-media-type body request response; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    /// <c>true</c> when the response has not started, the request used a body-carrying method, no content length above zero was declared,
+    /// and the status is <c>415</c>; otherwise, <c>false</c>.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

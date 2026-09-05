@@ -3,11 +3,11 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the value to be parseable as the provided enum type. When the enum type is omitted, the validator uses the request property
-/// type. An absent or empty value passes, so pair it with <see cref="RequiredAttribute"/> when the field is mandatory.
+/// Requires the value to be one the enum defines. When no enum type is given, the attribute builds the rule against the decorated
+/// property's own type. An absent or empty value passes, so pair it with <see cref="RequiredAttribute"/> when the field is mandatory.
 /// </summary>
 ///
-/// <param name="enumType">The enum type to validate against. When omitted, the property type is used.</param>
+/// <param name="enumType">The enum type to validate against.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

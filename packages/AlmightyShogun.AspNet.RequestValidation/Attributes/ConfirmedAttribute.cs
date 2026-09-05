@@ -7,10 +7,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <c>Confirmation</c> appended, then for <c>Confirm</c> prefixed to it.
 /// </summary>
 ///
-/// <param name="field">
-/// The confirmation field name. When omitted, the validator tries the property name plus <c>Confirmation</c>, then <c>Confirm</c> plus the
-/// property name, and refuses the rule outright when the request declares neither.
-/// </param>
+/// <param name="field">The confirmation field name to compare against.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

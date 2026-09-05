@@ -3,8 +3,12 @@ using Microsoft.AspNetCore.Http;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Constrains an upload by its presence, its type, its extension, or the dimensions of the image it holds.
+/// Constrains an upload by its presence, its type, its extension, or the dimensions of the image it holds. An absent or empty value passes
+/// without being checked, and a single zero-length upload counts as empty, so even the uploaded mode lets one through.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, read as one upload or as several rather than constrained here.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

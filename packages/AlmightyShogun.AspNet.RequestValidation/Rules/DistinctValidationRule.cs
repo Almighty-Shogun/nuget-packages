@@ -1,8 +1,12 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires every entry of a collection to be unique.
+/// Requires every entry of a collection to be unique. An absent or empty value passes without being checked, so the rule never implies
+/// the field is required.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type; a non-empty value that is no readable collection fails.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

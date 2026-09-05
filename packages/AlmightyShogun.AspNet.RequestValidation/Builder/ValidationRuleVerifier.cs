@@ -25,8 +25,9 @@ internal static class ValidationRuleVerifier
     /// <param name="assemblies">The assemblies to scan for types carrying validation attributes.</param>
     ///
     /// <exception cref="InvalidOperationException">
-    /// A request type's rules could not be built. The message names the type and the failure that caused it is kept as the inner
-    /// exception.
+    /// A request type's rules could not be built. The message names the type, and the failure that caused it sits two levels down: the
+    /// inner exception is the <see cref="TargetInvocationException"/> raised by the factory's own reflective step, and its inner exception
+    /// is the failure itself.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>

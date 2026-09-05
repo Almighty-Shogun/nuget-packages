@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Http;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Reads the pixel dimensions of an uploaded image from its header alone, without decoding the picture. Only the four formats a browser
-/// will actually post from a file input are understood; anything else reports no dimensions rather than failing, so a dimension rule
-/// declines an unrecognized format instead of rejecting the upload outright.
+/// Reads the pixel dimensions of an uploaded image from its header alone, without decoding the picture. Only PNG, GIF, JPEG and WebP are
+/// understood; anything else reports no dimensions rather than failing, so a dimension rule declines an unrecognized format instead of
+/// rejecting the upload outright.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -32,8 +32,9 @@ internal static class ImageDimensionsReader
     private static readonly byte[] _pngSignature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
 
     /// <summary>
-    /// The JPEG markers that carry no length word, so the walk steps over them by two bytes instead of reading a segment size that is not
-    /// there.
+    /// The individually listed JPEG markers that carry no length word, so the walk steps over them by two bytes instead of reading a
+    /// segment size that is not there. Not the whole set: the restart markers carry none either and are matched as a range by
+    /// <see cref="IsStandaloneJpegMarker"/> instead.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -546,12 +547,13 @@ internal static class ImageDimensionsReader
     }
 
     /// <summary>
-    /// Checks for the lossless chunk marker and the signature byte that follows its header.
+    /// Checks for the signature byte a lossless chunk opens with, and for the length the dimensions packed behind it need. The chunk type
+    /// itself was matched by the caller and is not part of the span this receives.
     /// </summary>
     ///
     /// <param name="chunk">The chunk to read, positioned at its header so the dimensions sit at the offsets this form uses.</param>
     ///
-    /// <returns><c>true</c> when the chunk is VP8L; otherwise, <c>false</c>.</returns>
+    /// <returns><c>true</c> when the signature byte is present and the chunk is long enough; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -564,12 +566,13 @@ internal static class ImageDimensionsReader
     }
 
     /// <summary>
-    /// Checks for the lossy chunk marker and the three-byte start code that precedes its dimensions.
+    /// Checks for the three-byte start code that precedes a lossy chunk's dimensions, and for the length those dimensions need. The chunk
+    /// type itself was matched by the caller and is not part of the span this receives.
     /// </summary>
     ///
     /// <param name="chunk">The chunk to read, positioned at its header so the dimensions sit at the offsets this form uses.</param>
     ///
-    /// <returns><c>true</c> when the chunk is VP8; otherwise, <c>false</c>.</returns>
+    /// <returns><c>true</c> when the start code is present and the chunk is long enough; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

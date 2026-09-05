@@ -6,6 +6,9 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// Validates a controller action's bound arguments before the action runs. Registered globally, so no controller opts in individually.
 /// </summary>
 ///
+/// <param name="requestValidator">The validator each bound argument is offered to.</param>
+/// <param name="responseWriter">The writer that shapes the gathered failures into the result sent in the action's place.</param>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class RequestValidationFilter(
@@ -18,9 +21,9 @@ internal sealed class RequestValidationFilter(
     /// </summary>
     ///
     /// <param name="context">The action about to run, whose bound arguments are validated and whose result is replaced on failure.</param>
-    /// <param name="next">The next action filter delegate.</param>
+    /// <param name="next">The rest of the pipeline, invoked only when every argument passed.</param>
     ///
-    /// <returns>A task representing the asynchronous filter operation.</returns>
+    /// <returns>A task that completes once the action has run, or once a failing argument has replaced the result instead.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

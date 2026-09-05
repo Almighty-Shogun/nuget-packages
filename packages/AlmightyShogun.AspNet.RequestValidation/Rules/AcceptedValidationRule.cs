@@ -5,6 +5,9 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// catch.
 /// </summary>
 ///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, read as an object rather than constrained here.</typeparam>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class AcceptedValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty> where TRequest : class

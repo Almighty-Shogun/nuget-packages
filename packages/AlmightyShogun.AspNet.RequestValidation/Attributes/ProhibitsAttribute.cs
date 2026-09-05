@@ -3,11 +3,10 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Makes this field prohibit the listed fields from being present with a value. Use it for mutually exclusive request options. Presence
-/// rules run before value rules, so a field this rejects reports that rather than a later format or size failure.
+/// Makes this field prohibit the listed fields from being present with a value. Use it for mutually exclusive request options.
 /// </summary>
 ///
-/// <param name="fields">The request fields that are prohibited when this field is present.</param>
+/// <param name="fields">The request fields the rule reads alongside this one.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

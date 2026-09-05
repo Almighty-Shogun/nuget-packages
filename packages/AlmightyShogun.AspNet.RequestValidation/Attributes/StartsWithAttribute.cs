@@ -7,7 +7,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <see cref="RequiredAttribute"/> when the field is mandatory.
 /// </summary>
 ///
-/// <param name="values">The prefixes that may satisfy the rule.</param>
+/// <param name="values">The prefixes the text is checked against.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

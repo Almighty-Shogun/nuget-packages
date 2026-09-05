@@ -5,6 +5,20 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// expression.
 /// </summary>
 ///
+/// <typeparam name="TRequest">The request type the controlling field is read from.</typeparam>
+/// <param name="propertyName">
+/// Names the controlling property, resolved to a field once when the condition is built rather than on each request.
+/// </param>
+/// <param name="values">
+/// The values the controlling field is compared against by <see cref="Matches"/> , and the list <see cref="ValuesText"/> renders for the
+/// failure message. The truthiness checks ignore them entirely.
+/// </param>
+///
+/// <exception cref="InvalidOperationException">
+/// The named property is not a public instance property of the request type, matched by its declared name or its serialization name.
+/// Thrown as the condition is built, since the field is resolved then rather than per request.
+/// </exception>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class NamedValidationFieldCondition<TRequest>(string propertyName, IReadOnlyList<object?> values ) where TRequest : class

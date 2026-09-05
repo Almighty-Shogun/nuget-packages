@@ -2,8 +2,12 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
 /// Builds the rule set for one request property. Every method appends to the same property and returns the builder, so a chain reads as
-/// one statement and declaration order is what decides evaluation order within a priority band.
+/// one statement and declaration order is what decides evaluation order within a priority band. Most rules pass an absent or empty value
+/// rather than failing it, so pair them with <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the configured rules read from.</typeparam>
+/// <typeparam name="TProperty">The property's type, which decides what the rules are able to measure.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
@@ -36,10 +40,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     ///
     /// <param name="ruleSets">The rule sets that can validate the property.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

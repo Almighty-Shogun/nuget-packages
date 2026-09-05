@@ -4,6 +4,13 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// Defines a custom validation rule that can be resolved from dependency injection.
 /// </summary>
 ///
+/// <typeparam name="TRequest">
+/// The request type the rule reads. Contravariant, so a rule written against a base request type also serves the types deriving from it.
+/// </typeparam>
+/// <typeparam name="TProperty">
+/// The property type the rule checks. Contravariant, so a rule written against a wider property type also serves narrower ones.
+/// </typeparam>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 public interface ICustomValidationRule<in TRequest, in TProperty> where TRequest : class

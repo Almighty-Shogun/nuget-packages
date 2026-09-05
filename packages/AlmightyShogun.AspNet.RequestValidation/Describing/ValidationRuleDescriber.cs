@@ -76,8 +76,9 @@ internal sealed class ValidationRuleDescriber : IValidationRuleDescriber
     /// <param name="property">The property whose declared rules are wanted.</param>
     ///
     /// <returns>
-    /// One entry per validation attribute, nearest declaration first, so an override hides the base declaration of the same attribute
-    /// rather than being reported twice.
+    /// One entry per attribute type, nearest declaration first, so an override hides the base declaration of the same attribute rather
+    /// than being reported twice. The dedupe is by type across the whole walk, so a repeatable attribute written twice on one property
+    /// is described once while a rule is still built from each of the two instances.
     /// </returns>
     ///
     /// <remarks>

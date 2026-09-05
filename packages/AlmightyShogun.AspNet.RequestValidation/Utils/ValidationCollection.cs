@@ -113,8 +113,8 @@ internal static class ValidationCollection
     /// Renders keys as a comparable set of strings, so a numeric key and its written form match the way a payload would spell them.
     /// </summary>
     ///
-    /// <param name="values">The keys the payload must carry, matched against whatever the dictionary-like value holds.</param>
-    /// <param name="keys">The resolved key set.</param>
+    /// <param name="values">The keys the bound value itself holds, read off the dictionary by the two callers above.</param>
+    /// <param name="keys">Receives the rendered keys, compared ordinally so two spellings differing only in case stay two keys.</param>
     ///
     /// <returns><c>true</c>.</returns>
     ///
@@ -131,7 +131,7 @@ internal static class ValidationCollection
     /// Clears the output and reports failure in one expression, keeping the try-pattern methods above expression-bodied.
     /// </summary>
     ///
-    /// <param name="keys">The output keys.</param>
+    /// <param name="keys">Receives an empty set rather than <c>null</c> , so a caller that reads it anyway enumerates nothing.</param>
     ///
     /// <returns><c>false</c>.</returns>
     ///

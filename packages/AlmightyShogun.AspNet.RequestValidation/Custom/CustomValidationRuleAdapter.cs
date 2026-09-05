@@ -7,6 +7,12 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// invocation and activated from it when it is not registered there, so registration is optional and the rule may still take dependencies.
 /// </summary>
 ///
+/// <typeparam name="TRequest">
+/// The request type. Together with <typeparamref name="TProperty"/> it fixes the
+/// constructed <see cref="ICustomValidationRule{TRequest, TProperty}"/> the wrapped rule is required to implement.
+/// </typeparam>
+/// <typeparam name="TProperty">The property type the wrapped rule is handed the value of.</typeparam>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
@@ -63,6 +69,13 @@ internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValid
 /// <summary>
 /// Adapts a custom rule whose type is a compile-time argument, which is what the fluent builder produces.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type, passed to the base adapter unchanged.</typeparam>
+/// <typeparam name="TProperty">The property type, passed to the base adapter unchanged.</typeparam>
+/// <typeparam name="TRule">
+/// The rule type, handed to the base adapter as a <see cref="Type"/>, which is where it is checked against
+/// <see cref="ICustomValidationRule{TRequest, TProperty}"/> rather than by a constraint here.
+/// </typeparam>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

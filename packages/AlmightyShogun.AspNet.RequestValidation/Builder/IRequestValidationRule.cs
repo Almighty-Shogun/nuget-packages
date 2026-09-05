@@ -5,6 +5,8 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// ordering happen per field rather than per rule.
 /// </summary>
 ///
+/// <typeparam name="TRequest">The request type whose field this rule set validates.</typeparam>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal interface IRequestValidationRule<TRequest> where TRequest : class
@@ -32,7 +34,8 @@ internal interface IRequestValidationRule<TRequest> where TRequest : class
     bool TryMerge(IRequestValidationRule<TRequest> rule);
 
     /// <summary>
-    /// Drops rules that are identical to one already held, so the same constraint declared twice fails once.
+    /// Drops rules that are identical to one already held, so the same constraint declared twice fails once, and reorders what remains so
+    /// the presence band runs before the normal one.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -48,7 +51,10 @@ internal interface IRequestValidationRule<TRequest> where TRequest : class
     /// <param name="serviceProvider">The service provider used to resolve validation dependencies.</param>
     /// <param name="cancellationToken">The cancellation token for the validation operation.</param>
     ///
-    /// <returns>A value task representing the asynchronous validation operation.</returns>
+    /// <returns>
+    /// A task that completes once the field has been settled. Failures reach the caller through <paramref name="errors"/> rather than
+    /// through the result.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

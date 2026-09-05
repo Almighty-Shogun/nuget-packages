@@ -4,6 +4,9 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// One rule bound to one property. Rules are built once and reused across requests, so an implementation must hold no per-request state.
 /// </summary>
 ///
+/// <typeparam name="TRequest">The request type the rule reads from when it needs a field other than its own.</typeparam>
+/// <typeparam name="TProperty">The validated property's type, which is what the rule receives rather than the request.</typeparam>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal interface IPropertyValidationRule<in TRequest, in TProperty> where TRequest : class
@@ -28,7 +31,11 @@ internal interface IPropertyValidationRule<in TRequest, in TProperty> where TReq
     /// <param name="serviceProvider">The service provider used to resolve validation dependencies.</param>
     /// <param name="cancellationToken">The cancellation token for the validation operation.</param>
     ///
-    /// <returns>The validation rule result.</returns>
+    /// <returns>
+    /// The verdict for this rule. A failure stops the rules that would have followed it, and its <see cref="ValidationRuleResult.Key"/>
+    /// and <see cref="ValidationRuleResult.Parameters"/> are what the field reports, except inside a grouped alternative, which discards
+    /// them in favour of a single failure of its own.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

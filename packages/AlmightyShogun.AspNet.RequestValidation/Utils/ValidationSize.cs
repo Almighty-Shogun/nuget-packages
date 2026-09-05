@@ -79,7 +79,10 @@ internal static class ValidationSize
     ///
     /// <param name="value">The bound value to measure, accepted as text or as any numeric type.</param>
     /// <param name="size">The resolved comparable size.</param>
-    /// <param name="type">The resolved validation value type.</param>
+    /// <param name="type">
+    /// Receives <see cref="ValidationValueType.Numeric"/> when a number was read, and <see cref="ValidationValueType.String"/> when none
+    /// was, which is a fallback rather than a measurement and must not be reported as one.
+    /// </param>
     ///
     /// <returns><c>true</c> when the numeric size can be read; otherwise, <c>false</c>.</returns>
     ///

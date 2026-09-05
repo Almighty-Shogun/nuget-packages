@@ -1,8 +1,14 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Checks that a bound value is the shape the rule names. An absent or empty value passes, so it never implies the field is required.
+/// Checks that a bound value is the shape the rule names. An absent or empty value satisfies <see cref="TypeMode.Array"/> ,
+/// <see cref="TypeMode.List"/> and <see cref="TypeMode.File"/> , which short-circuit on it, while <see cref="TypeMode.String"/> and
+/// <see cref="TypeMode.Boolean"/> apply their own narrower notion instead, so an empty collection fails the string check.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, which does not decide the check: the value's runtime shape does.</typeparam>
+/// <param name="mode">Which shape the value must have, which also decides the message a failure reports.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

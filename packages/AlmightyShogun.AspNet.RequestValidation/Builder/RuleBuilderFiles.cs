@@ -10,14 +10,10 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
-    /// Requires the value to be an uploaded file. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be an uploaded file.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -29,14 +25,11 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the uploaded file to be present and non-empty. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires every uploaded file in a collection to be non-empty. A single file property is not covered: a zero-length one counts as an
+    /// absent value and passes.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -48,16 +41,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Allows only files with one of the provided file extensions. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Allows only files with one of the provided file extensions.
     /// </summary>
     ///
     /// <param name="extensions">The allowed file extensions.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -69,16 +58,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Allows only files matching the provided MIME extension aliases. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Allows only files matching the provided MIME extension aliases.
     /// </summary>
     ///
     /// <param name="mimes">The allowed MIME aliases or extensions.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -90,16 +75,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Allows only files with one of the provided MIME types. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Allows only files with one of the provided MIME types.
     /// </summary>
     ///
     /// <param name="mimeTypes">The allowed MIME types.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -111,14 +92,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the uploaded file to be an image. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the uploaded file to be an image.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -130,17 +107,13 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the uploaded image to match the exact width and height. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the uploaded image to match the exact width and height.
     /// </summary>
     ///
     /// <param name="width">The required image width.</param>
     /// <param name="height">The required image height.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -156,17 +129,13 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the uploaded image to be at least the provided width and height. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the uploaded image to be at least the provided width and height.
     /// </summary>
     ///
     /// <param name="width">The minimum image width.</param>
     /// <param name="height">The minimum image height.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -182,17 +151,13 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the uploaded image to be no larger than the provided width and height. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the uploaded image to be no larger than the provided width and height.
     /// </summary>
     ///
     /// <param name="width">The maximum image width.</param>
     /// <param name="height">The maximum image height.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

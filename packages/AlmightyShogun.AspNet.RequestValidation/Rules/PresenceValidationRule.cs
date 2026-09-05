@@ -5,6 +5,10 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// a later failure.
 /// </summary>
 ///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, read as an object and tested for presence alone.</typeparam>
+/// <param name="mode">Which presence test to apply, which also decides the message a failure reports.</param>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class PresenceValidationRule<TRequest, TProperty>(

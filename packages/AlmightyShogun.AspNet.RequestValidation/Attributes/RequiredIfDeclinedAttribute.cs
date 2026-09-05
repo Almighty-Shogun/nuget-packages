@@ -3,11 +3,10 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the field when another field contains a declined value such as <c>false</c> , <c>no</c> , <c>off</c> , or <c>0</c> . Presence
-/// rules run before value rules, so a field this rejects reports that rather than a later format or size failure.
+/// Requires the field when another field contains a declined value such as <c>false</c> , <c>no</c> , <c>off</c> , or <c>0</c> .
 /// </summary>
 ///
-/// <param name="field">The request field that triggers required validation when declined.</param>
+/// <param name="field">The request field the condition reads.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

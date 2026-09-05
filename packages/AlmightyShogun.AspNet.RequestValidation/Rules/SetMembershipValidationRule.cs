@@ -1,8 +1,12 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the value to be inside, or outside, a fixed set of values.
+/// Requires the value to be inside, or outside, a fixed set of values. An absent or empty value passes without being checked, so the rule
+/// never implies the field is required.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, which also types the set and decides the equality membership uses.</typeparam>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

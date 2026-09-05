@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.StaticFiles;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Reads uploads and checks their properties. A file property may be bound as one file or as several, so every helper accepts both and the
-/// rules above never branch on which.
+/// Reads uploads and checks their properties. A file property may be bound as one file or as several, which <see cref="TryGetFiles"/>
+/// reduces to a list before the single-file checks run, so the rules above never branch on which.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

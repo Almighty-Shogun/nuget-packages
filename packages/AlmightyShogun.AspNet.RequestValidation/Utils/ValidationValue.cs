@@ -32,7 +32,7 @@ internal static class ValidationValue
     private static readonly string[] _declinedTexts = ["no", "off", "0", "false"];
 
     /// <summary>
-    /// Checks whether a value is empty, which is what every value rule short-circuits on so it never implies the field is required.
+    /// Checks whether a value is empty, which covers more than absence: a value can be supplied and still be empty.
     /// </summary>
     ///
     /// <param name="value">
@@ -201,7 +201,7 @@ internal static class ValidationValue
     }
 
     /// <summary>
-    /// Checks whether a value is a boolean or parses as one. Absent and empty values pass, so the rule never implies the field is required.
+    /// Checks whether a value is a boolean or parses as one. Absent and empty values pass.
     /// </summary>
     ///
     /// <param name="value">
@@ -223,7 +223,7 @@ internal static class ValidationValue
     };
 
     /// <summary>
-    /// Checks whether a value is a whole number or parses as one. Absent and empty values pass, as with every type check here.
+    /// Checks whether a value is a whole number or parses as one. Absent and empty values pass.
     /// </summary>
     ///
     /// <param name="value">
@@ -248,8 +248,7 @@ internal static class ValidationValue
     };
 
     /// <summary>
-    /// Checks whether a value is a number or parses as one, integral or fractional. Absent and empty values pass, as with every type check
-    /// here, so the rule never implies the field is required.
+    /// Checks whether a value is a number or parses as one, integral or fractional. Absent and empty values pass.
     /// </summary>
     ///
     /// <param name="value">
@@ -385,7 +384,11 @@ internal static class ValidationValue
     /// <param name="value">The text value to inspect.</param>
     /// <param name="places">The resolved decimal place count.</param>
     ///
-    /// <returns><c>true</c> when the text parsed as a number; otherwise <c>false</c>.</returns>
+    /// <returns>
+    /// <c>true</c> when the text parsed as a number and every character after the <c>.</c> is an ASCII digit, which is a stricter test than
+    /// the parse alone: <c>NumberStyles.Number</c> allows trailing whitespace and a trailing sign, so <c>1.5 </c> and <c>1.50-</c> both
+    /// parse and both report <c>false</c> here. Text carrying no <c>.</c> at all reports <c>true</c> with a count of zero.
+    /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -516,6 +519,7 @@ internal static class ValidationValue
     /// statement body just to assign a default.
     /// </summary>
     ///
+    /// <typeparam name="T">The output's type, whose default is what a failed read hands back.</typeparam>
     /// <param name="value">Receives the default for its type, so a failed read leaves nothing a caller could mistake for a result.</param>
     ///
     /// <returns><c>false</c>.</returns>

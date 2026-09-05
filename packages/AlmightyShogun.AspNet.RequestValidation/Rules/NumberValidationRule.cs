@@ -1,8 +1,17 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Checks that a value is numeric, integral, of a given scale, or a multiple of something.
+/// Checks that a value is numeric, integral, of a given scale, or a multiple of something. An absent or empty value passes without being
+/// checked, so the rule never implies the field is required.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, read as an object rather than constrained here.</typeparam>
+/// <param name="mode">Which numeric check to perform, which also decides the message a failure reports.</param>
+/// <param name="value">
+/// The bound the check compares against: the decimal place count for <see cref="NumberMode.DecimalPlaces"/> and the divisor for
+/// <see cref="NumberMode.MultipleOf"/> . Neither of the other two modes reads it.
+/// </param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

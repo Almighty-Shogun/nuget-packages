@@ -3,8 +3,16 @@ using System.Globalization;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the value to be one the enum actually defines, which a cast alone would not guarantee.
+/// Requires the value to be one the enum actually defines, which a cast alone would not guarantee. An absent or empty value passes
+/// without being checked, so the rule never implies the field is required.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, which does not decide the enum checked against.</typeparam>
+/// <param name="enumType">
+/// The enum whose defined values the value must be one of. A type that is not an enum is not refused here; it fails every non-empty value
+/// instead.
+/// </param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

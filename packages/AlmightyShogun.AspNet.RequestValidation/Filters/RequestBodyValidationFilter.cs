@@ -31,7 +31,8 @@ internal sealed class RequestBodyValidationFilter(
 ) : IAsyncResourceFilter, IOrderedFilter
 {
     /// <summary>
-    /// Runs this filter before any other resource filter, so an unreadable body is refused before anything else inspects the request.
+    /// The ordering value that puts this filter ahead of every other resource filter, so an unreadable body is refused before
+    /// anything else inspects the request.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

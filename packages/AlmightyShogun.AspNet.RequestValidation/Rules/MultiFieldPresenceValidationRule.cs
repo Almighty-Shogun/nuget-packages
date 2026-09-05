@@ -3,8 +3,24 @@ using System.Linq.Expressions;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Applies a presence requirement to this field based on whether several other fields are present or missing.
+/// Applies a presence requirement to this field based on whether several other fields are present or missing. An empty value is not
+/// skipped: it is what the target mode tests once the trigger has fired.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on and reads the watched fields from.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, read as an object and tested for presence or emptiness alone.</typeparam>
+/// <param name="targetMode">
+/// What this field must be once the trigger fires, which also decides whether a watched field counts as present or as non-empty.
+/// </param>
+/// <param name="triggerMode">Which arrangement of the watched fields makes the requirement apply.</param>
+/// <param name="compareExpressions">
+/// Point at the watched fields, resolved once when the rule is built. An empty set passes every value under every trigger.
+/// </param>
+///
+/// <exception cref="ArgumentOutOfRangeException">
+/// One of <paramref name="compareExpressions"/> is not a property read directly off the request. Thrown as the rule is built rather than
+/// when a request arrives.
+/// </exception>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
@@ -101,8 +117,9 @@ internal sealed class MultiFieldPresenceValidationRule<TRequest, TProperty>(
         : ValidationValue.IsPresent(value);
 
     /// <summary>
-    /// Reports whether the trigger needs every watched field rather than any one of them, which is what decides whether an empty field
-    /// list passes trivially.
+    /// Reports whether the trigger needs every watched field rather than any one of them, which decides whether the explicit guard is
+    /// needed. An empty field list passes under every trigger; the <c>All</c> ones are the only ones that would be vacuously satisfied and
+    /// make the rule apply, so they are the only ones guarded.
     /// </summary>
     ///
     /// <returns><c>true</c> for the <c>WithAll</c> and <c>WithoutAll</c> triggers; otherwise, <c>false</c>.</returns>

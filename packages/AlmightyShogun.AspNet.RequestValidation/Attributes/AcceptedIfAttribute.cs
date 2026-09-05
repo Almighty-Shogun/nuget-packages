@@ -7,8 +7,8 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// absent or empty value fails: the requirement is not skipped for a field that was left out.
 /// </summary>
 ///
-/// <param name="field">The request field that controls whether this field must be accepted.</param>
-/// <param name="values">The values that trigger accepted validation.</param>
+/// <param name="field">The request field the condition reads.</param>
+/// <param name="values">The values the controlling field is matched against.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

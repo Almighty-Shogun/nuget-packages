@@ -33,6 +33,10 @@ public static class ValidationExtensions
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the validation services registered.</returns>
         ///
+        /// <exception cref="InvalidOperationException">
+        /// The calling assembly declares two validators for one request type, or a validator with no public parameterless constructor.
+        /// </exception>
+        ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
         public IServiceCollection AddAspNetValidation() => serviceCollection.AddAspNetValidation([Assembly.GetCallingAssembly()]);
@@ -110,7 +114,7 @@ public static class ValidationExtensions
         /// Adds the middleware that answers an unreadable request body with the standardized error shape.
         /// </summary>
         ///
-        /// <returns>The application builder so additional middleware can be chained.</returns>
+        /// <returns>The <see cref="IApplicationBuilder"/> instance with the invalid-body middleware added.</returns>
         ///
         /// <remarks>
         /// Rule failures never reach it, since the filters answer those before an action runs. Call it early, ahead of routing, so a body
@@ -136,7 +140,7 @@ public static class ValidationExtensions
         /// Validates one minimal API endpoint's arguments. Controllers need no equivalent, since the MVC filters are registered globally.
         /// </summary>
         ///
-        /// <returns>The route handler builder.</returns>
+        /// <returns>The <see cref="RouteHandlerBuilder"/> instance with the validation endpoint filter added.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>
@@ -157,7 +161,7 @@ public static class ValidationExtensions
         /// Validates every endpoint in a group, which is usually preferable to repeating the per-endpoint call.
         /// </summary>
         ///
-        /// <returns>The route group builder.</returns>
+        /// <returns>The <see cref="RouteGroupBuilder"/> instance with the validation endpoint filter added.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>Unreleased</since>

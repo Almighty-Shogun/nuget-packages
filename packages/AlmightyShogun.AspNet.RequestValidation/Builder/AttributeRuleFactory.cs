@@ -12,8 +12,8 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal static class AttributeRuleFactory
 {
     /// <summary>
-    /// Reports whether a type declares any rules at all, so a request with none skips rule building entirely rather than building an empty
-    /// set.
+    /// Reports whether a type declares any validation attributes on its public instance properties. A fluent validator counts for
+    /// nothing here, so <see cref="ValidationRuleCache.HasRules"/> also asks the registry before deciding a request has no rules.
     /// </summary>
     ///
     /// <param name="requestType">The request type to inspect.</param>
@@ -29,7 +29,9 @@ internal static class AttributeRuleFactory
     /// Builds one rule per attributed property, skipping properties that declare nothing.
     /// </summary>
     ///
-    /// <returns>The validation rules created from request attributes.</returns>
+    /// <typeparam name="TRequest">The request type whose declared attributes are read.</typeparam>
+    ///
+    /// <returns>One rule per property carrying at least one validation attribute, empty when the type carries none.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -47,10 +49,11 @@ internal static class AttributeRuleFactory
     /// constructed generic method rather than called directly.
     /// </summary>
     ///
+    /// <typeparam name="TRequest">The request type the built rule reads the property from.</typeparam>
     /// <param name="property">The attributed property.</param>
     /// <param name="attributes">The attributes declared on the property, including any inherited from a base declaration.</param>
     ///
-    /// <returns>The request validation rule for the property.</returns>
+    /// <returns>The property's rule, already holding one rule per declared attribute.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -66,6 +69,8 @@ internal static class AttributeRuleFactory
     /// Builds the typed rule once the property's type is known, which is the generic method the reflective step above invokes.
     /// </summary>
     ///
+    /// <typeparam name="TRequest">The request type the built rule reads the property from.</typeparam>
+    /// <typeparam name="TProperty">The property's own type, supplied at runtime by the reflective step above.</typeparam>
     /// <param name="property">The attributed property.</param>
     /// <param name="attributes">The attributes declared on the property, including any inherited from a base declaration.</param>
     ///

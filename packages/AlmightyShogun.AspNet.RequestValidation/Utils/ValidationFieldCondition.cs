@@ -6,6 +6,22 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// A condition on another field, addressed by expression, which is the fluent counterpart of the named condition.
 /// </summary>
 ///
+/// <typeparam name="TRequest">The request type the controlling field is read from.</typeparam>
+/// <typeparam name="TCompare">The controlling field's type, which the configured values are declared as.</typeparam>
+/// <param name="expression">
+/// Points at the controlling property, compiled to a reader once when the condition is built rather than on each request.
+/// </param>
+/// <param name="values">
+/// The values the controlling field is compared against by <see cref="Matches"/> , and the list <see cref="ValuesText"/> renders for the
+/// failure message. The truthiness checks ignore them entirely.
+/// </param>
+///
+/// <exception cref="ArgumentOutOfRangeException">
+/// The expression does not reduce to a property read directly off the request, on the terms
+/// <see cref="ValidationExpression.GetProperty"/> sets. Thrown as the condition is built, since the field is resolved then rather than
+/// per request.
+/// </exception>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class ValidationFieldCondition<TRequest, TCompare>(

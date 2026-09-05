@@ -12,14 +12,10 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
-    /// Requires the value to be a date or date/time value that can be parsed. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be a date or date/time value that can be parsed.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -31,18 +27,18 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be a date string matching the exact configured format. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be a date string matching the exact configured format.
     /// </summary>
     ///
     /// <param name="format">
     /// The one format the value must match, so a date written any other way fails even when it names a real instant.
     /// </param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentException">
+    /// <paramref name="format"/> is empty or whitespace. Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -54,16 +50,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be after a literal date or another request field. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be after the provided date.
     /// </summary>
     ///
     /// <param name="date">The fixed date to compare against, decided when the rule was written rather than per request.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -75,16 +67,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be after a literal date or another request field. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be after the provided date.
     /// </summary>
     ///
     /// <param name="date">The fixed date to compare against, decided when the rule was written rather than per request.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -96,8 +84,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be after a literal date or another request field. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be after the date another request field holds.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -106,10 +93,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </typeparam>
     /// <param name="compareExpression">Points at the field holding the date to compare against, so the bound varies per request.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -124,16 +113,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be after or equal to a literal date or another request field. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be after or equal to the provided date.
     /// </summary>
     ///
     /// <param name="date">The fixed date to compare against, decided when the rule was written rather than per request.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -145,16 +130,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be after or equal to a literal date or another request field. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be after or equal to the provided date.
     /// </summary>
     ///
     /// <param name="date">The fixed date to compare against, decided when the rule was written rather than per request.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -166,8 +147,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be after or equal to a literal date or another request field. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be after or equal to the date another request field holds.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -176,10 +156,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </typeparam>
     /// <param name="compareExpression">Points at the field holding the date to compare against, so the bound varies per request.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -194,16 +176,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be before a literal date or another request field. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be before the provided date.
     /// </summary>
     ///
     /// <param name="date">The fixed date to compare against, decided when the rule was written rather than per request.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -215,16 +193,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be before a literal date or another request field. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be before the provided date.
     /// </summary>
     ///
     /// <param name="date">The fixed date to compare against, decided when the rule was written rather than per request.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -236,8 +210,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be before a literal date or another request field. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be before the date another request field holds.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -246,10 +219,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </typeparam>
     /// <param name="compareExpression">Points at the field holding the date to compare against, so the bound varies per request.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -264,16 +239,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be before or equal to a literal date or another request field. An absent or empty value passes, so pair it
-    /// with <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be before or equal to the provided date.
     /// </summary>
     ///
     /// <param name="date">The fixed date to compare against, decided when the rule was written rather than per request.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -285,16 +256,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be before or equal to a literal date or another request field. An absent or empty value passes, so pair it
-    /// with <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be before or equal to the provided date.
     /// </summary>
     ///
     /// <param name="date">The fixed date to compare against, decided when the rule was written rather than per request.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -306,8 +273,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be before or equal to a literal date or another request field. An absent or empty value passes, so pair it
-    /// with <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be before or equal to the date another request field holds.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -316,10 +282,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </typeparam>
     /// <param name="compareExpression">Points at the field holding the date to compare against, so the bound varies per request.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -334,16 +302,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to equal a literal date or another request field. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to equal the provided date.
     /// </summary>
     ///
     /// <param name="date">The fixed date to compare against, decided when the rule was written rather than per request.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -355,16 +319,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to equal a literal date or another request field. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to equal the provided date.
     /// </summary>
     ///
     /// <param name="date">The fixed date to compare against, decided when the rule was written rather than per request.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -376,8 +336,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to equal a literal date or another request field. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to equal the date another request field holds.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -386,10 +345,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </typeparam>
     /// <param name="compareExpression">Points at the field holding the date to compare against, so the bound varies per request.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -404,14 +365,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the value to be a valid time zone identifier. An absent or empty value passes, so pair it with
-    /// <see cref="RuleBuilder{TRequest,TProperty}.Required"/> when the field is mandatory.
+    /// Requires the value to be a valid time zone identifier.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

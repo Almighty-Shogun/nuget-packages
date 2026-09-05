@@ -3,11 +3,10 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the field to be present when any listed field is present. Presence rules run before value rules, so a field this rejects
-/// reports that rather than a later format or size failure.
+/// Requires the field to be present when any listed field is present.
 /// </summary>
 ///
-/// <param name="fields">The request fields that trigger present validation when any are present.</param>
+/// <param name="fields">The request fields the trigger is evaluated against.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

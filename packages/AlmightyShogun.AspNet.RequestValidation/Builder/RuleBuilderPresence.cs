@@ -13,14 +13,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
 {
     /// <summary>
     /// Requires the field to be present and contain a non-empty value. It fails for missing values, <c>null</c> , empty text, empty
-    /// collections, and empty uploaded files. Presence rules run before value rules, so a field this rejects reports that rather than a
-    /// later format or size failure.
+    /// collections, and empty uploaded files.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -32,8 +28,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field when another field equals one of the provided values. Presence rules run before value rules, so a field this
-    /// rejects reports that rather than a later format or size failure.
+    /// Requires the field when another field equals one of the provided values.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -43,10 +38,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that trigger the requirement.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -66,8 +63,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field unless another field equals one of the provided values. Presence rules run before value rules, so a field this
-    /// rejects reports that rather than a later format or size failure.
+    /// Requires the field unless another field equals one of the provided values.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -77,10 +73,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that skip the requirement.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -101,7 +99,6 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
 
     /// <summary>
     /// Requires the field when another field contains an accepted value such as <c>true</c> , <c>yes</c> , <c>on</c> , or <c>1</c> .
-    /// Presence rules run before value rules, so a field this rejects reports that rather than a later format or size failure.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -110,10 +107,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </typeparam>
     /// <param name="compareExpression">Points at the field whose truthiness decides whether this rule applies.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -130,7 +129,6 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
 
     /// <summary>
     /// Requires the field when another field contains a declined value such as <c>false</c> , <c>no</c> , <c>off</c> , or <c>0</c> .
-    /// Presence rules run before value rules, so a field this rejects reports that rather than a later format or size failure.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -139,10 +137,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </typeparam>
     /// <param name="compareExpression">Points at the field whose falseness decides whether this rule applies.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -158,16 +158,17 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field when any listed field is present. Presence rules run before value rules, so a field this rejects reports that
-    /// rather than a later format or size failure.
+    /// Requires the field when any listed field is present.
     /// </summary>
     ///
     /// <param name="compareExpressions">Point at the fields watched for presence, all of which the trigger is evaluated against.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// One of <paramref name="compareExpressions"/> is not a property read directly off the request, such as a nested read or a method
+    /// call. Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -183,16 +184,17 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field when all listed fields are present. Presence rules run before value rules, so a field this rejects reports that
-    /// rather than a later format or size failure.
+    /// Requires the field when all listed fields are present.
     /// </summary>
     ///
     /// <param name="compareExpressions">Point at the fields watched for presence, all of which the trigger is evaluated against.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// One of <paramref name="compareExpressions"/> is not a property read directly off the request, such as a nested read or a method
+    /// call. Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -208,16 +210,17 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field when any listed field is missing. Presence rules run before value rules, so a field this rejects reports that
-    /// rather than a later format or size failure.
+    /// Requires the field when any listed field is missing.
     /// </summary>
     ///
     /// <param name="compareExpressions">Point at the fields watched for presence, all of which the trigger is evaluated against.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// One of <paramref name="compareExpressions"/> is not a property read directly off the request, such as a nested read or a method
+    /// call. Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -233,16 +236,17 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field when all listed fields are missing. Presence rules run before value rules, so a field this rejects reports that
-    /// rather than a later format or size failure.
+    /// Requires the field when all listed fields are missing.
     /// </summary>
     ///
     /// <param name="compareExpressions">Point at the fields watched for presence, all of which the trigger is evaluated against.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// One of <paramref name="compareExpressions"/> is not a property read directly off the request, such as a nested read or a method
+    /// call. Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -259,13 +263,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
 
     /// <summary>
     /// Requires the field to contain a value when the client sends it. Missing values are allowed, but present empty values fail
-    /// validation. Presence rules run before value rules, so a field this rejects reports that rather than a later format or size failure.
+    /// validation.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -278,14 +279,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
 
     /// <summary>
     /// Requires the field to exist in the request even when the value is allowed to be empty. Use it when the API must distinguish omitted
-    /// fields from explicitly provided empty values. Presence rules run before value rules, so a field this rejects reports that rather
-    /// than a later format or size failure.
+    /// fields from explicitly provided empty values.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -298,8 +295,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
 
     /// <summary>
     /// Requires the field to be present when another field equals one of the provided values. The field may still be empty unless another
-    /// rule rejects empty values. Presence rules run before value rules, so a field this rejects reports that rather than a later format or
-    /// size failure.
+    /// rule rejects empty values.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -309,10 +305,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that trigger presence.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -332,8 +330,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field to be present unless another field equals one of the provided values. Presence rules run before value rules, so a
-    /// field this rejects reports that rather than a later format or size failure.
+    /// Requires the field to be present unless another field equals one of the provided values.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -343,10 +340,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that skip presence.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -366,16 +365,17 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field to be present when any listed field is present. Presence rules run before value rules, so a field this rejects
-    /// reports that rather than a later format or size failure.
+    /// Requires the field to be present when any listed field is present.
     /// </summary>
     ///
     /// <param name="compareExpressions">Point at the fields watched for presence, all of which the trigger is evaluated against.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// One of <paramref name="compareExpressions"/> is not a property read directly off the request, such as a nested read or a method
+    /// call. Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -391,16 +391,17 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field to be present when all listed fields are present. Presence rules run before value rules, so a field this rejects
-    /// reports that rather than a later format or size failure.
+    /// Requires the field to be present when all listed fields are present.
     /// </summary>
     ///
     /// <param name="compareExpressions">Point at the fields watched for presence, all of which the trigger is evaluated against.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// One of <paramref name="compareExpressions"/> is not a property read directly off the request, such as a nested read or a method
+    /// call. Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -416,14 +417,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field to be absent from the request. Use it for server-controlled values that clients must never send. Presence rules
-    /// run before value rules, so a field this rejects reports that rather than a later format or size failure.
+    /// Requires the field to be absent from the request. Use it for server-controlled values that clients must never send.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -435,8 +432,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field to be missing when another field equals one of the provided values. Presence rules run before value rules, so a
-    /// field this rejects reports that rather than a later format or size failure.
+    /// Requires the field to be missing when another field equals one of the provided values.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -446,10 +442,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that trigger missing validation.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -469,8 +467,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field to be missing unless another field equals one of the provided values. Presence rules run before value rules, so a
-    /// field this rejects reports that rather than a later format or size failure.
+    /// Requires the field to be missing unless another field equals one of the provided values.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -480,10 +477,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that skip missing validation.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -503,16 +502,17 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field to be missing when any listed field is present. Presence rules run before value rules, so a field this rejects
-    /// reports that rather than a later format or size failure.
+    /// Requires the field to be missing when any listed field is present.
     /// </summary>
     ///
     /// <param name="compareExpressions">Point at the fields watched for presence, all of which the trigger is evaluated against.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// One of <paramref name="compareExpressions"/> is not a property read directly off the request, such as a nested read or a method
+    /// call. Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -528,16 +528,17 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field to be missing when all listed fields are present. Presence rules run before value rules, so a field this rejects
-    /// reports that rather than a later format or size failure.
+    /// Requires the field to be missing when all listed fields are present.
     /// </summary>
     ///
     /// <param name="compareExpressions">Point at the fields watched for presence, all of which the trigger is evaluated against.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// One of <paramref name="compareExpressions"/> is not a property read directly off the request, such as a nested read or a method
+    /// call. Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -553,14 +554,10 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Rejects the field when the client sends it with a non-empty value. Empty or missing values are allowed. Presence rules run before
-    /// value rules, so a field this rejects reports that rather than a later format or size failure.
+    /// Rejects the field when the client sends it with a non-empty value. Empty or missing values are allowed.
     /// </summary>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -572,8 +569,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Prohibits the field when another field equals one of the provided values. Presence rules run before value rules, so a field this
-    /// rejects reports that rather than a later format or size failure.
+    /// Prohibits the field when another field equals one of the provided values.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -583,10 +579,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that trigger prohibition.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -606,8 +604,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Prohibits the field unless another field equals one of the provided values. Presence rules run before value rules, so a field this
-    /// rejects reports that rather than a later format or size failure.
+    /// Prohibits the field unless another field equals one of the provided values.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -617,10 +614,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// <param name="compareExpression">Points at the field whose value decides whether this rule applies at all.</param>
     /// <param name="values">The values that skip prohibition.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -640,8 +639,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Prohibits the field when another field contains an accepted value. Presence rules run before value rules, so a field this rejects
-    /// reports that rather than a later format or size failure.
+    /// Prohibits the field when another field contains an accepted value.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -650,10 +648,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </typeparam>
     /// <param name="compareExpression">Points at the field whose truthiness decides whether this rule applies.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -669,8 +669,7 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Prohibits the field when another field contains a declined value. Presence rules run before value rules, so a field this rejects
-    /// reports that rather than a later format or size failure.
+    /// Prohibits the field when another field contains a declined value.
     /// </summary>
     ///
     /// <typeparam name="TCompare">
@@ -679,10 +678,12 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </typeparam>
     /// <param name="compareExpression">Points at the field whose falseness decides whether this rule applies.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="compareExpression"/> is not a property read directly off the request, such as a nested read or a method call.
+    /// Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -698,16 +699,17 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Makes this field prohibit the listed fields from being present with a value. Use it for mutually exclusive request options. Presence
-    /// rules run before value rules, so a field this rejects reports that rather than a later format or size failure.
+    /// Makes this field prohibit the listed fields from being present with a value. Use it for mutually exclusive request options.
     /// </summary>
     ///
     /// <param name="compareExpressions">Point at the fields watched for presence, all of which the trigger is evaluated against.</param>
     ///
-    /// <returns>
-    /// The same builder, so rules chain. Order of declaration is preserved, which is what lets a presence rule run before the value rules
-    /// that follow it.
-    /// </returns>
+    /// <returns>The same builder, so rules chain.</returns>
+    ///
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// One of <paramref name="compareExpressions"/> is not a property read directly off the request, such as a nested read or a method
+    /// call. Thrown as the rule is built rather than when a request arrives.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

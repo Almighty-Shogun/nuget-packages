@@ -2,7 +2,19 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
 /// The attribute form of the state-conditional rule, reading its controlling field by name because an attribute cannot hold an expression.
+/// An empty value is not skipped: once the controlling field matches, emptiness is exactly what the requirement tests.
 /// </summary>
+///
+/// <typeparam name="TRequest">The request type the rule is declared on and reads the controlling field from.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, read as an object and tested only for emptiness.</typeparam>
+/// <param name="targetMode">Whether the matched condition requires this field or prohibits it.</param>
+/// <param name="stateMode">Which reading of the controlling field, accepted or declined, makes the requirement apply.</param>
+/// <param name="comparePropertyName">Names the controlling field, resolved once when the rule is built.</param>
+///
+/// <exception cref="InvalidOperationException">
+/// <paramref name="comparePropertyName"/> names no public instance property on the request type. Thrown as the rule is built rather than
+/// when a request arrives.
+/// </exception>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

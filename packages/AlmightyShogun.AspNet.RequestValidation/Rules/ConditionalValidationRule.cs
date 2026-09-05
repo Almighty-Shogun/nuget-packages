@@ -6,6 +6,21 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// Applies a presence requirement to this field only when a controlling field equals one of the configured values.
 /// </summary>
 ///
+/// <typeparam name="TRequest">The request type the rule is declared on and reads the controlling field from.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, read as an object and tested against the target mode.</typeparam>
+/// <typeparam name="TCompare">The controlling field's type, which also types the values it is matched against.</typeparam>
+/// <param name="targetMode">
+/// What this field must be once the condition holds: required, present, missing, prohibited, accepted, or declined.
+/// </param>
+/// <param name="conditionMode">Whether the requirement applies when the condition matches or when it does not.</param>
+/// <param name="compareExpression">Points at the controlling field, resolved once when the rule is built.</param>
+/// <param name="values">The values the controlling field is compared against, matched as objects.</param>
+///
+/// <exception cref="ArgumentOutOfRangeException">
+/// <paramref name="compareExpression"/> is not a property read directly off the request. Thrown as the rule is built rather than when a
+/// request arrives.
+/// </exception>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class ConditionalValidationRule<TRequest, TProperty, TCompare>(

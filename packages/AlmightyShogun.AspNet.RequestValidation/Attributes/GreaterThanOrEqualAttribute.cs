@@ -3,7 +3,7 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the value to be greater than or equal to the provided number. An absent or empty value passes, so pair it with
+/// Requires the field to measure at or above the provided number. An absent or empty value passes, so pair it with
 /// <see cref="RequiredAttribute"/> when the field is mandatory.
 /// </summary>
 ///

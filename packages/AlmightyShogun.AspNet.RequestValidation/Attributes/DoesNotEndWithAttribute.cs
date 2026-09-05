@@ -3,11 +3,11 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Rejects text that ends with one of the provided suffixes. An absent or empty value passes, so pair it with
+/// Requires the text value to end with none of the provided suffixes. An absent or empty value passes, so pair it with
 /// <see cref="RequiredAttribute"/> when the field is mandatory.
 /// </summary>
 ///
-/// <param name="values">The suffixes that the value must not end with.</param>
+/// <param name="values">The suffixes the text is checked against.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>

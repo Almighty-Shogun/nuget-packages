@@ -6,6 +6,9 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// Validates a minimal API endpoint's bound arguments before the handler runs, which is the endpoint-filter counterpart of the MVC filter.
 /// </summary>
 ///
+/// <param name="requestValidator">The validator each bound argument is offered to.</param>
+/// <param name="responseWriter">The writer that shapes the gathered failures into the body returned in the handler's place.</param>
+///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
 internal sealed class EndpointValidationFilter(

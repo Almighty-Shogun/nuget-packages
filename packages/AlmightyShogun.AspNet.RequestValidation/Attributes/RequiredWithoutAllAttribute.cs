@@ -3,11 +3,11 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the field when all listed fields are missing. Presence rules run before value rules, so a field this rejects reports that
-/// rather than a later format or size failure.
+/// Requires the field when every listed field is empty. A field posted blank, as an empty collection, or as a zero-length upload counts
+/// as empty here, not only one left out of the request.
 /// </summary>
 ///
-/// <param name="fields">The request fields that trigger required validation when all are missing.</param>
+/// <param name="fields">The request fields the trigger is evaluated against.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>Unreleased</since>
