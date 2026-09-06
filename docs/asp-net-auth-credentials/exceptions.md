@@ -9,6 +9,7 @@ Every exception the package throws is a plain exception carrying no message of i
 | `InvalidTwoFactorCodeException` | `401` | `invalid_two_factor_code` |
 | `AccountDisabledException` | `403` | `account_disabled` |
 | `InvalidPasswordResetTokenException` | `410` | `invalid_password_reset_token` |
+| `InvalidEmailVerificationTokenException` | `410` | `invalid_email_verification_token` |
 | `PasswordMismatchException` | `422` | `password_mismatch` |
 | `PasswordReusedException` | `422` | `password_reused` |
 | `UsernameTakenException` | `422` | `username_taken` |
@@ -77,6 +78,18 @@ Thrown when a reset token is unknown, already used, or expired. `410` rather tha
 public sealed class InvalidPasswordResetTokenException : Exception;
 ```
 
+## InvalidEmailVerificationTokenException
+
+Thrown when a verification token is unknown, already spent, expired, issued for the other purpose, or a registration token naming an address the account no longer holds. `410` rather than `404`, because the resource existed and is gone.
+
+All five causes answer identically, so the endpoint cannot be used to learn which tokens once existed, which flow one belongs to, or what address the account is on. A token a concurrent request spends first answers as an already spent one, since redemption claims the row with a guarded update rather than on the strength of the read that found it.
+
+### Type signature
+
+```csharp
+public sealed class InvalidEmailVerificationTokenException : Exception;
+```
+
 ## InvalidTwoFactorCodeException
 
 Thrown when completing enrolment with a wrong code, and when a user with no enrolment at all is asked to verify one. [`VerifyAsync`](./services/auth-two-factor-service#verifyasync) returns `false` instead of throwing, because a wrong code during sign-in is an ordinary outcome.
@@ -120,6 +133,8 @@ public sealed class UsernameTakenException : Exception;
 ## EmailTakenException
 
 Thrown by [`CreateUserAsync`](./services/auth-user-service#createuserasync) and [`RegisterAsync`](./services/auth-user-service#registerasync) when another account already holds the email address, compared under the database's collation.
+
+Also thrown by [`RequestEmailChangeAsync`](./services/auth-email-service#requestemailchangeasync) and again by [`CompleteEmailChangeAsync`](./services/auth-email-service#completeemailchangeasync), since the check made when the change was requested cannot hold the address until it is redeemed.
 
 ### Type signature
 

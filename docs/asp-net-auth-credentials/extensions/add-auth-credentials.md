@@ -14,7 +14,7 @@ returns: The `IServiceCollection` instance with the credential authentication se
 
 # AddAuthCredentials
 
-Registers [`IAuthUserService<TUser>`](../services/auth-user-service), [`IAuthSessionService<TUser>`](../services/auth-session-service), [`IAuthPasswordService`](../services/auth-password-service), and [`IAuthTwoFactorService<TUser>`](../services/auth-two-factor-service) as scoped services, alongside an [`AuthDbContext<TUser>`](../types/auth-db-context) resolving to the same `TDbContext` the request already holds, so a credential write joins whatever transaction the application has open.
+Registers [`IAuthUserService<TUser>`](../services/auth-user-service), [`IAuthSessionService<TUser>`](../services/auth-session-service), [`IAuthPasswordService`](../services/auth-password-service), [`IAuthEmailService`](../services/auth-email-service), and [`IAuthTwoFactorService<TUser>`](../services/auth-two-factor-service) as scoped services, alongside an [`AuthDbContext<TUser>`](../types/auth-db-context) resolving to the same `TDbContext` the request already holds, so credential data lives in the application's own database; every credential write then opens a transaction of its own on that context and throws `InvalidOperationException` when the application already has one open.
 
 Call it after [`AddAuth`](/asp-net-auth/extensions/add-auth). Credential flows read [`AuthSettings`](/asp-net-auth/configuration), resolve the current application through [`IAppHostResolver`](/asp-net-auth/services/app-host-resolver), and mint access tokens through the JWT package's generator, so the same issuer, secret, lifetime, and audience rules apply to both.
 

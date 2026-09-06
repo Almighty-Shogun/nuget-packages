@@ -16,7 +16,8 @@ Create `messages/{language}/auth.json` for every language the API should support
     "disabled": "This account has been deactivated.",
     "locked-out": "Too many failed attempts. Try again after {0}.",
     "username-taken": "This username is already in use.",
-    "email-taken": "This email address is already in use."
+    "email-taken": "This email address is already in use.",
+    "email-verification-token-invalid": "This verification link is invalid or has expired."
 }
 ```
 
@@ -28,7 +29,8 @@ Create `messages/{language}/auth.json` for every language the API should support
     "disabled": "Dit account is gedeactiveerd.",
     "locked-out": "Te veel mislukte pogingen. Probeer het opnieuw na {0}.",
     "username-taken": "Deze gebruikersnaam is al in gebruik.",
-    "email-taken": "Dit e-mailadres is al in gebruik."
+    "email-taken": "Dit e-mailadres is al in gebruik.",
+    "email-verification-token-invalid": "Deze verificatielink is ongeldig of verlopen."
 }
 ```
 
@@ -40,7 +42,8 @@ Create `messages/{language}/auth.json` for every language the API should support
     "disabled": "Ce compte a été désactivé.",
     "locked-out": "Trop de tentatives échouées. Réessayez après {0}.",
     "username-taken": "Ce nom d'utilisateur est déjà utilisé.",
-    "email-taken": "Cette adresse e-mail est déjà utilisée."
+    "email-taken": "Cette adresse e-mail est déjà utilisée.",
+    "email-verification-token-invalid": "Ce lien de vérification est invalide ou expiré."
 }
 ```
 

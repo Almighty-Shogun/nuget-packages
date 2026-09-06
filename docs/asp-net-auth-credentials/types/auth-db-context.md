@@ -1,6 +1,6 @@
 # AuthDbContext
 
-The EF Core base context the package queries through. An application derives its own context from `AuthDbContext<TUser>`, so credential data shares the application's provider, migrations, and transactions instead of living in a database of its own. Every entity names its own snake_case table, and `OnModelCreating` adds the cascades and the unique indexes on username, email, public identifier, and every token hash.
+The EF Core base context the package queries through. An application derives its own context from `AuthDbContext<TUser>`, so credential data shares the application's provider and migrations instead of living in a database of its own, though every credential write opens a transaction of its own on that context and throws `InvalidOperationException` when one is already open. Every entity names its own snake_case table, and `OnModelCreating` adds the cascades and the unique indexes on username, email, public identifier, and every token hash.
 
 ## Usage
 
@@ -98,18 +98,17 @@ public DbSet<PasswordResetToken> PasswordResetTokens { get; }
 
 ## EmailVerificationTokens
 
-The issued email verifications in `email_verification_tokens`. The table is mapped and cascades with the user, but no package service writes to it; issuing and redeeming one is the application's own flow.
+The issued email verifications in `email_verification_tokens`, written and spent by [`IAuthEmailService`](../services/auth-email-service). A row is marked used rather than deleted, whether it is redeemed, retired by a later request of the same purpose, or retired as a registration link when a change of email is completed, so a cleanup job is what eventually removes them. Those stamps are written by an update statement that bypasses the change tracker, so the row in the database carries the new `UsedAt` while an `EmailVerificationToken` you loaded beforehand keeps the one it was read with. Requests made one after another leave one unspent row per user per purpose; two arriving at once can leave more, since no index enforces the limit.
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.Auth.Credentials;
 
-string hash = TokenHasher.Hash(token);
+DateTimeOffset cutoff = DateTimeOffset.UtcNow.AddDays(-30);
 
-EmailVerificationToken? verification = await database
-    .EmailVerificationTokens
-    .Where(stored => stored.UsedAt == null)
-    .FirstOrDefaultAsync(stored => stored.TokenHash == hash);
+int removed = await database.EmailVerificationTokens
+    .Where(token => token.ExpiresAt < cutoff)
+    .ExecuteDeleteAsync();
 ```
 
 ### Type signature

@@ -13,8 +13,13 @@ fields:
       type: string
 
     - name: Email
-      description: The address, uniquely indexed. Also what the forgot-password flow matches against.
+      description: The address, uniquely indexed, and what the forgot-password flow matches against. Writing it on a user whose `EmailVerifiedAt` already carries a value leaves that timestamp describing an address nobody confirmed, so move a verified address through [`CompleteEmailChangeAsync`](../services/auth-email-service#completeemailchangeasync) or clear the timestamp in the same save. Setting it on a user who has never verified one, as creating an account does, needs neither.
       type: string
+
+    - name: EmailVerifiedAt
+      description: "When the address was last proved by redeeming a verification token, or null while it never has been. Recorded and never acted on: nothing in the package refuses an unverified account, so gate sign-in on it yourself."
+      type: DateTimeOffset?
+      default: 'null'
 
     - name: Password
       description: The password hash produced by ASP.NET Core's hasher. Rehashed in place on sign-in when the hasher reports an outdated format.
