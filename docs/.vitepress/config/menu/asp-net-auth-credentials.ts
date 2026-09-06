@@ -25,6 +25,7 @@ export const aspNetAuthCredentials: DefaultTheme.SidebarItem[] = [
             { text: 'ChangePassword', link: '/asp-net-auth-credentials/requests/change-password-request' },
             { text: 'CompleteEmailVerification', link: '/asp-net-auth-credentials/requests/complete-email-verification-request' },
             { text: 'CompleteForgotPassword', link: '/asp-net-auth-credentials/requests/complete-forgot-password-request' },
+            { text: 'CompleteTwoFactorLogin', link: '/asp-net-auth-credentials/requests/complete-two-factor-login-request' },
             { text: 'CreateUser', link: '/asp-net-auth-credentials/requests/create-user-request' },
             { text: 'ForgotPassword', link: '/asp-net-auth-credentials/requests/forgot-password-request' },
             { text: 'Login', link: '/asp-net-auth-credentials/requests/login-request' },
@@ -35,6 +36,7 @@ export const aspNetAuthCredentials: DefaultTheme.SidebarItem[] = [
         text: 'Results',
         collapsed: false,
         items: [
+            { text: 'AuthLoginResult', link: '/asp-net-auth-credentials/results/auth-login-result' },
             { text: 'AuthSessionResult', link: '/asp-net-auth-credentials/results/auth-session-result' },
             { text: 'AuthTwoFactorResult', link: '/asp-net-auth-credentials/results/auth-two-factor-result' }
         ]
@@ -66,6 +68,7 @@ export const aspNetAuthCredentials: DefaultTheme.SidebarItem[] = [
             { text: 'EmailVerificationPurpose', link: '/asp-net-auth-credentials/types/email-verification-purpose' },
             { text: 'EmailVerificationToken', link: '/asp-net-auth-credentials/types/email-verification-token' },
             { text: 'PasswordResetToken', link: '/asp-net-auth-credentials/types/password-reset-token' },
+            { text: 'TwoFactorChallenge', link: '/asp-net-auth-credentials/types/two-factor-challenge' },
             { text: 'TwoFactorRecoveryCode', link: '/asp-net-auth-credentials/types/two-factor-recovery-code' },
             { text: 'UserLockout', link: '/asp-net-auth-credentials/types/user-lockout' },
             { text: 'UserSession', link: '/asp-net-auth-credentials/types/user-session' },

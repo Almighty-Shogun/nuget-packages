@@ -69,7 +69,7 @@ internal sealed class AuthTwoFactorService<TUser>(
         TUser user = await GetUserAsync(candidate => candidate.Identifier == identifier, cancellationToken);
 
         byte[] secret = RandomNumberGenerator.GetBytes(20);
-        string base32Secret = Base32Encoding.ToString(secret);
+        var base32Secret = Base32Encoding.ToString(secret);
 
         UserTwoFactor enrolment = await GetOrCreateEnrolmentAsync(user, cancellationToken);
 
@@ -100,7 +100,7 @@ internal sealed class AuthTwoFactorService<TUser>(
     {
         await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
 
-        UserTwoFactor enrolment = await GetEnrolmentAsync(identifier, cancellationToken);
+        UserTwoFactor enrolment = await GetEnrolmentAsync(identifier, tracked: true, cancellationToken);
 
         if (enrolment.PendingSecret is null || enrolment.PendingSecretExpiresAt is not { } expiresAt || expiresAt <= DateTimeOffset.UtcNow)
             throw new InvalidTwoFactorCodeException();
@@ -138,7 +138,7 @@ internal sealed class AuthTwoFactorService<TUser>(
     /// <inheritdoc />
     public async Task<bool> VerifyAsync(Guid identifier, string code, CancellationToken cancellationToken = default)
     {
-        UserTwoFactor enrolment = await GetEnrolmentAsync(identifier, cancellationToken);
+        UserTwoFactor enrolment = await GetEnrolmentAsync(identifier, tracked: false, cancellationToken);
 
         if (!enrolment.IsEnabled || string.IsNullOrWhiteSpace(enrolment.Secret))
             return false;
@@ -208,6 +208,11 @@ internal sealed class AuthTwoFactorService<TUser>(
     /// </summary>
     ///
     /// <param name="identifier">The public identifier of the user whose enrolment is wanted.</param>
+    /// <param name="tracked">
+    /// Whether to attach the row to the change tracker, which only a caller that writes through it needs. Passing
+    /// <c>false</c> also keeps relationship fixup from hanging the enrolment off a user the same context already tracks,
+    /// which is what <see cref="IAuthUserService{TUser}.CompleteTwoFactorLoginAsync"/> hands back to the application.
+    /// </param>
     /// <param name="cancellationToken">Cancels the lookup.</param>
     ///
     /// <returns>The enrolment, with its recovery codes loaded.</returns>
@@ -220,13 +225,17 @@ internal sealed class AuthTwoFactorService<TUser>(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    private async Task<UserTwoFactor> GetEnrolmentAsync(Guid identifier, CancellationToken cancellationToken)
+    private async Task<UserTwoFactor> GetEnrolmentAsync(Guid identifier, bool tracked, CancellationToken cancellationToken)
     {
         TUser user = await GetUserAsync(candidate => candidate.Identifier == identifier, cancellationToken);
 
-        return await databaseContext.UserTwoFactors
-            .Include(twoFactor => twoFactor.RecoveryCodes)
-            .FirstOrDefaultAsync(twoFactor => twoFactor.UserId == user.Id, cancellationToken) ?? throw new InvalidTwoFactorCodeException();
+        IQueryable<UserTwoFactor> enrolments = databaseContext.UserTwoFactors.Include(twoFactor => twoFactor.RecoveryCodes);
+
+        if (!tracked)
+            enrolments = enrolments.AsNoTracking();
+
+        return await enrolments.FirstOrDefaultAsync(twoFactor => twoFactor.UserId == user.Id, cancellationToken)
+               ?? throw new InvalidTwoFactorCodeException();
     }
 
     /// <summary>
@@ -285,7 +294,7 @@ internal sealed class AuthTwoFactorService<TUser>(
     /// <since>4.0.0</since>
     private bool TryVerifyTotp(string protectedSecret, string code, out long window)
     {
-        window = default;
+        window = 0;
 
         if (string.IsNullOrWhiteSpace(protectedSecret))
             return false;

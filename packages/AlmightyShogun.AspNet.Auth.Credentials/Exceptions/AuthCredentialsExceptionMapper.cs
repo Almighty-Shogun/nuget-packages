@@ -76,6 +76,14 @@ internal sealed class AuthCredentialsExceptionMapper : IExceptionMapper
             MessageParameters = []
         },
 
+        InvalidTwoFactorChallengeException => new ErrorMapping
+        {
+            StatusCode = StatusCodes.Status401Unauthorized,
+            Code = "invalid_two_factor_challenge",
+            MessageKey = "auth.two-factor-challenge-invalid",
+            MessageParameters = []
+        },
+
         AccountDisabledException => new ErrorMapping
         {
             StatusCode = StatusCodes.Status403Forbidden,

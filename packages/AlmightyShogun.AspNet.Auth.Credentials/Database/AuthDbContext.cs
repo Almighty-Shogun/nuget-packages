@@ -66,7 +66,8 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
 
     /// <summary>
     /// The lockout rows, one per account with a run of failures behind it. Empty in a deployment that leaves
-    /// lockout disabled, and emptied for an account as soon as it signs in successfully.
+    /// lockout disabled, and emptied for an account once it has completed a sign-in, which for a user owing a second
+    /// factor is when the code is presented rather than when the password verifies.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -81,6 +82,22 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public DbSet<TwoFactorRecoveryCode> TwoFactorRecoveryCodes => Set<TwoFactorRecoveryCode>();
+
+    /// <summary>
+    /// The sign-ins waiting on a second factor, including spent ones. <see cref="IAuthUserService{TUser}"/> writes them,
+    /// retiring a user's unspent rows whenever it issues another, so sign-ins made one after another leave one unspent
+    /// row per user. Two arriving at once can leave more, since no index enforces the limit.
+    /// <see cref="IAuthPasswordService"/> retires them too, wherever it sets a password.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Spent rows are cleared out for a user as that user is issued another challenge, and only once they have expired,
+    /// so an account that never signs in again keeps whatever it left behind.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public DbSet<TwoFactorChallenge> TwoFactorChallenges => Set<TwoFactorChallenge>();
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -177,5 +194,19 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
 
         modelBuilder.Entity<EmailVerificationToken>()
             .HasIndex(token => new { token.UserId, token.ExpiresAt });
+
+        modelBuilder.Entity<TwoFactorChallenge>()
+            .HasOne<TUser>()
+            .WithMany()
+            .HasForeignKey(challenge => challenge.UserId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
+
+        modelBuilder.Entity<TwoFactorChallenge>()
+            .HasIndex(challenge => challenge.TokenHash)
+            .IsUnique();
+
+        modelBuilder.Entity<TwoFactorChallenge>()
+            .HasIndex(challenge => new { challenge.UserId, challenge.ExpiresAt });
     }
 }

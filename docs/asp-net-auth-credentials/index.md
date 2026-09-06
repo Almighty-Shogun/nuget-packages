@@ -13,7 +13,7 @@ Application code depends on small service contracts rather than one aggregate, s
 - [Localization](./localization) &mdash; the `auth` and `passwords` message files those failures resolve through.
 - [Extensions](./extensions/add-auth-credentials) &mdash; service registration against the application's context and user entity.
 - [Requests](./requests/login-request) &mdash; request models for login, registration, password, and email verification flows.
-- [Results](./results/auth-session-result) &mdash; what a credential flow returns when it creates a session or an enrolment.
+- [Results](./results/auth-login-result) &mdash; what a credential flow returns when it opens a session, stops at a second factor, or begins an enrolment.
 - [Services](./services/auth-user-service) &mdash; dependency-injection contracts for login, session, password, email address, and two-factor operations.
 - [Utilities](./utilities/token-hasher) &mdash; the digest every stored token is matched by.
 - [Types](./types/auth-db-context) &mdash; the base context and the entities it maps.
@@ -58,8 +58,24 @@ public sealed class AuthController(
     [HttpPost("login")]
     public async Task<ActionResult<AppUser>> Login(LoginRequest request)
     {
-        AuthSessionResult<AppUser> result = await authUsers
+        AuthLoginResult<AppUser> result = await authUsers
             .LoginAsync(request, HttpContext);
+
+        if (result.RequiresTwoFactor)
+            return Accepted(new { challenge = result.Challenge });
+
+        Response.SetRefreshTokenCookie(result.Session.RefreshToken, 30);
+
+        return Ok(result.User);
+    }
+
+    [HttpPost("login/two-factor")]
+    public async Task<ActionResult<AppUser>> CompleteTwoFactorLogin(
+        CompleteTwoFactorLoginRequest request
+    )
+    {
+        AuthSessionResult<AppUser> result = await authUsers
+            .CompleteTwoFactorLoginAsync(request, HttpContext);
 
         Response.SetRefreshTokenCookie(result.RefreshToken, 30);
 

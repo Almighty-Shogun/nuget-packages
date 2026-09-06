@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.Core;
 using Microsoft.Extensions.Options;
-using AlmightyShogun.AspNet.Auth;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace AlmightyShogun.AspNet.Auth.Credentials;
@@ -12,19 +13,23 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// Signs users in and creates them. An unknown identifier and a wrong password are refused identically, and an unknown one
 /// still pays a decoy verification, so the hash is not what separates them; with lockout enabled a known identifier also
 /// pays the lockout statements the unknown path never reaches. A locked and a disabled account are each refused distinctly,
-/// and a lockout is answered before the password is checked at all.
+/// and a lockout is answered before the password is checked at all. A correct password opens a session only where no
+/// enabled two-factor enrolment stands in the way; where one does, it buys a challenge and nothing else.
 /// </summary>
 ///
 /// <typeparam name="TUser">The application's own user entity, both inserted on creation and returned on sign-in.</typeparam>
 /// <param name="databaseContext">The application's context, which the credential tables live in.</param>
-/// <param name="credentialOptions">The bound credential settings, read for the lockout policy.</param>
+/// <param name="credentialOptions">
+/// The bound credential settings, read for the lockout policy and for how long an issued challenge stays redeemable.
+/// </param>
 /// <param name="appHostResolver">
 /// The resolver deciding which application the current request belongs to, so a session and its token are scoped to the
-/// host the user actually signed in through.
+/// host the user actually signed in through, and so a challenge is only completed through the application that bought it.
 /// </param>
-/// <param name="sessionService">The session service, which issues the refresh token a successful sign-in returns.</param>
-/// <param name="tokenGenerator">
-/// The JWT package's generator, which signs and stamps issuer, audience, and expiry over the claims built here.
+/// <param name="sessionService">The session service, which issues the tokens a completed sign-in returns.</param>
+/// <param name="twoFactorService">
+/// The two-factor service, asked to verify the code a challenge is completed with. Nothing here reads a secret or a
+/// recovery code itself.
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
@@ -34,7 +39,7 @@ internal sealed class AuthUserService<TUser>(
     IOptions<AuthCredentialsSettings> credentialOptions,
     IAppHostResolver appHostResolver,
     IAuthSessionService<TUser> sessionService,
-    IAuthTokenGenerator tokenGenerator
+    IAuthTwoFactorService<TUser> twoFactorService
 ) : IAuthUserService<TUser> where TUser : AuthUser
 {
     /// <summary>
@@ -47,7 +52,7 @@ internal sealed class AuthUserService<TUser>(
     private readonly PasswordHasher<TUser> _hasher = new();
 
     /// <inheritdoc />
-    public async Task<AuthSessionResult<TUser>> LoginAsync(
+    public async Task<AuthLoginResult<TUser>> LoginAsync(
         LoginRequest request,
         HttpContext context,
         CancellationToken cancellationToken = default
@@ -56,9 +61,9 @@ internal sealed class AuthUserService<TUser>(
         string? app = appHostResolver.Resolve();
         ClientContext clientContext = context.GetClientContext();
 
-        TUser? user = await databaseContext.Users.FirstOrDefaultAsync(
-            candidate => candidate.Username == request.Identifier || candidate.Email == request.Identifier, cancellationToken
-        );
+        TUser? user = await databaseContext.Users
+            .Where(candidate => candidate.Username == request.Identifier || candidate.Email == request.Identifier)
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (user is null)
         {
@@ -74,32 +79,81 @@ internal sealed class AuthUserService<TUser>(
         PasswordVerificationResult verification = _hasher.VerifyHashedPassword(user, user.Password, request.Password);
 
         if (verification is PasswordVerificationResult.Failed)
-        {
             throw new InvalidCredentialsException();
-        }
 
         if (!user.IsActive)
-        {
             throw new AccountDisabledException();
-        }
+
+        bool enrolled = await databaseContext.UserTwoFactors
+            .AnyAsync(enrolment => enrolment.UserId == user.Id && enrolment.IsEnabled, cancellationToken);
 
         await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
 
         if (verification is PasswordVerificationResult.SuccessRehashNeeded)
-        {
             user.Password = _hasher.HashPassword(user, request.Password);
+
+        if (enrolled)
+        {
+            await ReleaseAttemptAsync(user.Id, lockoutPolicy, cancellationToken);
+
+            string challenge = await IssueChallengeAsync(user.Id, app, clientContext, cancellationToken);
+
+            await databaseContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
+            return new AuthLoginResult<TUser> { User = user, Challenge = challenge };
         }
 
         await ClearLockoutAsync(user.Id, cancellationToken);
 
-        string refreshToken = await sessionService.CreateSessionAsync(user, app, clientContext, cancellationToken);
+        AuthSessionResult<TUser> session = await sessionService.CreateSessionAsync(user, app, clientContext, cancellationToken);
 
-        AuthSessionResult<TUser> result = new()
-        {
-            User = user,
-            RefreshToken = refreshToken,
-            AccessToken = tokenGenerator.Generate(AuthClaimFactory.Create(user, app), app).Token
-        };
+        await databaseContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+
+        return new AuthLoginResult<TUser> { User = user, Session = session };
+    }
+
+    /// <inheritdoc />
+    public async Task<AuthSessionResult<TUser>> CompleteTwoFactorLoginAsync(
+        CompleteTwoFactorLoginRequest request,
+        HttpContext context,
+        CancellationToken cancellationToken = default
+    )
+    {
+        string? app = appHostResolver.Resolve();
+        ClientContext clientContext = context.GetClientContext();
+
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        string challengeHash = TokenHasher.Hash(request.Challenge);
+
+        TwoFactorChallenge? pending = await databaseContext.TwoFactorChallenges
+            .Where(candidate => candidate.TokenHash == challengeHash)
+            .Where(candidate => candidate.UsedAt == null && candidate.ExpiresAt > now)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (pending is null || pending.App != app)
+            throw new InvalidTwoFactorChallengeException();
+
+        TUser? user = await databaseContext.Users
+            .FirstOrDefaultAsync(candidate => candidate.Id == pending.UserId, cancellationToken);
+
+        if (user is null)
+            throw new InvalidCredentialsException();
+
+        if (!user.IsActive)
+            throw new AccountDisabledException();
+
+        if (!await twoFactorService.VerifyAsync(user.Identifier, request.Code, cancellationToken))
+            throw new InvalidTwoFactorCodeException();
+
+        await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
+
+        await SpendChallengeAsync(pending.Id, now, cancellationToken);
+        await ClearLockoutAsync(user.Id, cancellationToken);
+
+        AuthSessionResult<TUser> result =
+            await sessionService.CreateSessionAsync(user, pending.App, clientContext, cancellationToken);
 
         await databaseContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
@@ -134,14 +188,9 @@ internal sealed class AuthUserService<TUser>(
         ClientContext clientContext = context.GetClientContext();
 
         TUser createdUser = await CreateUserAsync(user, password, cancellationToken);
-        string refreshToken = await sessionService.CreateSessionAsync(createdUser, app, clientContext, cancellationToken);
 
-        AuthSessionResult<TUser> result = new()
-        {
-            User = createdUser,
-            RefreshToken = refreshToken,
-            AccessToken = tokenGenerator.Generate(AuthClaimFactory.Create(createdUser, app), app).Token
-        };
+        AuthSessionResult<TUser> result =
+            await sessionService.CreateSessionAsync(createdUser, app, clientContext, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
 
@@ -156,8 +205,123 @@ internal sealed class AuthUserService<TUser>(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    private static void VerifyDecoy(string password)
-        => AuthTimingDefence.SpendVerification(password);
+    private static void VerifyDecoy(string password) => AuthTimingDefence.SpendVerification(password);
+
+    /// <summary>
+    /// Retires the challenges the user still had outstanding, clears out the ones that have expired, and writes a fresh
+    /// one, so the newest sign-in is the one that can be completed and, short of two arriving at once, it is the only one.
+    /// </summary>
+    ///
+    /// <param name="userId">The user whose password just verified, given as the database key rather than the public identifier.</param>
+    /// <param name="app">The application the sign-in came through, recorded so completion scopes the session to it.</param>
+    /// <param name="context">The request's address, recorded on the challenge for auditing.</param>
+    /// <param name="cancellationToken">Cancels the retirement, the prune, and the insert.</param>
+    ///
+    /// <returns>The challenge in plain text, to hand back to the client; only its hash is stored.</returns>
+    ///
+    /// <remarks>
+    /// The retirement is one update statement, so the database has already written it when this returns. The prune and
+    /// the insert are not saved here: the caller runs inside a transaction of its own and saves them with the rehash that
+    /// may sit beside them, so a sign-in never ends with the previous challenge killed and no new one written.
+    ///
+    /// The prune covers only the user being signed in, so a row belonging to an account that never signs in again is
+    /// left where it is. Retiring before pruning means a row that is both unspent and expired is stamped and then
+    /// deleted in the same call.
+    ///
+    /// Two sign-ins running at once can still both insert, because the retirement of the later one need not see a row the
+    /// earlier one has not committed yet and no index in the schema holds the count down.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task<string> IssueChallengeAsync(
+        int userId,
+        string? app,
+        ClientContext context,
+        CancellationToken cancellationToken
+    )
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+
+        await RetireActiveChallengesAsync(userId, now, cancellationToken);
+
+        List<TwoFactorChallenge> expired = await databaseContext.TwoFactorChallenges
+            .Where(candidate => candidate.UserId == userId && candidate.ExpiresAt <= now)
+            .ToListAsync(cancellationToken);
+
+        if (expired.Count > 0)
+            databaseContext.TwoFactorChallenges.RemoveRange(expired);
+
+        string challenge = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(48));
+
+        databaseContext.TwoFactorChallenges.Add(new TwoFactorChallenge
+        {
+            App = app,
+            UserId = userId,
+            CreatedAt = now,
+            ExpiresAt = now.AddMinutes(credentialOptions.Value.TwoFactor.ChallengeMinutes),
+            TokenHash = TokenHasher.Hash(challenge),
+            RequestedIpAddress = context.IpAddress is { Length: > 45 } address ? address[..45] : context.IpAddress
+        });
+
+        return challenge;
+    }
+
+    /// <summary>
+    /// Spends the user's unspent challenges in a single statement, so signing in again abandons the code prompt that was
+    /// still open rather than leaving two completable at once.
+    /// </summary>
+    ///
+    /// <param name="userId">The user whose outstanding challenges are being retired.</param>
+    /// <param name="now">The instant stamped onto the retired rows, shared with the insert that runs alongside them.</param>
+    /// <param name="cancellationToken">Cancels the update.</param>
+    ///
+    /// <returns>
+    /// A task that completes once the matching rows are spent, which the database has already written when it does. The
+    /// statement runs inside the transaction the caller opened, so it is rolled back with the rest of that work.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// The rows are matched and stamped by one update rather than loaded and rewritten, so no row can be retired on the
+    /// strength of a read another request has already invalidated. The update bypasses the change tracker, so the rows in
+    /// the database are stamped while an instance already materialized through this context keeps the
+    /// <see cref="TwoFactorChallenge.UsedAt"/> it was loaded with.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task RetireActiveChallengesAsync(int userId, DateTimeOffset now, CancellationToken cancellationToken)
+        => await databaseContext.TwoFactorChallenges
+            .Where(challenge => challenge.UserId == userId && challenge.UsedAt == null)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(challenge => challenge.UsedAt, now), cancellationToken);
+
+    /// <summary>
+    /// Claims the challenge with a guarded update, so two completions racing for the same one produce one session and one
+    /// refusal rather than two sessions.
+    /// </summary>
+    ///
+    /// <param name="challengeId">The row to spend, as read moments earlier.</param>
+    /// <param name="now">The instant stamped onto the row, and the instant its expiry is judged against.</param>
+    /// <param name="cancellationToken">Cancels the update.</param>
+    ///
+    /// <returns>A task that completes once the row is spent, which the database has already written when it does.</returns>
+    ///
+    /// <exception cref="InvalidTwoFactorChallengeException">
+    /// The row was no longer unspent and unexpired, so another request claimed it in between, or a sign-in made in the
+    /// meantime retired it.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task SpendChallengeAsync(int challengeId, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        int affectedRows = await databaseContext.TwoFactorChallenges
+            .Where(challenge => challenge.Id == challengeId && challenge.UsedAt == null && challenge.ExpiresAt > now)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(challenge => challenge.UsedAt, now), cancellationToken);
+
+        if (affectedRows != 1)
+            throw new InvalidTwoFactorChallengeException();
+    }
 
     /// <summary>
     /// Claims one attempt against the user's failure budget before any password is verified, and refuses the sign-in
@@ -187,8 +351,11 @@ internal sealed class AuthUserService<TUser>(
     /// settles the same race for the first attempt of a run, where there is no row to update yet.
     ///
     /// A sign-in that completes deletes the row through <see cref="ClearLockoutAsync"/>, so the attempt claimed here costs
-    /// the caller nothing. A correct password that is then refused, as a deactivated account is, leaves the claimed
-    /// attempt standing, because the delete is never reached.
+    /// the caller nothing. A correct password that owes a second factor gives the one attempt back through
+    /// <see cref="ReleaseAttemptAsync"/> instead, leaving whatever failures already stood for
+    /// <see cref="CompleteTwoFactorLoginAsync"/> to clear and taking the row away where none did. A correct password that
+    /// is then refused, as a deactivated account is, leaves the claimed attempt standing, because neither the delete nor
+    /// the give-back is reached.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -247,9 +414,8 @@ internal sealed class AuthUserService<TUser>(
     )
     {
         int claimed = await databaseContext.UserLockouts
-            .Where(candidate => candidate.UserId == userId
-                                && candidate.LockoutEnd == null
-                                && candidate.AccessFailedCount < maximum)
+            .Where(candidate => candidate.UserId == userId)
+            .Where(candidate => candidate.LockoutEnd == null && candidate.AccessFailedCount < maximum)
             .ExecuteUpdateAsync(
                 setters => setters
                     .SetProperty(candidate => candidate.AccessFailedCount, candidate => candidate.AccessFailedCount + 1)
@@ -355,7 +521,67 @@ internal sealed class AuthUserService<TUser>(
     }
 
     /// <summary>
-    /// Clears the failure run behind a successful sign-in, including the attempt this sign-in claimed for itself.
+    /// Gives back the one attempt <see cref="ReserveAttemptAsync"/> claimed, for a password that verified but bought a
+    /// challenge rather than a session. Without it an abandoned or expired code prompt would leave that attempt standing
+    /// and a run of correct passwords would lock the account. Does nothing when lockout is disabled, matching the claim
+    /// it undoes.
+    /// </summary>
+    ///
+    /// <param name="userId">The user signing in, given as the database key rather than the public identifier.</param>
+    /// <param name="policy">The configured policy, read for whether the feature is on at all and for the failure limit.</param>
+    /// <param name="cancellationToken">Cancels the delete and the update that follows it.</param>
+    ///
+    /// <returns>A task that completes once the attempt is back in the budget, or once no row was found holding it.</returns>
+    ///
+    /// <remarks>
+    /// Only the one attempt is returned. Failures recorded before this sign-in stay on the row and are cleared by
+    /// <see cref="ClearLockoutAsync"/> once the code is presented, so a correct password neither ends the run nor adds to
+    /// it. Where the attempt being given back is the only one on the row, the row goes rather than being left counting
+    /// nothing, so a prompt that is never answered leaves the table as it found it.
+    ///
+    /// Both statements are guarded on the count they expect, in keeping with the claim they reverse. Neither matches
+    /// where the row has been deleted by a completion running alongside this one, or where its count has already been
+    /// zeroed by an attempt that found the previous lockout expired, so no case drives the count below zero. Two
+    /// sign-ins releasing at once can both miss the delete and leave one attempt standing, which the next completed
+    /// sign-in clears.
+    ///
+    /// The end is cleared alongside a decremented count that falls under the limit, and goes with the row where the row
+    /// is deleted, because a claim that spent the last attempt recorded one. That also lifts a lockout applied by
+    /// concurrent guesses in the meantime; the next failure against the restored attempt applies it again.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task ReleaseAttemptAsync(int userId, LockoutPolicy policy, CancellationToken cancellationToken)
+    {
+        if (!policy.Enabled)
+            return;
+
+        int maximum = policy.MaxFailedAttempts;
+
+        int released = await databaseContext.UserLockouts
+            .Where(candidate => candidate.UserId == userId && candidate.AccessFailedCount == 1)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        if (released == 1)
+            return;
+
+        await databaseContext.UserLockouts
+            .Where(candidate => candidate.UserId == userId && candidate.AccessFailedCount > 1)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(candidate => candidate.AccessFailedCount, candidate => candidate.AccessFailedCount - 1)
+                    .SetProperty(
+                        candidate => candidate.LockoutEnd,
+                        candidate => candidate.AccessFailedCount - 1 >= maximum ? candidate.LockoutEnd : null
+                    ),
+                cancellationToken
+            );
+    }
+
+    /// <summary>
+    /// Clears the failure run behind a sign-in that has just completed, including the attempt that sign-in claimed for
+    /// itself. Called only once every factor the account owes has been presented.
     /// </summary>
     ///
     /// <param name="userId">The user signing in, given as the database key rather than the public identifier.</param>
@@ -364,10 +590,11 @@ internal sealed class AuthUserService<TUser>(
     /// <returns>A task that completes once no lockout row stands for that user.</returns>
     ///
     /// <remarks>
-    /// The delete is unconditional, and reaching it means the password was correct. A lockout in force before this
-    /// attempt cannot be here, because <see cref="ReserveAttemptAsync"/> refuses on one. A lockout applied while this
-    /// sign-in was verifying belongs to concurrent guesses that were wrong, and a caller who has just proved the
-    /// password should not be held by them.
+    /// The delete is unconditional, and reaching it means the sign-in is finished. Reached from
+    /// <see cref="LoginAsync"/> a lockout in force beforehand cannot be here, because <see cref="ReserveAttemptAsync"/>
+    /// refuses on one; reached from <see cref="CompleteTwoFactorLoginAsync"/> it can, since nothing rechecks the run
+    /// between the password and the code. Either way a lockout applied in between belongs to concurrent guesses that were
+    /// wrong, and a caller who has just proved every factor should not be held by them.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

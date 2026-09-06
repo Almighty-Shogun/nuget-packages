@@ -40,7 +40,7 @@ fields:
             default: 'false'
 
           - name: MaxFailedAttempts
-            description: Consecutive failures before the account locks. Every attempt is counted before its password is checked, so this bounds concurrent guesses as well as sequential ones. The counter resets on any successful login, so it measures a run of failures rather than a lifetime total.
+            description: Consecutive failures before the account locks. Every attempt is counted before its password is checked, so this bounds concurrent guesses as well as sequential ones. The counter resets on any completed sign-in, so it measures a run of failures rather than a lifetime total. A correct password that only buys a two-factor challenge finishes nothing, so it neither clears the run nor adds to it.
             type: int
             default: '5'
 
@@ -76,6 +76,11 @@ fields:
             description: How long a secret offered by an enrolment stays confirmable before it is refused. An enrolment left unfinished expires without touching the secret already in use, so an interrupted setup cannot cost a user their working authenticator.
             type: int
             default: '10'
+
+          - name: ChallengeMinutes
+            description: How long the challenge a sign-in hands back stays redeemable, which is what bounds the code prompt. Past it the user has to send their password again. Long enough to fetch a code from a phone, short enough that a half-finished sign-in left on a shared machine stops being completable.
+            type: int
+            default: '5'
 ---
 
 # Configuration
@@ -99,7 +104,8 @@ The optional `AuthCredentials` section is bound to `AuthCredentialsSettings`, wi
             "RecoveryCodeCount": 10,
             "Digits": 6,
             "PeriodSeconds": 30,
-            "PendingSecretMinutes": 10
+            "PendingSecretMinutes": 10,
+            "ChallengeMinutes": 5
         }
     }
 }

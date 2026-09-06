@@ -21,8 +21,9 @@ public sealed record LockoutPolicy
     public bool Enabled { get; init; } = false;
 
     /// <summary>
-    /// How many consecutive failures lock the account. The count resets on any successful sign-in, so it measures a
-    /// run of failures rather than a lifetime total.
+    /// How many consecutive failures lock the account. The count resets on a completed sign-in, so it measures a run of
+    /// failures rather than a lifetime total. A user owing a second factor completes on the code, not on the password,
+    /// so a correct password that only buys a challenge leaves the run exactly as it found it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

@@ -2,7 +2,8 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
 /// Changes passwords, both for a signed-in user and through a reset link. Both paths that set a password revoke the
-/// user's other sessions, so a change actually ends access that used the old one.
+/// user's other sessions and retire the sign-ins waiting on a second factor, so a change actually ends access that used
+/// the old one.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -22,7 +23,10 @@ public interface IAuthPasswordService
     /// </param>
     /// <param name="cancellationToken">Cancels the database work, rolling the change back with the transaction.</param>
     ///
-    /// <returns>A task that completes once the password is changed and the other sessions are revoked.</returns>
+    /// <returns>
+    /// A task that completes once the password is changed, the other sessions are revoked, and any sign-in still waiting
+    /// on a second factor is retired.
+    /// </returns>
     ///
     /// <exception cref="InvalidCredentialsException">
     /// The identifier matches no account, or the current password is wrong. The exception does not distinguish the two,
@@ -35,8 +39,8 @@ public interface IAuthPasswordService
     /// </exception>
     ///
     /// <remarks>
-    /// This opens a transaction of its own, so the new hash and the revocation of the other sessions land together or
-    /// not at all.
+    /// This opens a transaction of its own, so the new hash, the revocation of the other sessions, and the retirement of
+    /// any outstanding two-factor challenge land together or not at all.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -83,13 +87,17 @@ public interface IAuthPasswordService
 
     /// <summary>
     /// Spends a reset token and sets the new password, refusing a replacement that matches the current one or a confirmation
-    /// that does not. Every session is revoked, since whoever held the old password may not be the one resetting it.
+    /// that does not. Every session is revoked and every outstanding two-factor challenge retired, since whoever held the
+    /// old password may not be the one resetting it.
     /// </summary>
     ///
     /// <param name="request">The token from the email, the replacement password, and its confirmation.</param>
     /// <param name="cancellationToken">Cancels the database work, rolling the reset back with the transaction.</param>
     ///
-    /// <returns>A task that completes once the password is set, the token spent, and the sessions revoked.</returns>
+    /// <returns>
+    /// A task that completes once the password is set, the token spent, the sessions revoked, and the outstanding
+    /// challenges retired.
+    /// </returns>
     ///
     /// <exception cref="InvalidPasswordResetTokenException">
     /// The token is unknown, already spent, or past its expiry. Also thrown when a concurrent request spent it after this
@@ -101,8 +109,8 @@ public interface IAuthPasswordService
     /// </exception>
     ///
     /// <remarks>
-    /// This opens a transaction of its own, so spending the token, writing the new hash, and revoking every session land
-    /// together or not at all.
+    /// This opens a transaction of its own, so spending the token, writing the new hash, revoking every session, and
+    /// retiring every outstanding challenge land together or not at all.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

@@ -3,7 +3,7 @@
 Enrols a user in TOTP two-factor authentication and verifies their codes. Application code depends on `IAuthTwoFactorService<TUser>`; the shared secret is encrypted with ASP.NET Core data protection and the recovery codes are stored only as hashes.
 
 ::: warning
-The package stores and verifies the second factor but never requires it. [`LoginAsync`](./auth-user-service#loginasync) succeeds on a correct password whether or not the user is enrolled, so gate the flow yourself on `user.TwoFactor?.IsEnabled` and decide when a code is demanded.
+Enrolling is the decision, and it is yours: nothing is required of an account until [`CompleteEnrolmentAsync`](#completeenrolmentasync) turns it on. Once it is on, [`LoginAsync`](./auth-user-service#loginasync) stops opening a session on the password alone and demands a code through [`CompleteTwoFactorLoginAsync`](./auth-user-service#completetwofactorloginasync). To let a remembered device skip the prompt, leave the account unenrolled or [disable](#disableasync) the enrolment; there is no per-sign-in way past it.
 :::
 
 ## BeginEnrolmentAsync
@@ -74,7 +74,7 @@ public Task<IReadOnlyList<string>> CompleteEnrolmentAsync(
 
 Checks a submitted value as a TOTP code first and as a recovery code second, spending the recovery code when it matches. Both are claimed with a guarded update rather than read and then written, so two requests presenting the same code at once cannot both be accepted.
 
-Returns `false` for a wrong code, an unreadable secret, a recovery code that was already spent, and an enrolment that was begun but never confirmed, rather than throwing: at sign-in a wrong code is an ordinary outcome the caller decides how to report. A user with no enrolment row at all still throws [`InvalidTwoFactorCodeException`](../exceptions), so call this only for a user you have already established is enrolled.
+Returns `false` for a wrong code, an unreadable secret, a recovery code that was already spent, and an enrolment that was begun but never confirmed, rather than throwing, so the caller decides how to report it. [`CompleteTwoFactorLoginAsync`](./auth-user-service#completetwofactorloginasync) calls this to finish a sign-in and turns that `false` into [`InvalidTwoFactorCodeException`](../exceptions). A user with no enrolment row at all throws that exception from here too, so call this only for a user you have already established is enrolled.
 
 ```csharp
 using AlmightyShogun.AspNet.Auth.Credentials;

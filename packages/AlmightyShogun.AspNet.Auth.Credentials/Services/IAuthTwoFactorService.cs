@@ -8,8 +8,12 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// <typeparam name="TUser">The application's own user entity, which the public identifier is resolved against.</typeparam>
 ///
 /// <remarks>
-/// The package stores and verifies the second factor but never requires it. Deciding when a login must present one is
-/// the application's job, because that policy differs per product.
+/// Enrolling is the decision, and it is the application's: nothing here is required of an account until
+/// <see cref="CompleteEnrolmentAsync"/> turns it on. Once it is on,
+/// <see cref="IAuthUserService{TUser}.LoginAsync"/> stops opening a session on the password alone and demands a code
+/// through <see cref="IAuthUserService{TUser}.CompleteTwoFactorLoginAsync"/>, which calls
+/// <see cref="VerifyAsync"/> for it. A product that wants to let a remembered device skip the prompt has to leave the
+/// account unenrolled or disable the enrolment; there is no per-sign-in way past it.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

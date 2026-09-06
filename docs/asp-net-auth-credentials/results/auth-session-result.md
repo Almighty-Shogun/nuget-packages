@@ -15,7 +15,7 @@ fields:
 
 # AuthSessionResult
 
-What every flow that establishes a session returns: [`LoginAsync`](../services/auth-user-service#loginasync), [`RegisterAsync`](../services/auth-user-service#registerasync), and [`RefreshSessionAsync`](../services/auth-session-service#refreshsessionasync).
+What every flow that establishes a session returns: [`RegisterAsync`](../services/auth-user-service#registerasync), [`CompleteTwoFactorLoginAsync`](../services/auth-user-service#completetwofactorloginasync), [`RefreshSessionAsync`](../services/auth-session-service#refreshsessionasync), and [`CreateSessionAsync`](../services/auth-session-service#createsessionasync). A sign-in that opens one without a second factor carries it on [`AuthLoginResult.Session`](./auth-login-result).
 
 ::: danger
 `User` is the database entity. Never return it from an endpoint: it serializes with the password hash, the surrogate key, and any loaded sessions. Map it to a DTO that exposes only the fields the client needs.

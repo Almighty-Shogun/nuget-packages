@@ -2,11 +2,11 @@
 
 Changes a signed-in user's password and runs the forgot-password flow. Application code depends on `IAuthPasswordService`, which is not generic: it works from the public identifier or the reset token rather than from a user entity.
 
-Both flows revoke the user's other sessions and spend every outstanding reset token, so a password that has just changed cannot leave an old session or an old reset link working.
+Both flows revoke the user's other sessions, spend every outstanding reset token, and retire every sign-in still waiting on a second factor, so a password that has just changed cannot leave an old session, an old reset link, or a half-finished sign-in working.
 
 ## ChangePasswordAsync
 
-Verifies the current password, then replaces it. Passing the caller's own refresh token as `currentRefreshToken` leaves that one session alive, so changing a password does not sign the user out of the browser they are changing it from; passing nothing ends every session.
+Verifies the current password, then replaces it. Passing the caller's own refresh token as `currentRefreshToken` leaves that one session alive, so changing a password does not sign the user out of the browser they are changing it from; passing nothing ends every session. Any sign-in still waiting on a second factor is retired whichever token is passed, so a challenge bought with the old password stops being redeemable.
 
 Throws [`PasswordMismatchException`](../exceptions) when the confirmation differs from the new password, [`InvalidCredentialsException`](../exceptions) when the current password is wrong, and [`PasswordReusedException`](../exceptions) when the new password verifies against the one already stored.
 
@@ -85,7 +85,7 @@ public Task<string?> RequestForgotPasswordAsync(
 
 ## CompleteForgotPasswordAsync
 
-Redeems a reset token, sets the new password, and marks the token spent. The token identifies the user, so no signed-in caller is needed and nothing about the account has to be supplied alongside it.
+Redeems a reset token, sets the new password, and marks the token spent. Every session is revoked and every sign-in still waiting on a second factor retired, so nothing bought with the old password survives the reset. The token identifies the user, so no signed-in caller is needed and nothing about the account has to be supplied alongside it.
 
 Throws [`InvalidPasswordResetTokenException`](../exceptions) when the token is unknown, already spent, or expired, and also when a concurrent request spends it first, since the token is claimed with a guarded update rather than on the strength of the read that found it. [`PasswordMismatchException`](../exceptions) covers a confirmation that differs, and [`PasswordReusedException`](../exceptions) a new password that is the one already stored.
 

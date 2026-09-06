@@ -1,9 +1,8 @@
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.Core;
-using System.Linq.Expressions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
-using AlmightyShogun.AspNet.Auth;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.WebUtilities;
@@ -160,7 +159,7 @@ internal sealed class AuthSessionService<TUser>(
     }
 
     /// <inheritdoc />
-    public async Task<string> CreateSessionAsync(
+    public async Task<AuthSessionResult<TUser>> CreateSessionAsync(
         TUser user,
         string? app,
         ClientContext context,
@@ -176,9 +175,7 @@ internal sealed class AuthSessionService<TUser>(
             .ToListAsync(cancellationToken);
 
         if (expired.Count > 0)
-        {
             databaseContext.UserSessions.RemoveRange(expired);
-        }
 
         UserAgent userAgent = UserAgent.Parse(context.UserAgent ?? string.Empty);
 
@@ -197,7 +194,12 @@ internal sealed class AuthSessionService<TUser>(
 
         await databaseContext.SaveChangesAsync(cancellationToken);
 
-        return refreshToken;
+        return new AuthSessionResult<TUser>
+        {
+            User = user,
+            RefreshToken = refreshToken,
+            AccessToken = tokenGenerator.Generate(AuthClaimFactory.Create(user, app), app).Token
+        };
     }
 
     /// <summary>
@@ -276,9 +278,7 @@ internal sealed class AuthSessionService<TUser>(
             .FirstOrDefaultAsync(session => session.PreviousRefreshTokenHash == refreshTokenHash, cancellationToken);
 
         if (rotated is null || DateTimeOffset.UtcNow - rotated.LastActiveAt <= AuthSessionDefaults.RotationGrace)
-        {
             return false;
-        }
 
         logger.LogWarning(
             "Refresh token reuse detected for user {UserId}; revoking every session for that user", rotated.UserId
@@ -289,9 +289,7 @@ internal sealed class AuthSessionService<TUser>(
             .ToListAsync(cancellationToken);
 
         foreach (UserSession active in live)
-        {
             active.IsRevoked = true;
-        }
 
         return true;
     }
@@ -313,9 +311,7 @@ internal sealed class AuthSessionService<TUser>(
     private DateTimeOffset CapToAbsoluteLifetime(UserSession session, DateTimeOffset proposedExpiry)
     {
         if (credentialOptions.Value.AbsoluteSessionLifetimeDays is not { } days)
-        {
             return proposedExpiry;
-        }
 
         DateTimeOffset absoluteEnd = session.CreatedAt.AddDays(days);
 
