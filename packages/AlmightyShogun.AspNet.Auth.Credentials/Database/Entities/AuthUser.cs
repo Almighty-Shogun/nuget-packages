@@ -123,7 +123,7 @@ public class AuthUser
     /// The lockout state, held in its own table so a deployment that leaves lockout disabled never writes
     /// one. Nothing in the package loads this navigation, reading that table directly instead, so it is populated only when
     /// the change tracker happens to hold a matching row from the same context, as it does after a lockout check on the
-    /// login and refresh paths. Do not read it as a reliable answer to whether a lockout exists.
+    /// login, two-factor, and refresh paths. Do not read it as a reliable answer to whether a lockout exists.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

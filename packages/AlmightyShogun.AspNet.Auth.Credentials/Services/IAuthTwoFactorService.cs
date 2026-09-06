@@ -80,7 +80,8 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
 
     /// <summary>
     /// Verifies a code at sign-in, accepting either a current TOTP code or one unspent recovery code. A recovery code is
-    /// spent on success, so it cannot be presented twice.
+    /// spent on success, so it cannot be presented twice. With lockout enabled the attempt is counted against the same
+    /// budget a password is, so wrong codes lock the account exactly as wrong passwords do.
     /// </summary>
     ///
     /// <param name="identifier">The public identifier of the user.</param>
@@ -90,9 +91,10 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
     /// <param name="cancellationToken">Cancels the database work.</param>
     ///
     /// <returns>
-    /// <c>true</c> when the code was accepted. <c>false</c> covers a wrong code, a code already used in this time step or
-    /// an earlier one, a spent recovery code, a secret that can no longer be decrypted, and an enrolment that was begun
-    /// but never confirmed, none of which are distinguished.
+    /// <c>true</c> when the code was accepted, which also clears the failure run the account was carrying. <c>false</c>
+    /// covers a wrong code, a code already used in this time step or an earlier one, a spent recovery code, a secret that
+    /// can no longer be decrypted, and an enrolment that was begun but never confirmed, none of which are distinguished.
+    /// With lockout enabled, every one of them but the unconfirmed enrolment leaves an attempt spent against the budget.
     /// </returns>
     ///
     /// <exception cref="InvalidCredentialsException">The identifier matches no account.</exception>
@@ -100,10 +102,19 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
     /// The user has no enrolment at all. Only a user known to be enrolled should reach this, so call it behind a check
     /// on <see cref="UserTwoFactor.IsEnabled"/> rather than treating it as a way to ask.
     /// </exception>
+    /// <exception cref="AccountLockedException">
+    /// A lockout is in force, or the budget was exhausted by attempts that claimed before this one. Carries the moment it
+    /// lifts, and is only ever thrown while lockout is enabled. Thrown before the code is looked at, so a user already
+    /// locked out by wrong passwords cannot get in on a correct code.
+    /// </exception>
     ///
     /// <remarks>
     /// The time step and the recovery code are both claimed with a guarded update rather than read and then written, so
     /// two requests presenting the same code at once cannot both be accepted.
+    ///
+    /// Where lockout is enabled the attempt is claimed before either check runs and is left standing by a refusal, so a
+    /// caller that treats <c>false</c> as a retry is what the budget bounds. It is not given back on acceptance either:
+    /// the whole run is deleted instead, which takes the password failures before it with it.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
