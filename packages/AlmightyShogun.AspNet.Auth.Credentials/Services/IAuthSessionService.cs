@@ -57,7 +57,10 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     /// still detects, which is what catches a token stolen shortly before that session ended.
     ///
     /// This opens a transaction of its own. A rotation lost to a concurrent one rolls back before the refusal, while the
-    /// revocations a detected replay causes are committed before the exception is thrown, so they survive the failure.
+    /// revocations a detected replay causes are committed before the exception is thrown, so they survive the failure. A
+    /// rotation of another of the user's sessions landing at that moment is written over rather than allowed to discard
+    /// them; on the repeated collision that defeats even that, the revocations are given up on and logged, and the refusal
+    /// is unchanged.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

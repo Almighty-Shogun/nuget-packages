@@ -24,4 +24,15 @@ internal static class AuthSessionDefaults
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     internal static readonly TimeSpan RotationGrace = TimeSpan.FromSeconds(30);
+
+    /// <summary>
+    /// How many times the write of a detected replay's revocations is attempted before it is given up on. A rotation of
+    /// one of the user's other sessions committing mid-detection leaves the revocation of that row matching nothing, and
+    /// it is reapplied over what the rotation wrote; this bounds that so a steady stream of refreshes cannot hold the
+    /// write open indefinitely.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal const int RevocationSaveAttempts = 5;
 }

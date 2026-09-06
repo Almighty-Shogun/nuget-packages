@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
@@ -86,10 +87,7 @@ internal sealed class AuthSessionService<TUser>(
         if (session is null || !session.IsActive)
         {
             if (await DetectTokenReuseAsync(refreshTokenHash, cancellationToken))
-            {
-                await databaseContext.SaveChangesAsync(cancellationToken);
-                await transaction.CommitAsync(cancellationToken);
-            }
+                await SaveRevocationsAsync(transaction, cancellationToken);
 
             throw new InvalidSessionException();
         }
@@ -115,7 +113,8 @@ internal sealed class AuthSessionService<TUser>(
         session.RefreshTokenHash = TokenHasher.Hash(newRefreshToken);
         session.ConcurrencyToken = Guid.NewGuid();
         session.ExpiresAt = CapToAbsoluteLifetime(
-            session, DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(authOptions.Value.RefreshTokenDays))
+            session,
+            DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(authOptions.Value.RefreshTokenDays))
         );
 
         try
@@ -251,6 +250,8 @@ internal sealed class AuthSessionService<TUser>(
     ///
     /// Nothing is saved or committed here. The caller runs inside a transaction of its own and is about to throw, so it
     /// alone decides whether the revocations are written; saving here would commit a partial write on a path that fails.
+    /// A rotation of one of the rows read here committing before that write lands makes the write match nothing, and the
+    /// caller reapplies the revocation over the row that rotation left rather than the one this read saw.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -277,6 +278,90 @@ internal sealed class AuthSessionService<TUser>(
         rotated.PreviousRefreshTokenHash = null;
 
         return true;
+    }
+
+    /// <summary>
+    /// Writes the revocations a detected replay made, reapplying them over any rotation that commits in between, so a
+    /// confirmed theft ends the user's sessions instead of being discarded by a refresh that raced it.
+    /// </summary>
+    ///
+    /// <param name="transaction">
+    /// The caller's open transaction, committed once the write lands and rolled back when it never does.
+    /// </param>
+    /// <param name="cancellationToken">Cancels the save, the reloads it retries against, and the commit.</param>
+    ///
+    /// <remarks>
+    /// Every session row carries <see cref="UserSession.ConcurrencyToken"/> in the <c>WHERE</c> clause of its UPDATE, so a
+    /// rotation of the user's other sessions landing between the detection's read and this write leaves that row
+    /// matching nothing. Each rejected entry is reloaded and its guard alone refreshed to the value that rotation wrote,
+    /// re-arming the same UPDATE against the current row. Only the guard is taken from the reloaded row on purpose:
+    /// refreshing every original would leave the columns the rotation wrote differing from the values read before it,
+    /// marking them modified, and the retry would write the rotated token and expiry back to what they were.
+    ///
+    /// <see cref="AuthSessionDefaults.RevocationSaveAttempts"/> bounds the saves rather than the colliding rows. A
+    /// provider that batches the UPDATEs reports every collision on one save, so a single retry clears them all; one that
+    /// sends them singly reports the first alone and spends an attempt per row.
+    ///
+    /// The revocation is meant to win that collision. <see cref="UserSession.IsRevoked"/> and the cleared
+    /// <see cref="UserSession.PreviousRefreshTokenHash"/> are the only columns it sets, both to a constant and neither
+    /// reading the value it replaces, so reapplying them over the row the rotation left loses nothing, and the rotation
+    /// being overtaken may well be the thief's.
+    ///
+    /// The reload runs on the caller's connection inside its still-open transaction, so it depends on the isolation level
+    /// admitting the row the other request committed. Read committed, which SQL Server and PostgreSQL default to, does.
+    ///
+    /// A row deleted underneath the write is dropped from the change tracker rather than retried, since a session that no
+    /// longer exists needs no revoking. Exhausting the attempts logs the failure and rolls back, which leaves the user's
+    /// sessions standing and the replayed session's retired hash uncleared, so that token fires detection again on its
+    /// next presentation; the caller refuses the refresh either way.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task SaveRevocationsAsync(IDbContextTransaction transaction, CancellationToken cancellationToken)
+    {
+        for (var attempt = 1;; attempt++)
+        {
+            try
+            {
+                await databaseContext.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+
+                return;
+            }
+            catch (DbUpdateConcurrencyException exception)
+            {
+                if (attempt >= AuthSessionDefaults.RevocationSaveAttempts)
+                {
+                    logger.LogError(
+                        "Refresh token reuse revocations abandoned after {Attempts} attempts; the user's sessions stand",
+                        attempt
+                    );
+
+                    await transaction.RollbackAsync(cancellationToken);
+
+                    return;
+                }
+
+                foreach (EntityEntry entry in exception.Entries)
+                {
+                    PropertyValues? stored = await entry.GetDatabaseValuesAsync(cancellationToken);
+
+                    if (stored is null)
+                    {
+                        entry.State = EntityState.Detached;
+
+                        continue;
+                    }
+
+                    PropertyEntry guard = entry.Property(nameof(UserSession.ConcurrencyToken));
+
+                    guard.CurrentValue = stored[nameof(UserSession.ConcurrencyToken)];
+                    guard.OriginalValue = guard.CurrentValue;
+                    guard.IsModified = false;
+                }
+            }
+        }
     }
 
     /// <summary>
