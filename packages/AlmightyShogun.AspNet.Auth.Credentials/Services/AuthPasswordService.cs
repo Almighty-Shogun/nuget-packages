@@ -62,8 +62,6 @@ internal sealed class AuthPasswordService<TUser>(
 
         user.Password = _hasher.HashPassword(user, request.NewPassword);
 
-        databaseContext.Users.Update(user);
-
         await InvalidateActiveTokenAsync(user.Id, cancellationToken);
         await RevokeUserSessionsAsync(user.Id, cancellationToken, currentRefreshToken);
         await RetireTwoFactorChallengesAsync(user.Id, cancellationToken);
@@ -120,8 +118,6 @@ internal sealed class AuthPasswordService<TUser>(
             throw new InvalidPasswordResetTokenException();
 
         user.Password = _hasher.HashPassword(user, request.NewPassword);
-
-        databaseContext.Users.Update(user);
 
         await RevokeUserSessionsAsync(passwordToken.UserId, cancellationToken);
         await RetireTwoFactorChallengesAsync(passwordToken.UserId, cancellationToken);
