@@ -13,7 +13,7 @@ fields:
       type: string
 
     - name: PreviousRefreshTokenHash
-      description: Hash of the token this one replaced. Presenting it again after the grace period is what identifies a stolen token and revokes every session for the user.
+      description: Hash of the token this one replaced. Presenting it again after the grace period is what identifies a stolen token and revokes every session for the user. Cleared as that fires, so one retired hash triggers detection once.
       type: string?
       default: 'null'
 

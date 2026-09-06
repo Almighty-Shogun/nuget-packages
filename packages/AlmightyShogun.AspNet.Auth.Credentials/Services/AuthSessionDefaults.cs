@@ -17,7 +17,8 @@ internal static class AuthSessionDefaults
     /// <summary>
     /// How long after a rotation a spent refresh token is refused without revoking anything, covering the window where a
     /// client retried before it stored the new token. The spent token is never accepted either way, since it no longer
-    /// matches; outside this window presenting it is treated as a replay and ends every session the user holds.
+    /// matches; outside this window the first presentation is treated as a replay and ends every session the user holds.
+    /// The session's record of that token goes with the detection, so presenting it again afterwards revokes nothing.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
