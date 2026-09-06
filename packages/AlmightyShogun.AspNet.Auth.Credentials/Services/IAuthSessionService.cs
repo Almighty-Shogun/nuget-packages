@@ -52,6 +52,10 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     /// Nothing is revoked either while the rotation is under thirty seconds old, which covers a client that retried before
     /// it had stored the new token: inside that window the replay is still refused, but the sessions stand.
     ///
+    /// A replay that is acted on spends the session's record of the token it replayed, so that token revokes once and is
+    /// refused as an unknown one from then on. A session already ended, by a sign-out or by a password or email change,
+    /// still detects, which is what catches a token stolen shortly before that session ended.
+    ///
     /// This opens a transaction of its own. A rotation lost to a concurrent one rolls back before the refusal, while the
     /// revocations a detected replay causes are committed before the exception is thrown, so they survive the failure.
     /// </remarks>
@@ -65,8 +69,9 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     );
 
     /// <summary>
-    /// Ends one session, which is what a sign-out on a single device does. The row is kept rather than deleted, and a
-    /// refresh presented against it afterwards is refused exactly as an unknown token is.
+    /// Ends one session, which is what a sign-out on a single device does. The row is kept rather than deleted, and the
+    /// token the client was holding is refused afterwards exactly as an unknown token is. The token that session had
+    /// already rotated away is not, so ending a session does not disarm theft detection for the token it last spent.
     /// </summary>
     ///
     /// <param name="refreshToken">The token as the client holds it. An unknown token is not an error.</param>

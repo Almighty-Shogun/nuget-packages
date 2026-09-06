@@ -136,8 +136,9 @@ public sealed class UserSession
     public string? Os { get; set; }
 
     /// <summary>
-    /// The hash of the refresh token this session replaced, or <c>null</c> before its first rotation. A
-    /// request presenting it is a replay of a spent token, which is the signal that a refresh token has been stolen.
+    /// The hash of the refresh token this session replaced, or <c>null</c> before its first rotation and again once a
+    /// replay of it has been treated as theft. A request presenting it is a replay of a spent token, which is the signal
+    /// that a refresh token has been stolen; clearing it as that fires keeps one retired token to a single detection.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

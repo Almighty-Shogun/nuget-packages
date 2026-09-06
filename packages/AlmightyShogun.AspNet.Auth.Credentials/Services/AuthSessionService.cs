@@ -39,7 +39,8 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// Only one step of the chain is remembered. A session that has rotated <c>a</c> to <c>b</c> to <c>c</c> holds
 /// <c>b</c> as its previous token, so replaying <c>b</c> is detected while replaying <c>a</c> reads as an unknown token
 /// and is refused without revoking anything. Detection therefore covers the token most recently spent, and not every
-/// token the session has ever issued.
+/// token the session has ever issued, and it covers that one token once, since the record of it is cleared as the
+/// detection fires.
 ///
 /// It also covers only a replay arriving more than <see cref="AuthSessionDefaults.RotationGrace"/> after the session was
 /// last refreshed. Inside that window the replay is refused like any unusable token and nothing is revoked, so a thief
@@ -229,18 +230,25 @@ internal sealed class AuthSessionService<TUser>(
     }
 
     /// <summary>
-    /// Treats a refresh token that was already rotated away as stolen, and marks every session the user holds revoked.
+    /// Treats a refresh token that was already rotated away as stolen, marks every session the user holds revoked, and
+    /// clears the retired hash that matched, so one replayed token fires the detection once rather than repeatedly.
     /// </summary>
     ///
     /// <param name="refreshTokenHash">The hash of the token that was presented after already being rotated away.</param>
     /// <param name="cancellationToken">Cancels the lookups.</param>
     ///
     /// <returns>
-    /// <c>true</c> when a replay was found and the user's live sessions were marked revoked, <c>false</c> when the hash
-    /// matches no rotated session or the rotation is still inside the grace window.
+    /// <c>true</c> when a replay was found, the user's live sessions were marked revoked and the matched session's
+    /// <see cref="UserSession.PreviousRefreshTokenHash"/> was cleared, <c>false</c> when the hash matches no rotated
+    /// session or the rotation is still inside the grace window.
     /// </returns>
     ///
     /// <remarks>
+    /// The match is on the retired hash alone, with no filter on the session being live, so a row already revoked, by a
+    /// sign-out or by a password or email change, is still a source. Clearing the hash is what bounds that: revoked rows
+    /// are kept until they expire, so a hash left standing would revoke every session opened afterwards, once per
+    /// sign-in, for the rest of the refresh window.
+    ///
     /// Nothing is saved or committed here. The caller runs inside a transaction of its own and is about to throw, so it
     /// alone decides whether the revocations are written; saving here would commit a partial write on a path that fails.
     /// </remarks>
@@ -265,6 +273,8 @@ internal sealed class AuthSessionService<TUser>(
 
         foreach (UserSession active in live)
             active.IsRevoked = true;
+
+        rotated.PreviousRefreshTokenHash = null;
 
         return true;
     }
