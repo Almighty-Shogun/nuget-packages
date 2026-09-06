@@ -42,7 +42,7 @@ fields:
             default: '{}'
 
     - name: EmailTemplateSettings
-      description: The nested `Email:Template` section, holding the footer and fallback wording every [`BaseMailTemplate`](./types/base-mail-template) shares, so copy appearing in each message is configured once instead of restated by every template class. `{app_name}` and `{app_url}` are substituted before the value is HTML encoded, so a brand name containing markup cannot escape into the document.
+      description: The nested `Email:Template` section, holding the footer and fallback wording every [`BaseMailTemplate`](./types/base-mail-template) shares, so copy appearing in each message is configured once instead of restated by every template class. `{app_name}` and `{app_url}` are substituted before `CopyrightText` and `FooterLinkText` are HTML encoded, so a brand name containing markup cannot escape into the document through either. `IgnoreText` is substituted as written, so markup reaching it through `{app_name}` renders.
       fields:
           - name: CopyrightText
             description: Copyright line closing the footer, resolved in both the HTML and the plain-text body.
@@ -55,7 +55,7 @@ fields:
             default: '{app_name}'
 
           - name: IgnoreText
-            description: Line telling a recipient to disregard a message they did not expect. Empty by default, which drops the line from the plain-text rendering and substitutes nothing for its HTML placeholder; whether that leaves a blank paragraph depends on the application's own base template.
+            description: "Line telling a recipient to disregard a message they did not expect. Alone among the footer values it is substituted into the HTML body as written rather than encoded, so it may carry markup such as `<strong>`, and the plain-text alternative reduces that markup to text with `<br>` becoming a line break. Set it only from values the application controls. Empty by default, which drops the line from the plain-text rendering and substitutes nothing for its HTML placeholder; whether that leaves a blank paragraph depends on the application's own base template."
             type: string
             default: "''"
 ---
