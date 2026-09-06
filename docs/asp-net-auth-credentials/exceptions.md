@@ -35,7 +35,7 @@ public sealed class InvalidCredentialsException : Exception;
 
 ## AccountLockedException
 
-Thrown when the lockout policy has locked the account, both on login and on session refresh. Carries `LockoutEnd`, which is passed to the message as `{0}` so the text can say when to try again.
+Thrown when the lockout policy has locked the account, on login, on [`VerifyAsync`](./services/auth-two-factor-service#verifyasync) and the [`CompleteTwoFactorLoginAsync`](./services/auth-user-service#completetwofactorloginasync) that calls it, and on session refresh. Carries `LockoutEnd`, which is passed to the message as `{0}` so the text can say when to try again.
 
 Only thrown when [lockout](./configuration) is enabled.
 

@@ -9,7 +9,7 @@ fields:
       type: int
 
     - name: AccessFailedCount
-      description: How many sign-ins have failed in a row. Reset to zero when the limit is reached and the lockout is applied, so it counts towards the next lockout rather than a lifetime total. A correct password does not clear it while the account owes a second factor, and does not add to it either; the run survives untouched until that code is accepted.
+      description: How many credential checks have failed in a row, counting wrong two-factor codes alongside wrong passwords. It stands at the limit while the lockout it earned runs, and is zeroed by the first attempt made after that lockout has expired, so it counts towards the next lockout rather than a lifetime total. A correct password does not clear it while the account owes a second factor, and does not add to it either; the run survives untouched until that code is accepted.
       type: int
       default: '0'
 
