@@ -45,8 +45,9 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
     /// <summary>
-    /// The issued email verifications, including spent ones. The package issues none of these itself, so the set
-    /// exists for an application's own sign-up and change-of-address flows to write through.
+    /// The issued email verifications, including spent ones. <see cref="IAuthEmailService"/> writes them, retiring a user's
+    /// unspent rows of a purpose whenever it issues another of that purpose, so requests made one after another leave one
+    /// unspent row per user per purpose. Two arriving at once can leave more, since no index enforces the limit.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -165,6 +166,10 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
             .HasForeignKey(token => token.UserId)
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
+
+        modelBuilder.Entity<EmailVerificationToken>()
+            .Property(token => token.Purpose)
+            .HasConversion<int>();
 
         modelBuilder.Entity<EmailVerificationToken>()
             .HasIndex(token => token.TokenHash)
