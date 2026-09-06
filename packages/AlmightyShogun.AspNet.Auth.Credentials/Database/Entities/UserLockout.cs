@@ -8,8 +8,10 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <remarks>
-/// A row exists only between the first failure and the next success. Signing in deletes it rather than zeroing it, so
-/// the table holds one row per account currently failing rather than one per account that ever has.
+/// A row exists only between the first failure and the sign-in that next completes. Completing one deletes the row
+/// rather than zeroing it, so the table holds one row per account currently failing rather than one per account that
+/// ever has. Where a second factor is owed the row outlives the password and is deleted only once the code is
+/// presented, since a correct password on its own finishes nothing.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

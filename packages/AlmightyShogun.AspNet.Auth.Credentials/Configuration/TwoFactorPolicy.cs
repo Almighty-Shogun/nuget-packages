@@ -60,4 +60,15 @@ public sealed record TwoFactorPolicy
     /// <since>4.0.0</since>
     [Range(1, 60)]
     public int PendingSecretMinutes { get; init; } = 10;
+
+    /// <summary>
+    /// How long the challenge a sign-in hands back stays redeemable, in minutes. It is what bounds the code prompt: past
+    /// it the user has to send their password again. Long enough to fetch a code from a phone, short enough that a
+    /// half-finished sign-in left on a shared machine stops being completable.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    [Range(1, int.MaxValue)]
+    public int ChallengeMinutes { get; init; } = 5;
 }

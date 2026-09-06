@@ -83,13 +83,15 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     Task RevokeSessionAsync(string refreshToken, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Opens a session for a user and returns its refresh token, pruning that user's already-expired sessions on the way
-    /// so the table does not grow without bound.
+    /// Opens a session for a user and issues both of its tokens, pruning that user's already-expired sessions on the way
+    /// so the table does not grow without bound. This is the sign-in path for a flow the package does not own, such as an
+    /// SSO callback, where the credentials were established elsewhere and only the session still has to be made.
     /// </summary>
     ///
-    /// <param name="user">The user the session belongs to.</param>
+    /// <param name="user">The user the session belongs to, read for the claims the access token carries.</param>
     /// <param name="app">
-    /// The application audience the session is scoped to, or <c>null</c> when the deployment is not app-scoped.
+    /// The application audience the session is scoped to, or <c>null</c> when the deployment is not app-scoped. It also
+    /// narrows the permissions the access token carries, so passing the wrong one mints a token for the wrong audience.
     /// </param>
     /// <param name="context">
     /// The request's address and user agent, recorded on the session so a user can recognise their own devices.
@@ -97,15 +99,24 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     /// <param name="cancellationToken">Cancels the database work.</param>
     ///
     /// <returns>
-    /// The refresh token in plain text, which is the only time it exists in that form: only its hash is stored.
+    /// The access token, the refresh token, and the user they were issued for. The refresh token is in plain text, which
+    /// is the only time it exists in that form: only its hash is stored.
     /// </returns>
     ///
     /// <remarks>
+    /// Nothing is checked here. The account being active, not locked out, and past whatever second factor it owes are all
+    /// the caller's to establish first, because this mints the credential rather than deciding who may have one.
+    ///
     /// This saves but opens no transaction of its own, so a caller that wants the session and its own writes to land
     /// together must call it inside one.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    Task<string> CreateSessionAsync(TUser user, string? app, ClientContext context, CancellationToken cancellationToken = default);
+    Task<AuthSessionResult<TUser>> CreateSessionAsync(
+        TUser user,
+        string? app,
+        ClientContext context,
+        CancellationToken cancellationToken = default
+    );
 }
