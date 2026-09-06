@@ -11,8 +11,9 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Changes passwords and runs the reset flow. Both paths that set a password revoke the user's other sessions, because a
-/// password that has changed should not leave access granted under the old one.
+/// Changes passwords and runs the reset flow. Both paths that set a password revoke the user's other sessions and retire
+/// the sign-ins still waiting on a second factor, because a password that has changed should not leave access granted
+/// under the old one.
 /// </summary>
 ///
 /// <typeparam name="TUser">The application's own user entity, whose password column these paths read and write.</typeparam>
@@ -65,6 +66,7 @@ internal sealed class AuthPasswordService<TUser>(
 
         await InvalidateActiveTokenAsync(user.Id, cancellationToken);
         await RevokeUserSessionsAsync(user.Id, cancellationToken, currentRefreshToken);
+        await RetireTwoFactorChallengesAsync(user.Id, cancellationToken);
 
         await databaseContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
@@ -122,6 +124,7 @@ internal sealed class AuthPasswordService<TUser>(
         databaseContext.Users.Update(user);
 
         await RevokeUserSessionsAsync(passwordToken.UserId, cancellationToken);
+        await RetireTwoFactorChallengesAsync(passwordToken.UserId, cancellationToken);
 
         await databaseContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
@@ -265,6 +268,37 @@ internal sealed class AuthPasswordService<TUser>(
             token.UsedAt = DateTimeOffset.UtcNow;
 
         databaseContext.PasswordResetTokens.UpdateRange(tokens);
+    }
+
+    /// <summary>
+    /// Spends the user's outstanding two-factor challenges, so a sign-in that got past the old password cannot be
+    /// finished with a code once that password is gone.
+    /// </summary>
+    ///
+    /// <param name="userId">The user whose outstanding challenges are being retired.</param>
+    /// <param name="cancellationToken">Cancels the lookup.</param>
+    ///
+    /// <returns>
+    /// A task that completes once no unspent challenge remains for that user. Nothing is written until the caller saves.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// Retiring them is what revoking a session cannot cover: a challenge names a password that has already verified, so
+    /// leaving one live would let it buy a session under a password the account no longer has.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task RetireTwoFactorChallengesAsync(int userId, CancellationToken cancellationToken)
+    {
+        List<TwoFactorChallenge> challenges = await databaseContext.TwoFactorChallenges
+            .Where(challenge => challenge.UserId == userId && challenge.UsedAt == null)
+            .ToListAsync(cancellationToken);
+
+        foreach (TwoFactorChallenge challenge in challenges)
+            challenge.UsedAt = DateTimeOffset.UtcNow;
+
+        databaseContext.TwoFactorChallenges.UpdateRange(challenges);
     }
 
     /// <summary>
