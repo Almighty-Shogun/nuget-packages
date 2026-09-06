@@ -1,5 +1,4 @@
 using OtpNet;
-using System.Web;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
@@ -85,8 +84,8 @@ internal sealed class AuthTwoFactorService<TUser>(
 
         string label = string.IsNullOrWhiteSpace(_policy.Issuer) ? issuer : _policy.Issuer;
 
-        string uri = $"otpauth://totp/{HttpUtility.UrlEncode(label)}:{HttpUtility.UrlEncode(user.Email)}"
-                     + $"?secret={base32Secret}&issuer={HttpUtility.UrlEncode(label)}"
+        string uri = $"otpauth://totp/{Uri.EscapeDataString(label)}:{Uri.EscapeDataString(user.Email)}"
+                     + $"?secret={base32Secret}&issuer={Uri.EscapeDataString(label)}"
                      + $"&digits={_policy.Digits}&period={_policy.PeriodSeconds}";
 
         return new AuthTwoFactorResult
