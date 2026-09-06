@@ -40,7 +40,7 @@ fields:
             default: 'false'
 
           - name: MaxFailedAttempts
-            description: Consecutive failures before the account locks. Every attempt is counted before its password is checked, so this bounds concurrent guesses as well as sequential ones. The counter resets on any completed sign-in, so it measures a run of failures rather than a lifetime total. A correct password that only buys a two-factor challenge finishes nothing, so it neither clears the run nor adds to it.
+            description: Consecutive failures before the account locks, counting wrong two-factor codes alongside wrong passwords. Every attempt is counted before the password or code it presents is checked, so this bounds concurrent guesses as well as sequential ones. The counter resets on any completed sign-in, so it measures a run of failures rather than a lifetime total. A correct password that only buys a two-factor challenge finishes nothing, so it neither clears the run nor adds to it.
             type: int
             default: '5'
 

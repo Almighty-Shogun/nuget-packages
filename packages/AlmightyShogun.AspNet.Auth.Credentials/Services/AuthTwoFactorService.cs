@@ -14,7 +14,8 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// Enrols users in TOTP two-factor authentication and verifies their codes. The secret is protected at rest and the
 /// recovery codes are hashed, so a database copy alone yields neither working codes nor a way to mint them. A new
 /// enrolment is held aside until a code proves it, so starting one and abandoning it leaves a working second factor
-/// exactly as it was.
+/// exactly as it was. Verification is metered against the same failure budget the password is, so the code prompt is as
+/// bounded as the one before it; beginning or confirming an enrolment is not.
 /// </summary>
 ///
 /// <typeparam name="TUser">The application's own user entity, looked up to reach its enrolment.</typeparam>
@@ -27,13 +28,17 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// The provider that encrypts the shared secret before it is stored. Its keys must outlive the enrolments, or every
 /// stored secret becomes unreadable and users have to enrol again.
 /// </param>
+/// <param name="lockoutGuard">
+/// The guard owning the failure budget, which a presented code is claimed against and which an accepted one clears.
+/// </param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 internal sealed class AuthTwoFactorService<TUser>(
     AuthDbContext<TUser> databaseContext,
     IOptions<AuthCredentialsSettings> credentialOptions,
-    IDataProtectionProvider dataProtectionProvider
+    IDataProtectionProvider dataProtectionProvider,
+    AuthLockoutGuard<TUser> lockoutGuard
 ) : IAuthTwoFactorService<TUser> where TUser : AuthUser
 {
     /// <summary>
@@ -143,13 +148,20 @@ internal sealed class AuthTwoFactorService<TUser>(
         if (!enrolment.IsEnabled || string.IsNullOrWhiteSpace(enrolment.Secret))
             return false;
 
+        await lockoutGuard.ReserveAttemptAsync(enrolment.UserId, cancellationToken);
+
         if (TryVerifyTotp(enrolment.Secret, code, out long window))
         {
             int affected = await databaseContext.UserTwoFactors
                 .Where(twoFactor => twoFactor.Id == enrolment.Id && (twoFactor.LastWindow == null || twoFactor.LastWindow < window))
                 .ExecuteUpdateAsync(setters => setters.SetProperty(twoFactor => twoFactor.LastWindow, window), cancellationToken);
 
-            return affected == 1;
+            if (affected != 1)
+                return false;
+
+            await lockoutGuard.ClearLockoutAsync(enrolment.UserId, cancellationToken);
+
+            return true;
         }
 
         string codeHash = TokenHasher.Hash(code);
@@ -160,7 +172,12 @@ internal sealed class AuthTwoFactorService<TUser>(
             .Where(recoveryCode => recoveryCode.CodeHash == codeHash && recoveryCode.UsedAt == null)
             .ExecuteUpdateAsync(setters => setters.SetProperty(recoveryCode => recoveryCode.UsedAt, now), cancellationToken);
 
-        return recoveryCodeAffected == 1;
+        if (recoveryCodeAffected != 1)
+            return false;
+
+        await lockoutGuard.ClearLockoutAsync(enrolment.UserId, cancellationToken);
+
+        return true;
     }
 
     /// <inheritdoc />

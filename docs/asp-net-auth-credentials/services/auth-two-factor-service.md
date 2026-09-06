@@ -76,6 +76,8 @@ Checks a submitted value as a TOTP code first and as a recovery code second, spe
 
 Returns `false` for a wrong code, an unreadable secret, a recovery code that was already spent, and an enrolment that was begun but never confirmed, rather than throwing, so the caller decides how to report it. [`CompleteTwoFactorLoginAsync`](./auth-user-service#completetwofactorloginasync) calls this to finish a sign-in and turns that `false` into [`InvalidTwoFactorCodeException`](../exceptions). A user with no enrolment row at all throws that exception from here too, so call this only for a user you have already established is enrolled.
 
+The presented code is claimed against the same failure budget the password is, so a wrong one costs a lockout attempt and repeated guesses lock the account at [`LockoutPolicy.MaxFailedAttempts`](../configuration). The claim is made before the code is checked, so [`AccountLockedException`](../exceptions) is thrown while a lockout is in force and a valid TOTP or recovery code is refused until it expires; an accepted code clears the whole run. An enrolment that is not enabled or carries no secret is refused before anything is claimed, and none of this happens unless [`LockoutPolicy.Enabled`](../configuration) is set, which it is not by default.
+
 ```csharp
 using AlmightyShogun.AspNet.Auth.Credentials;
 

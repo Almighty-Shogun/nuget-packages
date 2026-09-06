@@ -20,11 +20,14 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// <typeparam name="TUser">The application's own user entity, both inserted on creation and returned on sign-in.</typeparam>
 /// <param name="databaseContext">The application's context, which the credential tables live in.</param>
 /// <param name="credentialOptions">
-/// The bound credential settings, read for the lockout policy and for how long an issued challenge stays redeemable.
+/// The bound credential settings, read for how long an issued challenge stays redeemable.
 /// </param>
 /// <param name="appHostResolver">
 /// The resolver deciding which application the current request belongs to, so a session and its token are scoped to the
 /// host the user actually signed in through, and so a challenge is only completed through the application that bought it.
+/// </param>
+/// <param name="lockoutGuard">
+/// The guard owning the failure budget, which the password check is claimed against and which a completed sign-in clears.
 /// </param>
 /// <param name="sessionService">The session service, which issues the tokens a completed sign-in returns.</param>
 /// <param name="twoFactorService">
@@ -38,6 +41,7 @@ internal sealed class AuthUserService<TUser>(
     AuthDbContext<TUser> databaseContext,
     IOptions<AuthCredentialsSettings> credentialOptions,
     IAppHostResolver appHostResolver,
+    AuthLockoutGuard<TUser> lockoutGuard,
     IAuthSessionService<TUser> sessionService,
     IAuthTwoFactorService<TUser> twoFactorService
 ) : IAuthUserService<TUser> where TUser : AuthUser
@@ -72,9 +76,7 @@ internal sealed class AuthUserService<TUser>(
             throw new InvalidCredentialsException();
         }
 
-        LockoutPolicy lockoutPolicy = credentialOptions.Value.Lockout;
-
-        await ReserveAttemptAsync(user.Id, lockoutPolicy, cancellationToken);
+        await lockoutGuard.ReserveAttemptAsync(user.Id, cancellationToken);
 
         PasswordVerificationResult verification = _hasher.VerifyHashedPassword(user, user.Password, request.Password);
 
@@ -94,7 +96,7 @@ internal sealed class AuthUserService<TUser>(
 
         if (enrolled)
         {
-            await ReleaseAttemptAsync(user.Id, lockoutPolicy, cancellationToken);
+            await lockoutGuard.ReleaseAttemptAsync(user.Id, cancellationToken);
 
             string challenge = await IssueChallengeAsync(user.Id, app, clientContext, cancellationToken);
 
@@ -104,7 +106,7 @@ internal sealed class AuthUserService<TUser>(
             return new AuthLoginResult<TUser> { User = user, Challenge = challenge };
         }
 
-        await ClearLockoutAsync(user.Id, cancellationToken);
+        await lockoutGuard.ClearLockoutAsync(user.Id, cancellationToken);
 
         AuthSessionResult<TUser> session = await sessionService.CreateSessionAsync(user, app, clientContext, cancellationToken);
 
@@ -150,7 +152,7 @@ internal sealed class AuthUserService<TUser>(
         await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
 
         await SpendChallengeAsync(pending.Id, now, cancellationToken);
-        await ClearLockoutAsync(user.Id, cancellationToken);
+        await lockoutGuard.ClearLockoutAsync(user.Id, cancellationToken);
 
         AuthSessionResult<TUser> result =
             await sessionService.CreateSessionAsync(user, pending.App, clientContext, cancellationToken);
@@ -322,287 +324,6 @@ internal sealed class AuthUserService<TUser>(
         if (affectedRows != 1)
             throw new InvalidTwoFactorChallengeException();
     }
-
-    /// <summary>
-    /// Claims one attempt against the user's failure budget before any password is verified, and refuses the sign-in
-    /// when the budget is gone. Does nothing when lockout is disabled, so an application that does not want it pays no
-    /// write.
-    /// </summary>
-    ///
-    /// <param name="userId">The user signing in, given as the database key rather than the public identifier.</param>
-    /// <param name="policy">The configured policy, read for the failure limit and how long a lockout lasts.</param>
-    /// <param name="cancellationToken">Cancels the database work.</param>
-    ///
-    /// <returns>A task that completes once one attempt has been claimed for this caller.</returns>
-    ///
-    /// <exception cref="AccountLockedException">
-    /// A lockout is in force for this user, or the budget was exhausted by attempts that claimed before this one.
-    /// </exception>
-    ///
-    /// <remarks>
-    /// Counting before the verification rather than after it is what bounds a burst. Verification is deliberately slow,
-    /// so a check made before it and a count made after it leave a window as wide as the hash: every request arriving
-    /// inside it reads the same unspent budget and is allowed to guess, and the limit then bounds attempts made one
-    /// after another while doing nothing about attempts made at once.
-    ///
-    /// The claim is one guarded statement rather than a read followed by a write, so the database decides who gets each
-    /// attempt and no isolation level has to be raised to make that safe. Two callers racing for the last attempt both
-    /// issue the same update; exactly one reports a row, and the other is refused. The row's unique key on the user
-    /// settles the same race for the first attempt of a run, where there is no row to update yet.
-    ///
-    /// A sign-in that completes deletes the row through <see cref="ClearLockoutAsync"/>, so the attempt claimed here costs
-    /// the caller nothing. A correct password that owes a second factor gives the one attempt back through
-    /// <see cref="ReleaseAttemptAsync"/> instead, leaving whatever failures already stood for
-    /// <see cref="CompleteTwoFactorLoginAsync"/> to clear and taking the row away where none did. A correct password that
-    /// is then refused, as a deactivated account is, leaves the claimed attempt standing, because neither the delete nor
-    /// the give-back is reached.
-    /// </remarks>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
-    private async Task ReserveAttemptAsync(int userId, LockoutPolicy policy, CancellationToken cancellationToken)
-    {
-        if (!policy.Enabled)
-            return;
-
-        DateTimeOffset now = DateTimeOffset.UtcNow;
-        DateTimeOffset lockoutEnd = now.AddMinutes(policy.DurationMinutes);
-        int maximum = policy.MaxFailedAttempts;
-
-        await databaseContext.UserLockouts
-            .Where(candidate => candidate.UserId == userId && candidate.LockoutEnd != null && candidate.LockoutEnd <= now)
-            .ExecuteUpdateAsync(
-                setters => setters
-                    .SetProperty(candidate => candidate.AccessFailedCount, 0)
-                    .SetProperty(candidate => candidate.LockoutEnd, (DateTimeOffset?)null),
-                cancellationToken
-            );
-
-        if (await TryClaimAttemptAsync(userId, maximum, lockoutEnd, cancellationToken))
-            return;
-
-        if (await TryClaimFirstAttemptAsync(userId, maximum, lockoutEnd, cancellationToken))
-            return;
-
-        if (await TryClaimAttemptAsync(userId, maximum, lockoutEnd, cancellationToken))
-            return;
-
-        throw new AccountLockedException(await ResolveLockoutEndAsync(userId, lockoutEnd, cancellationToken));
-    }
-
-    /// <summary>
-    /// Claims an attempt against an existing row, locking the account when the claim spends the last one.
-    /// </summary>
-    ///
-    /// <param name="userId">The user signing in, given as the database key rather than the public identifier.</param>
-    /// <param name="maximum">The failure limit the budget is measured against.</param>
-    /// <param name="lockoutEnd">When a lockout started by this claim would run out.</param>
-    /// <param name="cancellationToken">Cancels the update.</param>
-    ///
-    /// <returns>
-    /// <c>true</c> when this caller took the attempt; <c>false</c> when no row matched, which means either that no row
-    /// exists yet or that the budget was already gone.
-    /// </returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
-    private async Task<bool> TryClaimAttemptAsync(
-        int userId,
-        int maximum,
-        DateTimeOffset lockoutEnd,
-        CancellationToken cancellationToken
-    )
-    {
-        int claimed = await databaseContext.UserLockouts
-            .Where(candidate => candidate.UserId == userId)
-            .Where(candidate => candidate.LockoutEnd == null && candidate.AccessFailedCount < maximum)
-            .ExecuteUpdateAsync(
-                setters => setters
-                    .SetProperty(candidate => candidate.AccessFailedCount, candidate => candidate.AccessFailedCount + 1)
-                    .SetProperty(
-                        candidate => candidate.LockoutEnd,
-                        candidate => candidate.AccessFailedCount + 1 >= maximum ? lockoutEnd : null
-                    ),
-                cancellationToken
-            );
-
-        return claimed == 1;
-    }
-
-    /// <summary>
-    /// Opens a failure run by inserting the row, for the attempt that finds none.
-    /// </summary>
-    ///
-    /// <param name="userId">The user signing in, given as the database key rather than the public identifier.</param>
-    /// <param name="maximum">The failure limit, which this attempt reaches on its own when the limit is one.</param>
-    /// <param name="lockoutEnd">When a lockout started by this claim would run out.</param>
-    /// <param name="cancellationToken">Cancels the insert.</param>
-    ///
-    /// <returns>
-    /// <c>true</c> when the save succeeded and this caller therefore took the attempt; <c>false</c> when it raised
-    /// <see cref="DbUpdateException"/>, which the unique key on the user does when a row already exists, and which any
-    /// other failed write does too, since the save flushes everything the context is tracking rather than this row alone.
-    /// </returns>
-    ///
-    /// <remarks>
-    /// The insert is attempted rather than guarded by a preceding read, because a read cannot stop a second caller
-    /// inserting between the two statements. The unique key on the user is what actually settles it, so the losing
-    /// caller is told by the database and goes back to claiming against the row that won.
-    /// </remarks>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
-    private async Task<bool> TryClaimFirstAttemptAsync(
-        int userId,
-        int maximum,
-        DateTimeOffset lockoutEnd,
-        CancellationToken cancellationToken
-    )
-    {
-        UserLockout lockout = new()
-        {
-            UserId = userId,
-            AccessFailedCount = 1,
-            LockoutEnd = maximum <= 1 ? lockoutEnd : null
-        };
-
-        databaseContext.UserLockouts.Add(lockout);
-
-        try
-        {
-            await databaseContext.SaveChangesAsync(cancellationToken);
-
-            return true;
-        }
-        catch (DbUpdateException)
-        {
-            databaseContext.Entry(lockout).State = EntityState.Detached;
-
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// Reads when a refused caller's lockout runs out, settling a row that spent its budget without recording an end.
-    /// </summary>
-    ///
-    /// <param name="userId">The user signing in, given as the database key rather than the public identifier.</param>
-    /// <param name="lockoutEnd">The end to record and report when the row carries none.</param>
-    /// <param name="cancellationToken">Cancels the update and the read.</param>
-    ///
-    /// <returns>When the lockout runs out, which is what the refusal reports to the caller.</returns>
-    ///
-    /// <remarks>
-    /// A row can hold an exhausted count and no end when the configured limit was lowered under a run that had already
-    /// passed the new value. Recording an end here means such a row expires on its own rather than refusing that user
-    /// for good.
-    /// </remarks>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
-    private async Task<DateTimeOffset> ResolveLockoutEndAsync(
-        int userId,
-        DateTimeOffset lockoutEnd,
-        CancellationToken cancellationToken
-    )
-    {
-        await databaseContext.UserLockouts
-            .Where(candidate => candidate.UserId == userId && candidate.LockoutEnd == null)
-            .ExecuteUpdateAsync(
-                setters => setters.SetProperty(candidate => candidate.LockoutEnd, lockoutEnd),
-                cancellationToken
-            );
-
-        UserLockout? lockout = await databaseContext.UserLockouts
-            .AsNoTracking()
-            .FirstOrDefaultAsync(candidate => candidate.UserId == userId, cancellationToken);
-
-        return lockout?.LockoutEnd ?? lockoutEnd;
-    }
-
-    /// <summary>
-    /// Gives back the one attempt <see cref="ReserveAttemptAsync"/> claimed, for a password that verified but bought a
-    /// challenge rather than a session. Without it an abandoned or expired code prompt would leave that attempt standing
-    /// and a run of correct passwords would lock the account. Does nothing when lockout is disabled, matching the claim
-    /// it undoes.
-    /// </summary>
-    ///
-    /// <param name="userId">The user signing in, given as the database key rather than the public identifier.</param>
-    /// <param name="policy">The configured policy, read for whether the feature is on at all and for the failure limit.</param>
-    /// <param name="cancellationToken">Cancels the delete and the update that follows it.</param>
-    ///
-    /// <returns>A task that completes once the attempt is back in the budget, or once no row was found holding it.</returns>
-    ///
-    /// <remarks>
-    /// Only the one attempt is returned. Failures recorded before this sign-in stay on the row and are cleared by
-    /// <see cref="ClearLockoutAsync"/> once the code is presented, so a correct password neither ends the run nor adds to
-    /// it. Where the attempt being given back is the only one on the row, the row goes rather than being left counting
-    /// nothing, so a prompt that is never answered leaves the table as it found it.
-    ///
-    /// Both statements are guarded on the count they expect, in keeping with the claim they reverse. Neither matches
-    /// where the row has been deleted by a completion running alongside this one, or where its count has already been
-    /// zeroed by an attempt that found the previous lockout expired, so no case drives the count below zero. Two
-    /// sign-ins releasing at once can both miss the delete and leave one attempt standing, which the next completed
-    /// sign-in clears.
-    ///
-    /// The end is cleared alongside a decremented count that falls under the limit, and goes with the row where the row
-    /// is deleted, because a claim that spent the last attempt recorded one. That also lifts a lockout applied by
-    /// concurrent guesses in the meantime; the next failure against the restored attempt applies it again.
-    /// </remarks>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
-    private async Task ReleaseAttemptAsync(int userId, LockoutPolicy policy, CancellationToken cancellationToken)
-    {
-        if (!policy.Enabled)
-            return;
-
-        int maximum = policy.MaxFailedAttempts;
-
-        int released = await databaseContext.UserLockouts
-            .Where(candidate => candidate.UserId == userId && candidate.AccessFailedCount == 1)
-            .ExecuteDeleteAsync(cancellationToken);
-
-        if (released == 1)
-            return;
-
-        await databaseContext.UserLockouts
-            .Where(candidate => candidate.UserId == userId && candidate.AccessFailedCount > 1)
-            .ExecuteUpdateAsync(
-                setters => setters
-                    .SetProperty(candidate => candidate.AccessFailedCount, candidate => candidate.AccessFailedCount - 1)
-                    .SetProperty(
-                        candidate => candidate.LockoutEnd,
-                        candidate => candidate.AccessFailedCount - 1 >= maximum ? candidate.LockoutEnd : null
-                    ),
-                cancellationToken
-            );
-    }
-
-    /// <summary>
-    /// Clears the failure run behind a sign-in that has just completed, including the attempt that sign-in claimed for
-    /// itself. Called only once every factor the account owes has been presented.
-    /// </summary>
-    ///
-    /// <param name="userId">The user signing in, given as the database key rather than the public identifier.</param>
-    /// <param name="cancellationToken">Cancels the delete.</param>
-    ///
-    /// <returns>A task that completes once no lockout row stands for that user.</returns>
-    ///
-    /// <remarks>
-    /// The delete is unconditional, and reaching it means the sign-in is finished. Reached from
-    /// <see cref="LoginAsync"/> a lockout in force beforehand cannot be here, because <see cref="ReserveAttemptAsync"/>
-    /// refuses on one; reached from <see cref="CompleteTwoFactorLoginAsync"/> it can, since nothing rechecks the run
-    /// between the password and the code. Either way a lockout applied in between belongs to concurrent guesses that were
-    /// wrong, and a caller who has just proved every factor should not be held by them.
-    /// </remarks>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
-    private async Task ClearLockoutAsync(int userId, CancellationToken cancellationToken)
-        => await databaseContext.UserLockouts
-            .Where(candidate => candidate.UserId == userId)
-            .ExecuteDeleteAsync(cancellationToken);
 
     /// <summary>
     /// Refuses a username or email address that another account already holds, so a duplicate is reported as a client

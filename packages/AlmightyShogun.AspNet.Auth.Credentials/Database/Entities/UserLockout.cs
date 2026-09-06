@@ -11,7 +11,8 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// A row exists only between the first failure and the sign-in that next completes. Completing one deletes the row
 /// rather than zeroing it, so the table holds one row per account currently failing rather than one per account that
 /// ever has. Where a second factor is owed the row outlives the password and is deleted only once the code is
-/// presented, since a correct password on its own finishes nothing.
+/// presented, since a correct password on its own finishes nothing; the codes tried in the meantime count on the same
+/// row as the passwords did.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -37,7 +38,8 @@ public sealed class UserLockout
     public int UserId { get; set; }
 
     /// <summary>
-    /// How many failures stand against the account, which never exceeds the configured limit.
+    /// How many credential checks stand unanswered against the account, wrong passwords and wrong two-factor codes
+    /// together, which never exceeds the configured limit.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

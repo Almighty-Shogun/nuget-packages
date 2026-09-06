@@ -104,7 +104,13 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     /// </exception>
     /// <exception cref="InvalidTwoFactorCodeException">
     /// The code is wrong, or the enrolment was disabled after the challenge was issued. The challenge is left unspent
-    /// either way, so a mistyped code can be corrected without starting again.
+    /// either way, so a mistyped code can be corrected without starting again, though a wrong code still costs a lockout
+    /// attempt where a disabled enrolment costs none.
+    /// </exception>
+    /// <exception cref="AccountLockedException">
+    /// A lockout is in force, or the budget was exhausted by attempts that claimed before this one. Carries the moment it
+    /// lifts, and is only ever thrown while lockout is enabled. Raised by the two-factor service before it looks at the
+    /// code, so the challenge is left unspent.
     /// </exception>
     /// <exception cref="InvalidCredentialsException">
     /// The user the challenge names is gone, which the cascade on the row makes unreachable in practice.
@@ -119,8 +125,10 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     /// insert. The application is resolved from this request's host and has to match the one recorded on the challenge,
     /// so a challenge bought through one application cannot be completed through another.
     ///
-    /// Nothing here is metered. Failed codes cost no lockout attempt, so an application that wants the code prompt bounded
-    /// has to bound it itself.
+    /// The code prompt is metered by the two-factor service against the same budget <see cref="LoginAsync"/> uses, so
+    /// wrong codes lock the account and a correct one clears the run, password failures included. The clear here is
+    /// therefore the second one on that path and finds nothing left to delete; it stands for the case where a lockout
+    /// applied by concurrent guesses arrived between the two.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
