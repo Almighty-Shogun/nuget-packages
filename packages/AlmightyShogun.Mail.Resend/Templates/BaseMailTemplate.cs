@@ -119,7 +119,7 @@ public abstract class BaseMailTemplate
             .Replace("{{Greeting}}", Encode(Greeting), StringComparison.Ordinal)
             .Replace(
                 "{{CopyrightText}}",
-                Encode(ResolveTemplateValue(settings.Template.CopyrightTextTemplate, settings)),
+                Encode(ResolveTemplateValue(settings.Template.CopyrightText, settings)),
                 StringComparison.Ordinal
             )
             .Replace("{{AppUrl}}", EncodeUrl(settings.AppUrl), StringComparison.Ordinal)
@@ -173,7 +173,7 @@ public abstract class BaseMailTemplate
         if (Buttons.Count > 0)
             text.AppendLine();
 
-        return text.AppendLine(ResolveTemplateValue(settings.Template.CopyrightTextTemplate, settings))
+        return text.AppendLine(ResolveTemplateValue(settings.Template.CopyrightText, settings))
             .AppendLine(ResolveTemplateValue(settings.Template.FooterLinkText, settings))
             .AppendLine(ResolveTemplateValue(settings.Template.IgnoreText, settings))
             .ToString()

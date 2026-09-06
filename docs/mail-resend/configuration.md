@@ -44,7 +44,7 @@ fields:
     - name: EmailTemplateSettings
       description: The nested `Email:Template` section, holding the footer and fallback wording every [`BaseMailTemplate`](./types/base-mail-template) shares, so copy appearing in each message is configured once instead of restated by every template class. `{app_name}` and `{app_url}` are substituted before the value is HTML encoded, so a brand name containing markup cannot escape into the document.
       fields:
-          - name: CopyrightTextTemplate
+          - name: CopyrightText
             description: Copyright line closing the footer, resolved in both the HTML and the plain-text body.
             type: string
             default: © {app_name}
@@ -78,7 +78,7 @@ Mail Resend reads the `Email` section when [`AddResendEmail`](./extensions/add-r
             "Dashboard": "https://example.com/dashboard"
         },
         "Template": {
-            "CopyrightTextTemplate": "Copyright {app_name}.",
+            "CopyrightText": "Copyright {app_name}.",
             "FooterLinkText": "Open {app_name}",
             "IgnoreText": "Ignore this mail when you did not request it."
         }
@@ -87,7 +87,7 @@ Mail Resend reads the `Email` section when [`AddResendEmail`](./extensions/add-r
 ```
 
 ::: tip
-`CopyrightTextTemplate`, `FooterLinkText` and `IgnoreText` each resolve `{app_name}` from `BrandName` and `{app_url}` from `AppUrl`, in the HTML body and the plain-text body alike.
+`CopyrightText`, `FooterLinkText` and `IgnoreText` each resolve `{app_name}` from `BrandName` and `{app_url}` from `AppUrl`, in the HTML body and the plain-text body alike.
 :::
 
 <FrontmatterDocs/>

@@ -16,10 +16,10 @@ public sealed record EmailTemplateSettings
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.5.0</since>
-    public string CopyrightTextTemplate { get; init; } = "© {app_name}";
+    public string CopyrightText { get; init; } = "© {app_name}";
 
     /// <summary>
-    /// The visible text of the footer link. It takes the same placeholders as <see cref="CopyrightTextTemplate"/>.
+    /// The visible text of the footer link. It takes the same placeholders as <see cref="CopyrightText"/>.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -28,7 +28,7 @@ public sealed record EmailTemplateSettings
 
     /// <summary>
     /// The line telling a recipient to disregard a message they did not expect. Empty by default, and it takes the same
-    /// placeholders as <see cref="CopyrightTextTemplate"/>.
+    /// placeholders as <see cref="CopyrightText"/>.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
