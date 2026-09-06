@@ -49,10 +49,27 @@ public class AuthUser
     /// under the column's own collation.
     /// </summary>
     ///
+    /// <remarks>
+    /// Writing this on a user whose <see cref="EmailVerifiedAt"/> already carries a value leaves that timestamp describing
+    /// an address nobody confirmed, since nothing intercepts the write. Move a verified address through
+    /// <see cref="IAuthEmailService.CompleteEmailChangeAsync"/>, or clear the timestamp in the same save. Setting the
+    /// address on a user who has never verified one, as creating an account does, needs neither: the timestamp is null and
+    /// reads as unverified.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     [MaxLength(255)]
     public required string Email { get; set; }
+
+    /// <summary>
+    /// When the account's address was last proved, or <c>null</c> while it never has been. Recorded and never acted on:
+    /// nothing in the package refuses an unverified account, so whether one may sign in is the application's own check.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public DateTimeOffset? EmailVerifiedAt { get; set; }
 
     /// <summary>
     /// The hash produced by ASP.NET Core's password hasher, never the password itself. Empty on a new entity

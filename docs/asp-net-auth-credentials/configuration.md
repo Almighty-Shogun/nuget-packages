@@ -21,6 +21,11 @@ fields:
             type: int
             default: '60'
 
+          - name: EmailVerificationMinutes
+            description: How long a verification token stays redeemable after it is issued. One value covers both confirming a sign-up address and confirming a change of address, and the default is a day because such a link is commonly opened on another device.
+            type: int
+            default: '1440'
+
           - name: ForgotPasswordMinimumMilliseconds
             description: The floor a forgot-password request is held to, so issuing a token and finding no account take the same time. Raise it above the slower of the two paths on your own hardware, or the difference stays measurable.
             type: int
@@ -82,6 +87,7 @@ The optional `AuthCredentials` section is bound to `AuthCredentialsSettings`, wi
     "AuthCredentials": {
         "AbsoluteSessionLifetimeDays": 30,
         "PasswordResetMinutes": 60,
+        "EmailVerificationMinutes": 1440,
         "ForgotPasswordMinimumMilliseconds": 200,
         "Lockout": {
             "Enabled": false,

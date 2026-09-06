@@ -23,6 +23,7 @@ export const aspNetAuthCredentials: DefaultTheme.SidebarItem[] = [
         collapsed: false,
         items: [
             { text: 'ChangePassword', link: '/asp-net-auth-credentials/requests/change-password-request' },
+            { text: 'CompleteEmailVerification', link: '/asp-net-auth-credentials/requests/complete-email-verification-request' },
             { text: 'CompleteForgotPassword', link: '/asp-net-auth-credentials/requests/complete-forgot-password-request' },
             { text: 'CreateUser', link: '/asp-net-auth-credentials/requests/create-user-request' },
             { text: 'ForgotPassword', link: '/asp-net-auth-credentials/requests/forgot-password-request' },
@@ -42,6 +43,7 @@ export const aspNetAuthCredentials: DefaultTheme.SidebarItem[] = [
         text: 'Services',
         collapsed: false,
         items: [
+            { text: 'AuthEmailService', link: '/asp-net-auth-credentials/services/auth-email-service' },
             { text: 'AuthPasswordService', link: '/asp-net-auth-credentials/services/auth-password-service' },
             { text: 'AuthSessionService', link: '/asp-net-auth-credentials/services/auth-session-service' },
             { text: 'AuthTwoFactorService', link: '/asp-net-auth-credentials/services/auth-two-factor-service' },
@@ -61,6 +63,7 @@ export const aspNetAuthCredentials: DefaultTheme.SidebarItem[] = [
         items: [
             { text: 'AuthDbContext', link: '/asp-net-auth-credentials/types/auth-db-context' },
             { text: 'AuthUser', link: '/asp-net-auth-credentials/types/auth-user' },
+            { text: 'EmailVerificationPurpose', link: '/asp-net-auth-credentials/types/email-verification-purpose' },
             { text: 'EmailVerificationToken', link: '/asp-net-auth-credentials/types/email-verification-token' },
             { text: 'PasswordResetToken', link: '/asp-net-auth-credentials/types/password-reset-token' },
             { text: 'TwoFactorRecoveryCode', link: '/asp-net-auth-credentials/types/two-factor-recovery-code' },

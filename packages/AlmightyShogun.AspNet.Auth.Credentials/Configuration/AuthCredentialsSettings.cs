@@ -55,6 +55,17 @@ public sealed record AuthCredentialsSettings
     public int PasswordResetMinutes { get; init; } = 60;
 
     /// <summary>
+    /// How long a verification token stays redeemable, in minutes. One value covers both purposes, and the default of a
+    /// day is deliberately longer than <see cref="PasswordResetMinutes"/>, since a verification link is commonly opened on
+    /// another device or after the message has sat unread for a while.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    [Range(1, int.MaxValue)]
+    public int EmailVerificationMinutes { get; init; } = 1440;
+
+    /// <summary>
     /// The floor a forgot-password request is held to, in milliseconds. A request that finishes sooner waits out the
     /// remainder, so issuing a token and finding no account take the same time and the response cannot be timed to learn
     /// which addresses are registered. Raise it above the slowest of the two paths on the deployment's own hardware; a

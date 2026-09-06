@@ -92,6 +92,14 @@ internal sealed class AuthCredentialsExceptionMapper : IExceptionMapper
             MessageParameters = []
         },
 
+        InvalidEmailVerificationTokenException => new ErrorMapping
+        {
+            StatusCode = StatusCodes.Status410Gone,
+            Code = "invalid_email_verification_token",
+            MessageKey = "auth.email-verification-token-invalid",
+            MessageParameters = []
+        },
+
         AccountLockedException lockedOutException => new ErrorMapping
         {
             StatusCode = StatusCodes.Status423Locked,

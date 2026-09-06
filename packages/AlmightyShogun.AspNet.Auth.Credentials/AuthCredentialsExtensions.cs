@@ -1,5 +1,3 @@
-using AlmightyShogun.AspNet.Core;
-using AlmightyShogun.AspNet.Auth;
 using AlmightyShogun.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,7 +36,8 @@ public static class AuthCredentialsExtensions
         /// <typeparam name="TUser">The user entity the services read and write, so an application keeps its own columns.</typeparam>
         /// <param name="configuration">
         /// The application configuration. Read for an <c>AuthCredentials</c> section, which is optional: every value in it
-        /// has a default, so an absent section leaves lockout off and the reset and two-factor policies as they ship.
+        /// has a default, so an absent section leaves lockout off and the reset, verification, and two-factor policies as
+        /// they ship.
         /// </param>
         /// <param name="registerExceptionHandler">
         /// Whether to register the handler that turns this package's exceptions into standardized responses. It needs
@@ -70,7 +69,8 @@ public static class AuthCredentialsExtensions
                 .AddScoped<IAuthUserService<TUser>, AuthUserService<TUser>>()
                 .AddScoped<IAuthSessionService<TUser>, AuthSessionService<TUser>>()
                 .AddScoped<IAuthPasswordService, AuthPasswordService<TUser>>()
-                .AddScoped<IAuthTwoFactorService<TUser>, AuthTwoFactorService<TUser>>();
+                .AddScoped<IAuthTwoFactorService<TUser>, AuthTwoFactorService<TUser>>()
+                .AddScoped<IAuthEmailService, AuthEmailService<TUser>>();
         }
     }
 }

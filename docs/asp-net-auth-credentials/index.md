@@ -1,20 +1,20 @@
 # ASP.NET Auth Credentials
 
-Adds username or email and password authentication to ASP.NET Core APIs, storing users, refresh-token sessions, password reset tokens, and TOTP enrolments in the application's own Entity Framework Core context.
+Adds username or email and password authentication to ASP.NET Core APIs, storing users, refresh-token sessions, password reset tokens, email verification tokens, and TOTP enrolments in the application's own Entity Framework Core context.
 
-Use this package when an API needs first-party accounts instead of an external provider such as Discord or Google. It owns the credential side of that: verifying passwords, rotating refresh sessions, locking accounts after repeated failures, running the forgot-password flow, and enrolling a second factor. Issuing and validating the access token itself is left to [ASP.NET Auth](/asp-net-auth/), which this package builds on.
+Use this package when an API needs first-party accounts instead of an external provider such as Discord or Google. It owns the credential side of that: verifying passwords, rotating refresh sessions, locking accounts after repeated failures, running the forgot-password flow, confirming email addresses, and enrolling a second factor. Issuing and validating the access token itself is left to [ASP.NET Auth](/asp-net-auth/), which this package builds on.
 
 Application code depends on small service contracts rather than one aggregate, so a controller only takes the part of the surface it uses. Every credential failure surfaces as a typed exception that maps to a standardized HTTP error through [ASP.NET Core](/asp-net-core/exceptions), with the text resolved per language.
 
 ## Categories
 
-- [Configuration](./configuration) &mdash; session lifetime ceiling, password reset lifetime, lockout policy, and two-factor policy.
+- [Configuration](./configuration) &mdash; session lifetime ceiling, password reset and email verification lifetimes, lockout policy, and two-factor policy.
 - [Exceptions](./exceptions) &mdash; every credential failure, with the status code and `error` value it becomes.
 - [Localization](./localization) &mdash; the `auth` and `passwords` message files those failures resolve through.
 - [Extensions](./extensions/add-auth-credentials) &mdash; service registration against the application's context and user entity.
-- [Requests](./requests/login-request) &mdash; request models for login, registration, and password flows.
+- [Requests](./requests/login-request) &mdash; request models for login, registration, password, and email verification flows.
 - [Results](./results/auth-session-result) &mdash; what a credential flow returns when it creates a session or an enrolment.
-- [Services](./services/auth-user-service) &mdash; dependency-injection contracts for login, session, password, token, and two-factor operations.
+- [Services](./services/auth-user-service) &mdash; dependency-injection contracts for login, session, password, email address, and two-factor operations.
 - [Utilities](./utilities/token-hasher) &mdash; the digest every stored token is matched by.
 - [Types](./types/auth-db-context) &mdash; the base context and the entities it maps.
 

@@ -5,8 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// One issued email verification. The package defines the table and issues nothing into it, so whether a spent token is
-/// kept and how a replay is answered are decided by the application's own verification flow.
+/// One issued email verification. <see cref="IAuthEmailService"/> writes these rows and spends them, and a
+/// spent row is kept rather than deleted, so a second click on the same link is refused exactly as an expired one is.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -16,8 +16,8 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed class EmailVerificationToken
 {
     /// <summary>
-    /// The surrogate key. No package service reads or writes this table, so whether it ever reaches a client
-    /// is the application's own decision.
+    /// The surrogate key, which redemption names when it claims the row it just read. Nothing hands it to a
+    /// client: a link carries the token instead.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -44,8 +44,9 @@ public sealed class EmailVerificationToken
     public string TokenHash { get; set; } = string.Empty;
 
     /// <summary>
-    /// The address being verified. Stored separately from the user's current address so the same flow
-    /// covers verifying a new sign-up and confirming a change of email.
+    /// The address being verified, which <see cref="Purpose"/> says how to read. For a registration it repeats
+    /// the address the user already holds; for a change of email it is the address they asked to move to, which redemption
+    /// then writes onto the user.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -55,8 +56,16 @@ public sealed class EmailVerificationToken
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
-    /// When the verification was requested, defaulted to the moment the entity is constructed. Nothing in
-    /// the package writes it afterward.
+    /// Which flow the token was issued for. Redemption requires it to match the method presenting the token, so
+    /// a change-of-email link cannot be spent on the registration endpoint or the other way round.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public EmailVerificationPurpose Purpose { get; set; }
+
+    /// <summary>
+    /// When the verification was requested, set as the row is written and never changed afterwards.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -64,8 +73,8 @@ public sealed class EmailVerificationToken
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
-    /// When the token stops being usable, which is what <see cref="IsActive"/> measures against. The package
-    /// sets no value here, so how long a verification lives is decided by the application's own flow.
+    /// When the token stops being usable, which is what <see cref="IsActive"/> measures against. Set at issue
+    /// from <see cref="AuthCredentialsSettings.EmailVerificationMinutes"/>, one lifetime covering both purposes.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -73,9 +82,16 @@ public sealed class EmailVerificationToken
     public DateTimeOffset ExpiresAt { get; set; }
 
     /// <summary>
-    /// When the token was spent, or <c>null</c> while it is still usable. The package never sets it. A flow
-    /// that stamps it leaves the row in the table, where <see cref="IsActive"/> reports it as no longer accepted.
+    /// When the token was spent, or <c>null</c> while it is still usable. Stamped when the token is redeemed, when a later
+    /// request of the same purpose retires it, and, on a registration token, when a change of email is redeemed, whether
+    /// or not that change moves the account off the address the token names. Every one of those leaves the row in the
+    /// table where <see cref="IsActive"/> reports it as no longer accepted.
     /// </summary>
+    ///
+    /// <remarks>
+    /// Each of those stamps is written by an update statement that bypasses the change tracker, so the row in the database
+    /// carries the new value while an instance loaded beforehand keeps the one it was read with.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -84,6 +100,14 @@ public sealed class EmailVerificationToken
     /// <summary>
     /// Whether the token would still be accepted, which is unspent and not past its expiry.
     /// </summary>
+    ///
+    /// <remarks>
+    /// A redemption tests these two conditions in the database rather than reading this property, and requires
+    /// <see cref="Purpose"/> to match as well, a registration also requiring <see cref="Email"/> to still be the account's,
+    /// so an active row is not necessarily one the endpoint at hand will take. This also answers for the instance rather
+    /// than for the row: <see cref="UsedAt"/> is stamped past the change tracker, so one loaded before that write still
+    /// reports itself unspent until it is read again.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
