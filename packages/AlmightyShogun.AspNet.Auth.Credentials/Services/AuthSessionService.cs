@@ -20,11 +20,15 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// <param name="databaseContext">The application's context, which the credential tables live in.</param>
 /// <param name="authOptions">The bound JWT settings, read for how long a refresh token lives.</param>
 /// <param name="credentialOptions">
-/// The bound credential settings, read for the lockout policy and for the absolute lifetime a renewal is capped at.
+/// The bound credential settings, read for the absolute lifetime a renewal is capped at.
 /// </param>
 /// <param name="appHostResolver">
 /// The resolver deciding which application the current request belongs to, so a session is scoped to the host the user
 /// actually signed in through.
+/// </param>
+/// <param name="lockoutGuard">
+/// The guard owning the failure budget, consulted so a renewal honours a lockout the sign-in paths applied. Nothing here
+/// claims an attempt against it, since a refresh token is not guessed at.
 /// </param>
 /// <param name="tokenGenerator">
 /// The JWT package's generator, which signs and stamps issuer, audience, and expiry over the claims built here.
@@ -49,6 +53,7 @@ internal sealed class AuthSessionService<TUser>(
     IOptions<AuthSettings> authOptions,
     IOptions<AuthCredentialsSettings> credentialOptions,
     IAppHostResolver appHostResolver,
+    AuthLockoutGuard<TUser> lockoutGuard,
     IAuthTokenGenerator tokenGenerator,
     ILogger<AuthSessionService<TUser>> logger
 ) : IAuthSessionService<TUser> where TUser : AuthUser
@@ -93,7 +98,7 @@ internal sealed class AuthSessionService<TUser>(
         if (!user.IsActive)
             throw new AccountDisabledException();
 
-        await EnsureNotLockedOutAsync(user.Id, credentialOptions.Value.Lockout, cancellationToken);
+        await lockoutGuard.EnsureNotLockedOutAsync(user.Id, cancellationToken);
 
         string newRefreshToken = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(64));
 
@@ -221,36 +226,6 @@ internal sealed class AuthSessionService<TUser>(
         TUser? user = await databaseContext.Users.FirstOrDefaultAsync(predicate, cancellationToken);
 
         return user ?? throw new InvalidCredentialsException();
-    }
-
-    /// <summary>
-    /// Loads the lockout row for a user and refuses when it is in force. Does nothing at all when lockout is disabled,
-    /// so a deployment that never uses it pays no query for the check.
-    /// </summary>
-    ///
-    /// <param name="userId">The user being let in, given as the database key rather than the public identifier.</param>
-    /// <param name="policy">The configured policy, read for whether the feature is on at all.</param>
-    /// <param name="cancellationToken">Cancels the lookup.</param>
-    ///
-    /// <returns>A task that completes once the account is known not to be locked.</returns>
-    ///
-    /// <exception cref="AccountLockedException">
-    /// A lockout is in force, so an account locked by failed sign-ins cannot go on renewing a session it opened before
-    /// the lockout began.
-    /// </exception>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
-    private async Task EnsureNotLockedOutAsync(int userId, LockoutPolicy policy, CancellationToken cancellationToken)
-    {
-        if (!policy.Enabled)
-            return;
-
-        UserLockout? lockout = await databaseContext.UserLockouts
-            .FirstOrDefaultAsync(candidate => candidate.UserId == userId, cancellationToken);
-
-        if (lockout is not null && lockout.IsLocked)
-            throw new AccountLockedException(lockout.LockoutEnd!.Value);
     }
 
     /// <summary>

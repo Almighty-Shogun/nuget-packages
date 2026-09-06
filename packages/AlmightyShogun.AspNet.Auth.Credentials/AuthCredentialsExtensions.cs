@@ -66,6 +66,7 @@ public static class AuthCredentialsExtensions
 
             return serviceCollection
                 .AddScoped<AuthDbContext<TUser>>(serviceProvider => serviceProvider.GetRequiredService<TDbContext>())
+                .AddScoped<AuthLockoutGuard<TUser>>()
                 .AddScoped<IAuthUserService<TUser>, AuthUserService<TUser>>()
                 .AddScoped<IAuthSessionService<TUser>, AuthSessionService<TUser>>()
                 .AddScoped<IAuthPasswordService, AuthPasswordService<TUser>>()
