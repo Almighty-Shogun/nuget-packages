@@ -1,6 +1,6 @@
 # Installation
 
-Install `AlmightyShogun.AspNet.Auth.Credentials` in the ASP.NET Core API that owns credential users, sessions, and password reset tokens. The application supplies an EF Core context derived from [`AuthDbContext<TUser>`](./types/auth-db-context), so credential data lives in the same database and the same migrations as the rest of the domain.
+Install `AlmightyShogun.AspNet.Auth.Credentials` in the ASP.NET Core API that owns credential users, sessions, and password reset tokens. The application supplies an EF Core context derived from [`AuthDbContext<TUser>`](./types/auth-db-context), so credential data lives in the same database and the same migrations as the rest of the domain. The package ships none of its own, so every credential table is created by a migration you generate against that context.
 
 ```sh
 dotnet add package AlmightyShogun.AspNet.Auth.Credentials

@@ -4,9 +4,9 @@ Creates, refreshes, and revokes the refresh-token sessions behind a signed-in us
 
 ## CreateSessionAsync
 
-Issues a refresh token for a user and stores the session it belongs to, recording the IP address, User-Agent, and the browser, OS, and device parsed from it. Sessions already past their expiry for that user are deleted in the same call, so the table does not accumulate dead rows.
+Issues both of a session's tokens and stores the session they belong to, recording the IP address, User-Agent, and the browser, OS, and device parsed from it. Sessions already past their expiry for that user are deleted in the same call, so the table does not accumulate dead rows. `app` scopes the session and narrows the permissions the access token carries, so passing the wrong one mints a token for the wrong audience.
 
-[`LoginAsync`](./auth-user-service#loginasync) and [`RegisterAsync`](./auth-user-service#registerasync) already call this. Call it directly only for a sign-in path this package does not own, such as an SSO callback that has established the user some other way.
+Nothing is checked here: the account being active, not locked out, and past whatever second factor it owes are all the caller's to establish first. [`RegisterAsync`](./auth-user-service#registerasync), [`LoginAsync`](./auth-user-service#loginasync), and [`CompleteTwoFactorLoginAsync`](./auth-user-service#completetwofactorloginasync) already do that and call this. Call it directly only for a sign-in path this package does not own, such as an SSO callback that has established the user some other way.
 
 ```csharp
 using AlmightyShogun.AspNet.Core;
@@ -17,8 +17,10 @@ public sealed class SsoSignInService(
     IAppHostResolver appHostResolver,
     IAuthSessionService<AppUser> sessions)
 {
-    public Task<string> SignInAsync(AppUser user, HttpContext httpContext)
-        => sessions.CreateSessionAsync(
+    public Task<AuthSessionResult<AppUser>> SignInAsync(
+        AppUser user,
+        HttpContext httpContext
+    ) => sessions.CreateSessionAsync(
                 user,
                 appHostResolver.Resolve(),
                 httpContext.GetClientContext()
@@ -29,7 +31,7 @@ public sealed class SsoSignInService(
 ### Type signature
 
 ```csharp
-public Task<string> CreateSessionAsync(
+public Task<AuthSessionResult<TUser>> CreateSessionAsync(
     TUser user,
     string? app,
     ClientContext context,

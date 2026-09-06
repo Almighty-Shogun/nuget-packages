@@ -46,7 +46,7 @@ fields:
 
 One user's TOTP enrolment, held in its own table so signing in does not load a secret and a set of recovery codes it will not use.
 
-Reach it through [`IAuthTwoFactorService<TUser>`](../services/auth-two-factor-service) for anything that changes it. Read it directly only to ask whether a user is enrolled, which is what gating a login on a second factor needs.
+Reach it through [`IAuthTwoFactorService<TUser>`](../services/auth-two-factor-service) for anything that changes it. Read it directly only to ask whether a user is enrolled, which [`LoginAsync`](../services/auth-user-service#loginasync) decides for itself: an enabled row is what makes it demand a code.
 
 ::: danger
 `UserTwoFactor` is a database entity. Never return it from an endpoint: it carries the TOTP secret, the pending secret, and the surrogate keys. Map it to a DTO that exposes only the fields the client needs, such as `IsEnabled`.
@@ -58,9 +58,9 @@ Reach it through [`IAuthTwoFactorService<TUser>`](../services/auth-two-factor-se
 using Microsoft.EntityFrameworkCore;
 using AlmightyShogun.AspNet.Auth.Credentials;
 
-public sealed class TwoFactorGate(AppDbContext database)
+public sealed class TwoFactorStatus(AppDbContext database)
 {
-    public Task<bool> IsRequiredAsync(int userId)
+    public Task<bool> IsEnrolledAsync(int userId)
         => database.UserTwoFactors
             .Where(twoFactor => twoFactor.IsEnabled)
             .AnyAsync(twoFactor => twoFactor.UserId == userId);

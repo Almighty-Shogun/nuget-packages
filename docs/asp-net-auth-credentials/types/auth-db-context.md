@@ -1,6 +1,6 @@
 # AuthDbContext
 
-The EF Core base context the package queries through. An application derives its own context from `AuthDbContext<TUser>`, so credential data shares the application's provider and migrations instead of living in a database of its own, though every credential write opens a transaction of its own on that context and throws `InvalidOperationException` when one is already open. Every entity names its own snake_case table, and `OnModelCreating` adds the cascades and the unique indexes on username, email, public identifier, and every token hash.
+The EF Core base context the package queries through. An application derives its own context from `AuthDbContext<TUser>`, so credential data shares the application's provider and migrations instead of living in a database of its own, though every credential write opens a transaction of its own on that context and throws `InvalidOperationException` when one is already open. Every entity names its own snake_case table, and `OnModelCreating` adds the cascades and the unique indexes on username, email, public identifier, and every token hash. The package ships no migrations, so every table below is created by one generated against the derived context.
 
 ## Usage
 
@@ -119,7 +119,7 @@ public DbSet<EmailVerificationToken> EmailVerificationTokens { get; }
 
 ## UserLockouts
 
-The lockout rows in `user_lockouts`, one per account currently failing sign-in. Empty when lockout is disabled, and the row for an account is deleted the moment it signs in successfully.
+The lockout rows in `user_lockouts`, one per account currently failing sign-in. Empty when lockout is disabled, and the row for an account is deleted the moment a sign-in completes, which for an account owing a second factor is when the code is accepted rather than when the password verifies.
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
@@ -174,4 +174,25 @@ int remaining = await database.TwoFactorRecoveryCodes
 
 ```csharp
 public DbSet<TwoFactorRecoveryCode> TwoFactorRecoveryCodes { get; }
+```
+
+## TwoFactorChallenges
+
+The sign-ins waiting on a second factor in `two_factor_challenges`, written by [`LoginAsync`](../services/auth-user-service#loginasync) and marked used rather than deleted. Issuing one retires the user's unspent rows and deletes that user's expired ones, so sign-ins made one after another leave a single live row per user and rows accumulate only for accounts that never sign in again; two arriving at once can leave more live, since no index enforces the limit. Those stamps are written by an update statement that bypasses the change tracker, so the row in the database carries the new `UsedAt` while a [`TwoFactorChallenge`](./two-factor-challenge) you loaded beforehand keeps the one it was read with.
+
+```csharp
+using Microsoft.EntityFrameworkCore;
+using AlmightyShogun.AspNet.Auth.Credentials;
+
+DateTimeOffset now = DateTimeOffset.UtcNow;
+
+int waiting = await database.TwoFactorChallenges
+    .Where(challenge => challenge.UsedAt == null)
+    .CountAsync(challenge => challenge.ExpiresAt > now);
+```
+
+### Type signature
+
+```csharp
+public DbSet<TwoFactorChallenge> TwoFactorChallenges { get; }
 ```

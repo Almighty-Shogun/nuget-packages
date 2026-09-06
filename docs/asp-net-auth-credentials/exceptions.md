@@ -7,6 +7,7 @@ Every exception the package throws is a plain exception carrying no message of i
 | `InvalidCredentialsException` | `401` | `invalid_credentials` |
 | `InvalidSessionException` | `401` | `invalid_session` |
 | `InvalidTwoFactorCodeException` | `401` | `invalid_two_factor_code` |
+| `InvalidTwoFactorChallengeException` | `401` | `invalid_two_factor_challenge` |
 | `AccountDisabledException` | `403` | `account_disabled` |
 | `InvalidPasswordResetTokenException` | `410` | `invalid_password_reset_token` |
 | `InvalidEmailVerificationTokenException` | `410` | `invalid_email_verification_token` |
@@ -92,12 +93,26 @@ public sealed class InvalidEmailVerificationTokenException : Exception;
 
 ## InvalidTwoFactorCodeException
 
-Thrown when completing enrolment with a wrong code, and when a user with no enrolment at all is asked to verify one. [`VerifyAsync`](./services/auth-two-factor-service#verifyasync) returns `false` instead of throwing, because a wrong code during sign-in is an ordinary outcome.
+Thrown when completing enrolment with a wrong code, when a user with no enrolment at all is asked to verify one, and by [`CompleteTwoFactorLoginAsync`](./services/auth-user-service#completetwofactorloginasync) for a code the verification refused, replayed codes and spent recovery codes included. [`VerifyAsync`](./services/auth-two-factor-service#verifyasync) itself returns `false` for those rather than throwing.
+
+The challenge is left unspent, so a mistyped code can be corrected without sending the password again.
 
 ### Type signature
 
 ```csharp
 public sealed class InvalidTwoFactorCodeException : Exception;
+```
+
+## InvalidTwoFactorChallengeException
+
+Thrown by [`CompleteTwoFactorLoginAsync`](./services/auth-user-service#completetwofactorloginasync) when the challenge cannot be redeemed, whether it is unknown, already spent, past its expiry, or issued through a different application than the one completing it.
+
+All four answer identically, so the endpoint cannot be used to learn which challenges once existed. A challenge another request claims first answers the same way, since completion claims the row with a guarded update rather than on the strength of the read that found it.
+
+### Type signature
+
+```csharp
+public sealed class InvalidTwoFactorChallengeException : Exception;
 ```
 
 ## PasswordMismatchException
