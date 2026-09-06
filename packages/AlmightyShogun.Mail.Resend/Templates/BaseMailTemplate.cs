@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Collections.Frozen;
+using System.Text.RegularExpressions;
 
 namespace AlmightyShogun.Mail.Resend;
 
@@ -94,6 +95,8 @@ public abstract class BaseMailTemplate
     /// <see cref="ApplyAdditionalValues"/> describes.
     ///
     /// Each text value goes through <see cref="Encode"/> and each URL through <see cref="EncodeUrl"/> as it is substituted.
+    /// <c>{{IgnoreTextHtml}}</c> is the exception among the configured values: it is substituted as written, so
+    /// <see cref="EmailTemplateSettings.IgnoreText"/> may carry markup.
     /// The <c>{{BodyHtml}}</c> and <c>{{ButtonsHtml}}</c> placeholders take assembled markup instead, whose own paragraphs,
     /// labels, and URLs were already encoded as each fragment was built. Those two are substituted last, after every other
     /// placeholder and after the additional values, so a placeholder appearing in caller-supplied text is left as written
@@ -119,7 +122,7 @@ public abstract class BaseMailTemplate
             .Replace("{{Greeting}}", Encode(Greeting), StringComparison.Ordinal)
             .Replace(
                 "{{CopyrightText}}",
-                Encode(ResolveTemplateValue(settings.Template.CopyrightTextTemplate, settings)),
+                Encode(ResolveTemplateValue(settings.Template.CopyrightText, settings)),
                 StringComparison.Ordinal
             )
             .Replace("{{AppUrl}}", EncodeUrl(settings.AppUrl), StringComparison.Ordinal)
@@ -128,7 +131,7 @@ public abstract class BaseMailTemplate
                 Encode(ResolveTemplateValue(settings.Template.FooterLinkText, settings)),
                 StringComparison.Ordinal
             )
-            .Replace("{{IgnoreTextHtml}}", Encode(ResolveTemplateValue(settings.Template.IgnoreText, settings)), StringComparison.Ordinal))
+            .Replace("{{IgnoreTextHtml}}", ResolveTemplateValue(settings.Template.IgnoreText, settings), StringComparison.Ordinal))
             .Replace("{{BodyHtml}}", bodyHtml, StringComparison.Ordinal)
             .Replace("{{ButtonsHtml}}", buttonsHtml, StringComparison.Ordinal);
     }
@@ -173,9 +176,9 @@ public abstract class BaseMailTemplate
         if (Buttons.Count > 0)
             text.AppendLine();
 
-        return text.AppendLine(ResolveTemplateValue(settings.Template.CopyrightTextTemplate, settings))
+        return text.AppendLine(ResolveTemplateValue(settings.Template.CopyrightText, settings))
             .AppendLine(ResolveTemplateValue(settings.Template.FooterLinkText, settings))
-            .AppendLine(ResolveTemplateValue(settings.Template.IgnoreText, settings))
+            .AppendLine(ToPlainText(ResolveTemplateValue(settings.Template.IgnoreText, settings)))
             .ToString()
             .Trim();
     }
@@ -241,6 +244,22 @@ public abstract class BaseMailTemplate
     /// <author>Almighty-Shogun</author>
     /// <since>2.5.0</since>
     private static string Encode(string value) => WebUtility.HtmlEncode(value);
+
+    /// <summary>
+    /// Reduces markup to the text a plain-text client can show, so a value written as HTML for the body does not reach the
+    /// text alternative with its tags intact. A <c>br</c> becomes a line break, every other tag is dropped, and the result
+    /// is decoded, so an entity written in the configured value arrives as the character it stands for.
+    /// </summary>
+    ///
+    /// <param name="html">The already resolved value, which may carry markup.</param>
+    ///
+    /// <returns>The value with its tags reduced to text. A value carrying no markup comes back unchanged.</returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static string ToPlainText(string html) => WebUtility.HtmlDecode(
+        Regex.Replace(Regex.Replace(html, "<br\\s*/?>", "\n", RegexOptions.IgnoreCase), "<[^>]+>", string.Empty)
+    );
 
     /// <summary>
     /// Encodes a URL for safe use in an <c>href</c> or <c>src</c>, dropping anything that is not an accepted scheme.
