@@ -263,7 +263,7 @@ internal sealed class AuthUserService<TUser>(
             CreatedAt = now,
             ExpiresAt = now.AddMinutes(credentialOptions.Value.TwoFactor.ChallengeMinutes),
             TokenHash = TokenHasher.Hash(challenge),
-            RequestedIpAddress = context.IpAddress is { Length: > 45 } address ? address[..45] : context.IpAddress
+            RequestedIpAddress = ColumnValue.Truncate(context.IpAddress, 45)
         });
 
         return challenge;
