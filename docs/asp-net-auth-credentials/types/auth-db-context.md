@@ -1,6 +1,6 @@
 # AuthDbContext
 
-The EF Core base context the package queries through. An application derives its own context from `AuthDbContext<TUser>`, so credential data shares the application's provider and migrations instead of living in a database of its own, though every credential write opens a transaction of its own on that context and throws `InvalidOperationException` when one is already open. Every entity names its own snake_case table, and `OnModelCreating` adds the cascades and the unique indexes on username, email, public identifier, and every token hash. The package ships no migrations, so every table below is created by one generated against the derived context.
+The EF Core base context the package queries through. An application derives its own context from `AuthDbContext<TUser>`, so credential data shares the application's provider and migrations instead of living in a database of its own, though most credential operations open a transaction of their own on that context and throw `InvalidOperationException` when one is already open, while the ones whose whole write is a single statement or a single save open none and run inside the transaction the application has. Every entity names its own snake_case table, and `OnModelCreating` adds the cascades and the unique indexes on username, email, public identifier, and every token hash. The package ships no migrations, so every table below is created by one generated against the derived context.
 
 ## Usage
 

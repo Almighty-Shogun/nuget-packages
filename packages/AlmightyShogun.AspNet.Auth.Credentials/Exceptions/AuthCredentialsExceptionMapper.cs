@@ -92,6 +92,14 @@ internal sealed class AuthCredentialsExceptionMapper : IExceptionMapper
             MessageParameters = []
         },
 
+        ConcurrentSessionUpdateException => new ErrorMapping
+        {
+            StatusCode = StatusCodes.Status409Conflict,
+            Code = "concurrent_session_update",
+            MessageKey = "auth.session-update-conflict",
+            MessageParameters = []
+        },
+
         InvalidPasswordResetTokenException => new ErrorMapping
         {
             StatusCode = StatusCodes.Status410Gone,

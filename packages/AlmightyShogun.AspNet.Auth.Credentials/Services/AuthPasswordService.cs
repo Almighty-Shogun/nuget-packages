@@ -46,29 +46,36 @@ internal sealed class AuthPasswordService<TUser>(
         string? currentRefreshToken = null,
         CancellationToken cancellationToken = default
     )
-    {
-        await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
+        => await ConflictRetry.RunAsync(async () =>
+        {
+            TUser user = await GetUserAsync(candidate => candidate.Identifier == identifier, cancellationToken);
 
-        TUser user = await GetUserAsync(user => user.Identifier == identifier, cancellationToken);
+            if (request.NewPassword != request.ConfirmPassword)
+                throw new PasswordMismatchException();
 
-        if (request.NewPassword != request.ConfirmPassword)
-            throw new PasswordMismatchException();
+            string storedPasswordHash = user.Password;
 
-        if (_hasher.VerifyHashedPassword(user, user.Password, request.CurrentPassword) is PasswordVerificationResult.Failed)
-            throw new InvalidCredentialsException();
+            if (_hasher.VerifyHashedPassword(user, storedPasswordHash, request.CurrentPassword) is PasswordVerificationResult.Failed)
+                throw new InvalidCredentialsException();
 
-        if (_hasher.VerifyHashedPassword(user, user.Password, request.NewPassword) is not PasswordVerificationResult.Failed)
-            throw new PasswordReusedException();
+            if (_hasher.VerifyHashedPassword(user, storedPasswordHash, request.NewPassword) is not PasswordVerificationResult.Failed)
+                throw new PasswordReusedException();
 
-        user.Password = _hasher.HashPassword(user, request.NewPassword);
+            string newPasswordHash = _hasher.HashPassword(user, request.NewPassword);
 
-        await InvalidateActiveTokenAsync(user.Id, cancellationToken);
-        await RevokeUserSessionsAsync(user.Id, cancellationToken, currentRefreshToken);
-        await RetireTwoFactorChallengesAsync(user.Id, cancellationToken);
+            await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
 
-        await databaseContext.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-    }
+            if (!await SetPasswordAsync(user.Id, storedPasswordHash, newPasswordHash, cancellationToken))
+                return false;
+
+            await InvalidateActiveTokenAsync(user.Id, cancellationToken);
+            await RevokeUserSessionsAsync(user.Id, cancellationToken, currentRefreshToken);
+            await RetireTwoFactorChallengesAsync(user.Id, cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+
+            return true;
+        });
 
     /// <inheritdoc />
     public async Task<string?> RequestForgotPasswordAsync(
@@ -95,36 +102,36 @@ internal sealed class AuthPasswordService<TUser>(
 
     /// <inheritdoc />
     public async Task CompleteForgotPasswordAsync(CompleteForgotPasswordRequest request, CancellationToken cancellationToken = default)
-    {
-        await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
+        => await ConflictRetry.RunAsync(async () =>
+        {
+            PasswordResetToken passwordToken = await FindActiveTokenAsync(request.Token, cancellationToken);
 
-        PasswordResetToken passwordToken = await FindActiveTokenAsync(request.Token, cancellationToken);
+            TUser user = await GetUserAsync(candidate => candidate.Id == passwordToken.UserId, cancellationToken);
 
-        TUser user = await GetUserAsync(user => user.Id == passwordToken.UserId, cancellationToken);
+            if (request.NewPassword != request.ConfirmPassword)
+                throw new PasswordMismatchException();
 
-        if (request.NewPassword != request.ConfirmPassword)
-            throw new PasswordMismatchException();
+            string storedPasswordHash = user.Password;
 
-        if (_hasher.VerifyHashedPassword(user, user.Password, request.NewPassword) is not PasswordVerificationResult.Failed)
-            throw new PasswordReusedException();
+            if (_hasher.VerifyHashedPassword(user, storedPasswordHash, request.NewPassword) is not PasswordVerificationResult.Failed)
+                throw new PasswordReusedException();
 
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+            string newPasswordHash = _hasher.HashPassword(user, request.NewPassword);
 
-        int affectedRows = await databaseContext.PasswordResetTokens
-            .Where(token => token.Id == passwordToken.Id && token.UsedAt == null && token.ExpiresAt > now)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(token => token.UsedAt, now), cancellationToken);
+            await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
 
-        if (affectedRows != 1)
-            throw new InvalidPasswordResetTokenException();
+            await ClaimResetTokenAsync(passwordToken.Id, cancellationToken);
 
-        user.Password = _hasher.HashPassword(user, request.NewPassword);
+            if (!await SetPasswordAsync(user.Id, storedPasswordHash, newPasswordHash, cancellationToken))
+                return false;
 
-        await RevokeUserSessionsAsync(passwordToken.UserId, cancellationToken);
-        await RetireTwoFactorChallengesAsync(passwordToken.UserId, cancellationToken);
+            await RevokeUserSessionsAsync(user.Id, cancellationToken);
+            await RetireTwoFactorChallengesAsync(user.Id, cancellationToken);
 
-        await databaseContext.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-    }
+            await transaction.CommitAsync(cancellationToken);
+
+            return true;
+        });
 
     /// <summary>
     /// Loads the one user matching a predicate, refusing rather than returning null, so every caller past this point has a
@@ -134,7 +141,10 @@ internal sealed class AuthPasswordService<TUser>(
     /// <param name="predicate">The lookup, by public identifier or by the key a reset token carries.</param>
     /// <param name="cancellationToken">Cancels the lookup.</param>
     ///
-    /// <returns>The matching user, tracked so a caller can modify and save it.</returns>
+    /// <returns>
+    /// The matching user, untracked. Every write on these paths is a statement of its own rather than a saved entity, so
+    /// nothing here is modified, and the context the application shares with this service is left tracking what it was.
+    /// </returns>
     ///
     /// <exception cref="InvalidCredentialsException">Thrown when no user matches the predicate.</exception>
     ///
@@ -142,9 +152,76 @@ internal sealed class AuthPasswordService<TUser>(
     /// <since>4.0.0</since>
     private async Task<TUser> GetUserAsync(Expression<Func<TUser, bool>> predicate, CancellationToken cancellationToken)
     {
-        TUser? user = await databaseContext.Users.FirstOrDefaultAsync(predicate, cancellationToken);
+        TUser? user = await databaseContext.Users.AsNoTracking().FirstOrDefaultAsync(predicate, cancellationToken);
 
         return user ?? throw new InvalidCredentialsException();
+    }
+
+    /// <summary>
+    /// Writes a new password hash onto the user, but only while the column still holds the hash the caller verified
+    /// against, so a password that moved between that verification and here is not overwritten on the strength of a
+    /// check made against what it used to be.
+    /// </summary>
+    ///
+    /// <param name="userId">The user whose password is being replaced, given as the database key.</param>
+    /// <param name="verifiedPasswordHash">The hash the caller read and verified against, which the update is guarded on.</param>
+    /// <param name="newPasswordHash">The hash to store.</param>
+    /// <param name="cancellationToken">Cancels the update.</param>
+    ///
+    /// <returns>
+    /// <c>true</c> when the row was updated, <c>false</c> when it matched nothing, which means another request wrote a
+    /// password in between, or deleted the user. The caller treats that as a collision and runs the whole operation
+    /// again, so the second reading verifies against the password that is actually stored.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// The row is matched and written by one statement rather than loaded and saved, so nothing is staged on the context
+    /// that an abandoned attempt would leave behind for the application's own save to commit.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task<bool> SetPasswordAsync(
+        int userId,
+        string verifiedPasswordHash,
+        string newPasswordHash,
+        CancellationToken cancellationToken
+    )
+    {
+        int affectedRows = await databaseContext.Users
+            .Where(user => user.Id == userId && user.Password == verifiedPasswordHash)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.Password, newPasswordHash), cancellationToken);
+
+        return affectedRows == 1;
+    }
+
+    /// <summary>
+    /// Claims the reset token with a guarded update, so two redemptions racing for the same link produce one success and
+    /// one refusal rather than two successes.
+    /// </summary>
+    ///
+    /// <param name="tokenId">The row to spend, as read moments earlier.</param>
+    /// <param name="cancellationToken">Cancels the update.</param>
+    ///
+    /// <returns>A task that completes once the row is spent, which the database has already written when it does.</returns>
+    ///
+    /// <exception cref="InvalidPasswordResetTokenException">
+    /// The row was no longer unspent and unexpired, so another request claimed it in between or it expired between the
+    /// read and here.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task ClaimResetTokenAsync(int tokenId, CancellationToken cancellationToken)
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+
+        int affectedRows = await databaseContext.PasswordResetTokens
+            .Where(token => token.Id == tokenId && token.UsedAt == null && token.ExpiresAt > now)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(token => token.UsedAt, now), cancellationToken);
+
+        if (affectedRows != 1)
+            throw new InvalidPasswordResetTokenException();
     }
 
     /// <summary>
@@ -216,13 +293,20 @@ internal sealed class AuthPasswordService<TUser>(
     /// </summary>
     ///
     /// <param name="userId">The user whose sessions are ending, given as the database key rather than the public identifier.</param>
-    /// <param name="cancellationToken">Cancels the lookup.</param>
+    /// <param name="cancellationToken">Cancels the update.</param>
     /// <param name="exceptToken">The session to leave alone, or <c>null</c> to end every one.</param>
     ///
     /// <returns>
-    /// A task that completes once the loaded sessions are marked revoked. Nothing is written until the caller saves, so
-    /// the revocations land in the caller's transaction rather than in one of their own.
+    /// A task that completes once the matching rows are revoked, which the database has already written when it does.
+    /// The statement runs inside the transaction the caller opened, so it is rolled back with the rest of that work.
     /// </returns>
+    ///
+    /// <remarks>
+    /// The rows are matched and stamped by one update rather than loaded and rewritten, so no session is revoked on the
+    /// strength of a read another request has already invalidated, and nothing is staged on the context for an abandoned
+    /// attempt to leave behind. <see cref="UserSession.IsRevoked"/> is the only column written, and it is written to a
+    /// constant, so a row a rotation touched a moment earlier is revoked as that rotation left it.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -232,15 +316,10 @@ internal sealed class AuthPasswordService<TUser>(
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        List<UserSession> sessions = await databaseContext.UserSessions.Where(session => session.ExpiresAt > now)
+        await databaseContext.UserSessions.Where(session => session.ExpiresAt > now)
             .Where(session => !session.IsRevoked && session.UserId == userId)
             .Where(session => exceptTokenHash == null || session.RefreshTokenHash != exceptTokenHash)
-            .ToListAsync(cancellationToken);
-
-        foreach (UserSession session in sessions)
-            session.IsRevoked = true;
-
-        databaseContext.UserSessions.UpdateRange(sessions);
+            .ExecuteUpdateAsync(setters => setters.SetProperty(session => session.IsRevoked, true), cancellationToken);
     }
 
     /// <summary>
@@ -249,24 +328,22 @@ internal sealed class AuthPasswordService<TUser>(
     /// </summary>
     ///
     /// <param name="userId">The user whose outstanding token is being spent.</param>
-    /// <param name="cancellationToken">Cancels the lookup.</param>
+    /// <param name="cancellationToken">Cancels the update.</param>
     ///
     /// <returns>
-    /// A task that completes once no unspent token remains for that user. Nothing is written until the caller saves.
+    /// A task that completes once no unspent token remains for that user, which the database has already written when it
+    /// does. The statement runs inside the transaction the caller opened, so it is rolled back with the rest of that work.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private async Task InvalidateActiveTokenAsync(int userId, CancellationToken cancellationToken)
     {
-        List<PasswordResetToken> tokens = await databaseContext.PasswordResetTokens
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+
+        await databaseContext.PasswordResetTokens
             .Where(token => token.UserId == userId && token.UsedAt == null)
-            .ToListAsync(cancellationToken);
-
-        foreach (PasswordResetToken token in tokens)
-            token.UsedAt = DateTimeOffset.UtcNow;
-
-        databaseContext.PasswordResetTokens.UpdateRange(tokens);
+            .ExecuteUpdateAsync(setters => setters.SetProperty(token => token.UsedAt, now), cancellationToken);
     }
 
     /// <summary>
@@ -275,10 +352,11 @@ internal sealed class AuthPasswordService<TUser>(
     /// </summary>
     ///
     /// <param name="userId">The user whose outstanding challenges are being retired.</param>
-    /// <param name="cancellationToken">Cancels the lookup.</param>
+    /// <param name="cancellationToken">Cancels the update.</param>
     ///
     /// <returns>
-    /// A task that completes once no unspent challenge remains for that user. Nothing is written until the caller saves.
+    /// A task that completes once no unspent challenge remains for that user, which the database has already written when
+    /// it does. The statement runs inside the transaction the caller opened, so it is rolled back with the rest of that work.
     /// </returns>
     ///
     /// <remarks>
@@ -290,14 +368,11 @@ internal sealed class AuthPasswordService<TUser>(
     /// <since>4.1.0</since>
     private async Task RetireTwoFactorChallengesAsync(int userId, CancellationToken cancellationToken)
     {
-        List<TwoFactorChallenge> challenges = await databaseContext.TwoFactorChallenges
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+
+        await databaseContext.TwoFactorChallenges
             .Where(challenge => challenge.UserId == userId && challenge.UsedAt == null)
-            .ToListAsync(cancellationToken);
-
-        foreach (TwoFactorChallenge challenge in challenges)
-            challenge.UsedAt = DateTimeOffset.UtcNow;
-
-        databaseContext.TwoFactorChallenges.UpdateRange(challenges);
+            .ExecuteUpdateAsync(setters => setters.SetProperty(challenge => challenge.UsedAt, now), cancellationToken);
     }
 
     /// <summary>
@@ -308,7 +383,10 @@ internal sealed class AuthPasswordService<TUser>(
     /// <param name="token">The token as it arrived from the reset link, matched by hash.</param>
     /// <param name="cancellationToken">Cancels the lookup.</param>
     ///
-    /// <returns>The redeemable token, read for the user it belongs to and for the row the caller then claims.</returns>
+    /// <returns>
+    /// The redeemable token, untracked, read for the user it belongs to and for the row the caller then claims. The
+    /// claim is a statement of its own rather than a saved entity, so this leaves nothing on the shared context.
+    /// </returns>
     ///
     /// <exception cref="InvalidPasswordResetTokenException">
     /// No live token matches the hash. Unknown, spent, and expired are not distinguished, so the response cannot be
@@ -327,7 +405,7 @@ internal sealed class AuthPasswordService<TUser>(
         string tokenHash = TokenHasher.Hash(token);
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        PasswordResetToken? passwordResetToken = await databaseContext.PasswordResetTokens
+        PasswordResetToken? passwordResetToken = await databaseContext.PasswordResetTokens.AsNoTracking()
             .Where(passwordToken => passwordToken.ExpiresAt > now)
             .Where(passwordToken => passwordToken.UsedAt == null && passwordToken.TokenHash == tokenHash)
             .FirstOrDefaultAsync(cancellationToken);

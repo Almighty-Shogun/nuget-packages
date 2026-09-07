@@ -95,9 +95,20 @@ public interface IAuthEmailService
     /// <exception cref="InvalidCredentialsException">
     /// The token names a user the query no longer finds, which a deletion between the two reads can produce.
     /// </exception>
+    /// <exception cref="ConcurrentSessionUpdateException">
+    /// Every attempt lost a race with a concurrent write to the token's row or the user's, which another sign-in rehashing
+    /// that password or a request issuing a fresh link is enough to cause. Nothing was changed and the token is still
+    /// unspent, so the same link still works.
+    /// </exception>
     ///
     /// <remarks>
     /// This opens a transaction of its own, so spending the token and stamping the user land together or not at all.
+    /// Nothing else is inside it: the token, the user, and the address check are read before it opens, so the window a
+    /// concurrent write has to land in is the two updates rather than the request.
+    ///
+    /// A write to either of those rows committing while that transaction is open makes it lose, and the whole thing is
+    /// read and written again from the start a bounded number of times before it is given up on. A token spent or an
+    /// address moved in the meantime is refused on the attempt that finds it, since each attempt re-reads.
     ///
     /// The token's address has to still be the account's, so a link issued before the address moved cannot stamp the
     /// account as having proved the address it moved to. That address is compared under the column's own collation.
@@ -142,17 +153,28 @@ public interface IAuthEmailService
     /// Another account claimed the address between the request and this redemption, which the check at request time cannot
     /// prevent.
     /// </exception>
-    /// <exception cref="Microsoft.EntityFrameworkCore.DbUpdateException">
-    /// The write failed at the database. An address claimed between that re-check and the save surfaces this way rather
-    /// than as <see cref="EmailTakenException"/>, since the unique index on the column is what settles that race.
+    /// <exception cref="ConcurrentSessionUpdateException">
+    /// Every attempt lost a race with a concurrent write to the same rows, which a refresh on another of the user's
+    /// devices is enough to cause. Nothing was changed and the token is still unspent, so the same link still works.
+    /// </exception>
+    /// <exception cref="System.Data.Common.DbException">
+    /// The write failed at the database for a reason other than that race. An address claimed between the re-check and
+    /// the write surfaces this way rather than as <see cref="EmailTakenException"/>, since the unique index on the column
+    /// is what settles that one. The address is written by a statement rather than by a save, so the provider's own
+    /// exception arrives with nothing wrapped around it.
     /// </exception>
     ///
     /// <remarks>
     /// This opens a transaction of its own, so spending the token, writing the address, and revoking the sessions land
-    /// together or not at all.
+    /// together or not at all. Nothing else is inside it: the token, the user, and the availability of the address are
+    /// read before it opens, so the window a concurrent write has to land in is the four updates rather than the request.
     ///
     /// The user's unspent registration links are retired in that same transaction, so none of them is still redeemable
     /// afterwards, including one naming the address the account has just moved to.
+    ///
+    /// A refresh of one of the user's other sessions committing while that transaction is open makes it lose, and the
+    /// whole thing is read and written again from the start a bounded number of times before it is given up on. An
+    /// address taken in the meantime is refused on the attempt that finds it, since each attempt re-checks.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

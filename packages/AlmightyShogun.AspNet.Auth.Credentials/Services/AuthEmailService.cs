@@ -47,25 +47,26 @@ internal sealed class AuthEmailService<TUser>(
 
     /// <inheritdoc />
     public async Task CompleteVerificationAsync(CompleteEmailVerificationRequest request, CancellationToken cancellationToken = default)
-    {
-        await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
+        => await ConflictRetry.RunAsync(async () =>
+        {
+            EmailVerificationToken verificationToken =
+                await FindActiveTokenAsync(request.Token, EmailVerificationPurpose.Registration, cancellationToken);
 
-        EmailVerificationToken verificationToken =
-            await FindActiveTokenAsync(request.Token, EmailVerificationPurpose.Registration, cancellationToken);
+            TUser user = await GetUserAsync(user => user.Id == verificationToken.UserId, cancellationToken);
 
-        TUser user = await GetUserAsync(user => user.Id == verificationToken.UserId, cancellationToken);
+            await EnsureTokenAddressCurrentAsync(user.Id, verificationToken.Email, cancellationToken);
 
-        await EnsureTokenAddressCurrentAsync(user.Id, verificationToken.Email, cancellationToken);
+            await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
 
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        await SpendTokenAsync(verificationToken.Id, now, cancellationToken);
+            await SpendTokenAsync(verificationToken.Id, now, cancellationToken);
+            await MarkEmailVerifiedAsync(user.Id, now, cancellationToken);
 
-        user.EmailVerifiedAt = now;
+            await transaction.CommitAsync(cancellationToken);
 
-        await databaseContext.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-    }
+            return true;
+        });
 
     /// <inheritdoc />
     public async Task CompleteEmailChangeAsync(
@@ -73,29 +74,28 @@ internal sealed class AuthEmailService<TUser>(
         string? currentRefreshToken = null,
         CancellationToken cancellationToken = default
     )
-    {
-        await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
+        => await ConflictRetry.RunAsync(async () =>
+        {
+            EmailVerificationToken verificationToken =
+                await FindActiveTokenAsync(request.Token, EmailVerificationPurpose.EmailChange, cancellationToken);
 
-        EmailVerificationToken verificationToken =
-            await FindActiveTokenAsync(request.Token, EmailVerificationPurpose.EmailChange, cancellationToken);
+            TUser user = await GetUserAsync(user => user.Id == verificationToken.UserId, cancellationToken);
 
-        TUser user = await GetUserAsync(user => user.Id == verificationToken.UserId, cancellationToken);
+            await EnsureEmailAvailableAsync(verificationToken.Email, user.Id, cancellationToken);
 
-        await EnsureEmailAvailableAsync(verificationToken.Email, user.Id, cancellationToken);
+            await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
 
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        await SpendTokenAsync(verificationToken.Id, now, cancellationToken);
-        await RetireActiveTokensAsync(user.Id, EmailVerificationPurpose.Registration, now, cancellationToken);
+            await SpendTokenAsync(verificationToken.Id, now, cancellationToken);
+            await RetireActiveTokensAsync(user.Id, EmailVerificationPurpose.Registration, now, cancellationToken);
+            await MoveEmailAsync(user.Id, verificationToken.Email, now, cancellationToken);
+            await RevokeUserSessionsAsync(user.Id, cancellationToken, currentRefreshToken);
 
-        user.Email = verificationToken.Email;
-        user.EmailVerifiedAt = now;
+            await transaction.CommitAsync(cancellationToken);
 
-        await RevokeUserSessionsAsync(user.Id, cancellationToken, currentRefreshToken);
-
-        await databaseContext.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-    }
+            return true;
+        });
 
     /// <summary>
     /// Loads the one user matching a predicate, refusing rather than returning null, so every caller past this point has a
@@ -105,7 +105,11 @@ internal sealed class AuthEmailService<TUser>(
     /// <param name="predicate">The lookup, by public identifier or by the key a verification token carries.</param>
     /// <param name="cancellationToken">Cancels the lookup.</param>
     ///
-    /// <returns>The matching user, tracked so a caller can modify and save it.</returns>
+    /// <returns>
+    /// The matching user, untracked. Every write onto a user here is a statement of its own rather than a saved entity,
+    /// so nothing returned is modified, and the context the application shares with this service is left tracking what
+    /// it was.
+    /// </returns>
     ///
     /// <exception cref="InvalidCredentialsException">Thrown when no user matches the predicate.</exception>
     ///
@@ -113,10 +117,61 @@ internal sealed class AuthEmailService<TUser>(
     /// <since>4.1.0</since>
     private async Task<TUser> GetUserAsync(Expression<Func<TUser, bool>> predicate, CancellationToken cancellationToken)
     {
-        TUser? user = await databaseContext.Users.FirstOrDefaultAsync(predicate, cancellationToken);
+        TUser? user = await databaseContext.Users.AsNoTracking().FirstOrDefaultAsync(predicate, cancellationToken);
 
         return user ?? throw new InvalidCredentialsException();
     }
+
+    /// <summary>
+    /// Stamps the user as having proved the address they already hold, which is what redeeming a registration token
+    /// records.
+    /// </summary>
+    ///
+    /// <param name="userId">The user being stamped, given as the database key rather than the public identifier.</param>
+    /// <param name="verifiedAt">The instant the proof is recorded at, shared with the token the same call spends.</param>
+    /// <param name="cancellationToken">Cancels the update.</param>
+    ///
+    /// <returns>
+    /// A task that completes once the stamp is written, which the database has already done when it does. The statement
+    /// runs inside the transaction the caller opened, so it is rolled back with the rest of that work.
+    /// </returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task MarkEmailVerifiedAsync(int userId, DateTimeOffset verifiedAt, CancellationToken cancellationToken)
+        => await databaseContext.Users
+            .Where(user => user.Id == userId)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.EmailVerifiedAt, verifiedAt), cancellationToken);
+
+    /// <summary>
+    /// Moves the user to the address a redeemed change token carries and stamps them as having proved it, since the
+    /// address they now hold is the one the link just proved reachable.
+    /// </summary>
+    ///
+    /// <param name="userId">The user being moved, given as the database key rather than the public identifier.</param>
+    /// <param name="email">The address to write, taken from the token rather than from the request.</param>
+    /// <param name="verifiedAt">The instant the proof is recorded at, shared with the token the same call spends.</param>
+    /// <param name="cancellationToken">Cancels the update.</param>
+    ///
+    /// <returns>
+    /// A task that completes once the address is written, which the database has already done when it does. The
+    /// statement runs inside the transaction the caller opened, so it is rolled back with the rest of that work.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// The unique index on the address is what settles a claim made after the availability check, and it rejects this
+    /// statement rather than a save, so it surfaces as the provider's own exception instead of a wrapped one.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task MoveEmailAsync(int userId, string email, DateTimeOffset verifiedAt, CancellationToken cancellationToken)
+        => await databaseContext.Users
+            .Where(user => user.Id == userId)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(user => user.Email, email).SetProperty(user => user.EmailVerifiedAt, verifiedAt),
+                cancellationToken
+            );
 
     /// <summary>
     /// Refuses an address another account already holds, so a change is turned away with a message rather than by the
@@ -274,7 +329,10 @@ internal sealed class AuthEmailService<TUser>(
     /// <param name="purpose">The purpose the redeeming method serves, which the row has to carry.</param>
     /// <param name="cancellationToken">Cancels the lookup.</param>
     ///
-    /// <returns>The redeemable token, read for the user it belongs to and for the address it carries.</returns>
+    /// <returns>
+    /// The redeemable token, untracked, read for the user it belongs to and for the address it carries. The claim is a
+    /// statement of its own rather than a saved entity, so this leaves nothing on the shared context.
+    /// </returns>
     ///
     /// <exception cref="InvalidEmailVerificationTokenException">
     /// No live token of that purpose matches the hash. Unknown, spent, expired, and wrong-purpose are not distinguished
@@ -298,7 +356,7 @@ internal sealed class AuthEmailService<TUser>(
         string tokenHash = TokenHasher.Hash(token);
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        EmailVerificationToken? verificationToken = await databaseContext.EmailVerificationTokens
+        EmailVerificationToken? verificationToken = await databaseContext.EmailVerificationTokens.AsNoTracking()
             .Where(candidate => candidate.ExpiresAt > now && candidate.Purpose == purpose)
             .Where(candidate => candidate.UsedAt == null && candidate.TokenHash == tokenHash)
             .FirstOrDefaultAsync(cancellationToken);
@@ -340,13 +398,20 @@ internal sealed class AuthEmailService<TUser>(
     /// </summary>
     ///
     /// <param name="userId">The user whose sessions are ending, given as the database key rather than the public identifier.</param>
-    /// <param name="cancellationToken">Cancels the lookup.</param>
+    /// <param name="cancellationToken">Cancels the update.</param>
     /// <param name="exceptToken">The session to leave alone, or <c>null</c> to end every one.</param>
     ///
     /// <returns>
-    /// A task that completes once the loaded sessions are marked revoked. Nothing is written until the caller saves, so
-    /// the revocations land in the caller's transaction rather than in one of their own.
+    /// A task that completes once the matching rows are revoked, which the database has already written when it does.
+    /// The statement runs inside the transaction the caller opened, so it is rolled back with the rest of that work.
     /// </returns>
+    ///
+    /// <remarks>
+    /// The rows are matched and stamped by one update rather than loaded and rewritten, so no session is revoked on the
+    /// strength of a read another request has already invalidated, and nothing is staged on the context for an abandoned
+    /// attempt to leave behind. <see cref="UserSession.IsRevoked"/> is the only column written, and it is written to a
+    /// constant, so a row a rotation touched a moment earlier is revoked as that rotation left it.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.1.0</since>
@@ -356,14 +421,9 @@ internal sealed class AuthEmailService<TUser>(
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        List<UserSession> sessions = await databaseContext.UserSessions.Where(session => session.ExpiresAt > now)
+        await databaseContext.UserSessions.Where(session => session.ExpiresAt > now)
             .Where(session => !session.IsRevoked && session.UserId == userId)
             .Where(session => exceptTokenHash == null || session.RefreshTokenHash != exceptTokenHash)
-            .ToListAsync(cancellationToken);
-
-        foreach (UserSession session in sessions)
-            session.IsRevoked = true;
-
-        databaseContext.UserSessions.UpdateRange(sessions);
+            .ExecuteUpdateAsync(setters => setters.SetProperty(session => session.IsRevoked, true), cancellationToken);
     }
 }

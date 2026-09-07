@@ -10,6 +10,8 @@ Verifies the current password, then replaces it. Passing the caller's own refres
 
 Throws [`PasswordMismatchException`](../exceptions) when the confirmation differs from the new password, [`InvalidCredentialsException`](../exceptions) when the current password is wrong, and [`PasswordReusedException`](../exceptions) when the new password verifies against the one already stored.
 
+A refresh on one of the user's other sessions can commit while the change is open, which makes it lose and start over. It is retried a bounded number of times and then throws [`ConcurrentSessionUpdateException`](../exceptions), having written nothing. Another request writing the password itself is recognised the same way, and the attempt that follows verifies against the hash that is then stored, so it ends in [`InvalidCredentialsException`](../exceptions).
+
 ```csharp
 using Microsoft.AspNetCore.Mvc;
 using AlmightyShogun.AspNet.Auth;
@@ -88,6 +90,8 @@ public Task<string?> RequestForgotPasswordAsync(
 Redeems a reset token, sets the new password, and marks the token spent. Every session is revoked and every sign-in still waiting on a second factor retired, so nothing bought with the old password survives the reset. The token identifies the user, so no signed-in caller is needed and nothing about the account has to be supplied alongside it.
 
 Throws [`InvalidPasswordResetTokenException`](../exceptions) when the token is unknown, already spent, or expired, and also when a concurrent request spends it first, since the token is claimed with a guarded update rather than on the strength of the read that found it. [`PasswordMismatchException`](../exceptions) covers a confirmation that differs, and [`PasswordReusedException`](../exceptions) a new password that is the one already stored.
+
+A refresh on any of the user's sessions can commit while the reset is open, which makes it lose and start over. It is retried a bounded number of times and then throws [`ConcurrentSessionUpdateException`](../exceptions), leaving the token unspent and the link still usable.
 
 ```csharp
 using AlmightyShogun.AspNet.Auth.Credentials;
