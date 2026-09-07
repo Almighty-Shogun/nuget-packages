@@ -22,7 +22,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// <param name="authOptions">The bound JWT settings, read for how long a refresh token lives.</param>
 /// <param name="credentialOptions">
 /// The bound credential settings, read for the absolute lifetime that caps the expiry written when a session opens and
-/// again when it is renewed.
+/// again when it is renewed, and that refuses a renewal arriving past it.
 /// </param>
 /// <param name="appHostResolver">
 /// The resolver deciding which application the current request belongs to, so a session is scoped to the host the user
@@ -92,6 +92,9 @@ internal sealed class AuthSessionService<TUser>(
 
             throw new InvalidSessionException();
         }
+
+        if (IsPastAbsoluteLifetime(session, now))
+            throw new InvalidSessionException();
 
         TUser user = await GetUserAsync(user => user.Id == session.UserId, cancellationToken);
 
@@ -368,6 +371,36 @@ internal sealed class AuthSessionService<TUser>(
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Reports whether a session has already reached the absolute lifetime measured from its creation, so a refresh
+    /// presented against it is refused rather than capped to an expiry at or before <paramref name="now"/> that no later
+    /// refresh would match. It draws that line and nothing more: a refresh admitted just under the limit is still capped to
+    /// it, so the refresh token handed back can be milliseconds from dead.
+    /// </summary>
+    ///
+    /// <param name="session">The session a refresh was presented against, read for when it was created.</param>
+    /// <param name="now">
+    /// The moment the refresh is judged against, read before the session was looked up. The expiry a renewal goes on to
+    /// write is computed from a later reading of the clock, so a session crossing the limit in between is admitted here and
+    /// then capped to an expiry already past.
+    /// </param>
+    ///
+    /// <returns>
+    /// <c>false</c> when no absolute lifetime is configured, otherwise whether that lifetime ends at or before
+    /// <paramref name="now"/>. Reaching it exactly counts as past, matching <see cref="UserSession.IsExpired"/> treating an
+    /// expiry equal to the current moment as reached.
+    /// </returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private bool IsPastAbsoluteLifetime(UserSession session, DateTimeOffset now)
+    {
+        if (credentialOptions.Value.AbsoluteSessionLifetimeDays is not { } days)
+            return false;
+
+        return session.CreatedAt.AddDays(days) <= now;
     }
 
     /// <summary>

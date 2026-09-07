@@ -34,9 +34,12 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     /// matched against one. Thrown before the presented token is looked up.
     /// </exception>
     /// <exception cref="InvalidSessionException">
-    /// The token matches no usable session, whether unknown, expired, revoked, or scoped to a different application. Also
-    /// thrown when another request rotated the same session first, since only one of two concurrent refreshes may win.
-    /// A token detected as a replay revokes every session for its user before this is thrown.
+    /// The token matches no usable session, whether unknown, expired, revoked, or scoped to a different application, or the
+    /// session it names has reached the configured absolute lifetime. A session opened by this version is held to that
+    /// ceiling at sign-in, so reaching it means either the setting was lowered or introduced afterwards, or the row predates
+    /// the sign-in cap and was written a full refresh window ahead, which outlives the ceiling whenever that window is the
+    /// longer of the two. Also thrown when another request rotated the same session first, since only one of two concurrent
+    /// refreshes may win. A token detected as a replay revokes every session for its user before this is thrown.
     /// </exception>
     /// <exception cref="AccountDisabledException">
     /// The account was deactivated after the session opened, so deactivating a user takes effect on their next refresh
