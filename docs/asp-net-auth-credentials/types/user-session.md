@@ -40,7 +40,7 @@ fields:
       default: 'false'
 
     - name: IpAddress
-      description: The address of the most recent request on this session, truncated to 45 characters so an IPv6 address still fits.
+      description: The address of the most recent request on this session, truncated to 45 characters, which holds any IPv6 address in its longest plain form but not one carrying a scope id.
       type: string?
       default: 'null'
 

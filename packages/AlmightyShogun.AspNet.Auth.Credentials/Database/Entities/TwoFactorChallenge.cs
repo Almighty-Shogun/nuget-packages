@@ -94,7 +94,8 @@ public sealed class TwoFactorChallenge
     public DateTimeOffset? UsedAt { get; set; }
 
     /// <summary>
-    /// The address the password was sent from, kept for auditing a sign-in that stopped at the second factor.
+    /// The address the password was sent from, kept for auditing a sign-in that stopped at the second factor. Trimmed to 45
+    /// characters at the write, which holds any IPv6 address in its longest plain form but not one carrying a scope id.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
