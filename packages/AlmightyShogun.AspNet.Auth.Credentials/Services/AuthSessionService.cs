@@ -7,7 +7,6 @@ using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
@@ -77,7 +76,8 @@ internal sealed class AuthSessionService<TUser>(
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        IQueryable<UserSession> query = databaseContext.UserSessions.Where(session => session.RefreshTokenHash == refreshTokenHash)
+        IQueryable<UserSession> query = databaseContext.UserSessions.AsNoTracking()
+            .Where(session => session.RefreshTokenHash == refreshTokenHash)
             .Where(session => !session.IsRevoked && session.ExpiresAt > now);
 
         if (app is not null)
@@ -87,8 +87,8 @@ internal sealed class AuthSessionService<TUser>(
 
         if (session is null || !session.IsActive)
         {
-            if (await DetectTokenReuseAsync(refreshTokenHash, cancellationToken))
-                await SaveRevocationsAsync(transaction, cancellationToken);
+            await transaction.RollbackAsync(cancellationToken);
+            await SaveRevocationsAsync(refreshTokenHash, cancellationToken);
 
             throw new InvalidSessionException();
         }
@@ -105,28 +105,21 @@ internal sealed class AuthSessionService<TUser>(
 
         string newRefreshToken = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(64));
 
-        UserAgent userAgent = UserAgent.Parse(clientContext.UserAgent ?? string.Empty);
-
-        session.Os = ColumnValue.Truncate(userAgent.Os, 256);
-        session.Device = ColumnValue.Truncate(userAgent.Device, 256);
-        session.Browser = ColumnValue.Truncate(userAgent.Browser, 256);
-        session.LastActiveAt = DateTimeOffset.UtcNow;
-        session.IpAddress = ColumnValue.Truncate(clientContext.IpAddress, 45);
-        session.UserAgent = ColumnValue.Truncate(clientContext.UserAgent, 512);
-        session.PreviousRefreshTokenHash = session.RefreshTokenHash;
-        session.RefreshTokenHash = TokenHasher.Hash(newRefreshToken);
-        session.ConcurrencyToken = Guid.NewGuid();
-        session.ExpiresAt = CapToAbsoluteLifetime(
-            session,
-            DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(authOptions.Value.RefreshTokenDays))
-        );
+        bool rotated;
 
         try
         {
-            await databaseContext.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
+            rotated = await RotateSessionAsync(session, newRefreshToken, clientContext, cancellationToken);
+
+            if (rotated)
+                await transaction.CommitAsync(cancellationToken);
         }
-        catch (DbUpdateConcurrencyException)
+        catch (Exception exception) when (ConcurrencyConflict.IsConflict(exception))
+        {
+            rotated = false;
+        }
+
+        if (!rotated)
         {
             await transaction.RollbackAsync(cancellationToken);
 
@@ -144,27 +137,11 @@ internal sealed class AuthSessionService<TUser>(
     /// <inheritdoc />
     public async Task RevokeSessionAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
-        await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
-
         string refreshTokenHash = TokenHasher.Hash(refreshToken);
 
-        UserSession? session = await databaseContext.UserSessions
+        await databaseContext.UserSessions
             .Where(session => session.RefreshTokenHash == refreshTokenHash && !session.IsRevoked)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (session is null)
-        {
-            await transaction.CommitAsync(cancellationToken);
-
-            return;
-        }
-
-        session.IsRevoked = true;
-
-        databaseContext.UserSessions.Update(session);
-
-        await databaseContext.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+            .ExecuteUpdateAsync(setters => setters.SetProperty(session => session.IsRevoked, true), cancellationToken);
     }
 
     /// <inheritdoc />
@@ -224,7 +201,10 @@ internal sealed class AuthSessionService<TUser>(
     /// <param name="predicate">The lookup, by the key the session being renewed carries.</param>
     /// <param name="cancellationToken">Cancels the lookup.</param>
     ///
-    /// <returns>The matching user, tracked so a caller can modify and save it.</returns>
+    /// <returns>
+    /// The matching user, tracked. Nothing on this path writes to it: the rotation is a statement of its own rather than a
+    /// saved entity, so the context the application shares with this service gains a row to track and nothing to save.
+    /// </returns>
     ///
     /// <exception cref="InvalidCredentialsException">Thrown when no user matches the predicate.</exception>
     ///
@@ -238,15 +218,93 @@ internal sealed class AuthSessionService<TUser>(
     }
 
     /// <summary>
-    /// Treats a refresh token that was already rotated away as stolen, marks every session the user holds revoked, and
-    /// clears the retired hash that matched, so one replayed token fires the detection once rather than repeatedly.
+    /// Writes a rotation onto the session with one statement, guarded on the concurrency token the row carried when it was
+    /// read, so two refreshes presenting the same token leave one rotation standing rather than two.
+    /// </summary>
+    ///
+    /// <param name="session">
+    /// The session being renewed, read moments earlier. Read here for the row to match, the token value the guard compares,
+    /// the hash the rotation retires, and the creation instant the absolute cap is measured from.
+    /// </param>
+    /// <param name="newRefreshToken">The token about to be handed to the client, stored as its hash.</param>
+    /// <param name="clientContext">
+    /// The current request's address and user agent, recorded on the row so a user can recognise their own devices. Both are
+    /// trimmed to the widths their columns declare, since they arrive at whatever length the client sent.
+    /// </param>
+    /// <param name="cancellationToken">Cancels the update.</param>
+    ///
+    /// <returns>
+    /// <c>true</c> when the row was rewritten, <c>false</c> when the guard matched nothing, which means another refresh
+    /// rotated the same session between the read and here. The caller rolls back and refuses on <c>false</c>, so the token
+    /// this call would have issued is discarded rather than left half written.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// The row is matched and written by one statement rather than loaded and saved, so nothing is staged on the context
+    /// the application shares with this service and a rotation that loses leaves no entry behind for the application's own
+    /// save to commit. Entity Framework applies no concurrency check to a statement it runs directly, so the token is
+    /// compared in the predicate and replaced in the same update rather than left to a save.
+    ///
+    /// The expiry is recomputed from the refresh window and capped, so a renewal slides the session forward without
+    /// carrying it past the absolute lifetime, and the hash being replaced is recorded as the previous one, which is what
+    /// a later replay of that token is detected against.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private async Task<bool> RotateSessionAsync(
+        UserSession session,
+        string newRefreshToken,
+        ClientContext clientContext,
+        CancellationToken cancellationToken
+    )
+    {
+        UserAgent userAgent = UserAgent.Parse(clientContext.UserAgent ?? string.Empty);
+
+        string? os = ColumnValue.Truncate(userAgent.Os, 256);
+        string? device = ColumnValue.Truncate(userAgent.Device, 256);
+        string? browser = ColumnValue.Truncate(userAgent.Browser, 256);
+        string? ipAddress = ColumnValue.Truncate(clientContext.IpAddress, 45);
+        string? rawUserAgent = ColumnValue.Truncate(clientContext.UserAgent, 512);
+
+        string previousRefreshTokenHash = session.RefreshTokenHash;
+        string newRefreshTokenHash = TokenHasher.Hash(newRefreshToken);
+
+        var concurrencyToken = Guid.NewGuid();
+
+        DateTimeOffset rotatedAt = DateTimeOffset.UtcNow;
+        DateTimeOffset expiresAt = CapToAbsoluteLifetime(session, rotatedAt.Add(TimeSpan.FromDays(authOptions.Value.RefreshTokenDays)));
+
+        int affectedRows = await databaseContext.UserSessions
+            .Where(candidate => candidate.Id == session.Id && candidate.ConcurrencyToken == session.ConcurrencyToken)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(candidate => candidate.Os, os)
+                    .SetProperty(candidate => candidate.Device, device)
+                    .SetProperty(candidate => candidate.Browser, browser)
+                    .SetProperty(candidate => candidate.LastActiveAt, rotatedAt)
+                    .SetProperty(candidate => candidate.IpAddress, ipAddress)
+                    .SetProperty(candidate => candidate.UserAgent, rawUserAgent)
+                    .SetProperty(candidate => candidate.PreviousRefreshTokenHash, previousRefreshTokenHash)
+                    .SetProperty(candidate => candidate.RefreshTokenHash, newRefreshTokenHash)
+                    .SetProperty(candidate => candidate.ConcurrencyToken, concurrencyToken)
+                    .SetProperty(candidate => candidate.ExpiresAt, expiresAt),
+                cancellationToken
+            );
+
+        return affectedRows == 1;
+    }
+
+    /// <summary>
+    /// Treats a refresh token that was already rotated away as stolen, revokes every session the user holds, and clears
+    /// the retired hash that matched, so one replayed token fires the detection once rather than repeatedly.
     /// </summary>
     ///
     /// <param name="refreshTokenHash">The hash of the token that was presented after already being rotated away.</param>
-    /// <param name="cancellationToken">Cancels the lookups.</param>
+    /// <param name="cancellationToken">Cancels the lookup and the two updates.</param>
     ///
     /// <returns>
-    /// <c>true</c> when a replay was found, the user's live sessions were marked revoked and the matched session's
+    /// <c>true</c> when a replay was found, the user's live sessions were revoked and the matched session's
     /// <see cref="UserSession.PreviousRefreshTokenHash"/> was cleared, <c>false</c> when the hash matches no rotated
     /// session or the rotation is still inside the grace window.
     /// </returns>
@@ -257,17 +315,18 @@ internal sealed class AuthSessionService<TUser>(
     /// are kept until they expire, so a hash left standing would revoke every session opened afterwards, once per
     /// sign-in, for the rest of the refresh window.
     ///
-    /// Nothing is saved or committed here. The caller runs inside a transaction of its own and is about to throw, so it
-    /// alone decides whether the revocations are written; saving here would commit a partial write on a path that fails.
-    /// A rotation of one of the rows read here committing before that write lands makes the write match nothing, and the
-    /// caller reapplies the revocation over the row that rotation left rather than the one this read saw.
+    /// Both writes are statements the database applies as they are issued rather than entities left for a save, so
+    /// nothing is staged on the shared context that an abandoned attempt could leave behind. Neither is committed here:
+    /// the caller owns the transaction this runs in, so a detection that cannot be committed leaves no change behind.
+    /// The caller runs this again in a fresh transaction when an attempt loses a collision, which is why the row is read
+    /// here rather than passed in: the second reading sees what the rotation that won left, and revokes that.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private async Task<bool> DetectTokenReuseAsync(string refreshTokenHash, CancellationToken cancellationToken)
     {
-        UserSession? rotated = await databaseContext.UserSessions
+        UserSession? rotated = await databaseContext.UserSessions.AsNoTracking()
             .FirstOrDefaultAsync(session => session.PreviousRefreshTokenHash == refreshTokenHash, cancellationToken);
 
         if (rotated is null || DateTimeOffset.UtcNow - rotated.LastActiveAt <= AuthSessionDefaults.RotationGrace)
@@ -277,98 +336,87 @@ internal sealed class AuthSessionService<TUser>(
             "Refresh token reuse detected for user {UserId}; revoking every session for that user", rotated.UserId
         );
 
-        List<UserSession> live = await databaseContext.UserSessions
+        await databaseContext.UserSessions
             .Where(session => session.UserId == rotated.UserId && !session.IsRevoked)
-            .ToListAsync(cancellationToken);
+            .ExecuteUpdateAsync(setters => setters.SetProperty(session => session.IsRevoked, true), cancellationToken);
 
-        foreach (UserSession active in live)
-            active.IsRevoked = true;
-
-        rotated.PreviousRefreshTokenHash = null;
+        await databaseContext.UserSessions
+            .Where(session => session.Id == rotated.Id)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(session => session.PreviousRefreshTokenHash, (string?)null),
+                cancellationToken
+            );
 
         return true;
     }
 
     /// <summary>
-    /// Writes the revocations a detected replay made, reapplying them over any rotation that commits in between, so a
-    /// confirmed theft ends the user's sessions instead of being discarded by a refresh that raced it.
+    /// Detects a replay and writes the revocations it makes in a transaction of its own, running the pair again over
+    /// freshly read rows whenever a refresh that raced it wins, so a confirmed theft ends the user's sessions instead of
+    /// being discarded.
     /// </summary>
     ///
-    /// <param name="transaction">
-    /// The caller's open transaction, committed once the write lands and rolled back when it never does.
-    /// </param>
-    /// <param name="cancellationToken">Cancels the save, the reloads it retries against, and the commit.</param>
+    /// <param name="refreshTokenHash">The hash of the token that was refused, which the detection matches on.</param>
+    /// <param name="cancellationToken">Cancels the reads, the updates, and the commit of every attempt.</param>
+    ///
+    /// <returns>
+    /// A task that completes once an attempt has committed, once a detection has found nothing to revoke, or once the
+    /// attempts are spent.
+    /// </returns>
     ///
     /// <remarks>
-    /// Every session row carries <see cref="UserSession.ConcurrencyToken"/> in the <c>WHERE</c> clause of its UPDATE, so a
-    /// rotation of the user's other sessions landing between the detection's read and this write leaves that row
-    /// matching nothing. Each rejected entry is reloaded and its guard alone refreshed to the value that rotation wrote,
-    /// re-arming the same UPDATE against the current row. Only the guard is taken from the reloaded row on purpose:
-    /// refreshing every original would leave the columns the rotation wrote differing from the values read before it,
-    /// marking them modified, and the retry would write the rotated token and expiry back to what they were.
+    /// A whole attempt is redone rather than only its write, because a server enforcing snapshot isolation rejects the
+    /// update outright once a row has moved since the transaction's first read. That cannot be answered inside the
+    /// transaction at all, since every read it makes still returns the snapshot the rotation is not in, so the
+    /// transaction is left behind and the next attempt opens its own and reads what the rotation left.
     ///
-    /// <see cref="AuthSessionDefaults.RevocationSaveAttempts"/> bounds the saves rather than the colliding rows. A
-    /// provider that batches the UPDATEs reports every collision on one save, so a single retry clears them all; one that
-    /// sends them singly reports the first alone and spends an attempt per row.
+    /// <see cref="AuthSessionDefaults.RevocationSaveAttempts"/> bounds those attempts, so a steady stream of refreshes
+    /// cannot hold one request open indefinitely. Nothing is done to the context between them: the revocations are
+    /// statements the database applies as they are issued, so an abandoned attempt stages nothing to be sent again and
+    /// disturbs nothing the application was tracking.
     ///
     /// The revocation is meant to win that collision. <see cref="UserSession.IsRevoked"/> and the cleared
     /// <see cref="UserSession.PreviousRefreshTokenHash"/> are the only columns it sets, both to a constant and neither
     /// reading the value it replaces, so reapplying them over the row the rotation left loses nothing, and the rotation
     /// being overtaken may well be the thief's.
     ///
-    /// The reload runs on the caller's connection inside its still-open transaction, so it depends on the isolation level
-    /// admitting the row the other request committed. Read committed, which SQL Server and PostgreSQL default to, does.
-    ///
-    /// A row deleted underneath the write is dropped from the change tracker rather than retried, since a session that no
-    /// longer exists needs no revoking. Exhausting the attempts logs the failure and rolls back, which leaves the user's
-    /// sessions standing and the replayed session's retired hash uncleared, so that token fires detection again on its
-    /// next presentation; the caller refuses the refresh either way.
+    /// A later attempt whose detection finds nothing returns without writing, which is what happens once another request
+    /// has already cleared the retired hash and revoked the sessions this one was going to. Exhausting the attempts logs
+    /// the failure and leaves the user's sessions standing with that hash uncleared, so the token fires detection again
+    /// on its next presentation. The caller refuses the refresh with <see cref="InvalidSessionException"/> either way,
+    /// so nothing about the answer tells the presenter which of the two happened.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.1.0</since>
-    private async Task SaveRevocationsAsync(IDbContextTransaction transaction, CancellationToken cancellationToken)
+    private async Task SaveRevocationsAsync(string refreshTokenHash, CancellationToken cancellationToken)
     {
         for (var attempt = 1;; attempt++)
         {
             try
             {
-                await databaseContext.SaveChangesAsync(cancellationToken);
+                await using IDbContextTransaction transaction =
+                    await databaseContext.Database.BeginTransactionAsync(cancellationToken);
+
+                if (!await DetectTokenReuseAsync(refreshTokenHash, cancellationToken))
+                    return;
+
                 await transaction.CommitAsync(cancellationToken);
 
                 return;
             }
-            catch (DbUpdateConcurrencyException exception)
+            catch (Exception exception) when (ConcurrencyConflict.IsConflict(exception))
             {
-                if (attempt >= AuthSessionDefaults.RevocationSaveAttempts)
-                {
-                    logger.LogError(
-                        "Refresh token reuse revocations abandoned after {Attempts} attempts; the user's sessions stand",
-                        attempt
-                    );
+                if (attempt < AuthSessionDefaults.RevocationSaveAttempts)
+                    continue;
 
-                    await transaction.RollbackAsync(cancellationToken);
+                logger.LogError(
+                    exception,
+                    "Refresh token reuse revocations abandoned after {Attempts} attempts; the user's sessions stand",
+                    attempt
+                );
 
-                    return;
-                }
-
-                foreach (EntityEntry entry in exception.Entries)
-                {
-                    PropertyValues? stored = await entry.GetDatabaseValuesAsync(cancellationToken);
-
-                    if (stored is null)
-                    {
-                        entry.State = EntityState.Detached;
-
-                        continue;
-                    }
-
-                    PropertyEntry guard = entry.Property(nameof(UserSession.ConcurrencyToken));
-
-                    guard.CurrentValue = stored[nameof(UserSession.ConcurrencyToken)];
-                    guard.OriginalValue = guard.CurrentValue;
-                    guard.IsModified = false;
-                }
+                return;
             }
         }
     }

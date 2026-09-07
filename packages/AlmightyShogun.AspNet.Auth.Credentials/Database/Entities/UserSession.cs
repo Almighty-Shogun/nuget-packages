@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -157,7 +156,7 @@ public sealed class UserSession
     /// <summary>
     /// The value that guards a rotation against a concurrent one. Rewritten on every rotation and mapped as
     /// the row's concurrency token, so two refreshes that read the same session leave only the first one's write standing
-    /// and the second fails with <see cref="DbUpdateConcurrencyException"/>.
+    /// and the second matches no row, which the refresh path answers with <see cref="InvalidSessionException"/>.
     /// </summary>
     ///
     /// <remarks>

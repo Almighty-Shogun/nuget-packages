@@ -81,12 +81,15 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     /// </summary>
     ///
     /// <param name="refreshToken">The token as the client holds it. An unknown token is not an error.</param>
-    /// <param name="cancellationToken">Cancels the database work, rolling the revocation back with the transaction.</param>
+    /// <param name="cancellationToken">Cancels the update, which leaves the session standing when it fires first.</param>
     ///
     /// <returns>A task that completes once the session can no longer be refreshed.</returns>
     ///
     /// <remarks>
-    /// This opens a transaction of its own, and commits it even when the token matched nothing.
+    /// The row is matched and revoked by one update rather than loaded and saved, so this owns no transaction and needs
+    /// none. A token matching nothing writes nothing, and the one column written is set to a constant, so a rotation of
+    /// the same session landing at that moment does not leave the update matching nothing the way a saved entity's
+    /// concurrency token would.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

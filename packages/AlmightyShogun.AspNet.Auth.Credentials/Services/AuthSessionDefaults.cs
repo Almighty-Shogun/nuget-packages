@@ -26,10 +26,10 @@ internal static class AuthSessionDefaults
     internal static readonly TimeSpan RotationGrace = TimeSpan.FromSeconds(30);
 
     /// <summary>
-    /// How many times the write of a detected replay's revocations is attempted before it is given up on. A rotation of
-    /// one of the user's other sessions committing mid-detection leaves the revocation of that row matching nothing, and
-    /// it is reapplied over what the rotation wrote; this bounds that so a steady stream of refreshes cannot hold the
-    /// write open indefinitely.
+    /// How many times a detected replay's revocations are detected and written afresh before they are given up on. A
+    /// rotation of one of the user's other sessions committing while that transaction is open makes it lose, and the
+    /// next attempt reads the rows the rotation left and revokes those; this bounds that so a steady stream of
+    /// refreshes cannot hold the write open indefinitely.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
