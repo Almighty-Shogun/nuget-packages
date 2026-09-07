@@ -103,12 +103,12 @@ internal sealed class AuthSessionService<TUser>(
 
         UserAgent userAgent = UserAgent.Parse(clientContext.UserAgent ?? string.Empty);
 
-        session.Os = Truncate(userAgent.Os, 256);
-        session.Device = Truncate(userAgent.Device, 256);
-        session.Browser = Truncate(userAgent.Browser, 256);
+        session.Os = ColumnValue.Truncate(userAgent.Os, 256);
+        session.Device = ColumnValue.Truncate(userAgent.Device, 256);
+        session.Browser = ColumnValue.Truncate(userAgent.Browser, 256);
         session.LastActiveAt = DateTimeOffset.UtcNow;
-        session.IpAddress = Truncate(clientContext.IpAddress, 45);
-        session.UserAgent = Truncate(clientContext.UserAgent, 512);
+        session.IpAddress = ColumnValue.Truncate(clientContext.IpAddress, 45);
+        session.UserAgent = ColumnValue.Truncate(clientContext.UserAgent, 512);
         session.PreviousRefreshTokenHash = session.RefreshTokenHash;
         session.RefreshTokenHash = TokenHasher.Hash(newRefreshToken);
         session.ConcurrencyToken = Guid.NewGuid();
@@ -188,11 +188,11 @@ internal sealed class AuthSessionService<TUser>(
         {
             UserId = user.Id,
             App = app,
-            Os = Truncate(userAgent.Os, 256),
-            Device = Truncate(userAgent.Device, 256),
-            Browser = Truncate(userAgent.Browser, 256),
-            IpAddress = Truncate(context.IpAddress, 45),
-            UserAgent = Truncate(context.UserAgent, 512),
+            Os = ColumnValue.Truncate(userAgent.Os, 256),
+            Device = ColumnValue.Truncate(userAgent.Device, 256),
+            Browser = ColumnValue.Truncate(userAgent.Browser, 256),
+            IpAddress = ColumnValue.Truncate(context.IpAddress, 45),
+            UserAgent = ColumnValue.Truncate(context.UserAgent, 512),
             RefreshTokenHash = TokenHasher.Hash(refreshToken),
             ExpiresAt = DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(authOptions.Value.RefreshTokenDays))
         }, cancellationToken);
@@ -387,19 +387,4 @@ internal sealed class AuthSessionService<TUser>(
 
         return proposedExpiry > absoluteEnd ? absoluteEnd : proposedExpiry;
     }
-
-    /// <summary>
-    /// Trims a value to the column length. A header longer than its column otherwise fails the insert with a database
-    /// error, and both the IP address and the User-Agent come straight from the request.
-    /// </summary>
-    ///
-    /// <param name="value">The value as it arrived, normally straight off a request header.</param>
-    /// <param name="maxLength">The column width, which is what the value has to fit.</param>
-    ///
-    /// <returns>The value, trimmed when it exceeds the column length.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
-    private static string? Truncate(string? value, int maxLength)
-        => value is null || value.Length <= maxLength ? value : value[..maxLength];
 }

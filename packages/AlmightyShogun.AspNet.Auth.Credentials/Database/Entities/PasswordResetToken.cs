@@ -73,7 +73,9 @@ public sealed class PasswordResetToken
     public DateTimeOffset? UsedAt { get; set; }
 
     /// <summary>
-    /// The address the reset was requested from, kept for auditing an unexpected reset.
+    /// The address the reset was requested from, kept for auditing an unexpected reset. Trimmed to 45 characters at the write,
+    /// which holds any IPv6 address in its longest plain form but not one carrying a scope id, and not a chain of forwarded
+    /// addresses.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
