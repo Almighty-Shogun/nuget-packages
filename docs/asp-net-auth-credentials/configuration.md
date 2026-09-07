@@ -12,7 +12,7 @@ fields:
             type: TwoFactorPolicy
 
           - name: AbsoluteSessionLifetimeDays
-            description: Ceiling on a session's total life, measured from creation, so refreshing cannot extend it forever. An explicit `null` removes the cap; an absent key keeps 30 days.
+            description: Ceiling on a session's total life, measured from creation, so refreshing cannot extend it forever. It bounds the expiry written when a session opens as well, and a session already that old is refused its next refresh rather than renewed. An explicit `null` removes the cap; an absent key keeps 30 days.
             type: int?
             default: '30'
 

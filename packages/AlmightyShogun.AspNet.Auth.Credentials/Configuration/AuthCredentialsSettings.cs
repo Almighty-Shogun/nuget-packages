@@ -35,8 +35,9 @@ public sealed record AuthCredentialsSettings
     public TwoFactorPolicy TwoFactor { get; init; } = new();
 
     /// <summary>
-    /// The maximum age a session may reach regardless of refreshing, in days. A <c>null</c> value caps nothing, so a
-    /// session then lasts as long as it keeps being refreshed.
+    /// The maximum age a session may reach regardless of refreshing, in days. The expiry written when a session opens is
+    /// held to it as well, and a session already that old is refused its next refresh rather than renewed. A <c>null</c>
+    /// value caps nothing, so a session then lasts as long as it keeps being refreshed.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

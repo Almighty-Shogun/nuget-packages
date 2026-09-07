@@ -61,7 +61,7 @@ public sealed class AccountDisabledException : Exception;
 
 ## InvalidSessionException
 
-Thrown when a refresh token matches no usable session, whether it is unknown, expired, revoked, or scoped to a different application.
+Thrown when a refresh token matches no usable session, whether it is unknown, expired, revoked, or scoped to a different application, and when the session it names has reached the [`AbsoluteSessionLifetimeDays`](./configuration) ceiling measured from when it was created.
 
 ### Type signature
 

@@ -23,7 +23,7 @@ fields:
       default: 'null'
 
     - name: ExpiresAt
-      description: When the session stops refreshing. Extended on each refresh, but never past the ceiling set by `AbsoluteSessionLifetimeDays`.
+      description: When the session stops refreshing. Set a refresh window ahead of the moment the session opens and set the same way again on each refresh rather than accumulating, and never past the ceiling set by `AbsoluteSessionLifetimeDays`.
       type: DateTimeOffset
 
     - name: CreatedAt
