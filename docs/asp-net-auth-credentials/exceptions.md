@@ -9,6 +9,7 @@ Every exception the package throws is a plain exception carrying no message of i
 | `InvalidTwoFactorCodeException` | `401` | `invalid_two_factor_code` |
 | `InvalidTwoFactorChallengeException` | `401` | `invalid_two_factor_challenge` |
 | `AccountDisabledException` | `403` | `account_disabled` |
+| `ConcurrentSessionUpdateException` | `409` | `concurrent_session_update` |
 | `InvalidPasswordResetTokenException` | `410` | `invalid_password_reset_token` |
 | `InvalidEmailVerificationTokenException` | `410` | `invalid_email_verification_token` |
 | `PasswordMismatchException` | `422` | `password_mismatch` |
@@ -67,6 +68,20 @@ Thrown when a refresh token matches no usable session, whether it is unknown, ex
 
 ```csharp
 public sealed class InvalidSessionException : Exception;
+```
+
+## ConcurrentSessionUpdateException
+
+Thrown by [`ChangePasswordAsync`](./services/auth-password-service#changepasswordasync), [`CompleteForgotPasswordAsync`](./services/auth-password-service#completeforgotpasswordasync), [`CompleteVerificationAsync`](./services/auth-email-service#completeverificationasync), and [`CompleteEmailChangeAsync`](./services/auth-email-service#completeemailchangeasync) when every attempt at the operation lost a race with a concurrent write to the same rows. The three that revoke sessions in the same transaction that changes the credential can lose to a refresh on another of the user's devices; all four write the user's own row, so another sign-in rehashing that password is enough to defeat any of them.
+
+Nothing was written: each attempt runs in a transaction of its own and none of them reached its commit, so the credential still stands, a reset token or verification link is still unspent, and the same request can be sent again. The database failure the last attempt lost to is kept as the inner exception, which is `null` when that attempt lost to a guarded update matching no row rather than to a failed statement.
+
+### Type signature
+
+```csharp
+public sealed class ConcurrentSessionUpdateException(
+    Exception? innerException = null
+) : Exception;
 ```
 
 ## InvalidPasswordResetTokenException

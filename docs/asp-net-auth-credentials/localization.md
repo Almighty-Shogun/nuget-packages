@@ -12,6 +12,7 @@ Create `messages/{language}/auth.json` for every language the API should support
 {
     "failed": "These credentials do not match our records.",
     "session-invalid": "This session is no longer valid. Please sign in again.",
+    "session-update-conflict": "Your sessions changed while this was being saved. Please try again.",
     "two-factor-invalid": "This verification code is incorrect.",
     "two-factor-challenge-invalid": "This sign-in is no longer valid. Please sign in again.",
     "disabled": "This account has been deactivated.",
@@ -26,6 +27,7 @@ Create `messages/{language}/auth.json` for every language the API should support
 {
     "failed": "Deze inloggegevens komen niet overeen met onze gegevens.",
     "session-invalid": "Deze sessie is niet langer geldig. Log opnieuw in.",
+    "session-update-conflict": "Je sessies zijn gewijzigd tijdens het opslaan. Probeer het opnieuw.",
     "two-factor-invalid": "Deze verificatiecode is onjuist.",
     "two-factor-challenge-invalid": "Deze inlogpoging is niet langer geldig. Log opnieuw in.",
     "disabled": "Dit account is gedeactiveerd.",
@@ -40,6 +42,7 @@ Create `messages/{language}/auth.json` for every language the API should support
 {
     "failed": "Ces identifiants ne correspondent pas à nos données.",
     "session-invalid": "Cette session n'est plus valide. Veuillez vous reconnecter.",
+    "session-update-conflict": "Vos sessions ont changé pendant l'enregistrement. Veuillez réessayer.",
     "two-factor-invalid": "Ce code de vérification est incorrect.",
     "two-factor-challenge-invalid": "Cette connexion n'est plus valide. Veuillez vous reconnecter.",
     "disabled": "Ce compte a été désactivé.",

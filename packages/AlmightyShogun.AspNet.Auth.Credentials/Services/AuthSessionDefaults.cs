@@ -35,4 +35,14 @@ internal static class AuthSessionDefaults
     /// <author>Almighty-Shogun</author>
     /// <since>4.1.0</since>
     internal const int RevocationSaveAttempts = 5;
+
+    /// <summary>
+    /// How many times an operation that changes a credential or redeems a token is run before it is given up on. Lower
+    /// than <see cref="RevocationSaveAttempts"/> because an attempt on the password paths verifies the stored hash again,
+    /// which is deliberately slow, so it costs far more than a revocation's attempt does.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal const int CredentialWriteAttempts = 3;
 }
