@@ -6,7 +6,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.1.0</since>
 public enum EmailVerificationPurpose
 {
     /// <summary>
@@ -15,7 +15,7 @@ public enum EmailVerificationPurpose
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     Registration = 0,
 
     /// <summary>
@@ -23,6 +23,6 @@ public enum EmailVerificationPurpose
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     EmailChange = 1
 }

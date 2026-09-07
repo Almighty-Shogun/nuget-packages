@@ -62,7 +62,7 @@ public sealed record AuthCredentialsSettings
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     [Range(1, int.MaxValue)]
     public int EmailVerificationMinutes { get; init; } = 1440;
 

@@ -235,7 +235,7 @@ internal sealed class AuthUserService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     private async Task<string> IssueChallengeAsync(
         int userId,
         string? app,
@@ -291,7 +291,7 @@ internal sealed class AuthUserService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     private async Task RetireActiveChallengesAsync(int userId, DateTimeOffset now, CancellationToken cancellationToken)
         => await databaseContext.TwoFactorChallenges
             .Where(challenge => challenge.UserId == userId && challenge.UsedAt == null)
@@ -314,7 +314,7 @@ internal sealed class AuthUserService<TUser>(
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     private async Task SpendChallengeAsync(int challengeId, DateTimeOffset now, CancellationToken cancellationToken)
     {
         int affectedRows = await databaseContext.TwoFactorChallenges

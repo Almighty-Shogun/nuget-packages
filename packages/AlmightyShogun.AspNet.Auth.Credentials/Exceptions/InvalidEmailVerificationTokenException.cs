@@ -8,5 +8,5 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.1.0</since>
 public sealed class InvalidEmailVerificationTokenException : Exception;

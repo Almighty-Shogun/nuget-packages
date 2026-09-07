@@ -68,7 +68,7 @@ public sealed record TwoFactorPolicy
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     [Range(1, int.MaxValue)]
     public int ChallengeMinutes { get; init; } = 5;
 }

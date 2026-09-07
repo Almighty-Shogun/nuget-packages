@@ -132,7 +132,7 @@ public interface IAuthUserService<TUser> where TUser : AuthUser
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     Task<AuthSessionResult<TUser>> CompleteTwoFactorLoginAsync(
         CompleteTwoFactorLoginRequest request,
         HttpContext context,

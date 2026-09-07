@@ -7,7 +7,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.1.0</since>
 internal static class ColumnValue
 {
     /// <summary>
@@ -21,7 +21,7 @@ internal static class ColumnValue
     /// <returns>The value, trimmed when it exceeds the column length.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     internal static string? Truncate(string? value, int maxLength)
         => value is null || value.Length <= maxLength ? value : value[..maxLength];
 }

@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.1.0</since>
 public sealed record CompleteEmailVerificationRequest
 {
     /// <summary>
@@ -17,7 +17,7 @@ public sealed record CompleteEmailVerificationRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     [Required]
     public required string Token { get; set; }
 }

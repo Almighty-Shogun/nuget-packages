@@ -8,7 +8,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.1.0</since>
 public sealed record CompleteTwoFactorLoginRequest
 {
     /// <summary>
@@ -16,7 +16,7 @@ public sealed record CompleteTwoFactorLoginRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     [Required]
     public required string Challenge { get; set; }
 
@@ -25,7 +25,7 @@ public sealed record CompleteTwoFactorLoginRequest
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     [Required]
     public required string Code { get; set; }
 }

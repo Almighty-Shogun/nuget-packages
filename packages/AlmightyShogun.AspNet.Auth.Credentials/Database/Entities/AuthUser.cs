@@ -68,7 +68,7 @@ public class AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     public DateTimeOffset? EmailVerifiedAt { get; set; }
 
     /// <summary>

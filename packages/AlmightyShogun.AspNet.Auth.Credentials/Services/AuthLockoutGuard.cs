@@ -25,7 +25,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.1.0</since>
 internal sealed class AuthLockoutGuard<TUser>(
     AuthDbContext<TUser> databaseContext,
     IOptions<AuthCredentialsSettings> credentialOptions
@@ -121,7 +121,7 @@ internal sealed class AuthLockoutGuard<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     public async Task ReleaseAttemptAsync(int userId, CancellationToken cancellationToken)
     {
         LockoutPolicy policy = credentialOptions.Value.Lockout;

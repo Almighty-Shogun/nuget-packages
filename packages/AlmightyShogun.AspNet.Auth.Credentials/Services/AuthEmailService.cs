@@ -17,7 +17,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// <param name="credentialOptions">The bound credential settings, read for how long a verification token lives.</param>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.1.0</since>
 internal sealed class AuthEmailService<TUser>(
     AuthDbContext<TUser> databaseContext,
     IOptions<AuthCredentialsSettings> credentialOptions
@@ -110,7 +110,7 @@ internal sealed class AuthEmailService<TUser>(
     /// <exception cref="InvalidCredentialsException">Thrown when no user matches the predicate.</exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     private async Task<TUser> GetUserAsync(Expression<Func<TUser, bool>> predicate, CancellationToken cancellationToken)
     {
         TUser? user = await databaseContext.Users.FirstOrDefaultAsync(predicate, cancellationToken);
@@ -137,7 +137,7 @@ internal sealed class AuthEmailService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     private async Task EnsureEmailAvailableAsync(string email, int userId, CancellationToken cancellationToken)
     {
         if (await databaseContext.Users.AnyAsync(candidate => candidate.Email == email && candidate.Id != userId, cancellationToken))
@@ -166,7 +166,7 @@ internal sealed class AuthEmailService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     private async Task EnsureTokenAddressCurrentAsync(int userId, string email, CancellationToken cancellationToken)
     {
         if (!await databaseContext.Users.AnyAsync(candidate => candidate.Id == userId && candidate.Email == email, cancellationToken))
@@ -198,7 +198,7 @@ internal sealed class AuthEmailService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     private async Task<string> IssueTokenAsync(
         TUser user,
         string email,
@@ -254,7 +254,7 @@ internal sealed class AuthEmailService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     private async Task RetireActiveTokensAsync(
         int userId,
         EmailVerificationPurpose purpose,
@@ -288,7 +288,7 @@ internal sealed class AuthEmailService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     private async Task<EmailVerificationToken> FindActiveTokenAsync(
         string token,
         EmailVerificationPurpose purpose,
@@ -323,7 +323,7 @@ internal sealed class AuthEmailService<TUser>(
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     private async Task SpendTokenAsync(int tokenId, DateTimeOffset now, CancellationToken cancellationToken)
     {
         int affectedRows = await databaseContext.EmailVerificationTokens
@@ -349,7 +349,7 @@ internal sealed class AuthEmailService<TUser>(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     private async Task RevokeUserSessionsAsync(int userId, CancellationToken cancellationToken, string? exceptToken = null)
     {
         string? exceptTokenHash = exceptToken is null ? null : TokenHasher.Hash(exceptToken);

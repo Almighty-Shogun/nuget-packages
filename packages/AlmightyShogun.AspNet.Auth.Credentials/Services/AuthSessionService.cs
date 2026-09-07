@@ -326,7 +326,7 @@ internal sealed class AuthSessionService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     private async Task SaveRevocationsAsync(IDbContextTransaction transaction, CancellationToken cancellationToken)
     {
         for (var attempt = 1;; attempt++)
@@ -394,7 +394,7 @@ internal sealed class AuthSessionService<TUser>(
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     private bool IsPastAbsoluteLifetime(UserSession session, DateTimeOffset now)
     {
         if (credentialOptions.Value.AbsoluteSessionLifetimeDays is not { } days)

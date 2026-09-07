@@ -7,7 +7,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.1.0</since>
 public interface IAuthEmailService
 {
     /// <summary>
@@ -35,7 +35,7 @@ public interface IAuthEmailService
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     Task<string> RequestVerificationAsync(
         Guid identifier,
         CancellationToken cancellationToken = default
@@ -70,7 +70,7 @@ public interface IAuthEmailService
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     Task<string> RequestEmailChangeAsync(
         Guid identifier,
         string newEmail,
@@ -107,7 +107,7 @@ public interface IAuthEmailService
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     Task CompleteVerificationAsync(
         CompleteEmailVerificationRequest request,
         CancellationToken cancellationToken = default
@@ -156,7 +156,7 @@ public interface IAuthEmailService
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     Task CompleteEmailChangeAsync(
         CompleteEmailVerificationRequest request,
         string? currentRefreshToken = null,

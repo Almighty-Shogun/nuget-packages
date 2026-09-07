@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </typeparam>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.1.0</since>
 public sealed class AuthLoginResult<TUser> where TUser : AuthUser
 {
     /// <summary>
@@ -21,7 +21,7 @@ public sealed class AuthLoginResult<TUser> where TUser : AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     public required TUser User { get; init; }
 
     /// <summary>
@@ -29,7 +29,7 @@ public sealed class AuthLoginResult<TUser> where TUser : AuthUser
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     public AuthSessionResult<TUser>? Session { get; init; }
 
     /// <summary>
@@ -44,7 +44,7 @@ public sealed class AuthLoginResult<TUser> where TUser : AuthUser
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     public string? Challenge { get; init; }
 
     /// <summary>
@@ -58,7 +58,7 @@ public sealed class AuthLoginResult<TUser> where TUser : AuthUser
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     [MemberNotNullWhen(false, nameof(Session))]
     [MemberNotNullWhen(true, nameof(Challenge))]
     public bool RequiresTwoFactor => Challenge is not null;

@@ -33,6 +33,6 @@ internal static class AuthSessionDefaults
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     internal const int RevocationSaveAttempts = 5;
 }

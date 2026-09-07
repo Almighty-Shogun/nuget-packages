@@ -61,7 +61,7 @@ public sealed class EmailVerificationToken
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     public EmailVerificationPurpose Purpose { get; set; }
 
     /// <summary>

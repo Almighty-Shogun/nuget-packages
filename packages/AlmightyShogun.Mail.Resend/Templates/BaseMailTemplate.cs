@@ -256,7 +256,7 @@ public abstract class BaseMailTemplate
     /// <returns>The value with its tags reduced to text. A value carrying no markup comes back unchanged.</returns>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     private static string ToPlainText(string html) => WebUtility.HtmlDecode(
         Regex.Replace(Regex.Replace(html, "<br\\s*/?>", "\n", RegexOptions.IgnoreCase), "<[^>]+>", string.Empty)
     );

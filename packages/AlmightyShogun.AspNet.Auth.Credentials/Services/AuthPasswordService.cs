@@ -287,7 +287,7 @@ internal sealed class AuthPasswordService<TUser>(
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     private async Task RetireTwoFactorChallengesAsync(int userId, CancellationToken cancellationToken)
     {
         List<TwoFactorChallenge> challenges = await databaseContext.TwoFactorChallenges

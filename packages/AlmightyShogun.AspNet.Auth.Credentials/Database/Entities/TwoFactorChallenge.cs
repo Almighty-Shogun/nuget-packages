@@ -16,7 +16,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
-/// <since>Unreleased</since>
+/// <since>4.1.0</since>
 [Table("two_factor_challenges")]
 [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public sealed class TwoFactorChallenge
@@ -27,7 +27,7 @@ public sealed class TwoFactorChallenge
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     public int Id { get; set; }
 
     /// <summary>
@@ -36,7 +36,7 @@ public sealed class TwoFactorChallenge
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     public int UserId { get; set; }
 
     /// <summary>
@@ -44,7 +44,7 @@ public sealed class TwoFactorChallenge
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     [Required]
     [MaxLength(64)]
     public string TokenHash { get; set; } = string.Empty;
@@ -56,7 +56,7 @@ public sealed class TwoFactorChallenge
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     [MaxLength(255)]
     public string? App { get; set; }
 
@@ -65,7 +65,7 @@ public sealed class TwoFactorChallenge
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
@@ -74,7 +74,7 @@ public sealed class TwoFactorChallenge
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     public DateTimeOffset ExpiresAt { get; set; }
 
     /// <summary>
@@ -90,7 +90,7 @@ public sealed class TwoFactorChallenge
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     public DateTimeOffset? UsedAt { get; set; }
 
     /// <summary>
@@ -99,7 +99,7 @@ public sealed class TwoFactorChallenge
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     [MaxLength(45)]
     public string? RequestedIpAddress { get; set; }
 
@@ -115,7 +115,7 @@ public sealed class TwoFactorChallenge
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     [NotMapped]
     public bool IsActive => UsedAt is null && ExpiresAt > DateTimeOffset.UtcNow;
 }

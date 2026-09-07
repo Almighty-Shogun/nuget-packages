@@ -96,7 +96,7 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    /// <since>4.1.0</since>
     public DbSet<TwoFactorChallenge> TwoFactorChallenges => Set<TwoFactorChallenge>();
 
     /// <inheritdoc />
