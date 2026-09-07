@@ -24,8 +24,8 @@ What [`ChangePasswordAsync`](../services/auth-password-service#changepasswordasy
 ```csharp
 public sealed class ChangePasswordRequest
 {
-    public required string CurrentPassword { get; set; }
-    public required string NewPassword { get; set; }
-    public required string ConfirmPassword { get; set; }
+    public string CurrentPassword { get; set; } = "";
+    public string NewPassword { get; set; } = "";
+    public string ConfirmPassword { get; set; } = "";
 }
 ```

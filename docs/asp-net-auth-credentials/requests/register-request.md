@@ -24,8 +24,8 @@ The three values a user may supply about themselves when signing up. It carries 
 ```csharp
 public sealed record RegisterRequest
 {
-    public required string Username { get; set; }
-    public required string Email { get; set; }
-    public required string Password { get; set; }
+    public string Username { get; set; } = "";
+    public string Email { get; set; } = "";
+    public string Password { get; set; } = "";
 }
 ```

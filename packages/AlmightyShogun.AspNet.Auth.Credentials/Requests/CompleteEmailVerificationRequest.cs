@@ -19,5 +19,5 @@ public sealed record CompleteEmailVerificationRequest
     /// <author>Almighty-Shogun</author>
     /// <since>4.1.0</since>
     [Required]
-    public required string Token { get; set; }
+    public string Token { get; set; } = string.Empty;
 }

@@ -18,7 +18,7 @@ public sealed record LoginRequest
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     [Required]
-    public required string Identifier { get; set; }
+    public string Identifier { get; set; } = string.Empty;
 
     /// <summary>
     /// The submitted password, verified against the stored hash.
@@ -27,5 +27,5 @@ public sealed record LoginRequest
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     [Required]
-    public required string Password { get; set; }
+    public string Password { get; set; } = string.Empty;
 }

@@ -19,7 +19,7 @@ public sealed record CompleteForgotPasswordRequest
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     [Required]
-    public required string Token { get; set; }
+    public string Token { get; set; } = string.Empty;
 
     /// <summary>
     /// The password the account should sign in with afterwards.
@@ -30,7 +30,7 @@ public sealed record CompleteForgotPasswordRequest
     [Min(8)]
     [Required]
     [PasswordSecure]
-    public required string NewPassword { get; set; }
+    public string NewPassword { get; set; } = string.Empty;
 
     /// <summary>
     /// The repeat of the new password, which catches a typo before it becomes a credential nobody knows.
@@ -40,5 +40,5 @@ public sealed record CompleteForgotPasswordRequest
     /// <since>4.0.0</since>
     [Min(8)]
     [Required]
-    public required string ConfirmPassword { get; set; }
+    public string ConfirmPassword { get; set; } = string.Empty;
 }

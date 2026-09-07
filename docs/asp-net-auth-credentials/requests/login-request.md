@@ -20,7 +20,7 @@ The credentials [`LoginAsync`](../services/auth-user-service#loginasync) takes. 
 ```csharp
 public sealed record LoginRequest
 {
-    public required string Identifier { get; set; }
-    public required string Password { get; set; }
+    public string Identifier { get; set; } = "";
+    public string Password { get; set; } = "";
 }
 ```

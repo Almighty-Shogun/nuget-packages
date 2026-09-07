@@ -20,7 +20,7 @@ What [`CompleteTwoFactorLoginAsync`](../services/auth-user-service#completetwofa
 ```csharp
 public sealed record CompleteTwoFactorLoginRequest
 {
-    public required string Challenge { get; set; }
-    public required string Code { get; set; }
+    public string Challenge { get; set; } = "";
+    public string Code { get; set; } = "";
 }
 ```
