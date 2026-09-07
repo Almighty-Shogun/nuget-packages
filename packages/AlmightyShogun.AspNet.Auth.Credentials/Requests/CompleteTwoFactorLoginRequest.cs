@@ -18,7 +18,7 @@ public sealed record CompleteTwoFactorLoginRequest
     /// <author>Almighty-Shogun</author>
     /// <since>4.1.0</since>
     [Required]
-    public required string Challenge { get; set; }
+    public string Challenge { get; set; } = string.Empty;
 
     /// <summary>
     /// The submitted value, tried as a TOTP code and then as a recovery code, so nothing here says which it is.
@@ -27,5 +27,5 @@ public sealed record CompleteTwoFactorLoginRequest
     /// <author>Almighty-Shogun</author>
     /// <since>4.1.0</since>
     [Required]
-    public required string Code { get; set; }
+    public string Code { get; set; } = string.Empty;
 }

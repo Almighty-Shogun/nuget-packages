@@ -18,7 +18,7 @@ public sealed record RegisterRequest
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     [Required]
-    public required string Username { get; set; }
+    public string Username { get; set; } = string.Empty;
 
     /// <summary>
     /// The email address to claim. Refused when another account already holds it.
@@ -28,7 +28,7 @@ public sealed record RegisterRequest
     /// <since>4.0.0</since>
     [Email]
     [Required]
-    public required string Email { get; set; }
+    public string Email { get; set; } = string.Empty;
 
     /// <summary>
     /// The chosen password, hashed before it is stored and never persisted as given.
@@ -39,5 +39,5 @@ public sealed record RegisterRequest
     [Min(8)]
     [Required]
     [PasswordSecure]
-    public required string Password { get; set; }
+    public string Password { get; set; } = string.Empty;
 }

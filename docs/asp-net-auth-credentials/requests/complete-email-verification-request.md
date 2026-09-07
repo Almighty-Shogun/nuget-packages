@@ -16,6 +16,6 @@ What [`CompleteVerificationAsync`](../services/auth-email-service#completeverifi
 ```csharp
 public sealed record CompleteEmailVerificationRequest
 {
-    public required string Token { get; set; }
+    public string Token { get; set; } = "";
 }
 ```

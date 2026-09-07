@@ -38,9 +38,9 @@ Never bind this model on a route a normal user can reach. `Role` and `Permission
 ```csharp
 public sealed record CreateUserRequest
 {
-    public required string Username { get; set; }
-    public required string Password { get; set; }
-    public required string Email { get; set; }
+    public string Username { get; set; } = "";
+    public string Password { get; set; } = "";
+    public string Email { get; set; } = "";
     public string Role { get; set; } = "User";
     public string[] Permissions { get; set; } = [];
 }

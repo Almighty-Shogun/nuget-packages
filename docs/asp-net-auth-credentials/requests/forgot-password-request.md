@@ -16,6 +16,6 @@ What [`RequestForgotPasswordAsync`](../services/auth-password-service#requestfor
 ```csharp
 public sealed record ForgotPasswordRequest
 {
-    public required string Email { get; set; }
+    public string Email { get; set; } = "";
 }
 ```

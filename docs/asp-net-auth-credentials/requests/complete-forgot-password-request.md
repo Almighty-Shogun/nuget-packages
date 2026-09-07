@@ -24,8 +24,8 @@ What [`CompleteForgotPasswordAsync`](../services/auth-password-service#completef
 ```csharp
 public sealed record CompleteForgotPasswordRequest
 {
-    public required string Token { get; set; }
-    public required string NewPassword { get; set; }
-    public required string ConfirmPassword { get; set; }
+    public string Token { get; set; } = "";
+    public string NewPassword { get; set; } = "";
+    public string ConfirmPassword { get; set; } = "";
 }
 ```

@@ -19,5 +19,5 @@ public sealed record ForgotPasswordRequest
     /// <since>4.0.0</since>
     [Email]
     [Required]
-    public required string Email { get; set; }
+    public string Email { get; set; } = string.Empty;
 }
