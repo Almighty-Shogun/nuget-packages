@@ -26,7 +26,7 @@ fields:
       default: 'null'
 
     - name: RequestedIpAddress
-      description: The address the reset was requested from, when the caller passed one. Kept for auditing a reset the account owner did not ask for.
+      description: The address the reset was requested from, when the caller passed one. Kept for auditing a reset the account owner did not ask for, and truncated to 45 characters, which holds any IPv6 address in its longest plain form but not one carrying a scope id.
       type: string?
       default: 'null'
 

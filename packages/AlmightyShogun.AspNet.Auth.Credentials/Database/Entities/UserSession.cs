@@ -91,7 +91,9 @@ public sealed class UserSession
     public bool IsRevoked { get; set; }
 
     /// <summary>
-    /// The address the session was last used from, for showing a user where they are signed in.
+    /// The address the session was last used from, for showing a user where they are signed in. Trimmed to 45 characters at the
+    /// write, which holds any IPv6 address in its longest plain form but not one carrying a scope id, and not a chain of
+    /// forwarded addresses.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -100,7 +102,8 @@ public sealed class UserSession
     public string? IpAddress { get; set; }
 
     /// <summary>
-    /// The raw user agent, kept alongside the parsed fields so an unrecognised client is still identifiable.
+    /// The raw user agent, kept alongside the parsed fields so an unrecognised client is still identifiable. Trimmed to 512
+    /// characters at the write, since the header arrives at whatever length the client chose to send.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -109,7 +112,8 @@ public sealed class UserSession
     public string? UserAgent { get; set; }
 
     /// <summary>
-    /// The device parsed from the user agent, or <c>null</c> when it could not be determined.
+    /// The device parsed from the user agent, or <c>null</c> when it could not be determined. Trimmed to 256 characters at the
+    /// write.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -118,7 +122,8 @@ public sealed class UserSession
     public string? Device { get; set; }
 
     /// <summary>
-    /// The browser parsed from the user agent, or <c>null</c> when it could not be determined.
+    /// The browser parsed from the user agent, or <c>null</c> when it could not be determined. Trimmed to 256 characters at the
+    /// write.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -127,7 +132,8 @@ public sealed class UserSession
     public string? Browser { get; set; }
 
     /// <summary>
-    /// The operating system parsed from the user agent, or <c>null</c> when it could not be determined.
+    /// The operating system parsed from the user agent, or <c>null</c> when it could not be determined. Trimmed to 256
+    /// characters at the write.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

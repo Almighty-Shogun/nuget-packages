@@ -31,7 +31,7 @@ fields:
       default: 'null'
 
     - name: RequestedIpAddress
-      description: The address the password was sent from, truncated to 45 characters. Kept for auditing a sign-in that stopped at the second factor.
+      description: The address the password was sent from, truncated to 45 characters, which holds any IPv6 address in its longest plain form but not one carrying a scope id. Kept for auditing a sign-in that stopped at the second factor.
       type: string?
       default: 'null'
 

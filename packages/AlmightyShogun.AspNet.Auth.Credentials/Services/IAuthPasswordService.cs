@@ -58,7 +58,11 @@ public interface IAuthPasswordService
     /// </summary>
     ///
     /// <param name="request">The address to reset, matched under the column's own collation.</param>
-    /// <param name="requestIpAddress">The address the request came from, recorded for auditing an unexpected reset.</param>
+    /// <param name="requestIpAddress">
+    /// The address the request came from, recorded for auditing an unexpected reset. Anything past
+    /// <see cref="PasswordResetToken.RequestedIpAddress"/>'s 45 characters is stored trimmed rather than refused, so a
+    /// forwarded-header chain does not fail the request.
+    /// </param>
     /// <param name="cancellationToken">
     /// Cancels the lookup and the write, both of which throw before the padding wait is reached. The wait itself ignores
     /// it, so a call that gets that far is held to the floor whether or not the token was signalled.

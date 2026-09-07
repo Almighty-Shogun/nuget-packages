@@ -152,7 +152,10 @@ internal sealed class AuthPasswordService<TUser>(
     /// </summary>
     ///
     /// <param name="user">The user the reset was requested for, already loaded so the token can be attached to its key.</param>
-    /// <param name="requestIpAddress">The address the request came from, stored for auditing an unexpected reset.</param>
+    /// <param name="requestIpAddress">
+    /// The address the request came from, stored for auditing an unexpected reset. Trimmed to the column width, since it
+    /// reaches here as the caller passed it.
+    /// </param>
     /// <param name="cancellationToken">Cancels the read and the write.</param>
     ///
     /// <returns>The token in plain text, to be emailed; only its hash is stored.</returns>
@@ -187,7 +190,7 @@ internal sealed class AuthPasswordService<TUser>(
                 CreatedAt = now,
                 ExpiresAt = expiresAt,
                 TokenHash = TokenHasher.Hash(token),
-                RequestedIpAddress = requestIpAddress
+                RequestedIpAddress = ColumnValue.Truncate(requestIpAddress, 45)
             };
 
             databaseContext.PasswordResetTokens.Add(resetToken);
@@ -198,7 +201,7 @@ internal sealed class AuthPasswordService<TUser>(
             resetToken.CreatedAt = now;
             resetToken.ExpiresAt = expiresAt;
             resetToken.TokenHash = TokenHasher.Hash(token);
-            resetToken.RequestedIpAddress = requestIpAddress;
+            resetToken.RequestedIpAddress = ColumnValue.Truncate(requestIpAddress, 45);
         }
 
         await databaseContext.SaveChangesAsync(cancellationToken);
