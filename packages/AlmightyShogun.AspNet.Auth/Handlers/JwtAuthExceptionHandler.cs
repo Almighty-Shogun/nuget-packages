@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.Core;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Diagnostics;
 using AlmightyShogun.AspNet.Localization;
 
@@ -57,7 +58,7 @@ internal sealed class JwtAuthExceptionHandler(
     /// Writes the handled error to the log, at warning for a client fault and at error for a server fault.
     /// </summary>
     ///
-    /// <param name="httpContext">The failing request, read for the method and path the log line reports.</param>
+    /// <param name="httpContext">The failing request, read for the method and the matched route the log line reports.</param>
     /// <param name="exception">
     /// The exception being reported. Attached to the log entry only for a server fault, since a client mistake needs no
     /// stack trace.
@@ -77,9 +78,9 @@ internal sealed class JwtAuthExceptionHandler(
         {
             logger.LogError(
                 exception,
-                "Request {Method} {Path} failed with {StatusCode} {Code}",
+                "Request {Method} on route {Route} failed with {StatusCode} {Code}",
                 httpContext.Request.Method,
-                httpContext.Request.Path,
+                ResolveRoute(httpContext),
                 mapping.StatusCode,
                 mapping.Code
             );
@@ -88,11 +89,43 @@ internal sealed class JwtAuthExceptionHandler(
         }
 
         logger.LogWarning(
-            "Request {Method} {Path} was rejected with {StatusCode} {Code}",
+            "Request {Method} on route {Route} was rejected with {StatusCode} {Code}",
             httpContext.Request.Method,
-            httpContext.Request.Path,
+            ResolveRoute(httpContext),
             mapping.StatusCode,
             mapping.Code
         );
+    }
+
+    /// <summary>
+    /// Resolves the route pattern the failing request matched, so a log line can name the route without carrying the
+    /// request path.
+    /// </summary>
+    ///
+    /// <param name="httpContext">The failing request, read for the endpoint it matched before the failure.</param>
+    ///
+    /// <returns>The matched route pattern's raw text, or <c>(unknown route)</c> when no pattern is available.</returns>
+    ///
+    /// <remarks>
+    /// <see cref="EndpointHttpContextExtensions.GetEndpoint(HttpContext)"/> alone does not work here. Under
+    /// <c>UseExceptionHandler</c>, <c>ExceptionHandlerMiddlewareImpl</c> clears the endpoint and the route values before
+    /// it runs any <see cref="IExceptionHandler"/>, so the context reports no endpoint at that point. The original one
+    /// survives on <see cref="IExceptionHandlerFeature.Endpoint"/>, which is read first, leaving the context's own
+    /// endpoint as the fallback for a direct call made outside that middleware.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// Only a <see cref="RouteEndpoint"/> carries a pattern, and <see cref="RouteEndpoint.RoutePattern"/> may have no raw
+    /// text. Both cases return the placeholder rather than the path, which can hold a single-use token a consumer placed
+    /// in a route segment.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static string ResolveRoute(HttpContext httpContext)
+    {
+        Endpoint? endpoint = httpContext.Features.Get<IExceptionHandlerFeature>()?.Endpoint ?? httpContext.GetEndpoint();
+
+        return endpoint is RouteEndpoint { RoutePattern.RawText: { } rawText } ? rawText : "(unknown route)";
     }
 }
