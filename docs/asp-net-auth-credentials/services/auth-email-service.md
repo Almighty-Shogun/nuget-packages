@@ -84,11 +84,13 @@ public Task<string> RequestEmailChangeAsync(
 
 Redeems the registration token carried by a [`CompleteEmailVerificationRequest`](../requests/complete-email-verification-request) and stamps the user as verified. The token identifies the user, so no signed-in caller is needed. The address is left alone, since for this purpose the token confirms the one the user already holds.
 
-Spending the token and stamping the user happen in one transaction, so a token is never consumed without its effect landing. Redemption is not idempotent: a second click on the same link is refused the way an expired one is.
+Spending the token and stamping the user happen in one transaction, so a token is never consumed without its effect landing. The token, the user, and the address check are read before that transaction opens, so the only work inside it is those two updates. Redemption is not idempotent: a second click on the same link is refused the way an expired one is.
 
 The address the token names has to still be the account's, compared under the database's collation, so a link issued before the address moved cannot stamp the account as having proved the address it moved to.
 
 Throws [`InvalidEmailVerificationTokenException`](../exceptions) when the token is unknown, already spent, expired, was issued for a change of address, or names an address the account no longer holds, and also when a concurrent request spends it first, since the token is claimed with a guarded update rather than on the strength of the read that found it.
+
+A write to the token's row or the user's, such as another sign-in rehashing that password or a request issuing a fresh link, can commit while the redemption is open, which makes it lose and start over. It is retried a bounded number of times and then throws [`ConcurrentSessionUpdateException`](../exceptions), leaving the token unspent and the link still usable.
 
 ```csharp
 using AlmightyShogun.AspNet.Auth.Credentials;
@@ -111,7 +113,9 @@ Redeems a change token, moves the user to the address it carries, and stamps the
 
 The user's unspent registration links are retired in the same transaction, so none of them is still redeemable afterwards, including one naming the address the account has just moved to.
 
-Throws [`InvalidEmailVerificationTokenException`](../exceptions) on a token that is unknown, spent, expired, or was issued for a registration, and [`EmailTakenException`](../exceptions) when another account claimed the address between the request and the redemption. An address claimed between that check and the save fails at the unique index instead, as a `DbUpdateException`.
+Throws [`InvalidEmailVerificationTokenException`](../exceptions) on a token that is unknown, spent, expired, or was issued for a registration, and [`EmailTakenException`](../exceptions) when another account claimed the address between the request and the redemption. An address claimed between that check and the write fails at the unique index instead. The address is written by a statement rather than by a save, so that failure arrives as the provider's own `DbException` with nothing wrapped around it.
+
+A refresh on one of the user's other sessions can commit while the redemption is open, which makes it lose and start over. It is retried a bounded number of times and then throws [`ConcurrentSessionUpdateException`](../exceptions), leaving the token unspent and the link still usable.
 
 ```csharp
 using AlmightyShogun.AspNet.Auth;

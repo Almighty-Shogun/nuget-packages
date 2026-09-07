@@ -30,17 +30,30 @@ public interface IAuthPasswordService
     ///
     /// <exception cref="InvalidCredentialsException">
     /// The identifier matches no account, or the current password is wrong. The exception does not distinguish the two,
-    /// but the work does: an unknown identifier is refused before any hash is verified, while a wrong password costs a
-    /// verification first. Nothing here counts a failure towards the lockout, so guesses against this route are unmetered.
+    /// but the work does: an unknown identifier is refused before any hash is verified, while a wrong password costs one
+    /// verification and is refused before the replacement is hashed. Another request changing the password while this one
+    /// is running ends here as well, since the attempt that follows verifies against the hash that is then stored.
+    /// Nothing here counts a failure towards the lockout, so guesses against this route are unmetered.
     /// </exception>
     /// <exception cref="PasswordMismatchException">The confirmation differs from the replacement.</exception>
     /// <exception cref="PasswordReusedException">
     /// The replacement verifies against the password already stored, so the change would change nothing.
     /// </exception>
+    /// <exception cref="ConcurrentSessionUpdateException">
+    /// Every attempt lost a race with a concurrent write to the same rows, which a refresh on another of the user's
+    /// devices is enough to cause. Nothing was changed, so the same request may simply be sent again.
+    /// </exception>
     ///
     /// <remarks>
     /// This opens a transaction of its own, so the new hash, the revocation of the other sessions, and the retirement of
-    /// any outstanding two-factor challenge land together or not at all.
+    /// any outstanding two-factor challenge land together or not at all. Nothing else is inside it: the user is read and
+    /// both the verification and the hashing are done before it opens, so the window a concurrent write has to land in is
+    /// the four updates rather than the request.
+    ///
+    /// The new hash is written by an update that matches the user only while the stored hash is still the one that was
+    /// verified. Matching nothing means another request wrote a password in between, which counts as a collision, and so
+    /// does a refresh of one of the user's other sessions committing while the transaction is open. Either way the whole
+    /// thing is read, verified, and written again from the start a bounded number of times before it is given up on.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -111,10 +124,21 @@ public interface IAuthPasswordService
     /// <exception cref="PasswordReusedException">
     /// The replacement verifies against the password already stored, so the reset would restore the same password.
     /// </exception>
+    /// <exception cref="ConcurrentSessionUpdateException">
+    /// Every attempt lost a race with a concurrent write to the same rows, which a refresh on any of the user's devices
+    /// is enough to cause. Nothing was changed and the token is still unspent, so the same link still works.
+    /// </exception>
     ///
     /// <remarks>
     /// This opens a transaction of its own, so spending the token, writing the new hash, revoking every session, and
-    /// retiring every outstanding challenge land together or not at all.
+    /// retiring every outstanding challenge land together or not at all. Nothing else is inside it: the token and the
+    /// user are read and the replacement hashed before it opens, so the window a concurrent write has to land in is the
+    /// four updates rather than the request.
+    ///
+    /// The new hash is written by an update that matches the user only while the stored hash is still the one the reuse
+    /// check read. Matching nothing means another request wrote a password in between, which counts as a collision, and
+    /// so does a refresh of one of the user's sessions committing while the transaction is open. Either way the whole
+    /// thing is read and written again from the start a bounded number of times before it is given up on.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
