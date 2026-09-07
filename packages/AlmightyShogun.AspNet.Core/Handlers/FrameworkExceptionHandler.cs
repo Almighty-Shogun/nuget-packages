@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Diagnostics;
 using AlmightyShogun.AspNet.Localization;
 
@@ -64,7 +65,7 @@ internal sealed class FrameworkExceptionHandler(
         if (exception is OperationCanceledException && httpContext.RequestAborted.IsCancellationRequested)
         {
             if (logger.IsEnabled(LogLevel.Information))
-                logger.LogInformation("Request {Path} was aborted", httpContext.Request.Path);
+                logger.LogInformation("Request on route {Route} was aborted", ResolveRoute(httpContext));
 
             if (!httpContext.Response.HasStarted)
                 httpContext.Response.StatusCode = 499;
@@ -90,5 +91,37 @@ internal sealed class FrameworkExceptionHandler(
         );
 
         return true;
+    }
+
+    /// <summary>
+    /// Resolves the route pattern the failing request matched, so a log line can name the route without carrying the
+    /// request path.
+    /// </summary>
+    ///
+    /// <param name="httpContext">The failing request, read for the endpoint it matched before the failure.</param>
+    ///
+    /// <returns>The matched route pattern's raw text, or <c>(unknown route)</c> when no pattern is available.</returns>
+    ///
+    /// <remarks>
+    /// <see cref="EndpointHttpContextExtensions.GetEndpoint(HttpContext)"/> alone does not work here. Under
+    /// <c>UseExceptionHandler</c>, <c>ExceptionHandlerMiddlewareImpl</c> clears the endpoint and the route values before
+    /// it runs any <see cref="IExceptionHandler"/>, so the context reports no endpoint at that point. The original one
+    /// survives on <see cref="IExceptionHandlerFeature.Endpoint"/>, which is read first, leaving the context's own
+    /// endpoint as the fallback for a direct call made outside that middleware.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// Only a <see cref="RouteEndpoint"/> carries a pattern, and <see cref="RouteEndpoint.RoutePattern"/> may have no raw
+    /// text. Both cases return the placeholder rather than the path, which can hold a single-use token a consumer placed
+    /// in a route segment.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static string ResolveRoute(HttpContext httpContext)
+    {
+        Endpoint? endpoint = httpContext.Features.Get<IExceptionHandlerFeature>()?.Endpoint ?? httpContext.GetEndpoint();
+
+        return endpoint is RouteEndpoint { RoutePattern.RawText: { } rawText } ? rawText : "(unknown route)";
     }
 }
