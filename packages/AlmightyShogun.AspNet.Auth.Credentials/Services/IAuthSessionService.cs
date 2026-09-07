@@ -115,6 +115,9 @@ public interface IAuthSessionService<TUser> where TUser : AuthUser
     /// Nothing is checked here. The account being active, not locked out, and past whatever second factor it owes are all
     /// the caller's to establish first, because this mints the credential rather than deciding who may have one.
     ///
+    /// The session expires one refresh window from now, or at the configured absolute lifetime when that falls sooner, so a
+    /// client that never refreshes cannot hold a usable token past the ceiling.
+    ///
     /// This saves but opens no transaction of its own, so a caller that wants the session and its own writes to land
     /// together must call it inside one.
     /// </remarks>

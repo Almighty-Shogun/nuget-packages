@@ -21,7 +21,8 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// <param name="databaseContext">The application's context, which the credential tables live in.</param>
 /// <param name="authOptions">The bound JWT settings, read for how long a refresh token lives.</param>
 /// <param name="credentialOptions">
-/// The bound credential settings, read for the absolute lifetime a renewal is capped at.
+/// The bound credential settings, read for the absolute lifetime that caps the expiry written when a session opens and
+/// again when it is renewed.
 /// </param>
 /// <param name="appHostResolver">
 /// The resolver deciding which application the current request belongs to, so a session is scoped to the host the user
@@ -184,7 +185,7 @@ internal sealed class AuthSessionService<TUser>(
 
         UserAgent userAgent = UserAgent.Parse(context.UserAgent ?? string.Empty);
 
-        await databaseContext.UserSessions.AddAsync(new UserSession
+        UserSession session = new()
         {
             UserId = user.Id,
             App = app,
@@ -193,10 +194,15 @@ internal sealed class AuthSessionService<TUser>(
             Browser = ColumnValue.Truncate(userAgent.Browser, 256),
             IpAddress = ColumnValue.Truncate(context.IpAddress, 45),
             UserAgent = ColumnValue.Truncate(context.UserAgent, 512),
-            RefreshTokenHash = TokenHasher.Hash(refreshToken),
-            ExpiresAt = DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(authOptions.Value.RefreshTokenDays))
-        }, cancellationToken);
+            RefreshTokenHash = TokenHasher.Hash(refreshToken)
+        };
 
+        session.ExpiresAt = CapToAbsoluteLifetime(
+            session,
+            DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(authOptions.Value.RefreshTokenDays))
+        );
+
+        await databaseContext.UserSessions.AddAsync(session, cancellationToken);
         await databaseContext.SaveChangesAsync(cancellationToken);
 
         return new AuthSessionResult<TUser>
@@ -365,11 +371,14 @@ internal sealed class AuthSessionService<TUser>(
     }
 
     /// <summary>
-    /// Caps a session expiry at the absolute lifetime measured from when the session was created, so refreshing cannot
-    /// extend a session indefinitely.
+    /// Caps a session expiry at the absolute lifetime measured from when the session was created, so neither the expiry
+    /// written when a session opens nor the one a renewal proposes carries it past that limit.
     /// </summary>
     ///
-    /// <param name="session">The session being renewed, read for when it was originally created.</param>
+    /// <param name="session">
+    /// The session the expiry belongs to, read for when it was created. A row that has not been saved yet works, since
+    /// <see cref="UserSession.CreatedAt"/> is stamped as the entity is constructed and nothing rewrites it on insert.
+    /// </param>
     /// <param name="proposedExpiry">The expiry a plain sliding window would give, before the absolute cap is applied.</param>
     ///
     /// <returns>

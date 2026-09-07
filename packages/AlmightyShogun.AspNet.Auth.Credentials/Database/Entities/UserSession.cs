@@ -56,7 +56,8 @@ public sealed class UserSession
     public string? App { get; set; }
 
     /// <summary>
-    /// When the session stops being usable. Extended on each refresh, up to the absolute lifetime.
+    /// When the session stops being usable. Set a refresh window ahead of the moment the session opens and set the same way
+    /// again on each refresh rather than accumulating, and never past the absolute lifetime.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -65,7 +66,8 @@ public sealed class UserSession
 
     /// <summary>
     /// When this row was inserted, which is the sign-in that opened it rather than a first sign-in on the
-    /// device. A configured absolute lifetime is measured from here, so refreshing cannot carry the session past it.
+    /// device. A configured absolute lifetime is measured from here, so neither the expiry written at sign-in nor a later
+    /// refresh carries the session past it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
