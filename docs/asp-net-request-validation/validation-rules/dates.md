@@ -1,6 +1,6 @@
 # Date Rules
 
-Date rules validate parseable dates, exact date formats, and date ordering against literal dates or other request fields. Attribute rules use `ComparisonTarget` for string targets; fluent rules use typed date values or property expressions.
+Date rules validate parseable dates, exact date formats, and date ordering against literal dates or other request fields. Attribute rules use `ComparisonTarget` for string targets; fluent rules use typed date values or property expressions. A date written without an offset is read as UTC, whether it arrives in the payload or is written as a rule's literal target, so ordering compares the instants two dates name.
 
 ## Date
 

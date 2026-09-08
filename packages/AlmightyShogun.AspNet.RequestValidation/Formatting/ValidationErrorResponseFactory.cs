@@ -39,6 +39,13 @@ internal static class ValidationErrorResponseFactory
     ///
     /// <returns>The validation error response, whose description names the status rather than any one field.</returns>
     ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while a message was resolved.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while a message was resolved.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     internal static ValidationErrorResponse Create(IMessageResolver messageResolver, ValidationBag errors) => new()
@@ -60,6 +67,13 @@ internal static class ValidationErrorResponseFactory
     /// </param>
     ///
     /// <returns>The validation error response.</returns>
+    ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while a message was resolved.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while a message was resolved.
+    /// </exception>
     ///
     /// <remarks>
     /// The <c>Errors</c> dictionary is present but empty, so a client reading it finds nothing to report rather than finding the field
@@ -90,6 +104,13 @@ internal static class ValidationErrorResponseFactory
     /// <param name="parameters">The values substituted into the message template by position, empty when the message takes none.</param>
     ///
     /// <returns>The validation error response carrying that one field.</returns>
+    ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while a message was resolved.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while a message was resolved.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

@@ -76,7 +76,7 @@ RuleFor(x => x.ParentalApprovalDeclined)
 
 ## SameAs
 
-Requires the field value to match another request field.
+Requires the field value to match another request field. Numeric values that can be widened to decimal match on their value, while text is compared exactly, so `"5"` never matches the number `5`.
 
 ::: code-group
 
@@ -95,7 +95,7 @@ RuleFor(x => x.EmailConfirmation)
 
 ## Different
 
-Requires the field value to be different from another request field.
+Requires the field value to be different from another request field. Numeric values that can be widened to decimal match on their value, so an `int` and a `long` holding the same number are not different.
 
 ::: code-group
 
@@ -114,7 +114,7 @@ RuleFor(x => x.NewPassword)
 
 ## Confirmed
 
-Requires the field to match a confirmation field. Without an explicit target, the validator uses the property name with `Confirmation` appended.
+Requires the field to match a confirmation field. Without an explicit target, the validator uses the property name with `Confirmation` appended. Numeric values that can be widened to decimal match on their value, while text is compared exactly.
 
 ::: code-group
 

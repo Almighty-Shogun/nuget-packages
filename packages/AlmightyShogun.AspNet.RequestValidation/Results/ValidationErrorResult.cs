@@ -28,6 +28,13 @@ public static class ValidationErrorResult
     ///
     /// <returns>The result carrying the validation body, whose status comes from the body rather than being set separately.</returns>
     ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while a message was resolved.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while a message was resolved.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public static HttpErrorResult Create(IMessageResolver messageResolver, string field, string key, params object?[] parameters)

@@ -65,7 +65,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// Builds the rule that requires one exact format, so a date written any other way fails even though it names a real instant.
     /// </summary>
     ///
-    /// <param name="format">The required date format.</param>
+    /// <param name="format">The .NET date format the text has to match exactly, checked here only for being non-blank.</param>
     ///
     /// <exception cref="ArgumentException">
     /// <paramref name="format"/> is empty or whitespace, which no value can ever parse under, so the rule would reject every value it was
@@ -88,7 +88,9 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </summary>
     ///
     /// <param name="mode">Which ordering the value must satisfy against the target.</param>
-    /// <param name="targetDate">The literal target date.</param>
+    /// <param name="targetDate">
+    /// The fixed instant every value is ordered against, stored as UTC and also rendered into the failure message.
+    /// </param>
     ///
     /// <exception cref="ArgumentOutOfRangeException">
     /// <paramref name="mode"/> is not an ordering, so pairing it with a target is meaningless.
@@ -108,7 +110,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </summary>
     ///
     /// <param name="mode">Which ordering the value must satisfy against the target.</param>
-    /// <param name="targetField">The target field.</param>
+    /// <param name="targetField">The field read for the target on each request, whose name is what the failure message reports.</param>
     ///
     /// <exception cref="ArgumentOutOfRangeException">
     /// <paramref name="mode"/> is not an ordering, so pairing it with a target field is meaningless.
@@ -128,7 +130,9 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </summary>
     ///
     /// <param name="mode">Which ordering the value must satisfy against the target.</param>
-    /// <param name="targetPropertyName">The target property name.</param>
+    /// <param name="targetPropertyName">
+    /// Names the property holding the target, resolved to a field as the rule is built rather than looked up per request.
+    /// </param>
     ///
     /// <exception cref="ArgumentOutOfRangeException">
     /// <paramref name="mode"/> is not an ordering, so pairing it with a target property is meaningless.
@@ -180,7 +184,10 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </summary>
     ///
     /// <param name="request">The request being validated, so a rule can read another field as well as its own.</param>
-    /// <param name="targetDate">The resolved target date.</param>
+    /// <param name="targetDate">
+    /// Receives the literal the rule was built with, or the date read from the target field, and carries no meaningful value when the
+    /// method returns <c>false</c>.
+    /// </param>
     ///
     /// <returns><c>true</c> when the target date can be resolved; otherwise, <c>false</c>.</returns>
     ///
@@ -201,7 +208,7 @@ internal sealed class DateValidationRule<TRequest, TProperty> : IPropertyValidat
     /// </summary>
     ///
     /// <param name="date">The value already read as a date, compared against the target this rule was built with.</param>
-    /// <param name="targetDate">The comparison target date.</param>
+    /// <param name="targetDate">The target already resolved, from either the literal or the target field.</param>
     ///
     /// <returns><c>true</c> when the date matches; otherwise, <c>false</c>.</returns>
     ///

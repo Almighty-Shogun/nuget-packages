@@ -28,6 +28,12 @@ internal static class ModelStateValidationResponseFactory
     /// No <see cref="IMessageResolver"/> is registered. It comes from <c>AddMessageLocalization</c>, which <c>AddAspNetValidation</c> does
     /// not call, so an application that registers validation alone fails here on its first binding failure.
     /// </exception>
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while a message was resolved.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while a message was resolved.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

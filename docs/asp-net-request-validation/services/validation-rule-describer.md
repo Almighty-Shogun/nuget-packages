@@ -8,9 +8,9 @@ Exposing this on an unauthenticated endpoint publishes your request shapes, fiel
 
 ## Describe
 
-Returns the rules for each property that declares at least one attribute rule, keyed by the field name a client sees, which honours [`[JsonPropertyName]`](https://learn.microsoft.com/dotnet/api/system.text.json.serialization.jsonpropertynameattribute) where a property carries one. Properties with no validation attributes are omitted entirely rather than mapped to an empty list, and results are cached per request type, so repeated calls do not re-reflect.
+Returns the rules for each property that declares at least one attribute rule, keyed by the field name a client sees, which honours [`[JsonPropertyName]`](https://learn.microsoft.com/dotnet/api/system.text.json.serialization.jsonpropertynameattribute) where a property carries one. Properties with no validation attributes are omitted entirely rather than mapped to an empty list, and results are cached per request type, so repeated calls do not re-reflect. Two rule-carrying properties that resolve to one field name, such as a `[JsonPropertyName]` spelling the name another property already has, throw an `InvalidOperationException` naming both. A `new` property redeclaring a base one is not such a pair: the derived declaration is described, carrying the rules the base declared as well.
 
-Each description is read from the attribute metadata the rule factory builds from, so a described attribute rule cannot drift from the rule built for it, and the arguments come back in constructor order including the defaults the call site left unwritten. Rules declared in a [`Validator<TRequest>`](../fluent-validation) are enforced but not described, since a built rule keeps neither the name it was written under nor the arguments it was given, so a request using both describes as less than it enforces.
+Each description is read from the attribute metadata the compiler recorded at the call site, and the arguments come back in constructor order including the defaults the call site left unwritten. Rules declared in a [`Validator<TRequest>`](../fluent-validation) are enforced but not described, since a built rule keeps neither the name it was written under nor the arguments it was given, so a request using both describes as less than it enforces.
 
 ::: code-group
 

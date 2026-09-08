@@ -158,10 +158,13 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field when any listed field is present.
+    /// Requires the field when any listed field holds a non-empty value. An empty string or an empty collection counts as empty, so
+    /// such a field does not trigger the requirement even though it was supplied.
     /// </summary>
     ///
-    /// <param name="compareExpressions">Point at the fields watched for presence, all of which the trigger is evaluated against.</param>
+    /// <param name="compareExpressions">
+    /// Point at the fields watched for a non-empty value, all of which the trigger is evaluated against.
+    /// </param>
     ///
     /// <returns>The same builder, so rules chain.</returns>
     ///
@@ -184,10 +187,13 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field when all listed fields are present.
+    /// Requires the field when every listed field holds a non-empty value. An empty string or an empty collection counts as empty, so
+    /// one such field is enough to leave the trigger unsatisfied.
     /// </summary>
     ///
-    /// <param name="compareExpressions">Point at the fields watched for presence, all of which the trigger is evaluated against.</param>
+    /// <param name="compareExpressions">
+    /// Point at the fields watched for a non-empty value, all of which the trigger is evaluated against.
+    /// </param>
     ///
     /// <returns>The same builder, so rules chain.</returns>
     ///
@@ -210,10 +216,13 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field when any listed field is missing.
+    /// Requires the field when any listed field is empty. An empty string or an empty collection counts as empty, so such a field
+    /// triggers the requirement even though it was supplied.
     /// </summary>
     ///
-    /// <param name="compareExpressions">Point at the fields watched for presence, all of which the trigger is evaluated against.</param>
+    /// <param name="compareExpressions">
+    /// Point at the fields watched for a non-empty value, all of which the trigger is evaluated against.
+    /// </param>
     ///
     /// <returns>The same builder, so rules chain.</returns>
     ///
@@ -236,10 +245,13 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Requires the field when all listed fields are missing.
+    /// Requires the field when every listed field is empty. An empty string or an empty collection counts as empty, so such a field
+    /// counts toward the trigger even though it was supplied.
     /// </summary>
     ///
-    /// <param name="compareExpressions">Point at the fields watched for presence, all of which the trigger is evaluated against.</param>
+    /// <param name="compareExpressions">
+    /// Point at the fields watched for a non-empty value, all of which the trigger is evaluated against.
+    /// </param>
     ///
     /// <returns>The same builder, so rules chain.</returns>
     ///

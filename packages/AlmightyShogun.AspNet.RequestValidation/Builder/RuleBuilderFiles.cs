@@ -58,10 +58,14 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     }
 
     /// <summary>
-    /// Allows only files matching the provided MIME extension aliases.
+    /// Allows only files whose content type is one of the provided values, each written either as a content type or as an extension
+    /// resolved to one.
     /// </summary>
     ///
-    /// <param name="mimes">The allowed MIME aliases or extensions.</param>
+    /// <param name="mimes">
+    /// The allowed values. One containing <c>/</c> is taken as a <c>type/subtype</c> content type and permitted as written; anything else
+    /// is looked up as a file extension, with or without a leading dot, and contributes nothing when the lookup does not recognize it.
+    /// </param>
     ///
     /// <returns>The same builder, so rules chain.</returns>
     ///

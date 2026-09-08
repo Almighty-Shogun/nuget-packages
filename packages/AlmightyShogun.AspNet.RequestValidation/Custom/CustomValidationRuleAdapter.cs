@@ -52,6 +52,10 @@ internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValid
     }
 
     /// <inheritdoc />
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// The wrapped rule is not registered and cannot be activated from <paramref name="serviceProvider"/>.
+    /// </exception>
     public async ValueTask<ValidationRuleResult> ValidateAsync(
         TRequest request,
         TProperty? value,
@@ -86,6 +90,11 @@ internal sealed class CustomValidationRuleAdapter<TRequest, TProperty, TRule>
     /// Adapts a rule type known at compile time, which is the fluent spelling. The generic attribute reaches the runtime-type constructor
     /// instead, passing its own type argument through as a <see cref="Type"/>.
     /// </summary>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// <typeparamref name="TRule"/> does not implement <see cref="ICustomValidationRule{TRequest, TProperty}"/> for this request and
+    /// property type.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

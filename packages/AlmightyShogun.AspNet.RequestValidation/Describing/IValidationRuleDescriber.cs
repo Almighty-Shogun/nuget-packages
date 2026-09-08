@@ -24,6 +24,13 @@ public interface IValidationRuleDescriber
     /// rather than present and empty, so the result reads as the rules that exist.
     /// </returns>
     ///
+    /// <exception cref="InvalidOperationException">
+    /// Two of the request type's rule-carrying properties resolve to one field name, so one property's rules would be reported under a
+    /// key the other claims as well. The message names both properties. A <c>new</c> property redeclaring a base one is not such a pair:
+    /// the derived declaration is described, carrying the rules the base declared as well. Nothing is cached for a type that fails this
+    /// way, so every later call for it fails the same way.
+    /// </exception>
+    ///
     /// <remarks>
     /// Only attribute rules are described. A rule declared in a <see cref="Validator{TRequest}"/> is enforced but cannot be described,
     /// since a built rule carries no record of the name it was declared under, so a request using both describes as less than it enforces.

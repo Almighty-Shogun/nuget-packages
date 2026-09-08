@@ -3,14 +3,24 @@ using System.Globalization;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Reads loosely typed values as dates and compares them. Everything is normalized to UTC first, so two dates written in different offsets
-/// order by the instant they name rather than by the text they were written in.
+/// Reads loosely typed values as dates, normalizing every result to UTC. Comparing two of them is left to
+/// <see cref="DateValidationRule{TRequest,TProperty}"/>, and the normalization is what lets that comparison order two dates written in
+/// different offsets by the instant they name rather than by the text they were written in.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 internal static class ValidationDate
 {
+    /// <summary>
+    /// The styles every parse here runs under. Text carrying no offset is read as UTC rather than in the machine's own offset, and text
+    /// carrying one is converted, so the same text names the same instant wherever the application runs.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private const DateTimeStyles _dateStyles = DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal;
+
     /// <summary>
     /// Reads a value as a date, accepting the date types directly and text by parsing, then normalizing the result to UTC.
     /// </summary>
@@ -48,12 +58,10 @@ internal static class ValidationDate
     /// <since>4.0.0</since>
     private static bool TryGetDateFromText(string value, out DateTimeOffset date)
     {
-        const DateTimeStyles flags = DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal;
-
-        if (DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, flags, out date))
+        if (DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, _dateStyles, out date))
             return true;
 
-        if (DateTime.TryParse(value, CultureInfo.InvariantCulture, flags, out DateTime dateTime))
+        if (DateTime.TryParse(value, CultureInfo.InvariantCulture, _dateStyles, out DateTime dateTime))
         {
             date = ToDateTimeOffset(dateTime);
 
@@ -64,6 +72,28 @@ internal static class ValidationDate
 
         return false;
     }
+
+    /// <summary>
+    /// Parses the literal a comparison rule was written with, under the culture and styles a submitted value is already parsed under, so
+    /// the two sides of a comparison read a date written without an offset the same way.
+    /// </summary>
+    ///
+    /// <param name="value">The literal date the rule compares against, as it was written at the declaration site.</param>
+    ///
+    /// <returns>The date normalized to UTC.</returns>
+    ///
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="value"/> is <c>null</c>. Every caller is a comparison attribute that takes the literal as a non-nullable parameter,
+    /// so it takes a declaration written as <c>[After(null!)]</c> to reach this.
+    /// </exception>
+    /// <exception cref="FormatException">
+    /// <paramref name="value"/> is not a date the invariant culture can read. <see cref="TryGetDate"/> reads text without throwing, for
+    /// the callers that have a value rather than a declaration.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public static DateTimeOffset ParseTargetDate(string value) => DateTimeOffset.Parse(value, CultureInfo.InvariantCulture, _dateStyles);
 
     /// <summary>
     /// Reads a value as a date that must match one exact format, for the rule that constrains how a date is written and not only what it
@@ -106,12 +136,10 @@ internal static class ValidationDate
     /// <since>4.0.0</since>
     private static bool TryGetExactDateFromText(string value, string format, out DateTimeOffset date)
     {
-        const DateTimeStyles flags = DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal;
-
-        if (DateTimeOffset.TryParseExact(value, format, CultureInfo.InvariantCulture, flags, out date))
+        if (DateTimeOffset.TryParseExact(value, format, CultureInfo.InvariantCulture, _dateStyles, out date))
             return true;
 
-        if (DateTime.TryParseExact(value, format, CultureInfo.InvariantCulture, flags, out DateTime dateTime))
+        if (DateTime.TryParseExact(value, format, CultureInfo.InvariantCulture, _dateStyles, out DateTime dateTime))
         {
             date = ToDateTimeOffset(dateTime);
 

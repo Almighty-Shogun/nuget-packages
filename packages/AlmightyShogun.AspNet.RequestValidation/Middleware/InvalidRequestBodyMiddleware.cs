@@ -45,6 +45,15 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
     /// <exception cref="BadHttpRequestException">
     /// One was raised that does not describe a body this middleware could not read, so it travels on instead of being answered here.
     /// </exception>
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while the description was resolved. The catch filter takes
+    /// only <see cref="BadHttpRequestException"/>, so this escapes in place of the response being written, and on the caught path in place
+    /// of the failure being answered.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while the description was resolved, escaping the same
+    /// way.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -101,6 +110,15 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
     /// </param>
     ///
     /// <returns>A task representing the asynchronous write operation.</returns>
+    ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while the description was resolved, which leaves the status
+    /// set and no body written.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while the description was resolved, which leaves the
+    /// status set and no body written.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
