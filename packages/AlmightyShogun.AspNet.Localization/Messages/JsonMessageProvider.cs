@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
@@ -23,9 +24,17 @@ namespace AlmightyShogun.AspNet.Localization;
 /// </param>
 ///
 /// <remarks>
-/// Every lookup is cached, a language with no directory included, so an <c>Accept-Language</c> header naming languages
-/// the deployment does not have cannot make each request re-walk the filesystem. That means a directory added while the
+/// A language with no directory is cached as well as one that has messages, so naming it again is answered from
+/// memory once its tag is held rather than by re-walking the filesystem. That means a directory added while the
 /// process runs is picked up only with <c>AutomaticReload</c> on, which is the same rule already governing file edits.
+/// </remarks>
+///
+/// <remarks>
+/// The two go to different caches. A language that defines messages goes to <see cref="_messages"/>, which the
+/// directories on disk already limit; one that defines none goes to <see cref="_misses"/>, which is capped near
+/// <see cref="_missCacheSizeLimit"/> tags, so a tag it has no room for is walked again by every request naming it.
+/// Keeping them apart is what stops a caller pushing the deployment's own languages out by naming absent ones, of
+/// which an <c>Accept-Language</c> header can carry as many as the server's header size limit allows.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -45,7 +54,37 @@ internal sealed class JsonMessageProvider(
     private const string _messagesDirectoryName = "messages";
 
     /// <summary>
-    /// The flattened messages per language, keyed case-insensitively so <c>NL-be</c> and <c>nl-BE</c> share an entry.
+    /// The size <see cref="_misses"/> is allowed to reach before <see cref="MemoryCache"/> compacts it. The figure
+    /// counts tags rather than bytes, because every entry is stored with a size of one. It is the point compaction
+    /// starts at rather than a level the cache sits on: a compaction trims to about 95 percent of it, so the entry
+    /// count oscillates just under this figure instead of settling on it.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private const int _missCacheSizeLimit = 1024;
+
+    /// <summary>
+    /// The options every entry of <see cref="_misses"/> is stored with, giving each a size of one so the cache's limit
+    /// counts tags. No expiration is set, so an entry goes only when a compaction removes it, and a tag offered while
+    /// the cache is already at <see cref="_missCacheSizeLimit"/> is refused outright rather than displacing one, since
+    /// the compaction that refusal schedules runs on the thread pool and frees room only afterwards. A burst of tags
+    /// never seen before therefore goes largely unrecorded, and each of them is walked again on its next request.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Rewriting an entry under a newer generation is not affected, since replacing a tag the cache already holds
+    /// leaves its size unchanged and so is never the write that overruns the limit.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static readonly MemoryCacheEntryOptions _missCacheEntryOptions = new() { Size = 1 };
+
+    /// <summary>
+    /// The flattened messages of every language that defines at least one, keyed case-insensitively so <c>NL-be</c>
+    /// and <c>nl-BE</c> share an entry. A language that defines none is recorded in <see cref="_misses"/> instead,
+    /// which is what leaves this bounded by the message directories on disk and so needing no limit of its own.
     /// Concurrent because resolution happens on request threads with no lock around the lookup. Each entry carries the
     /// generation its files were read under, which is what makes a load that overlapped a file change detectable
     /// instead of silently authoritative.
@@ -56,9 +95,25 @@ internal sealed class JsonMessageProvider(
     private readonly ConcurrentDictionary<string, CachedMessages> _messages = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// The generation the cache is currently valid for, incremented by every watcher event. An entry stamped with an
-    /// earlier generation is ignored and reloaded rather than evicted, so invalidation costs one interlocked increment
-    /// and never has to race the readers it invalidates.
+    /// The language tags that resolved no messages, each held against the generation its failed load ran under, so
+    /// asking again for a language the deployment does not have costs a cache read instead of a filesystem walk. Its
+    /// size follows <see cref="_missCacheSizeLimit"/> rather than the number of distinct tags a client is willing to
+    /// send, so no header can grow it without limit.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Keys are lowercased before they are used, because <see cref="MemoryCache"/> matches a key exactly and would
+    /// otherwise keep <c>NL-be</c> and <c>nl-BE</c> apart where <see cref="_messages"/> shares them.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private readonly MemoryCache _misses = new(new MemoryCacheOptions { SizeLimit = _missCacheSizeLimit });
+
+    /// <summary>
+    /// The generation both caches are currently valid for, incremented by every watcher event. An entry stamped with
+    /// an earlier generation is ignored and reloaded rather than removed, so invalidation costs one interlocked
+    /// increment and never has to race the readers it invalidates.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -75,8 +130,8 @@ internal sealed class JsonMessageProvider(
     private readonly List<FileSystemWatcher> _watchers = [];
 
     /// <summary>
-    /// Serializes watcher setup against disposal. Only those two paths take it; message lookups stay lock-free, since
-    /// the cache is concurrent on its own.
+    /// Serializes watcher setup against disposal. Only those two paths take it; a message lookup takes no lock of its
+    /// own, since both caches are safe for concurrent use.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -102,6 +157,22 @@ internal sealed class JsonMessageProvider(
     /// <exception cref="UnauthorizedAccessException">
     /// The process may not list the files of a language directory it can see.
     /// </exception>
+    /// <exception cref="ArgumentException">
+    /// A <c>messages</c> directory was removed between the deferred watcher setup finding it and the watcher being
+    /// constructed for it. Only the lookup that runs that setup can raise it, and only with <c>AutomaticReload</c> on,
+    /// since setup is marked as done before the watchers are built and is never retried.
+    /// </exception>
+    ///
+    /// <remarks>
+    /// A load that no longer matches the generation it began under is returned to its caller but stored in neither
+    /// cache, so the next request repeats it against the files as they now stand.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// Both caches ignore case where the directory lookup does not, so on a case-sensitive filesystem the first casing
+    /// of a tag to reach a load decides what every other casing of it is answered with for as long as that record
+    /// stands. Asking for <c>EN</c> where only <c>messages/en</c> exists therefore leaves <c>en</c> resolving nothing.
+    /// </remarks>
     public IReadOnlyDictionary<string, string> GetMessages(string language)
     {
         if (!LanguageTag.IsValid(language))
@@ -118,7 +189,20 @@ internal sealed class JsonMessageProvider(
         if (_messages.TryGetValue(language, out CachedMessages? cached) && cached.Version == version)
             return cached.Messages;
 
+        string missKey = language.ToLowerInvariant();
+
+        if (IsCachedMiss(missKey, version))
+            return ReadOnlyDictionary<string, string>.Empty;
+
         IReadOnlyDictionary<string, string> messages = LoadMessages(language);
+
+        if (messages.Count == 0)
+        {
+            if (Volatile.Read(ref _cacheVersion) == version)
+                CacheMiss(missKey, version);
+
+            return ReadOnlyDictionary<string, string>.Empty;
+        }
 
         if (Volatile.Read(ref _cacheVersion) == version)
             _messages[language] = new CachedMessages(version, messages);
@@ -127,6 +211,13 @@ internal sealed class JsonMessageProvider(
     }
 
     /// <inheritdoc />
+    ///
+    /// <remarks>
+    /// The negative cache is owned by the provider rather than injected, so it is disposed here. A lookup arriving
+    /// afterwards is still answered: <see cref="_messages"/> is left alone, and one that reaches the disposed cache
+    /// walks the filesystem instead of failing, which <see cref="IsCachedMiss"/> and <see cref="CacheMiss"/> are what
+    /// provide. Only the saved walk is lost, never the answer.
+    /// </remarks>
     public void Dispose()
     {
         lock (_watcherGate)
@@ -137,6 +228,66 @@ internal sealed class JsonMessageProvider(
                 watcher.Dispose();
 
             _watchers.Clear();
+        }
+
+        _misses.Dispose();
+    }
+
+    /// <summary>
+    /// Reads <see cref="_misses"/> for a language tag, treating a disposed cache as one holding nothing.
+    /// </summary>
+    ///
+    /// <param name="missKey">The lowercased language tag, since <see cref="MemoryCache"/> matches a key exactly.</param>
+    /// <param name="version">The generation the caller read before starting, which a stored entry has to match.</param>
+    ///
+    /// <returns>
+    /// <c>true</c> when the tag is known to resolve nothing under this same generation, which lets the caller answer
+    /// without a filesystem walk. <c>false</c> when the tag is absent, was recorded under an earlier generation, or
+    /// the cache has been disposed, all of which cost a walk rather than an error.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// <see cref="Dispose"/> leaves the cache throwing on every read, and testing a flag first would not close the
+    /// window between the test and the read. Swallowing the failure is what keeps a lookup that outlives disposal
+    /// falling through to the filesystem, so resolution never fails over a caching detail.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private bool IsCachedMiss(string missKey, long version)
+    {
+        try
+        {
+            return _misses.TryGetValue(missKey, out long missVersion) && missVersion == version;
+        }
+        catch (ObjectDisposedException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Records that a language resolved no messages, so the next request naming it is answered from memory.
+    /// </summary>
+    ///
+    /// <param name="missKey">The lowercased language tag, since <see cref="MemoryCache"/> matches a key exactly.</param>
+    /// <param name="version">The generation the failed load ran under, stored so a later watcher event retires it.</param>
+    ///
+    /// <remarks>
+    /// The write is dropped rather than raised when the cache is full or disposed, which costs the tag another walk
+    /// on its next request and nothing else. See <see cref="IsCachedMiss"/> for why disposal is swallowed here too.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private void CacheMiss(string missKey, long version)
+    {
+        try
+        {
+            _misses.Set(missKey, version, _missCacheEntryOptions);
+        }
+        catch (ObjectDisposedException)
+        {
         }
     }
 
@@ -274,6 +425,12 @@ internal sealed class JsonMessageProvider(
     /// <summary>
     /// Starts watching the message directories the first time messages are requested, when automatic reload is enabled.
     /// </summary>
+    ///
+    /// <exception cref="ArgumentException">
+    /// A <c>messages</c> directory was removed between <see cref="Directory.Exists"/> reporting it and
+    /// <see cref="FileSystemWatcher"/> being constructed for it, which rejects a path it cannot find. Setup is marked as
+    /// done first, so the failure is not retried and the roots after it are never watched.
+    /// </exception>
     ///
     /// <remarks>
     /// Deferred to first use rather than done at construction so an application that never resolves a message pays for

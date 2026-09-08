@@ -1,6 +1,6 @@
 # Localization
 
-Messages are stored as language-specific JSON files under `messages/{language}`. A language directory can contain one file or several files; when that language is requested, the resolver loads every `.json` file in that directory and flattens them into message keys. Files are read once and cached for the life of the process unless `AutomaticReload` is on, and a language with no directory is cached the same way, so a header naming languages the deployment does not have costs one lookup rather than a filesystem walk per request.
+Messages are stored as language-specific JSON files under `messages/{language}`. A language directory can contain one file or several files; when that language is requested, the resolver loads every `.json` file in that directory and flattens them into message keys. Files are read once and cached for the life of the process unless `AutomaticReload` is on, and a language with no directory is cached separately in a store bounded at 1024 tags, so a header naming an absent language costs one lookup rather than a filesystem walk while that store has room for its tag, and a walk per request once a flood of unfamiliar tags has filled it.
 
 ## Language negotiation
 

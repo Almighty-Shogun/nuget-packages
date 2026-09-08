@@ -1,9 +1,9 @@
 namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
-/// Turns a message key into text in the negotiated language, which is the first of the caller's accepted languages, their
-/// shortened forms, or the configured default that has any messages defined. A key that language does not define is
-/// returned as-is, so a missing translation degrades to a readable identifier instead of a blank body.
+/// Turns a message key into text in the negotiated language, which is the first of the caller's accepted languages or
+/// their shortened forms that has messages defined, or the configured default when none does. A key that language does
+/// not define is returned as-is, so a missing translation degrades to a readable identifier instead of a blank body.
 /// </summary>
 ///
 /// <remarks>
@@ -50,7 +50,10 @@ public interface IMessageResolver
     /// rather than throwing, so a placeholder can survive into the response; surplus values are ignored.
     /// </param>
     ///
-    /// <returns>The formatted message, or the key itself when the negotiated language does not define it.</returns>
+    /// <returns>
+    /// The formatted message, the unformatted template when substitution fails, or the key itself when the negotiated
+    /// language does not define it.
+    /// </returns>
     ///
     /// <exception cref="DirectoryNotFoundException">A message directory was removed between being found and being enumerated.</exception>
     /// <exception cref="UnauthorizedAccessException">

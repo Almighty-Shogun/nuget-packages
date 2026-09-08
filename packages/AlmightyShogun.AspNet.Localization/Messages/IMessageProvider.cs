@@ -25,6 +25,13 @@ internal interface IMessageProvider
     /// cannot tell them apart.
     /// </returns>
     ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A language directory was removed between being found and being enumerated.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// The process may not list the files of a language directory it can see.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     IReadOnlyDictionary<string, string> GetMessages(string language);

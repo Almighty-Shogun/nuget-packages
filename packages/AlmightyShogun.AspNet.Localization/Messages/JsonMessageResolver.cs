@@ -5,16 +5,17 @@ using Microsoft.Extensions.Options;
 namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
-/// Resolves HTTP messages by negotiating one language for the request, the first candidate in the fallback chain whose
-/// directory holds any messages, then looking every key up in that language alone. An unresolvable key comes back as
-/// itself, so a missing translation shows up in the response instead of taking the request down. A key a message file
-/// defines as an empty string still resolves to one. Reading the message files can still fail, and nothing here catches
-/// what <see cref="IMessageProvider.GetMessages"/> throws.
+/// Resolves HTTP messages by negotiating one language for the request, choosing the first candidate in the fallback chain
+/// whose directory holds any messages or the configured default when none does, then looking every key up in that language
+/// alone. An unresolvable key comes back as itself, so a missing translation shows up in the response instead of taking
+/// the request down. A key a message file defines as an empty string still resolves to one. Reading the message files can
+/// still fail, and nothing here catches what <see cref="IMessageProvider.GetMessages"/> throws.
 /// </summary>
 ///
 /// <param name="messageProvider">
 /// The provider the candidates are looked up in. Negotiation queries it once per candidate and stops at the first that
-/// answers anything, and the key is then read from that same language rather than from the rest of the chain.
+/// answers anything. When none does, the configured default is still used. The key is then read from the selected
+/// language rather than from the rest of the chain.
 /// </param>
 /// <param name="languageProvider">The provider supplying the accepted languages the fallback chain is built from.</param>
 /// <param name="localizationOptions">The settings supplying the default language that ends every fallback chain.</param>
