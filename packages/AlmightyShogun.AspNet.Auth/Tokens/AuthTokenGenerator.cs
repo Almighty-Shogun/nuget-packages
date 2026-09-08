@@ -23,7 +23,7 @@ namespace AlmightyShogun.AspNet.Auth;
 internal sealed class AuthTokenGenerator(IOptions<AuthSettings> authOptions, IAppHostResolver appHostResolver) : IAuthTokenGenerator
 {
     /// <summary>
-    /// The token handler. Creating one is not free, and it is thread-safe, so a single instance is shared.
+    /// The handler turning the token descriptor into the signed string a minted token carries.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
