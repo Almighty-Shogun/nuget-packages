@@ -4,9 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Compares a token's audience against the application a request resolved to. The comparison lives here rather than on
-/// the bearer events so the rule has one definition, since an audience that matches in one place and not another is the
-/// failure this check exists to prevent.
+/// Compares a token's audience against the application a request resolved to.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
