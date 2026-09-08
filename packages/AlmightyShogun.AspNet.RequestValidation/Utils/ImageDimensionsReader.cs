@@ -23,6 +23,15 @@ internal static class ImageDimensionsReader
     private const int _maximumHeaderBytes = 1024 * 1024;
 
     /// <summary>
+    /// How far into a WebP chunk the dimension readers look. The extended and lossy forms read as far as the tenth byte and the lossless
+    /// form as far as the fifth, so a chunk longer than this is never read past here however large it declares itself.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private const int _webPDimensionBytes = 10;
+
+    /// <summary>
     /// The eight bytes every PNG opens with. The non-ASCII first byte and the newline pair exist so a transfer that mangles line endings or
     /// strips the high bit corrupts the signature visibly rather than silently.
     /// </summary>
@@ -139,7 +148,7 @@ internal static class ImageDimensionsReader
     /// </summary>
     ///
     /// <param name="header">The leading bytes read from the file, which may be shorter than asked for when the file was truncated.</param>
-    /// <param name="dimensions">Receives the pair when one could be read; otherwise a zero pair the caller must not read.</param>
+    /// <param name="dimensions">Receives the pair when one could be read; otherwise a value the caller must not read.</param>
     ///
     /// <returns><c>true</c> when PNG dimensions were read; otherwise, <c>false</c>.</returns>
     ///
@@ -163,7 +172,7 @@ internal static class ImageDimensionsReader
     /// </summary>
     ///
     /// <param name="header">The leading bytes read from the file, which may be shorter than asked for when the file was truncated.</param>
-    /// <param name="dimensions">Receives the pair when one could be read; otherwise a zero pair the caller must not read.</param>
+    /// <param name="dimensions">Receives the pair when one could be read; otherwise a value the caller must not read.</param>
     ///
     /// <returns><c>true</c> when GIF dimensions were read; otherwise, <c>false</c>.</returns>
     ///
@@ -188,7 +197,7 @@ internal static class ImageDimensionsReader
     /// </summary>
     ///
     /// <param name="header">The leading bytes read from the file, which may be shorter than asked for when the file was truncated.</param>
-    /// <param name="dimensions">Receives the pair when one could be read; otherwise a zero pair the caller must not read.</param>
+    /// <param name="dimensions">Receives the pair when one could be read; otherwise a value the caller must not read.</param>
     ///
     /// <returns><c>true</c> when JPEG dimensions were read; otherwise, <c>false</c>.</returns>
     ///
@@ -248,9 +257,16 @@ internal static class ImageDimensionsReader
     /// </summary>
     ///
     /// <param name="header">The leading bytes read from the file, which may be shorter than asked for when the file was truncated.</param>
-    /// <param name="dimensions">Receives the pair when one could be read; otherwise a zero pair the caller must not read.</param>
+    /// <param name="dimensions">Receives the pair when one could be read; otherwise a value the caller must not read.</param>
     ///
     /// <returns><c>true</c> when WebP dimensions were read; otherwise, <c>false</c>.</returns>
+    ///
+    /// <remarks>
+    /// A chunk is handed to its reader as the bytes actually read rather than as the length it declared, so the single chunk a plain lossy
+    /// or lossless file stores its whole image in is still read for its dimensions when the file is longer than
+    /// <see cref="_maximumHeaderBytes"/>. The walk stops at such a chunk instead of stepping over it, since the chunk that would follow was
+    /// never read.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -273,10 +289,14 @@ internal static class ImageDimensionsReader
             if (!HasValidChunkSize(header, dataOffset, chunkSize))
                 return false;
 
-            ReadOnlySpan<byte> chunk = header.Slice(dataOffset, chunkSize);
+            int readableSize = Math.Min(chunkSize, header.Length - dataOffset);
+            ReadOnlySpan<byte> chunk = header.Slice(dataOffset, readableSize);
 
             if (TryReadWebPChunk(chunkType, chunk, out dimensions))
                 return true;
+
+            if (readableSize < chunkSize)
+                return false;
 
             offset = dataOffset + chunkSize + (chunkSize % 2);
         }
@@ -289,7 +309,7 @@ internal static class ImageDimensionsReader
     /// </summary>
     ///
     /// <param name="chunk">The chunk to read, positioned at its header so the dimensions sit at the offsets this form uses.</param>
-    /// <param name="dimensions">Receives the pair when one could be read; otherwise a zero pair the caller must not read.</param>
+    /// <param name="dimensions">Receives the pair when one could be read; otherwise a value the caller must not read.</param>
     ///
     /// <returns><c>true</c> when VP8X dimensions were read; otherwise, <c>false</c>.</returns>
     ///
@@ -313,7 +333,7 @@ internal static class ImageDimensionsReader
     /// </summary>
     ///
     /// <param name="chunk">The chunk to read, positioned at its header so the dimensions sit at the offsets this form uses.</param>
-    /// <param name="dimensions">Receives the pair when one could be read; otherwise a zero pair the caller must not read.</param>
+    /// <param name="dimensions">Receives the pair when one could be read; otherwise a value the caller must not read.</param>
     ///
     /// <returns><c>true</c> when VP8L dimensions were read; otherwise, <c>false</c>.</returns>
     ///
@@ -337,7 +357,7 @@ internal static class ImageDimensionsReader
     /// </summary>
     ///
     /// <param name="chunk">The chunk to read, positioned at its header so the dimensions sit at the offsets this form uses.</param>
-    /// <param name="dimensions">Receives the pair when one could be read; otherwise a zero pair the caller must not read.</param>
+    /// <param name="dimensions">Receives the pair when one could be read; otherwise a value the caller must not read.</param>
     ///
     /// <returns><c>true</c> when VP8 dimensions were read; otherwise, <c>false</c>.</returns>
     ///
@@ -363,7 +383,7 @@ internal static class ImageDimensionsReader
     ///
     /// <param name="width">The width read from the header.</param>
     /// <param name="height">The height read from the header.</param>
-    /// <param name="dimensions">Receives the pair when both are positive; otherwise a zero pair the caller must not read.</param>
+    /// <param name="dimensions">Receives the pair when both are positive; otherwise a value the caller must not read.</param>
     ///
     /// <returns><c>true</c> when both were positive; otherwise <c>false</c>.</returns>
     ///
@@ -483,27 +503,38 @@ internal static class ImageDimensionsReader
     ///
     /// <returns><c>true</c> when the header is WebP; otherwise, <c>false</c>.</returns>
     ///
+    /// <remarks>
+    /// The length floor is the smallest complete WebP: twelve bytes of container, eight of chunk header, and the five a lossless chunk
+    /// packs its dimensions into. Nothing past it is read on the strength of this check alone, since the walk bounds every read of its own.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static bool HasWebPHeader(ReadOnlySpan<byte> header)
     {
-        if (header.Length < 30)
+        if (header.Length < 25)
             return false;
 
         return header[..4].SequenceEqual("RIFF"u8) && header.Slice(8, 4).SequenceEqual("WEBP"u8);
     }
 
     /// <summary>
-    /// Guards the chunk walk against a size that would step past the bytes read, on the same terms as the JPEG segment check.
+    /// Guards the chunk walk against a size the bytes read cannot serve, asking only for the part of the chunk a dimension reader looks at
+    /// rather than for the whole payload a chunk declares.
     /// </summary>
     ///
     /// <param name="header">The leading bytes read from the file, which may be shorter than asked for when the file was truncated.</param>
     /// <param name="dataOffset">Where the chunk payload starts, past the marker and size that precede it.</param>
     /// <param name="chunkSize">
-    /// The size the chunk header declared, which is checked against the bytes actually read before it is trusted.
+    /// The size the chunk header declared, which is never used as a length to read: what is asked of the buffer is the smaller of it and
+    /// <see cref="_webPDimensionBytes"/>.
     /// </param>
     ///
-    /// <returns><c>true</c> when the chunk size is valid; otherwise, <c>false</c>.</returns>
+    /// <returns>
+    /// <c>true</c> when the smaller of <paramref name="chunkSize"/> and <see cref="_webPDimensionBytes"/> fits in the bytes left past
+    /// <paramref name="dataOffset"/>, which lets the walk slice the chunk. A chunk declaring fewer bytes than the dimension window can pass
+    /// on its own declared length alone, so a reader is left to check for the length its own layout needs; otherwise, <c>false</c>.
+    /// </returns>
     ///
     /// <remarks>
     /// The remaining length is subtracted rather than the offset added, because the declared size comes from the file and adding it can
@@ -518,7 +549,7 @@ internal static class ImageDimensionsReader
         if (chunkSize < 0)
             return false;
 
-        return chunkSize <= header.Length - dataOffset;
+        return Math.Min(chunkSize, _webPDimensionBytes) <= header.Length - dataOffset;
     }
 
     /// <summary>
@@ -526,8 +557,11 @@ internal static class ImageDimensionsReader
     /// </summary>
     ///
     /// <param name="chunkType">The four-character chunk marker, which decides the layout its dimensions are stored in.</param>
-    /// <param name="chunk">The chunk to read, positioned at its header so the dimensions sit at the offsets this form uses.</param>
-    /// <param name="dimensions">Receives the pair when one could be read; otherwise a zero pair the caller must not read.</param>
+    /// <param name="chunk">
+    /// The chunk to read, positioned at its header so the dimensions sit at the offsets this form uses. It holds the bytes read rather
+    /// than the length the chunk declared, so each form's reader checks for the length its own layout needs.
+    /// </param>
+    /// <param name="dimensions">Receives the pair when one could be read; otherwise a value the caller must not read.</param>
     ///
     /// <returns><c>true</c> when a supported chunk type was read; otherwise, <c>false</c>.</returns>
     ///
