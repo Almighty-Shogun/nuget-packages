@@ -26,7 +26,7 @@ public sealed record UserAgent
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>2.2.1</since>
+    /// <since>4.0.0</since>
     public required string Os { get; init; }
 
     /// <summary>
@@ -44,7 +44,7 @@ public sealed record UserAgent
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>2.2.1</since>
+    /// <since>4.0.0</since>
     public required bool IsBot { get; init; }
 
     /// <summary>
