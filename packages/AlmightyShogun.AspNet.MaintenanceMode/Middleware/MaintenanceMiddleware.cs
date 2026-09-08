@@ -49,9 +49,10 @@ internal sealed class MaintenanceMiddleware(
     /// </exception>
     ///
     /// <remarks>
-    /// The maintenance path is claimed before the window is checked and before every allow list, and the rest of the pipeline never runs
-    /// for it: with a window in force it answers <c>503</c> and the window as JSON, and with none it answers <c>404</c>. An application
-    /// route at that path is therefore unreachable, and a status page polling it is answered <c>404</c> while the site is up.
+    /// The window is read before the path is looked at, and the maintenance path is then claimed whatever that window's state and ahead of
+    /// every allow list, with the rest of the pipeline never running for it: with a window in force it answers <c>503</c> and the window as
+    /// JSON, and with none it answers <c>404</c>. An application route at that path is therefore unreachable, and a status page polling it
+    /// is answered <c>404</c> while the site is up.
     /// </remarks>
     ///
     /// <remarks>
