@@ -10,7 +10,7 @@ Reads lines from `Console.In`, treats the first token as the command name, and f
 
 Lines are read on a background thread, so cancelling the token ends the loop without waiting for one to be typed. The thread reads a single line each time the loop asks for one, so a command that reads `Console.In` for itself receives what is typed while it runs, and a redirected input is consumed no faster than the loop dispatches it. A read already under way cannot be cancelled, only left behind: stopping while the loop is waiting for a line takes that line off standard input and drops it rather than leaving it for whatever reads next, and a stop that arrives while a command is running leaves the input untouched.
 
-An exception escaping a command is logged and the prompt keeps reading, so one failing command does not take the console down. Subscribe to [`CommandFailed`](#commandfailed) to report it elsewhere. The one exception is a cancellation observed once the loop is already stopping, which ends the loop instead of being reported as a command failure.
+An exception escaping a command is logged and the prompt keeps reading, so one failing command does not take the console down. Subscribe to [`CommandFailed`](#commandfailed) to report it elsewhere. The one exception is a cancellation observed once the loop is already stopping, which ends the loop quietly instead of being reported as a command failure or an unexpected stop.
 
 Only one loop may run at a time. Calling this while one is already running logs an error and returns.
 

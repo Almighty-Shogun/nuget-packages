@@ -24,7 +24,9 @@ public interface IConsoleCommandHandler
     /// <remarks>
     /// An exception escaping a command is logged and the prompt keeps reading, so one failing command does not take the
     /// console down with it. Subscribe to <see cref="CommandFailed"/> to report it anywhere else. An exception that escapes
-    /// the dispatch of a line rather than the command itself ends the loop and is logged as an unexpected stop.
+    /// the dispatch of a line rather than the command itself ends the loop and is logged as an unexpected stop. The one
+    /// exception is a cancellation raised after a stop was asked for, which is how a command observing the token reports
+    /// the shutdown it was told about, and ends the loop without being logged at all.
     ///
     /// The loop also ends when the input stream does. A redirected process reaching end of input stops rather than
     /// spinning on a reader that will never return another line.

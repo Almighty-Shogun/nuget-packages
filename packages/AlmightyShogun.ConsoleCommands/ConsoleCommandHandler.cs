@@ -173,6 +173,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
                 await HandleCommandAsync(input, stopSource.Token);
             }
         }
+        catch (OperationCanceledException) when (stopSource.IsCancellationRequested) { }
         catch (Exception exception)
         {
             _logger.LogError(exception, "The console command handler stopped unexpectedly.");
@@ -320,7 +321,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     /// <exception cref="OperationCanceledException">
     /// Thrown out of the command while <paramref name="cancellationToken"/> is already signaled. The filter tests that
     /// token alone, so one raised for an unrelated token during shutdown is rethrown with it. Either way it escapes into
-    /// <see cref="StartAsync"/>.
+    /// <see cref="StartAsync"/>, which ends the loop on it without logging, since a stop had already been asked for.
     /// </exception>
     /// <exception cref="InvalidOperationException">
     /// The command class could not be resolved from the scope, which is what a constructor dependency of its own that was
