@@ -9,7 +9,9 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 /// </summary>
 ///
 /// <param name="webHostEnvironment">The web host environment used to resolve the content root.</param>
-/// <param name="logger">The logger used to report an unreadable state file and a watcher that could not be set up.</param>
+/// <param name="logger">
+/// The logger used to report a state file that could not be parsed or could not be opened, and a watcher that could not be set up.
+/// </param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
@@ -37,8 +39,8 @@ internal sealed class FileMaintenanceStore(
     private readonly SemaphoreSlim _writeLock = new(1, 1);
 
     /// <summary>
-    /// Guards watcher setup and disposal, so the watcher is built exactly once and never after the store is disposed. Taken through
-    /// <see cref="EnsureWatching"/> on every read, cache hit or not, though once setup has run it is held only for a flag test.
+    /// Guards watcher setup and disposal, so setup is attempted at most once and never after the store is disposed. Taken through
+    /// <see cref="EnsureWatching"/> on every read, cache hit or not, though once the attempt has run it is held only for a flag test.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

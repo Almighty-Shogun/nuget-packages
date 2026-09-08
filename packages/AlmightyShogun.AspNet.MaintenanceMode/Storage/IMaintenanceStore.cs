@@ -17,7 +17,9 @@ internal interface IMaintenanceStore
     /// <returns>
     /// The persisted state, or <c>null</c> when no window is recorded, whether never opened or since closed. Also <c>null</c>
     /// when the file exists but every read attempt failed and nothing has been cached yet, which a caller cannot tell apart
-    /// from no window at all.
+    /// from no window at all. A file that exists but does not parse comes back as the fail-closed enabled window the store
+    /// builds for it rather than as the file's own contents, so a non-null result is not in every case something an operator
+    /// wrote.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
@@ -35,6 +37,10 @@ internal interface IMaintenanceStore
     /// <exception cref="IOException">
     /// The directory could not be created, or the state file could not be written or moved into place. Nothing here catches it, so the
     /// cache is left holding whatever it held before and the file keeps the previous window.
+    /// </exception>
+    /// <exception cref="ArgumentException">The resolved content root or state-file path is invalid for a file operation.</exception>
+    /// <exception cref="NotSupportedException">
+    /// The resolved content root or state-file path is in a form the platform does not support.
     /// </exception>
     /// <exception cref="UnauthorizedAccessException">The process may not write the state file.</exception>
     ///

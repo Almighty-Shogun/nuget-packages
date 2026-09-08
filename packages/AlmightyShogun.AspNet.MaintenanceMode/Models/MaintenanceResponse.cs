@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.MaintenanceMode;
 
 /// <summary>
-/// The body the maintenance path returns. Separate from the internal state so the file's own bookkeeping, such as the allow lists, is never
-/// exposed to whoever is being blocked.
+/// The body the maintenance path returns. Separate from the internal state so persistence and request-enforcement details are never exposed
+/// to whoever is being blocked.
 /// </summary>
 ///
 /// <remarks>
