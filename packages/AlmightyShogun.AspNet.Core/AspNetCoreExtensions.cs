@@ -35,7 +35,8 @@ public static class AspNetCoreExtensions
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Registers a named CORS policy using origins from the optional <c>AllowedOrigins</c> configuration section.
+        /// Registers a named CORS policy built from the optional <c>AllowedOrigins</c>, <c>AllowedHeaders</c> and
+        /// <c>AllowedMethods</c> configuration sections.
         /// </summary>
         ///
         /// <param name="name">
