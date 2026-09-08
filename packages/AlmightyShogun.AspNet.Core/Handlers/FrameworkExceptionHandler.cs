@@ -61,6 +61,10 @@ internal sealed class FrameworkExceptionHandler(
     /// A consumer-supplied <see cref="ILanguageProvider"/> returned <c>null</c> from
     /// <see cref="ILanguageProvider.GetLanguages"/>.
     /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// A consumer-supplied <see cref="ILanguageProvider"/> returned a list holding <c>null</c>, which reaches the
+    /// language tag check as the language to look the description up in.
+    /// </exception>
     /// <exception cref="InvalidOperationException">
     /// Nothing has registered <see cref="IMessageResolver"/>, which <c>AddMessageLocalization</c> does and
     /// <c>AddExceptionHandling</c> does not.
