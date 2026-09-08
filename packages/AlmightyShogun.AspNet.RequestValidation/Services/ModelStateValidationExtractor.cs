@@ -59,7 +59,7 @@ internal static class ModelStateValidationExtractor
         {
             if (entry.Errors.Count == 0) continue;
 
-            string field = ToFieldPath(key);
+            string field = ToFieldPath(ToBodyRelativeKey(key));
 
             foreach (ModelError error in entry.Errors)
                 errors.Add(field, ResolveErrorKey(error));
@@ -114,6 +114,38 @@ internal static class ModelStateValidationExtractor
             return true;
 
         return key.Equals("$", StringComparison.Ordinal) || bodyParameterNames.Contains(key);
+    }
+
+    /// <summary>
+    /// Drops the root marker the JSON input formatter writes its keys from, so a property reports under the same name whether it failed to
+    /// bind or failed a rule. The marker standing alone is left as it is, since <see cref="IsBodyLevelKey"/> reads that one as a failure
+    /// against the whole body rather than against a field inside it.
+    /// </summary>
+    ///
+    /// <param name="key">
+    /// The model state key, which the JSON input formatter writes as a path from the body root, such as <c>$.age</c>, or <c>$[0].age</c>
+    /// when the body is an array rather than an object.
+    /// </param>
+    ///
+    /// <returns>
+    /// The path relative to the body root, so <c>$.age</c> comes back as <c>age</c> and <c>$[0].age</c> as <c>[0].age</c>, and the key
+    /// itself when no path continues from the marker. Only a property or an index continues one, so a <c>$</c> written inside a property
+    /// name is left where it stands.
+    /// </returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static string ToBodyRelativeKey(string key)
+    {
+        if (key.Length < 2 || key[0] != '$')
+            return key;
+
+        return key[1] switch
+        {
+            '.' => key[2..],
+            '[' => key[1..],
+            _ => key
+        };
     }
 
     /// <summary>
