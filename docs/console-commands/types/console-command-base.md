@@ -8,6 +8,8 @@ It reads metadata and aliases from the class attributes, validates argument coun
 
 Derived command classes must define exactly one public instance method named `ExecuteAsync` that returns `Task` or `ValueTask`. Parameters on that method become positional command arguments. Non-optional parameters are required, optional parameters use their C# default value when the user omits them, and invalid conversions are logged instead of invoking the command.
 
+An array in the last position, declared `params` or not, collects every token the parameters before it did not, so it accepts zero or more arguments and arrives as an empty array when the line stops short of it, or as its declared default when it has one. Input is split on spaces with no quoting, so no argument can carry a space.
+
 A trailing `CancellationToken` parameter is supplied by the dispatcher rather than typed by the user, and is signalled when the command loop is stopping.
 
 ::: code-group

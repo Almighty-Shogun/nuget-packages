@@ -23,27 +23,93 @@ internal static class CommandArgumentBinder
     /// <param name="argumentCount">The number of tokens typed after the command name.</param>
     /// <param name="ignoreExtraArguments">
     /// Whether surplus tokens are tolerated. It relaxes only the upper bound; a line short of the required parameters is
-    /// rejected either way.
+    /// rejected either way. A handler ending in an array parameter has no upper bound for it to relax.
     /// </param>
     ///
     /// <returns><c>true</c> when the count could fill the parameters; otherwise <c>false</c>.</returns>
+    ///
+    /// <remarks>
+    /// A trailing array parameter takes every token the parameters before it did not, so it lifts the upper bound
+    /// altogether and requires no argument of its own: a line stopping short of it is still counted as valid, and
+    /// <see cref="TryBind"/> decides what it is filled with.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     internal static bool IsArgumentCountValid(ParameterInfo[] parameters, int argumentCount, bool ignoreExtraArguments)
     {
-        int required = parameters.Count(parameter => !parameter.HasDefaultValue);
+        int required = GetMinimumArgumentCount(parameters);
 
-        return argumentCount >= required && (ignoreExtraArguments || argumentCount <= parameters.Length);
+        if (!HasVariadicTail(parameters))
+            return argumentCount >= required && (ignoreExtraArguments || argumentCount <= parameters.Length);
+
+        return argumentCount >= required;
     }
 
     /// <summary>
-    /// Converts each argument to its parameter's type, matching them positionally and filling any parameter the user
-    /// stopped short of with its declared default.
+    /// Counts the arguments a line must carry before <see cref="IsArgumentCountValid"/> will accept it, which is every
+    /// parameter without a default, less the trailing array parameter when that is the one missing a default.
     /// </summary>
     ///
     /// <param name="parameters">The handler parameters, with any trailing cancellation token already removed.</param>
-    /// <param name="arguments">The tokens typed after the command name, which may be fewer than the parameters.</param>
+    ///
+    /// <returns>The smallest argument count that could fill the parameters.</returns>
+    ///
+    /// <remarks>
+    /// A trailing array parameter is counted as required by the declaration and yet is filled by an empty array when nothing
+    /// is left for it, so it is subtracted back out. One carrying a default is not counted in the first place, which is why
+    /// the subtraction is conditional rather than applied to every variadic signature.
+    ///
+    /// This is the lower bound only. The upper bound belongs to <see cref="IsArgumentCountValid"/>, which is where
+    /// <c>ignoreExtraArguments</c> and the absent bound of a variadic tail are decided.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal static int GetMinimumArgumentCount(ParameterInfo[] parameters)
+    {
+        int required = parameters.Count(parameter => !parameter.HasDefaultValue);
+
+        if (!HasVariadicTail(parameters))
+            return required;
+
+        return parameters[^1].HasDefaultValue ? required : required - 1;
+    }
+
+    /// <summary>
+    /// Checks whether the last parameter is the one every token left over is collected into, which is how an array in that
+    /// position is bound.
+    /// </summary>
+    ///
+    /// <param name="parameters">The handler parameters, with any trailing cancellation token already removed.</param>
+    ///
+    /// <returns><c>true</c> when the last parameter is a single-dimension array; otherwise <c>false</c>.</returns>
+    ///
+    /// <remarks>
+    /// <see cref="ParamArrayAttribute"/> is not consulted, so a plain array in the last position collects the tail exactly
+    /// as a <c>params</c> one does. Only the last position is treated this way; an array declared before another parameter
+    /// is matched to a single token like any other type.
+    ///
+    /// Every element still comes from the input line split on spaces, so no element can carry a space, whatever it is
+    /// quoted with.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal static bool HasVariadicTail(ParameterInfo[] parameters)
+        => parameters.Length > 0 && parameters[^1].ParameterType.IsSZArray;
+
+    /// <summary>
+    /// Converts each argument to its parameter's type, matching them positionally and filling any parameter the user
+    /// stopped short of with its declared default. A trailing array parameter takes every token the others left instead of
+    /// a single one.
+    /// </summary>
+    ///
+    /// <param name="parameters">The handler parameters, with any trailing cancellation token already removed.</param>
+    /// <param name="arguments">
+    /// The tokens typed after the command name, which may be fewer than the parameters, and more than them only for a
+    /// handler ending in an array parameter or one declared with <c>ignoreExtraArgs</c>.
+    /// </param>
     /// <param name="logger">
     /// The logger a rejected argument is reported through, naming the parameter and, for an enum, the values that would
     /// have worked.
@@ -57,7 +123,7 @@ internal static class CommandArgumentBinder
     ///
     /// <remarks>
     /// A failed conversion aborts the whole bind, so no parameter is filled with its default in place of an argument the
-    /// user typed.
+    /// user typed. A surplus token beyond the declared parameters is dropped unless an array tail collects it.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -66,9 +132,27 @@ internal static class CommandArgumentBinder
     {
         values = new object?[parameters.Length];
 
+        bool hasVariadicTail = HasVariadicTail(parameters);
+
         for (var index = 0; index < parameters.Length; index++)
         {
             ParameterInfo parameter = parameters[index];
+
+            if (hasVariadicTail && index == parameters.Length - 1)
+            {
+                string[] tailArguments = index < arguments.Length ? arguments[index..] : [];
+
+                if (!TryBindTail(parameter, tailArguments, logger, out object? tail))
+                {
+                    values = [];
+
+                    return false;
+                }
+
+                values[index] = tail;
+
+                continue;
+            }
 
             if (index >= arguments.Length)
             {
@@ -77,7 +161,7 @@ internal static class CommandArgumentBinder
                 continue;
             }
 
-            if (!TryConvert(parameter, arguments[index], logger, out object? value))
+            if (!TryConvert(parameter.ParameterType, parameter.Name, arguments[index], logger, out object? value))
             {
                 values = [];
 
@@ -91,11 +175,71 @@ internal static class CommandArgumentBinder
     }
 
     /// <summary>
-    /// Converts one token to one parameter's type, unwrapping a nullable to its underlying type first so <c>int?</c> is
-    /// parsed exactly as <c>int</c> would be.
+    /// Converts the tokens left over into an array of the parameter's element type, which is the value a trailing array
+    /// parameter is invoked with.
     /// </summary>
     ///
-    /// <param name="parameter">The parameter being filled, used for its type and for naming it in a complaint.</param>
+    /// <param name="parameter">The trailing array parameter, used for its element type and for naming it in a complaint.</param>
+    /// <param name="arguments">The tokens from this parameter's position onwards, empty when the line stopped short of it.</param>
+    /// <param name="logger">The logger a rejected element is reported through, naming the parameter rather than the position.</param>
+    /// <param name="value">
+    /// The array to invoke with, or the parameter's declared default when the line supplied nothing and it has one;
+    /// <c>null</c> when an element failed to convert.
+    /// </param>
+    ///
+    /// <returns><c>true</c> when every token converted to the element type; otherwise <c>false</c>.</returns>
+    ///
+    /// <exception cref="Exception">
+    /// Whatever <see cref="TryConvert"/> let escape for one of the elements, which passes through here unhandled just as it
+    /// does through <see cref="TryBind"/>.
+    /// </exception>
+    ///
+    /// <remarks>
+    /// One rejected element fails the whole bind rather than being skipped, so the handler never runs against a tail
+    /// shorter than what was typed.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static bool TryBindTail(ParameterInfo parameter, string[] arguments, ILogger logger, out object? value)
+    {
+        if (arguments.Length == 0 && parameter.HasDefaultValue)
+        {
+            value = parameter.DefaultValue;
+
+            return true;
+        }
+
+        Type elementType = parameter.ParameterType.GetElementType()!;
+        Array tail = Array.CreateInstance(elementType, arguments.Length);
+
+        for (var index = 0; index < arguments.Length; index++)
+        {
+            if (!TryConvert(elementType, parameter.Name, arguments[index], logger, out object? element))
+            {
+                value = null;
+
+                return false;
+            }
+
+            tail.SetValue(element, index);
+        }
+
+        value = tail;
+
+        return true;
+    }
+
+    /// <summary>
+    /// Converts one token to one target type, unwrapping a nullable to its underlying type first so <c>int?</c> is parsed
+    /// exactly as <c>int</c> would be.
+    /// </summary>
+    ///
+    /// <param name="parameterType">
+    /// The type to convert to, which is the parameter's own type, or the element type when the token is one of the values
+    /// going into an array tail.
+    /// </param>
+    /// <param name="parameterName">The name to blame in a complaint, so a rejected token names the parameter it was meant for.</param>
     /// <param name="argument">The token as typed.</param>
     /// <param name="logger">The logger a rejected argument is reported through.</param>
     /// <param name="value">The converted value, or <c>null</c> when the conversion failed.</param>
@@ -116,15 +260,15 @@ internal static class CommandArgumentBinder
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    private static bool TryConvert(ParameterInfo parameter, string argument, ILogger logger, out object? value)
+    private static bool TryConvert(Type parameterType, string? parameterName, string argument, ILogger logger, out object? value)
     {
         value = null;
 
-        Type parameterType = Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
+        Type targetType = Nullable.GetUnderlyingType(parameterType) ?? parameterType;
 
-        if (parameterType.IsEnum)
+        if (targetType.IsEnum)
         {
-            if (Enum.TryParse(parameterType, argument, true, out object? parsed) && Enum.IsDefined(parameterType, parsed!))
+            if (Enum.TryParse(targetType, argument, true, out object? parsed) && Enum.IsDefined(targetType, parsed!))
             {
                 value = parsed;
 
@@ -135,22 +279,22 @@ internal static class CommandArgumentBinder
                 logger.LogWarning(
                     "Invalid enum value {Value:b} for parameter {ParamName:b}. Valid values are: {ValidValues:c}",
                     argument,
-                    parameter.Name,
-                    string.Join(", ", Enum.GetNames(parameterType))
+                    parameterName,
+                    string.Join(", ", Enum.GetNames(targetType))
                 );
 
             return false;
         }
 
-        if (TryChangeType(argument, parameterType, out value) || TryConvertFromString(argument, parameterType, out value))
+        if (TryChangeType(argument, targetType, out value) || TryConvertFromString(argument, targetType, out value))
             return true;
 
         if (logger.IsEnabled(LogLevel.Warning))
             logger.LogWarning(
                 "Cannot convert value {Value:b} to type {Type:c} for parameter {ParamName:b}",
                 argument,
-                parameterType.Name,
-                parameter.Name
+                targetType.Name,
+                parameterName
             );
 
         return false;

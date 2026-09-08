@@ -73,7 +73,8 @@ public static class ConsoleCommandDiscovery
     /// <param name="commandType">The command class to reflect over.</param>
     ///
     /// <returns>
-    /// The metadata, whose usage string lists each handler parameter as <c>&lt;name:Type&gt;</c>. A trailing
+    /// The metadata, whose usage string lists each handler parameter as <c>&lt;name:Type&gt;</c>, and a trailing array
+    /// parameter as <c>&lt;name:Element...&gt;</c> for the zero or more tokens it takes. A trailing
     /// <see cref="CancellationToken"/> is left out, because the dispatcher supplies it rather than the user typing it.
     /// </returns>
     ///
@@ -85,6 +86,9 @@ public static class ConsoleCommandDiscovery
     /// no conversion from a typed token to a <see cref="CancellationToken"/>. A line long enough to reach that position is
     /// rejected by the conversion and a shorter one by the argument count, so unless the parameter is optional the command
     /// can never be run at all.
+    ///
+    /// The array tail is recognised after the token has been dropped, so a handler ending in an array followed by a
+    /// <see cref="CancellationToken"/> is rendered as the variadic one it binds as.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -98,7 +102,14 @@ public static class ConsoleCommandDiscovery
         if (parameters.Length > 0 && parameters[^1].ParameterType == typeof(CancellationToken))
             parameters = parameters[..^1];
 
-        string usage = string.Join(" ", parameters.Select(parameter => $"<{parameter.Name}:{parameter.ParameterType.Name}>"));
+        bool hasVariadicTail = CommandArgumentBinder.HasVariadicTail(parameters);
+
+        string usage = string.Join(
+            " ",
+            parameters.Select((parameter, index) => hasVariadicTail && index == parameters.Length - 1
+                ? $"<{parameter.Name}:{parameter.ParameterType.GetElementType()!.Name}...>"
+                : $"<{parameter.Name}:{parameter.ParameterType.Name}>")
+        );
 
         return new ConsoleCommand(
             attribute.Name,

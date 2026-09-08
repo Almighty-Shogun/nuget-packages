@@ -13,7 +13,7 @@ fields:
       type: 'IReadOnlyList<string>'
 
     - name: Usage
-      description: The full line to type, as the name followed by one `<name:Type>` placeholder per handler parameter, excluding a trailing `CancellationToken`, which the dispatcher supplies. A command with nothing left to show yields the bare name.
+      description: The full line to type, as the name followed by one `<name:Type>` placeholder per handler parameter, excluding a trailing `CancellationToken`, which the dispatcher supplies. A trailing array parameter appears as `<name:Element...>` for the zero or more tokens it takes. A command with nothing left to show yields the bare name.
       type: string
 
     - name: Example
