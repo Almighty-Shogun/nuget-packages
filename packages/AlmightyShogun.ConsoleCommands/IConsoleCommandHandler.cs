@@ -29,6 +29,16 @@ public interface IConsoleCommandHandler
     /// The loop also ends when the input stream does. A redirected process reaching end of input stops rather than
     /// spinning on a reader that will never return another line.
     ///
+    /// Lines are read on a background thread of the handler's own, which is what lets cancellation end the loop without
+    /// first waiting for one to be typed. That thread reads a single line each time the loop asks for one and waits for the
+    /// next request in between, so a command that prompts for input of its own is the one that receives the answer, and a
+    /// redirected input is consumed no faster than the loop dispatches it.
+    ///
+    /// A read already under way cannot be cancelled, only left behind. Stopping while the loop is waiting for a line
+    /// therefore leaves that thread to outlive the returned task until the next line or the end of the stream arrives, and
+    /// the line it was waiting for is taken off standard input and dropped rather than left for whatever reads next.
+    /// Stopping while a command is running ends the thread with the loop and drops nothing, since no read is outstanding.
+    ///
     /// Starting sets <c>Console.TreatControlCAsInput</c> to <c>false</c> for the whole process, so Ctrl+C is handled as an
     /// interrupt instead of being delivered to the reader as a line. It is never restored, and an <see cref="IOException"/>
     /// from a console that does not support the write is swallowed.

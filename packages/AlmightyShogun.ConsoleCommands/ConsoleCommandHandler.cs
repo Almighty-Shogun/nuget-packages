@@ -1,3 +1,4 @@
+using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,8 +22,10 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     private readonly Lock _lifecycleGate = new();
 
     /// <summary>
-    /// The source canceled to end the running loop, and the flag for whether one is running at all: it is non-null only
-    /// between the start of a loop and its exit.
+    /// The source canceled to end the running loop, and the flag for whether one is running at all. It is set before the
+    /// setup the loop needs, the reader thread included, and cleared in the loop's <c>finally</c>, so a failure in that
+    /// setup leaves it set with no loop running, after which every further <see cref="StartAsync"/> logs that one is
+    /// already running and returns.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -125,22 +128,43 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
         }
         catch (IOException) { }
 
+        Channel<string> lines = Channel.CreateUnbounded<string>(new UnboundedChannelOptions
+        {
+            SingleReader = true,
+            SingleWriter = true
+        });
+
+        var requests = new SemaphoreSlim(0, 1);
+        var readerStop = new CancellationTokenSource();
+
+        var reader = new Thread(() => ReadLines(lines.Writer, requests, readerStop.Token))
+        {
+            IsBackground = true,
+            Name = "Console command reader"
+        };
+
+        reader.Start();
+
         try
         {
             while (!stopSource.IsCancellationRequested)
             {
-                string? input;
+                string input;
+
+                requests.Release();
 
                 try
                 {
-                    input = await Console.In.ReadLineAsync(stopSource.Token);
+                    input = await lines.Reader.ReadAsync(stopSource.Token);
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException) when (stopSource.IsCancellationRequested)
                 {
                     break;
                 }
-
-                if (input is null) break;
+                catch (ChannelClosedException exception) when (exception.InnerException is null)
+                {
+                    break;
+                }
 
                 if (string.IsNullOrWhiteSpace(input)) continue;
 
@@ -155,11 +179,79 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
         }
         finally
         {
+            lines.Writer.TryComplete();
+
+            readerStop.Cancel();
+            readerStop.Dispose();
+
             lock (_lifecycleGate)
             {
                 _stopSource?.Dispose();
                 _stopSource = null;
             }
+        }
+    }
+
+    /// <summary>
+    /// Reads standard input on a thread of its own, one line for each one the loop asks for, so that a read already under way
+    /// is abandoned rather than waited out when the handler stops and nothing is taken off the input between two requests.
+    /// </summary>
+    ///
+    /// <param name="writer">
+    /// The channel end the lines are published to. Reaching the end of the input stream completes it, which is how the loop
+    /// learns there will be no further line.
+    /// </param>
+    /// <param name="requests">
+    /// Released once by the loop for every line it wants. Nothing is read until one has been taken, which is what leaves
+    /// standard input to a command for as long as one is running.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Signaled by the loop on its way out, ending the wait for the next request. That wait is the only point this can be
+    /// stopped at, since a read already under way has to finish first.
+    /// </param>
+    ///
+    /// <remarks>
+    /// This runs on a background thread, because a read parked in <see cref="TextReader.ReadLine"/> cannot be interrupted
+    /// and a foreground thread sitting in one would hold the process open. A stop that interrupts a read leaves the thread
+    /// to outlive <see cref="StartAsync"/> by however long the next line or the end of the stream takes to arrive: the loop
+    /// completes the channel on its way out, so the line that finally arrives is refused by the channel, dropped, and the
+    /// thread ends.
+    ///
+    /// A read that fails while no stop has been asked for completes the channel with the exception rather than as an
+    /// ordinary end of input, so it reaches the loop and is reported as an unexpected stop. It arrives wrapped in a
+    /// <see cref="ChannelClosedException"/>, except for an <see cref="OperationCanceledException"/>, which completes the
+    /// channel as a cancellation and reaches the loop as one. That is why the loop ends quietly on a cancellation only once
+    /// a stop has actually been asked for. A cancellation raised once the stop is under way, by the wait for the next
+    /// request or by the read itself, completes the channel as an ordinary end of input instead.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static void ReadLines(ChannelWriter<string> writer, SemaphoreSlim requests, CancellationToken cancellationToken)
+    {
+        try
+        {
+            while (true)
+            {
+                requests.Wait(cancellationToken);
+
+                if (Console.In.ReadLine() is not { } line)
+                {
+                    writer.TryComplete();
+
+                    return;
+                }
+
+                if (!writer.TryWrite(line)) return;
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            writer.TryComplete();
+        }
+        catch (Exception exception)
+        {
+            writer.TryComplete(exception);
         }
     }
 
