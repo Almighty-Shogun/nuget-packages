@@ -14,7 +14,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 public sealed record MaintenanceState
 {
     /// <summary>
-    /// Whether a window is recorded as open.
+    /// Whether a maintenance window is recorded as enabled, regardless of whether its start time has arrived.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
