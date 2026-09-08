@@ -48,6 +48,15 @@ internal sealed class RequestBodyValidationFilter(
     ///
     /// <returns>A task that completes once the pipeline has run, or immediately when the request was answered here.</returns>
     ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while the invalid-body description was resolved. Nothing
+    /// here catches it, so it escapes in place of the refusal this would have returned.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while the invalid-body description was resolved,
+    /// escaping the same way.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)

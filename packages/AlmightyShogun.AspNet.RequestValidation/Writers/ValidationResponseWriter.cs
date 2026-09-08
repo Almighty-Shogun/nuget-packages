@@ -25,6 +25,13 @@ internal sealed class ValidationResponseWriter(IMessageResolver messageResolver)
     ///
     /// <returns>The validation error response.</returns>
     ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while a message was resolved.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while a message was resolved.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     internal ValidationErrorResponse CreateResponse(ValidationBag errors)
@@ -37,6 +44,13 @@ internal sealed class ValidationResponseWriter(IMessageResolver messageResolver)
     /// <param name="errors">The failures gathered while the rules ran, one entry per field that failed.</param>
     ///
     /// <returns>The result carrying the validation body, whose status comes from the body rather than being set separately.</returns>
+    ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while a message was resolved.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while a message was resolved.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -52,6 +66,15 @@ internal sealed class ValidationResponseWriter(IMessageResolver messageResolver)
     /// <param name="cancellationToken">Cancels the write, normally the request's own abort token.</param>
     ///
     /// <returns>A task that completes once the body is written, or immediately when the response had already started.</returns>
+    ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while the message was resolved, which leaves the status
+    /// set and no body written.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while the message was resolved, which leaves the
+    /// status set and no body written.
+    /// </exception>
     ///
     /// <remarks>
     /// The serializer options are left to the framework to resolve, which reads the application's <c>JsonOptions</c> from the container

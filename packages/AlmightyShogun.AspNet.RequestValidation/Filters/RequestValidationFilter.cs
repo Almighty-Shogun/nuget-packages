@@ -25,6 +25,15 @@ internal sealed class RequestValidationFilter(
     ///
     /// <returns>A task that completes once the action has run, or once a failing argument has replaced the result instead.</returns>
     ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while the failure messages were resolved. Nothing here
+    /// catches it, so it escapes in place of the error result this would have set.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while the failure messages were resolved, escaping
+    /// the same way.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)

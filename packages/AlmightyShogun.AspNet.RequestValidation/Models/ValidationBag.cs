@@ -70,6 +70,13 @@ internal sealed class ValidationBag
     ///
     /// <returns>The public validation error dictionary.</returns>
     ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while a message was resolved.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while a message was resolved.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public IReadOnlyDictionary<string, ValidationRuleError> ToErrorDictionary(IMessageResolver messageResolver) => _errors.ToDictionary(
@@ -86,6 +93,13 @@ internal sealed class ValidationBag
     /// <param name="messageResolver">The message resolver used to resolve the error description.</param>
     ///
     /// <returns>The public validation rule error model.</returns>
+    ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while the description was resolved.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while the description was resolved.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

@@ -25,6 +25,15 @@ internal sealed class EndpointValidationFilter(
     ///
     /// <returns>The handler's own result, or the standard validation body when an argument failed.</returns>
     ///
+    /// <exception cref="DirectoryNotFoundException">
+    /// A message directory was removed between being found and being enumerated while the failure messages were resolved. Nothing here
+    /// catches it, so it escapes in place of the error body this would have returned.
+    /// </exception>
+    /// <exception cref="UnauthorizedAccessException">
+    /// A message directory became unreadable between being found and being enumerated while the failure messages were resolved, escaping
+    /// the same way.
+    /// </exception>
+    ///
     /// <remarks>
     /// Every argument is offered, the framework values a handler also receives included. Deciding which of them could carry rules is left
     /// to the rule cache, which answers from what a type actually declares and remembers the answer, rather than to a list of types to
