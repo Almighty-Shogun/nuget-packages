@@ -33,6 +33,10 @@ internal static class AttributeRuleFactory
     ///
     /// <returns>One rule per property carrying at least one validation attribute, empty when the type carries none.</returns>
     ///
+    /// <exception cref="TargetInvocationException">
+    /// Reflective creation of a typed property rule failed while an attribute rule was being built.
+    /// </exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public static IReadOnlyList<IRequestValidationRule<TRequest>> CreateRules<TRequest>() where TRequest : class =>
@@ -54,6 +58,10 @@ internal static class AttributeRuleFactory
     /// <param name="attributes">The attributes declared on the property, including any inherited from a base declaration.</param>
     ///
     /// <returns>The property's rule, already holding one rule per declared attribute.</returns>
+    ///
+    /// <exception cref="TargetInvocationException">
+    /// Reflective creation of the typed property rule failed while an attribute rule was being built.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

@@ -37,7 +37,7 @@ internal sealed class StringMatchValidationRule<TRequest, TProperty> : IProperty
     /// <param name="values">The values compared against, of which there must be at least one.</param>
     ///
     /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="values"/> is empty, which would make the rule pass or fail every value regardless of what it holds.
+    /// <paramref name="values"/> is empty, which would leave the rule failing every value it checked regardless of what that value holds.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>

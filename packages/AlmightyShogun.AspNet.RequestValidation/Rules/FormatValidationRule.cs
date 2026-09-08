@@ -48,8 +48,8 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     }
 
     /// <summary>
-    /// Checks an address by the shape a mail system will actually accept rather than by the full grammar the specification allows, since
-    /// the latter admits addresses no provider would deliver to.
+    /// Checks whether a value is a string <see cref="ValidationFormat.IsEmail"/> accepts, which is all this wrapper decides: a value of
+    /// any other type fails without being tested.
     /// </summary>
     ///
     /// <param name="value">

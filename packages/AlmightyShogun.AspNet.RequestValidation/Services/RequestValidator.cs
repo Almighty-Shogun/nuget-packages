@@ -21,6 +21,12 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider, Validat
     /// every request when the type is only known at runtime.
     /// </summary>
     ///
+    /// <param name="validator">The scoped validator instance the compiled delegate calls back into.</param>
+    /// <param name="request">The request object, cast by the delegate to the runtime type it was compiled for.</param>
+    /// <param name="cancellationToken">Cancels the work a rule does on its own, such as reading an uploaded file.</param>
+    ///
+    /// <returns>The validation task for the runtime request type.</returns>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private delegate Task<ValidationBag> TypedValidator(
@@ -39,14 +45,15 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider, Validat
     private static readonly ConcurrentDictionary<Type, TypedValidator> _typedValidators = new();
 
     /// <summary>
-    /// Validates a request against everything declared for its type, by attribute and by validator alike.
+    /// Validates a class request against everything declared for its type, by attribute and by validator alike.
     /// </summary>
     ///
     /// <param name="request">The request object to validate.</param>
     /// <param name="cancellationToken">Cancels the work a rule does on its own, such as reading an uploaded file.</param>
     ///
     /// <returns>
-    /// The failures, empty when the request passed, when it was <c>null</c>, and when its type declares no rules at all.
+    /// The failures, empty when the request passed, when it was <c>null</c>, when it is not a class instance, and when its type declares no
+    /// rules at all.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>

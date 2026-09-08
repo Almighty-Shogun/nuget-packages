@@ -20,7 +20,8 @@ internal static class ValidationExpression
     ///
     /// <typeparam name="TRequest">The request type the expression reads from.</typeparam>
     /// <typeparam name="TProperty">
-    /// The property type the expression yields, which is <see cref="object"/> for the untyped spellings the attribute path uses.
+    /// The property type the expression yields, which is <see cref="object"/> for the untyped spellings the fluent multi-field builders
+    /// use.
     /// </typeparam>
     /// <param name="expression">
     /// Points at the property, supplying both the name failures are reported under and the reader used to fetch its value. Only the

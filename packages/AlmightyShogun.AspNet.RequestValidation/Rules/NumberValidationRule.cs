@@ -9,7 +9,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <typeparam name="TProperty">The bound property's type, read as an object rather than constrained here.</typeparam>
 /// <param name="mode">Which numeric check to perform, which also decides the message a failure reports.</param>
 /// <param name="value">
-/// The bound the check compares against: the decimal place count for <see cref="NumberMode.DecimalPlaces"/> and the divisor for
+/// What the mode reads: the required decimal place count for <see cref="NumberMode.DecimalPlaces"/> and the divisor for
 /// <see cref="NumberMode.MultipleOf"/>. Neither of the other two modes reads it.
 /// </param>
 ///
@@ -56,7 +56,7 @@ internal sealed class NumberValidationRule<TRequest, TProperty>(
     ///
     /// <returns>
     /// The result, reporting the scale failure both when the count is wrong and when no scale could be read at all, which is the case for
-    /// text that is not a number and for a floating value no decimal can hold.
+    /// text that is not a number and for a floating-point value no decimal can hold.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
