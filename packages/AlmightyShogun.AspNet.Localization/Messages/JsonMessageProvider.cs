@@ -157,6 +157,11 @@ internal sealed class JsonMessageProvider(
     /// <exception cref="UnauthorizedAccessException">
     /// The process may not list the files of a language directory it can see.
     /// </exception>
+    /// <exception cref="ArgumentException">
+    /// A <c>messages</c> directory was removed between the deferred watcher setup finding it and the watcher being
+    /// constructed for it. Only the lookup that runs that setup can raise it, and only with <c>AutomaticReload</c> on,
+    /// since setup is marked as done before the watchers are built and is never retried.
+    /// </exception>
     ///
     /// <remarks>
     /// A load that no longer matches the generation it began under is returned to its caller but stored in neither
@@ -420,6 +425,12 @@ internal sealed class JsonMessageProvider(
     /// <summary>
     /// Starts watching the message directories the first time messages are requested, when automatic reload is enabled.
     /// </summary>
+    ///
+    /// <exception cref="ArgumentException">
+    /// A <c>messages</c> directory was removed between <see cref="Directory.Exists"/> reporting it and
+    /// <see cref="FileSystemWatcher"/> being constructed for it, which rejects a path it cannot find. Setup is marked as
+    /// done first, so the failure is not retried and the roots after it are never watched.
+    /// </exception>
     ///
     /// <remarks>
     /// Deferred to first use rather than done at construction so an application that never resolves a message pays for
