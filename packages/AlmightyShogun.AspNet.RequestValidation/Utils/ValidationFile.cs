@@ -49,12 +49,12 @@ internal static class ValidationFile
     }
 
     /// <summary>
-    /// Checks an upload's extension against the permitted set, comparing case-insensitively and ignoring a leading dot on either side.
+    /// Checks an upload's extension against the permitted set after removing the upload extension's leading dot.
     /// </summary>
     ///
     /// <param name="file">The upload to inspect. Its metadata is read rather than its bytes, except where dimensions are involved.</param>
     /// <param name="allowedExtensions">
-    /// The permitted extensions, matched case-insensitively and with a leading dot optional on either side.
+    /// The permitted extensions, expected to be normalized by <see cref="NormalizeExtensions"/> before this check.
     /// </param>
     ///
     /// <returns><c>true</c> when the extension is allowed; otherwise, <c>false</c>.</returns>
