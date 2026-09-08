@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Globalization;
 
 namespace AlmightyShogun.AspNet.RequestValidation;
 
@@ -8,7 +7,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// <see cref="RequiredAttribute"/> when the field is mandatory.
 /// </summary>
 ///
-/// <param name="target">The comparison date value or request field name.</param>
+/// <param name="target">The comparison date value or request field name. A date value written with no offset is read as UTC.</param>
 /// <param name="targetType">Whether the target is a literal value or a request field.</param>
 ///
 /// <author>Almighty-Shogun</author>
@@ -20,5 +19,5 @@ public sealed class BeforeAttribute(string target, ComparisonTarget targetType =
     internal override IPropertyValidationRule<TRequest, TProperty> CreateRule<TRequest, TProperty>(PropertyInfo property)
         => targetType is ComparisonTarget.Field
             ? new DateValidationRule<TRequest, TProperty>(DateMode.Before, target)
-            : new DateValidationRule<TRequest, TProperty>(DateMode.Before, DateTimeOffset.Parse(target, CultureInfo.InvariantCulture));
+            : new DateValidationRule<TRequest, TProperty>(DateMode.Before, ValidationDate.ParseTargetDate(target));
 }
