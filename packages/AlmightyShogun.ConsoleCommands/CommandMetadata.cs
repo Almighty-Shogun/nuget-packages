@@ -118,8 +118,9 @@ internal static class CommandMetadata
     /// whitespace character is rejected with it, which is wider than the split strictly requires.
     ///
     /// Aliases never reach this check. An <see cref="AliasAttribute"/> name goes straight into the descriptor and into
-    /// <see cref="ConsoleCommandHandler"/>, which does not apply this rule, so an alias containing whitespace registers and
-    /// then never matches.
+    /// <see cref="ConsoleCommandHandler"/>, which drops a wholly blank one when it builds its name table but applies no
+    /// rule of its own to the rest. Nothing therefore stops an alias containing a space from registering, and the line is
+    /// split on spaces before its first token is looked up, so such an alias can never be matched.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

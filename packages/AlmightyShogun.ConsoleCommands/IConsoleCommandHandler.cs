@@ -41,6 +41,11 @@ public interface IConsoleCommandHandler
     /// the line it was waiting for is taken off standard input and dropped rather than left for whatever reads next.
     /// Stopping while a command is running ends the thread with the loop and drops nothing, since no read is outstanding.
     ///
+    /// A line that is blank or contains only whitespace is dropped without being dispatched and without being reported, so
+    /// pressing enter at the prompt does nothing at all. For any other line, the row above the cursor is erased before the
+    /// dispatch, so a typed command is rewritten away rather than left on screen. That erase covers one row, and does
+    /// nothing at all when output is redirected or the cursor is on the first row.
+    ///
     /// Starting sets <c>Console.TreatControlCAsInput</c> to <c>false</c> for the whole process, so Ctrl+C is handled as an
     /// interrupt instead of being delivered to the reader as a line. It is never restored, and an <see cref="IOException"/>
     /// from a console that does not support the write is swallowed.

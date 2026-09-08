@@ -121,6 +121,12 @@ internal static class CommandArgumentBinder
     ///
     /// <returns><c>true</c> when every supplied argument converted; otherwise <c>false</c>.</returns>
     ///
+    /// <exception cref="Exception">
+    /// Whatever <see cref="TryConvert"/> let escape, which is a <see cref="TypeConverter"/> failing outside the call
+    /// <see cref="TryConvertFromString"/> guards. It is not caught here either, so such an argument leaves the bind by
+    /// exception rather than through <c>false</c>, and the dispatcher reports it as a command failure.
+    /// </exception>
+    ///
     /// <remarks>
     /// A failed conversion aborts the whole bind, so no parameter is filled with its default in place of an argument the
     /// user typed. A surplus token beyond the declared parameters is dropped unless an array tail collects it.
@@ -246,6 +252,11 @@ internal static class CommandArgumentBinder
     ///
     /// <returns><c>true</c> when the token converted; otherwise <c>false</c>.</returns>
     ///
+    /// <exception cref="Exception">
+    /// Whatever <see cref="TryConvertFromString"/> let escape, which is a <see cref="TypeConverter"/> failing outside the
+    /// call that method guards. Nothing here catches it, so the token ends the bind instead of being rejected.
+    /// </exception>
+    ///
     /// <remarks>
     /// An enum is matched case-insensitively by name and then checked with <see cref="Enum.IsDefined(Type, object)"/>,
     /// because <see cref="Enum.TryParse(Type, string, bool, out object)"/> also accepts any bare number and would
@@ -341,14 +352,18 @@ internal static class CommandArgumentBinder
     ///
     /// <returns><c>true</c> when the token converted; otherwise <c>false</c>.</returns>
     ///
+    /// <exception cref="Exception">
+    /// Whatever <c>TypeDescriptor.GetConverter</c> or <c>CanConvertFrom</c> raised. Both run before the <c>try</c>, so a
+    /// converter failing there is not turned into <c>false</c> the way one failing inside the conversion itself is.
+    /// </exception>
+    ///
     /// <remarks>
     /// Every exception out of <c>ConvertFromInvariantString</c> is swallowed rather than the parse-shaped ones alone,
     /// because a converter is third-party code and may throw anything at all to mean "not my format". The caller reports
     /// the failure either way.
     ///
     /// Only that call sits inside the catch. <c>TypeDescriptor.GetConverter</c> and <c>CanConvertFrom</c> run before it, so
-    /// a converter that throws from either escapes this method and is reported by the dispatcher as a command failure
-    /// instead of as a rejected argument.
+    /// the swallowing covers the conversion alone and not the two calls that select the converter.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

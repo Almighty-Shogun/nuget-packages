@@ -64,7 +64,7 @@ public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleComm
     protected string? Description { get; }
 
     /// <summary>
-    /// The aliases from the class attribute, or an empty list when the command declares none.
+    /// The aliases from <see cref="AliasAttribute"/>, or an empty list when the command declares none.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
