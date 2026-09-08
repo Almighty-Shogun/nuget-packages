@@ -5,7 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Provides helpers for writing and clearing authentication cookies on HTTP responses.
+/// Writes and deletes this package's refresh-token cookie, so endpoint code never spells a cookie name or picks the
+/// attributes it is written and removed with.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -54,9 +55,9 @@ public static class HttpResponseExtensions
             });
 
         /// <summary>
-        /// Deletes the default authentication cookies used by the package, repeating the path they were written with, which
-        /// is what identifies the cookie to remove, along with the <c>SameSite</c> mode and secure flag so a
-        /// <c>SameSite=None</c> deletion still carries the secure flag that mode requires.
+        /// Deletes this package's refresh-token cookie, repeating the path it was written with, which is what identifies
+        /// the cookie to remove, along with the <c>SameSite</c> mode and secure flag. The secure flag comes from the
+        /// current request scheme, so a deletion issued over plain HTTP is not marked secure whatever the mode is.
         /// </summary>
         ///
         /// <author>Almighty-Shogun</author>

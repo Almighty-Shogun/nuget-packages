@@ -28,7 +28,7 @@ public static class HttpRequestExtensions
         ///
         /// <returns>
         /// The cookie value, or <c>null</c> when the request carries no such cookie or carries an empty one. An empty
-        /// cookie counts as absent, so this agrees with <c>GetRefreshTokenCookie</c> about what a usable token is
+        /// cookie counts as absent, so this agrees with <see cref="GetRefreshTokenCookie"/> about what a usable token is
         /// rather than reporting one the other would refuse.
         /// </returns>
         ///
