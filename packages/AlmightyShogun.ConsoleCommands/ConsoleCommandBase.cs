@@ -64,7 +64,7 @@ public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleComm
     protected string? Description { get; }
 
     /// <summary>
-    /// The aliases from the class attribute, or an empty list when the command declares none.
+    /// The aliases from <see cref="AliasAttribute"/>, or an empty list when the command declares none.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -123,12 +123,22 @@ public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleComm
         if (!CommandArgumentBinder.IsArgumentCountValid(boundParameters, args.Length, _attribute.IgnoreExtraArgs))
         {
             if (logger.IsEnabled(LogLevel.Warning))
-                logger.LogWarning(
-                    "Invalid number of parameters on command {Name:c}. Expected {ParametersLength}, got {ArgsLength}",
-                    Name,
-                    boundParameters.Length,
-                    args.Length
-                );
+            {
+                if (CommandArgumentBinder.HasVariadicTail(boundParameters))
+                    logger.LogWarning(
+                        "Invalid number of parameters on command {Name:c}. Expected at least {ParametersLength}, got {ArgsLength}",
+                        Name,
+                        CommandArgumentBinder.GetMinimumArgumentCount(boundParameters),
+                        args.Length
+                    );
+                else
+                    logger.LogWarning(
+                        "Invalid number of parameters on command {Name:c}. Expected {ParametersLength}, got {ArgsLength}",
+                        Name,
+                        boundParameters.Length,
+                        args.Length
+                    );
+            }
 
             return;
         }

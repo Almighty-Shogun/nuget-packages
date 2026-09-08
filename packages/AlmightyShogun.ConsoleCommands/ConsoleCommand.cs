@@ -57,8 +57,9 @@ public sealed class ConsoleCommand
 
     /// <summary>
     /// The full line to type, as the name followed by one <c>&lt;name:Type&gt;</c> placeholder per handler parameter,
-    /// excluding a trailing <see cref="CancellationToken"/>, which the dispatcher supplies rather than the user. A command
-    /// taking no arguments yields the bare name, never a trailing space.
+    /// excluding a trailing <see cref="CancellationToken"/>, which the dispatcher supplies rather than the user. A trailing
+    /// array parameter appears as <c>&lt;name:Element...&gt;</c>, the ellipsis marking the zero or more tokens it takes. A
+    /// command taking no arguments yields the bare name, never a trailing space.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

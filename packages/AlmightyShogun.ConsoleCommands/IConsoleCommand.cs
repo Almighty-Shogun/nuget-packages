@@ -1,8 +1,11 @@
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Exposes the dispatch metadata of a command without requiring an instance to be built for it. It is the marker the
-/// assembly scan looks for, not a service type.
+/// The marker the assembly scan and the registration match a command class on, not a service type: implementations are
+/// registered under their own concrete type, so nothing is ever resolved as an <see cref="IConsoleCommand"/>. The metadata
+/// declared here is implemented explicitly by <see cref="ConsoleCommandBase"/> from the class attributes, which
+/// <see cref="ConsoleCommandExtensions"/> and <see cref="ConsoleCommandDiscovery"/> read directly, so naming a command
+/// never constructs one.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
