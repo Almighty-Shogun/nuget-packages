@@ -60,6 +60,14 @@ internal sealed class MaintenanceMiddleware(
     /// body otherwise.
     /// </remarks>
     ///
+    /// <remarks>
+    /// The configured maintenance path is relative to the path base in both places it is used: the match above is against
+    /// <c>Request.Path</c> and the redirect prefixes the request's own <c>PathBase</c>, so an application mounted under a base sends the
+    /// browser somewhere inside itself rather than to the host root. Both read the request as it stands here, so whatever establishes the
+    /// base has to run first: ahead of <c>UsePathBase</c> the prefix is still part of <c>Request.Path</c> and no configured maintenance
+    /// path matches it, and ahead of the forwarded-headers middleware the base is empty and the redirect leaves the application.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public async Task InvokeAsync(HttpContext context)
@@ -93,7 +101,7 @@ internal sealed class MaintenanceMiddleware(
 
         if (state.RedirectBlockedRequests && AcceptsHtml(context.Request))
         {
-            context.Response.Redirect(_maintenancePath);
+            context.Response.Redirect(context.Request.PathBase.Add(_maintenancePath));
 
             return;
         }

@@ -6,7 +6,7 @@ returns: The same `IApplicationBuilder` instance with the maintenance middleware
 
 Adds the maintenance mode middleware to the request pipeline.
 
-Its position decides what maintenance mode can take offline. Place it after middleware that must run even while the application is offline, and before endpoint routing so application routes are covered.
+Its position decides what maintenance mode can take offline. Place it after middleware that must run even while the application is offline, after `UsePathBase` where the application is mounted under a base, and before endpoint routing so application routes are covered.
 
 ## Usage
 
@@ -16,6 +16,7 @@ using AlmightyShogun.AspNet.MaintenanceMode;
 WebApplication app = builder.Build();
 
 app.UseForwardedHeaders();
+app.UsePathBase("/app");
 app.UseMaintenanceMode();
 
 app.UseRouting();
@@ -37,7 +38,7 @@ While a window is active, each request is handled in this order:
 
 Blocked requests receive `Retry-After` when the window has an `EndsAt`. No header is sent without one, because the remaining time is not known.
 
-A blocked request that accepts `text/html` is redirected to `MaintenancePath` when `RedirectBlockedRequests` is on. Any other blocked request, including every API client, receives `503` with the shared error body used across the stack:
+A blocked request that accepts `text/html` is redirected to `MaintenancePath` when `RedirectBlockedRequests` is on. Under a path base, whether it comes from `UsePathBase` or from forwarded headers, the redirect carries that base, so `/app/orders` is sent to `/app/maintenance`, provided the middleware runs after whichever of the two establishes it. Any other blocked request, including every API client, receives `503` with the shared error body used across the stack:
 
 ```json
 {
