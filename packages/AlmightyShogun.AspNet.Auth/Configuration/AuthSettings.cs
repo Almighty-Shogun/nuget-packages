@@ -98,22 +98,17 @@ public sealed record AuthSettings
 
     /// <summary>
     /// Every audience a token may carry: the host mappings, the localhost fallback, and the default app. It never
-    /// returns empty: every path either adds an audience or throws.
+    /// returns empty: every path either adds an audience or throws. Nothing is cached, so each read walks
+    /// <see cref="Hosts"/> again and hands back a newly allocated list.
     /// </summary>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// A host is mapped to a blank audience, or no host mapping exists and <see cref="DefaultApp"/> is unset.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    public IReadOnlyList<string> ValidAudiences => _validAudiences ??= BuildValidAudiences();
-
-    /// <summary>
-    /// The cached audience list. Building it walks the host mapping and can throw, so it is built the first time
-    /// <see cref="ValidAudiences"/> is read on an instance and reused for every later read of that instance. Startup
-    /// validation and the bearer options need not share one, so it may be built more than once in a process.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
-    private IReadOnlyList<string>? _validAudiences;
+    public IReadOnlyList<string> ValidAudiences => BuildValidAudiences();
 
     /// <summary>
     /// Determines whether host-based app scoping is active for authentication and authorization.
