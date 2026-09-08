@@ -9,10 +9,10 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 /// </summary>
 ///
 /// <typeparam name="TRequest">The request type the rule is declared on and reads the compared field from.</typeparam>
-/// <typeparam name="TProperty">The bound property's type, compared as an object against the other field's value.</typeparam>
+/// <typeparam name="TProperty">The bound property's type, whose value is compared against the other field's.</typeparam>
 /// <typeparam name="TCompare">
-/// The compared field's type, named only by the expression constructor. The comparison is made on boxed values, so this argument does not
-/// change how the two are matched.
+/// The compared field's type, named only by the expression constructor. <see cref="ValidationComparison.AreEqual"/> decides the match from
+/// the two runtime values, so this argument does not change how the two are matched.
 /// </typeparam>
 ///
 /// <author>Almighty-Shogun</author>
@@ -134,9 +134,9 @@ internal sealed class FieldComparisonValidationRule<TRequest, TProperty, TCompar
 
         bool isValid = _mode switch
         {
-            FieldComparisonMode.Same => Equals(value, compareValue),
-            FieldComparisonMode.Different => !Equals(value, compareValue),
-            FieldComparisonMode.Confirmed => Equals(value, compareValue),
+            FieldComparisonMode.Same => ValidationComparison.AreEqual(value, compareValue),
+            FieldComparisonMode.Different => !ValidationComparison.AreEqual(value, compareValue),
+            FieldComparisonMode.Confirmed => ValidationComparison.AreEqual(value, compareValue),
             _ => throw new InvalidOperationException($"Unsupported FieldComparisonMode value '{_mode}'.")
         };
 

@@ -119,7 +119,8 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </summary>
     ///
     /// <typeparam name="TCompare">
-    /// The compared field's type, which need not be the validated property's: the two values are compared as objects.
+    /// The compared field's type, which need not be the validated property's: numeric values that can be widened to decimal match on their
+    /// magnitude, and everything else, text included, is matched by its own equality.
     /// </typeparam>
     /// <param name="compareExpression">Points at the field this one is compared against, so both are read from the same request.</param>
     ///
@@ -147,7 +148,8 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </summary>
     ///
     /// <typeparam name="TCompare">
-    /// The compared field's type, which need not be the validated property's: the two values are compared as objects.
+    /// The compared field's type, which need not be the validated property's: numeric values that can be widened to decimal match on their
+    /// magnitude, and everything else, text included, is matched by its own equality.
     /// </typeparam>
     /// <param name="compareExpression">Points at the field this one is compared against, so both are read from the same request.</param>
     ///
@@ -197,7 +199,8 @@ public sealed partial class RuleBuilder<TRequest, TProperty> where TRequest : cl
     /// </summary>
     ///
     /// <typeparam name="TCompare">
-    /// The confirmation field's type, which need not be the validated property's: the two values are compared as objects.
+    /// The confirmation field's type, which need not be the validated property's: numeric values that can be widened to decimal match on
+    /// their magnitude, and everything else, text included, is matched by its own equality.
     /// </typeparam>
     /// <param name="compareExpression">Points at the confirmation field, so both values are read from the same request.</param>
     ///
