@@ -65,6 +65,20 @@ internal sealed class FileMaintenanceStore(
     private long _cacheVersion;
 
     /// <summary>
+    /// The generation a conditional clear last found the file unreadable under. It starts below every generation, so the first such clear
+    /// always reads the file.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Set to a generation read before the failed attempt rather than after it, so a watcher event or a <see cref="Publish"/> landing while
+    /// that attempt ran leaves the two differing and the next clear reads again.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private long _unverifiableVersion = -1;
+
+    /// <summary>
     /// Watches the state file so an out-of-band edit is noticed.
     /// </summary>
     ///
@@ -154,14 +168,22 @@ internal sealed class FileMaintenanceStore(
     /// <inheritdoc />
     public async Task<MaintenanceClearOutcome> TryClearAsync(Guid expectedRevision)
     {
+        if (IsKnownUnverifiable()) return MaintenanceClearOutcome.Unverified;
+
         await _writeLock.WaitAsync();
 
         try
         {
+            if (IsKnownUnverifiable()) return MaintenanceClearOutcome.Unverified;
+
+            long version = Volatile.Read(ref _cacheVersion);
+
             DiskRead read = await ReadFromDiskAsync();
 
             if (read.Outcome is DiskReadOutcome.Unreadable)
             {
+                Volatile.Write(ref _unverifiableVersion, version);
+
                 return MaintenanceClearOutcome.Unverified;
             }
 
@@ -218,7 +240,26 @@ internal sealed class FileMaintenanceStore(
     private void Publish(PersistedMaintenanceState? state) => _cached = new CachedState(Interlocked.Increment(ref _cacheVersion), state);
 
     /// <summary>
-    /// Deletes the state file when it is there, which is what closing a window amounts to on disk.
+    /// Whether a conditional clear has already found the file unreadable under the generation the cache still stands on, which bounds an
+    /// unreadable file to one failed read and its backoffs per generation instead of one per call.
+    /// </summary>
+    ///
+    /// <returns>
+    /// <c>true</c> while that attempt still stands, so reading again would open the same file behind the same cache entry;
+    /// <c>false</c> once a watcher event or a <see cref="Publish"/> has retired the entry it was made under.
+    /// </returns>
+    ///
+    /// <remarks>
+    /// Tested before <see cref="_writeLock"/> is taken, so a caller refused this way neither waits on the lock nor holds it, and again
+    /// after it is taken, which catches the callers that were already queued when the failure was recorded.
+    /// </remarks>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private bool IsKnownUnverifiable() => Volatile.Read(ref _unverifiableVersion) == Volatile.Read(ref _cacheVersion);
+
+    /// <summary>
+    /// Deletes the state file when the current process can see it, which is what closing a window amounts to on disk.
     /// </summary>
     ///
     /// <exception cref="IOException">The file exists but could not be deleted, so the window it holds stays open.</exception>
