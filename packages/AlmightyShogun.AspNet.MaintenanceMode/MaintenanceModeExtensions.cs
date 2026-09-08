@@ -72,7 +72,8 @@ public static class MaintenanceModeExtensions
     {
         /// <summary>
         /// Adds the middleware that blocks requests while a window is open. Place it early, ahead of routing and authentication, so a
-        /// blocked request is answered before anything else runs, but after <c>UseForwardedHeaders</c>.
+        /// blocked request is answered before anything else runs, but after <c>UseForwardedHeaders</c> and, where the application is
+        /// mounted under a path base, after <c>UsePathBase</c>.
         /// </summary>
         ///
         /// <returns>The <see cref="IApplicationBuilder"/> instance with maintenance mode middleware configured.</returns>
@@ -81,6 +82,12 @@ public static class MaintenanceModeExtensions
         /// The address bypass reads the connection address, which behind a reverse proxy is the proxy until
         /// <c>UseForwardedHeaders</c> has run. Calling this before it would compare an allow list against the proxy's address rather than
         /// the caller's, so run <c>UseForwardedHeaders</c> first and configure its trusted proxies and networks.
+        /// </remarks>
+        ///
+        /// <remarks>
+        /// The maintenance path is matched against <c>Request.Path</c> and the redirect prefixes <c>PathBase</c>, both as the request
+        /// stands at this point in the pipeline. Called ahead of <c>UsePathBase</c> the prefix is still part of the path, so the
+        /// configured maintenance path matches nothing and every blocked visitor is redirected outside the application.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>

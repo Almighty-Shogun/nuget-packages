@@ -49,15 +49,24 @@ internal sealed class MaintenanceMiddleware(
     /// </exception>
     ///
     /// <remarks>
-    /// The maintenance path is claimed before the window is checked and before every allow list, and the rest of the pipeline never runs
-    /// for it: with a window in force it answers <c>503</c> and the window as JSON, and with none it answers <c>404</c>. An application
-    /// route at that path is therefore unreachable, and a status page polling it is answered <c>404</c> while the site is up.
+    /// The window is read before the path is looked at, and the maintenance path is then claimed whatever that window's state and ahead of
+    /// every allow list, with the rest of the pipeline never running for it: with a window in force it answers <c>503</c> and the window as
+    /// JSON, and with none it answers <c>404</c>. An application route at that path is therefore unreachable, and a status page polling it
+    /// is answered <c>404</c> while the site is up.
     /// </remarks>
     ///
     /// <remarks>
     /// Any other request is passed on when no window is in force or <see cref="ShouldPassThrough"/> lets it through, and is otherwise
     /// blocked: redirected to the maintenance path when the window redirects and the caller accepts HTML, and given the <c>503</c> error
     /// body otherwise.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// The configured maintenance path is relative to the path base in both places it is used: the match above is against
+    /// <c>Request.Path</c> and the redirect prefixes the request's own <c>PathBase</c>, so an application mounted under a base sends the
+    /// browser somewhere inside itself rather than to the host root. Both read the request as it stands here, so whatever establishes the
+    /// base has to run first: ahead of <c>UsePathBase</c> the prefix is still part of <c>Request.Path</c> and no configured maintenance
+    /// path matches it, and ahead of the forwarded-headers middleware the base is empty and the redirect leaves the application.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -93,7 +102,7 @@ internal sealed class MaintenanceMiddleware(
 
         if (state.RedirectBlockedRequests && AcceptsHtml(context.Request))
         {
-            context.Response.Redirect(_maintenancePath);
+            context.Response.Redirect(context.Request.PathBase.Add(_maintenancePath));
 
             return;
         }

@@ -12,9 +12,9 @@ Each instance keeps its own file and its own cache. In a multi-instance deployme
 
 Returns the current [`MaintenanceState`](../records/maintenance-state). With no state file, it returns a disabled state built from the configured defaults.
 
-When `AutoDisableWhenExpired` is on and `EndsAt` has passed, the state file is cleared and a disabled state is returned.
+When `AutoDisableWhenExpired` is on and `EndsAt` has passed, the state file is cleared and a disabled state is returned. It is deleted only while it still holds the window that expired, so a window written since it was read is honored instead. A file that cannot be read at that moment is left in place, and the expired window is returned as it stands rather than a disabled state.
 
-An unparseable state file is treated as enabled, so a damaged file cannot silently reopen an application that was meant to be closed. A file that merely cannot be read right now, because another process holds it or storage is briefly unavailable, is retried and then falls back to the last known state instead.
+An unparseable state file is treated as enabled, so a damaged file cannot silently reopen an application that was meant to be closed. A file that merely cannot be read right now, because another process holds it or storage is briefly unavailable, is retried and then falls back to the last known state instead, whether it is read directly or checked while an expired window is being closed.
 
 ```csharp
 using AlmightyShogun.AspNet.MaintenanceMode;
@@ -36,7 +36,7 @@ public Task<MaintenanceState> GetAsync();
 
 ## IsEnabledAsync
 
-Whether maintenance mode is on. Reads the same state as `GetAsync`, including the expiry and read-failure handling.
+Whether a maintenance window is recorded as enabled. Reads the same state as `GetAsync`, including the expiry and read-failure handling.
 
 This reports whether maintenance mode is enabled, not whether traffic is currently blocked. A window with a future `StartsAt` is enabled while requests are still served normally.
 

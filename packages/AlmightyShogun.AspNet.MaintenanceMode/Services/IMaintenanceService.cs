@@ -30,11 +30,11 @@ public interface IMaintenanceService
     Task<MaintenanceState> GetAsync();
 
     /// <summary>
-    /// Reports whether a window is recorded as open, which is broader than requests being blocked: a window scheduled for later reads as
-    /// enabled here while the middleware still serves everything.
+    /// Reports whether a maintenance window is recorded as enabled, which is broader than requests being blocked: a window scheduled for
+    /// later reads as enabled here while the middleware still serves everything.
     /// </summary>
     ///
-    /// <returns><c>true</c> when maintenance mode is enabled; otherwise, <c>false</c>.</returns>
+    /// <returns><c>true</c> when a maintenance window is recorded as enabled; otherwise, <c>false</c>.</returns>
     ///
     /// <exception cref="IOException">
     /// An expired window that lifts itself was being closed and its file could not be deleted. The read itself is guarded and does not

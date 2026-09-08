@@ -109,7 +109,8 @@ internal sealed record PersistedMaintenanceState
     public IReadOnlyList<string>? AllowedIpAddresses { get; init; }
 
     /// <summary>
-    /// Converts the stored window into what a caller sees, dropping the fields that exist only for the file's own bookkeeping.
+    /// Converts the stored window into what a caller sees, dropping persistence and request-enforcement fields absent from the public
+    /// state.
     /// </summary>
     ///
     /// <returns>The public maintenance state.</returns>
