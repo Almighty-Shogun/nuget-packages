@@ -36,7 +36,7 @@ public Task<MaintenanceState> GetAsync();
 
 ## IsEnabledAsync
 
-Whether maintenance mode is on. Reads the same state as `GetAsync`, including the expiry and read-failure handling.
+Whether a maintenance window is recorded as enabled. Reads the same state as `GetAsync`, including the expiry and read-failure handling.
 
 This reports whether maintenance mode is enabled, not whether traffic is currently blocked. A window with a future `StartsAt` is enabled while requests are still served normally.
 
