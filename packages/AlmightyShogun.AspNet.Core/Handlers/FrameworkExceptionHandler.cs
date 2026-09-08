@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Diagnostics;
 using AlmightyShogun.AspNet.Localization;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AlmightyShogun.AspNet.Core;
 
@@ -11,7 +12,13 @@ namespace AlmightyShogun.AspNet.Core;
 /// <c>500</c>: a malformed request body becomes the <c>400</c> it is.
 /// </summary>
 ///
-/// <param name="messageResolver">The resolver that turns the <c>http-error.{status}</c> key into a localized description.</param>
+/// <param name="serviceScopeFactory">
+/// The factory a scope is created from for each bad request answered here, the scope the
+/// <see cref="IMessageResolver"/> that turns the <c>http-error.{status}</c> key into a localized description is taken
+/// from. <c>AddExceptionHandler</c> registers this handler as a singleton, so taking the factory rather than the
+/// resolver is what keeps a resolver registered with a scoped lifetime resolvable, and takes it fresh for each bad
+/// request rather than once for the process.
+/// </param>
 /// <param name="responseWriter">
 /// The writer that produces the body, so a framework fault returns the same shape as an application one.
 /// </param>
@@ -36,7 +43,7 @@ namespace AlmightyShogun.AspNet.Core;
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 internal sealed class FrameworkExceptionHandler(
-    IMessageResolver messageResolver,
+    IServiceScopeFactory serviceScopeFactory,
     IHttpErrorResponseWriter responseWriter,
     ILogger<FrameworkExceptionHandler> logger
 ) : IExceptionHandler
@@ -54,11 +61,29 @@ internal sealed class FrameworkExceptionHandler(
     /// A consumer-supplied <see cref="ILanguageProvider"/> returned <c>null</c> from
     /// <see cref="ILanguageProvider.GetLanguages"/>.
     /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// A consumer-supplied <see cref="ILanguageProvider"/> returned a list holding <c>null</c>, which reaches the
+    /// language tag check as the language to look the description up in.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Nothing has registered <see cref="IMessageResolver"/>, which <c>AddMessageLocalization</c> does and
+    /// <c>AddExceptionHandling</c> does not.
+    /// </exception>
     ///
     /// <remarks>
-    /// Nothing here catches what <see cref="IMessageResolver.Resolve(string)"/> throws, so a resolver failure escapes
-    /// into the middleware while the error body is being built, in place of the response this would have written. Only
-    /// the <see cref="BadHttpRequestException"/> path resolves at all; every other exception is declined first.
+    /// Nothing here catches what creating the scope, resolving <see cref="IMessageResolver"/> out of it, disposing it,
+    /// or <see cref="IMessageResolver.Resolve(string)"/> itself throws, so any of those escapes into the middleware
+    /// while the error body is being built, in place of the response this would have written. Only the
+    /// <see cref="BadHttpRequestException"/> path resolves at all; every other exception is declined first.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// The scope is created and disposed here rather than reusing <c>HttpContext.RequestServices</c>, so the handler
+    /// works whatever lifetime the resolver was registered with and needs no request scope of its own. Nothing taken
+    /// from it outlives the call: only the resolved description, a string, is carried past the disposal. The cost is
+    /// that a consumer resolver depending on other per-request state gets a second, separately populated instance
+    /// while an error is answered. Language negotiation is unaffected, because the default provider reads the request
+    /// through <see cref="IHttpContextAccessor"/> on each call rather than from anything the scope holds.
     /// </remarks>
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
@@ -82,11 +107,20 @@ internal sealed class FrameworkExceptionHandler(
         if (statusCode is null || httpContext.Response.HasStarted)
             return false;
 
+        string description;
+
+        await using (AsyncServiceScope scope = serviceScopeFactory.CreateAsyncScope())
+        {
+            description = scope.ServiceProvider
+                .GetRequiredService<IMessageResolver>()
+                .Resolve($"http-error.{statusCode.Value}");
+        }
+
         await responseWriter.WriteAsync(
             httpContext,
             statusCode.Value,
             HttpErrorCodes.FromStatusCode(statusCode.Value),
-            messageResolver.Resolve($"http-error.{statusCode.Value}"),
+            description,
             cancellationToken
         );
 
