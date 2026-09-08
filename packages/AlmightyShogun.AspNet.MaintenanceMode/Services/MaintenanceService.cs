@@ -67,7 +67,11 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     /// Reads the persisted state, applying defaults and the expiry policy.
     /// </summary>
     ///
-    /// <returns>The effective persisted state.</returns>
+    /// <returns>
+    /// The window as it now stands, never <c>null</c>, with the configured defaults filled in. A synthesized disabled state stands in for a
+    /// file recording no open window and for an expired window that was closed; an expired window whose clear could not be verified is
+    /// returned rather than replaced by one.
+    /// </returns>
     ///
     /// <exception cref="IOException">
     /// An expired window was being closed and its file could not be deleted. The read itself is guarded and does not throw.
@@ -75,30 +79,61 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     /// <exception cref="UnauthorizedAccessException">
     /// The process may not delete the state file of an expired window that was being closed.
     /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// The conditional clear reported a value <see cref="MaintenanceClearOutcome"/> does not define, which is rejected here rather than
+    /// silently taking one of the three branches that do.
+    /// </exception>
     ///
     /// <remarks>
     /// An expired window is closed through <see cref="IMaintenanceStore.TryClearAsync"/> rather than
     /// <see cref="IMaintenanceStore.ClearAsync"/>, so a window opened while this was deciding to expire the old one is not closed with it.
-    /// When the revision no longer matches, the read is repeated. A competing write through the store retires the cache, so
-    /// the retry reaches the file; a change made to the file directly does not, so the retry can see the same state again
-    /// until the watcher fires.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// A <see cref="MaintenanceClearOutcome.Superseded"/> clear sends this round again, and the store has already retired the cache entry
+    /// that produced the mismatch, so the next pass reads what the store found rather than comparing the same revision a second time.
+    /// </remarks>
+    ///
+    /// <remarks>
+    /// An <see cref="MaintenanceClearOutcome.Unverified"/> clear ends the loop with the expired window rather than another attempt: nothing
+    /// was published, so the next pass would carry the same cached window into the same guard. The store established nothing about what the
+    /// file holds, so the expired window is returned rather than the disabled state, and it stops expiring for as long as the file stays
+    /// unreadable.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     internal async Task<PersistedMaintenanceState> GetPersistedAsync()
     {
-        PersistedMaintenanceState? state = await store.ReadAsync();
+        while (true)
+        {
+            PersistedMaintenanceState? state = await store.ReadAsync();
 
-        if (state is null || !state.IsEnabled)
-            return CreateDisabledState();
+            if (state is null || !state.IsEnabled)
+                return CreateDisabledState();
 
-        state = ApplyDefaults(state);
+            state = ApplyDefaults(state);
 
-        if (state.EndsAt is null || !state.AutoDisableWhenExpired || state.EndsAt > DateTimeOffset.UtcNow)
-            return state;
+            if (state.EndsAt is null || !state.AutoDisableWhenExpired || state.EndsAt > DateTimeOffset.UtcNow)
+                return state;
 
-        return await store.TryClearAsync(state.Revision) ? CreateDisabledState() : await GetPersistedAsync();
+            MaintenanceClearOutcome outcome = await store.TryClearAsync(state.Revision);
+
+            switch (outcome)
+            {
+                case MaintenanceClearOutcome.Cleared:
+                    return CreateDisabledState();
+
+                case MaintenanceClearOutcome.Unverified:
+                    return state;
+
+                case MaintenanceClearOutcome.Superseded:
+                    continue;
+
+                default:
+                    throw new InvalidOperationException($"The conditional clear reported the unknown outcome '{outcome}'.");
+            }
+        }
     }
 
     /// <summary>

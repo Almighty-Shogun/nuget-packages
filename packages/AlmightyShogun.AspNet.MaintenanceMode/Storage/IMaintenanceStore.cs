@@ -61,19 +61,22 @@ internal interface IMaintenanceStore
     Task ClearAsync();
 
     /// <summary>
-    /// Deletes the window only while it is still the one the caller read, so expiring a window does not close a newer one
-    /// opened through the service in the meantime. Two hand-edited windows that both omit a revision compare equal, so the
-    /// guard does not separate them.
+    /// Deletes the window only while the file is still known to hold the one the caller read, so expiring a window closes neither a newer
+    /// one opened through the service in the meantime nor one sitting behind a file that could not be read. Two hand-edited windows that
+    /// both omit a revision compare equal, so the guard does not separate them.
     /// </summary>
     ///
     /// <param name="expectedRevision">
-    /// The <see cref="PersistedMaintenanceState.Revision"/> the caller acted on. The file is re-read under the write lock and compared
-    /// against this before anything is deleted.
+    /// The <see cref="PersistedMaintenanceState.Revision"/> the caller acted on. The delete happens only once a read under the write lock
+    /// has produced a parsed window carrying this revision.
     /// </param>
     ///
     /// <returns>
-    /// <c>true</c> when the window matched and was closed; <c>false</c> when it had already been replaced or closed, leaving whatever is
-    /// recorded now untouched. A caller that gets <c>false</c> should read again rather than assume maintenance is off.
+    /// <see cref="MaintenanceClearOutcome.Cleared"/> when the window matched and was closed;
+    /// <see cref="MaintenanceClearOutcome.Superseded"/> when the store established what the file holds and it is not that window, whether
+    /// a different one, none at all, or one that does not parse, the cache then serving what that read produced; and
+    /// <see cref="MaintenanceClearOutcome.Unverified"/> when the file's contents could not be established, leaving the file, the cache, and
+    /// so the next read all as they were. Neither refusal means maintenance is off.
     /// </returns>
     ///
     /// <exception cref="IOException">
@@ -84,7 +87,12 @@ internal interface IMaintenanceStore
     /// The revision matched but the process may not delete the state file, leaving the window open.
     /// </exception>
     ///
+    /// <remarks>
+    /// A store may answer <see cref="MaintenanceClearOutcome.Unverified"/> from a failure it has already established rather than reading
+    /// again, so repeating the call while nothing has invalidated the cache costs the caller nothing and changes nothing.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    Task<bool> TryClearAsync(Guid expectedRevision);
+    Task<MaintenanceClearOutcome> TryClearAsync(Guid expectedRevision);
 }
