@@ -119,7 +119,7 @@ public static class LoggingExtensions
 
     /// <summary>
     /// Builds a logger from the three settings, a distinct instance on every call, so an application that calls both
-    /// receivers holds two, each with its own console sink.
+    /// receivers holds two, each with its own console sink when <paramref name="includeConsoleSink"/> is <c>true</c>.
     /// </summary>
     ///
     /// <param name="configuration">

@@ -204,8 +204,9 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
     }
 
     /// <summary>
-    /// Picks a color from the value's type, used whenever the template's format carries no <c>|</c>. A format ending in one
-    /// selects white instead, since the empty shorthand matches nothing.
+    /// Picks a color from the value's type, used for a property the event carries whose format holds no <c>|</c>. A format
+    /// that holds one bypasses this method, leaving <see cref="AnsiColor.FromShort"/> to decide the color, including for an
+    /// empty or unrecognized shorthand.
     /// </summary>
     ///
     /// <param name="value">The value whose runtime type decides the color.</param>
