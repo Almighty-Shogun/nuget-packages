@@ -21,6 +21,8 @@ Configures a many-to-many relationship over an explicitly named join table, whos
 
 Both join columns are non-nullable, so EF Core cascades from either side by convention and a join row disappears with whichever entity it referenced.
 
+Passing the same type as both `TEntity` and `TRelated` throws `InvalidOperationException`, since both foreign keys would then be named after that one type; a self-referencing join is configured with `UsingEntity` directly.
+
 ## Usage
 
 ::: code-group

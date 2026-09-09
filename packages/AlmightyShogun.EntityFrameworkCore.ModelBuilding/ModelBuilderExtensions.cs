@@ -460,6 +460,12 @@ public static class ModelBuilderExtensions
         /// <paramref name="navigation"/>, <paramref name="inverseNavigation"/> or <paramref name="joinTableName"/> is
         /// <c>null</c>.
         /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// <typeparamref name="TEntity"/> and <typeparamref name="TRelated"/> are the same type, so both foreign keys
+        /// would be named <c>{TypeName}Id</c> after that one type. Nothing is configured before the check runs. A
+        /// self-referencing join is past what this covers and is written with <c>UsingEntity</c> directly, where each
+        /// foreign key is given its own column name.
+        /// </exception>
         ///
         /// <remarks>
         /// A model needing different column names or a join entity of its own is past what this hides and should call
@@ -474,6 +480,13 @@ public static class ModelBuilderExtensions
             string joinTableName
         ) where TEntity : class where TRelated : class
         {
+            if (typeof(TEntity) == typeof(TRelated))
+                throw new InvalidOperationException(
+                    $"ApplyManyToMany cannot configure a self-referencing many-to-many on '{typeof(TEntity).Name}', "
+                    + $"because both join columns would be named '{typeof(TEntity).Name}Id'. Configure the join entity "
+                    + "with UsingEntity directly, giving each foreign key its own column name."
+                );
+
             modelBuilder.Entity<TEntity>()
                 .HasMany(navigation)
                 .WithMany(inverseNavigation)
