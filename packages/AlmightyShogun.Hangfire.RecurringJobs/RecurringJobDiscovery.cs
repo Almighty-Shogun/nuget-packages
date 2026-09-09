@@ -19,7 +19,8 @@ internal static class RecurringJobDiscovery
     /// Builds the scheduling metadata for every job type in the provided assemblies, taking the job id from the attribute,
     /// the cron expression, time zone and queue from the override first and the attribute second, and enablement from the
     /// override, then the attribute, then the section's default. A job that ends up disabled contributes its id rather than
-    /// its metadata.
+    /// its metadata, since those are the ids <see cref="JobSchedulerStartup"/> unschedules when
+    /// <see cref="RecurringJobSettings.RemoveParkedJobs"/> is set.
     /// </summary>
     ///
     /// <param name="assemblies">

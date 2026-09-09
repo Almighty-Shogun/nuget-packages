@@ -53,7 +53,9 @@ public sealed class RecurringJobAttribute(string jobId, string cronExpression) :
     public string? Queue { get; set; }
 
     /// <summary>
-    /// Whether the job is scheduled at all. Set it to <c>false</c> to park a job without deleting the class.
+    /// Whether the job is scheduled at all. Set it to <c>false</c> to park a job without deleting the class, which, unless a
+    /// per-job override turns it back on, also removes whatever schedule is stored under its job id when the host starts, for
+    /// as long as <see cref="RecurringJobSettings.RemoveParkedJobs"/> is set.
     /// </summary>
     ///
     /// <remarks>

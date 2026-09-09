@@ -17,13 +17,13 @@ public static class RecurringJobExtensions
 {
     /// <summary>
     /// Adds the package's two startup calls to the service collection. Neither resolves anything, so they may be written in
-    /// either order, but both are needed: the scan only records what to schedule, and the hosted service it registers hands
-    /// those schedules to the recurring job manager the Hangfire setup provides.
+    /// either order, but both are needed: the scan only records what to schedule and what to unschedule, and the hosted
+    /// service it registers is what acts on both through the recurring job manager the Hangfire setup provides.
     /// </summary>
     ///
     /// <param name="serviceCollection">
     /// The collection that receives the Hangfire services, the job classes, the <see cref="RecurringJobSettings"/> options,
-    /// the singleton registry, and the hosted service that puts the schedules into Hangfire. Those options are bound to the
+    /// the singleton registry, and the hosted service that applies the scan to Hangfire. Those options are bound to the
     /// <c>RecurringJobs</c> section only when a configuration is passed, and are left at their defaults otherwise. Every
     /// helper returns the collection, so the calls chain.
     /// </param>

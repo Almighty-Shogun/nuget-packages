@@ -54,8 +54,9 @@ internal sealed class RecurringJobRegistry(IEnumerable<RecurringJobSources> sour
     public IReadOnlyList<RecurringJobInfo> Jobs => _scan.Jobs;
 
     /// <summary>
-    /// The ids of the jobs the scan parked. It stays off <see cref="IRecurringJobRegistry"/>, so the scheduler takes this
-    /// type rather than the interface.
+    /// The ids of the jobs the scan parked, which <see cref="JobSchedulerStartup"/> unschedules while
+    /// <see cref="RecurringJobSettings.RemoveParkedJobs"/> is set. It stays off <see cref="IRecurringJobRegistry"/>, so the
+    /// scheduler takes this type rather than the interface.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

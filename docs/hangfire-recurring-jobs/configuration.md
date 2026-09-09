@@ -8,6 +8,11 @@ fields:
             type: bool
             default: 'true'
 
+          - name: RemoveParkedJobs
+            description: Whether the schedules stored under the job ids this application parked are deleted when the host starts. Set it to `false` where the storage is shared with another instance, role, or application, so parking a job stops this application scheduling it without deleting the entry another writer owns.
+            type: bool
+            default: 'true'
+
           - name: Jobs
             description: Per-job overrides keyed by job id, matched ignoring case. A key naming a job the scan did not find stops the host, since that is nearly always a typo.
             type: 'IReadOnlyDictionary<string, RecurringJobOverride>'
@@ -17,7 +22,7 @@ fields:
       description: One entry under `Jobs`, replacing what a single job's attribute declares. Every value is optional and an omitted one keeps the declared one, so an entry only names what changes.
       fields:
           - name: Enabled
-            description: Whether the job is scheduled, outranking both the attribute and `EnabledByDefault`.
+            description: Whether the job is scheduled, outranking both the attribute and `EnabledByDefault`. Setting it to `false` also clears whatever schedule is already stored under that job id, unless `RemoveParkedJobs` is `false`.
             type: bool?
             default: 'null'
 
@@ -45,6 +50,7 @@ The optional `RecurringJobs` section adjusts what the attribute scan found, so a
 {
     "RecurringJobs": {
         "EnabledByDefault": true,
+        "RemoveParkedJobs": true,
         "Jobs": {
             "cleanup-expired-sessions": {
                 "Enabled": false,
@@ -56,5 +62,9 @@ The optional `RecurringJobs` section adjusts what the attribute scan found, so a
     }
 }
 ```
+
+::: warning
+A job that resolves to disabled is unscheduled when the host starts, so a durable store is left with no entry and no next execution time for it. The deletion goes by job id against Hangfire storage, which belongs to everything pointed at that storage rather than to the instance doing the deleting: a client role registering the same jobs with `AddCustomHangfire(addServer: false)`, an older instance still running through a rolling deploy, another application, and any code that called `RecurringJob.AddOrUpdate` under a parked id all lose that entry. Removal is limited to the ids the scan found and parked, which leaves the entry of a renamed or deleted job alone, and setting `RemoveParkedJobs` to `false` leaves every parked id alone, so parking a job stops this application scheduling it without deleting what another writer scheduled.
+:::
 
 <FrontmatterDocs/>
