@@ -117,8 +117,11 @@ internal sealed class RemoteCommandHandler(
 
     /// <summary>
     /// The connections still being served, awaited for five seconds on shutdown so the listener does not return while they
-    /// are still running. The same cancellation that starts that wait aborts their writes, so a response in flight is cut
-    /// off regardless. Completed entries are pruned as new ones are added.
+    /// are still running. A stop, or a cancelled start token, cancels the token their frame reads and the dispatcher's own
+    /// writes are made under, though a command's response write is cut off only where the command forwards the token it
+    /// was handed. A listener ending on an unexpected failure reaches the same wait with nothing cancelled, so a
+    /// connection still running when the five seconds are up is abandoned rather than cut off. Completed entries are
+    /// pruned as new ones are added.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -162,25 +165,39 @@ internal sealed class RemoteCommandHandler(
 
             while (!stopSource.IsCancellationRequested)
             {
-                TcpClient client;
-
                 try
                 {
                     await _connectionLimit.WaitAsync(stopSource.Token);
-
-                    client = await listener.AcceptTcpClientAsync(stopSource.Token);
                 }
                 catch (OperationCanceledException)
                 {
                     break;
                 }
 
-                Task handling = HandleClientSafelyAsync(client, stopSource.Token);
+                var transferred = false;
 
-                lock (_lifecycleGate)
+                try
                 {
-                    _inFlight.RemoveAll(task => task.IsCompleted);
-                    _inFlight.Add(handling);
+                    TcpClient client = await listener.AcceptTcpClientAsync(stopSource.Token);
+
+                    Task handling = HandleClientSafelyAsync(client, stopSource.Token);
+
+                    transferred = true;
+
+                    lock (_lifecycleGate)
+                    {
+                        _inFlight.RemoveAll(task => task.IsCompleted);
+                        _inFlight.Add(handling);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                finally
+                {
+                    if (!transferred)
+                        _connectionLimit.Release();
                 }
             }
         }
@@ -284,6 +301,12 @@ internal sealed class RemoteCommandHandler(
     /// <c>Task.WhenAny</c>, which completes without unwrapping the task it selects, so a failure allowed to escape here
     /// would surface as an unobserved exception rather than a log line.
     /// </returns>
+    ///
+    /// <remarks>
+    /// The slot is taken by the accept loop before a client exists, and passes to this method with the call that starts
+    /// it, so the release here is the only one once that call has been made. An accept that ends without reaching that
+    /// call, cancelled or failed, releases the slot in the loop instead.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -394,15 +417,18 @@ internal sealed class RemoteCommandHandler(
     /// <returns>
     /// A task that completes once one envelope has been sent, whether it carries the command's own response, a refusal, or
     /// the acknowledgement that stands in for a command which returned without answering. A command that throws is logged,
-    /// and answered with a refusal only while the write slot is still free: <see cref="StreamCommandResponse"/> claims that
-    /// slot before it serializes, so a command whose own write failed on a value it could not serialize leaves the client
-    /// with no frame at all, waiting until the idle timeout closes the connection under it.
+    /// the cancellation described below excepted, and answered with a refusal only while the write slot is still free:
+    /// <see cref="StreamCommandResponse"/> claims that slot before it serializes, so a command whose own write failed on a
+    /// value it could not serialize leaves the client with no frame at all, waiting until the idle timeout closes the
+    /// connection under it.
     /// </returns>
     ///
     /// <exception cref="OperationCanceledException">
-    /// The read timeout elapsed or the listener is stopping, either while the command was running or while any of the
-    /// frames written here was going out. This is deliberately not answered with a refusal: the connection is going away,
-    /// so nothing is sent and the caller closes it.
+    /// <paramref name="cancellationToken"/> was signaled, by the read timeout or by the listener stopping, either while
+    /// the command was running or while any of the frames written here was going out. That token's state when the
+    /// exception is caught is all that decides this, however the command came by the cancellation: with it signaled the
+    /// connection is going away, so nothing further is sent and the caller closes it, and with it clear the failure is
+    /// logged and refused like any other.
     /// </exception>
     /// <exception cref="IOException">
     /// The connection failed while a refusal or the acknowledgement was being written. The same failure inside the
@@ -416,10 +442,11 @@ internal sealed class RemoteCommandHandler(
     /// <see cref="RemoteCommandRefusal.Unauthorized"/>, and a name no command is registered under with
     /// <see cref="RemoteCommandRefusal.CommandNotFound"/>. Once the request has been handed to a command, a
     /// <c>JsonException</c> escaping it answers <see cref="RemoteCommandRefusal.InvalidMessage"/> whether it came from
-    /// binding the message or from the command's own body, and anything else other than a cancellation answers
-    /// <see cref="RemoteCommandRefusal.Other"/>. A frame omitting <c>data</c> entirely lands on
-    /// <see cref="RemoteCommandRefusal.Other"/> as well, because binding a default <see cref="JsonElement"/> raises
-    /// <see cref="InvalidOperationException"/> rather than a <c>JsonException</c>.
+    /// binding the message or from the command's own body, and anything else answers
+    /// <see cref="RemoteCommandRefusal.Other"/>, a cancellation included whenever <paramref name="cancellationToken"/>
+    /// is not signaled. A frame omitting <c>data</c> entirely lands on <see cref="RemoteCommandRefusal.Other"/> as well,
+    /// because binding a default <see cref="JsonElement"/> raises <see cref="InvalidOperationException"/> rather than a
+    /// <c>JsonException</c>.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -519,7 +546,7 @@ internal sealed class RemoteCommandHandler(
 
             return;
         }
-        catch (Exception exception) when (exception is not OperationCanceledException)
+        catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
             logger.LogError(exception, "The {Command:y} remote command failed", payload.Command);
 
