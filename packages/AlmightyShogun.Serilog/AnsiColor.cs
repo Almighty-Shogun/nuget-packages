@@ -68,7 +68,8 @@ internal static class AnsiColor
     internal const string Magenta = "\e[35m";
 
     /// <summary>
-    /// White foreground, SGR 37. No shorthand maps to it, so a template author cannot select it by name.
+    /// White foreground, SGR 37. No shorthand maps to it, but <see cref="FromShort"/> returns it for every code the table
+    /// does not hold, so any unrecognized shorthand selects it.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

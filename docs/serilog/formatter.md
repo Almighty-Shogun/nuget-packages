@@ -74,7 +74,7 @@ A property with no color code is colored by the type of its value:
 
 ## Template syntax
 
-A color is applied by putting a shorthand code after a `|` in the property's format section:
+A color is applied by putting a shorthand code after a `|` in the property's format section, and an alignment pads the rendered value to that width:
 
 | Template | Result |
 | --- | --- |
@@ -82,6 +82,11 @@ A color is applied by putting a shorthand code after a `|` in the property's for
 | `{Value:\|r}` | Red, no format applied. |
 | `{Value:N2\|r}` | Formatted with `N2`, then colored red. |
 | `{Value:N2}` | Formatted with `N2`, default color. |
+| `{Value,-10}` | Padded with spaces on the right to 10 characters, default color. |
+| `{Value,10}` | Padded with spaces on the left to 10 characters, default color. |
+| `{Value,10:N2\|r}` | Formatted with `N2`, padded on the left to 10 characters, then colored red. |
+
+A value already at least as wide as the alignment is written unchanged. Padding counts only the rendered value, so a colored column lines up with an uncolored one.
 
 ### Colors
 
