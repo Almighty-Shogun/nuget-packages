@@ -117,8 +117,11 @@ internal sealed class RemoteCommandHandler(
 
     /// <summary>
     /// The connections still being served, awaited for five seconds on shutdown so the listener does not return while they
-    /// are still running. The same cancellation that starts that wait aborts their writes, so a response in flight is cut
-    /// off regardless. Completed entries are pruned as new ones are added.
+    /// are still running. A stop, or a cancelled start token, cancels the token their frame reads and the dispatcher's own
+    /// writes are made under, though a command's response write is cut off only where the command forwards the token it
+    /// was handed. A listener ending on an unexpected failure reaches the same wait with nothing cancelled, so a
+    /// connection still running when the five seconds are up is abandoned rather than cut off. Completed entries are
+    /// pruned as new ones are added.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
