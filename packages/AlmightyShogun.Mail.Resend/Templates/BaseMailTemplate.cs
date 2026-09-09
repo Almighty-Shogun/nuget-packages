@@ -19,7 +19,7 @@ namespace AlmightyShogun.Mail.Resend;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.5.0</since>
-public abstract class BaseMailTemplate
+public abstract partial class BaseMailTemplate
 {
     /// <summary>
     /// The subject line. Public because the mail service reads it when building the message, and it is the one value
@@ -258,9 +258,8 @@ public abstract class BaseMailTemplate
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.1.0</since>
-    private static string ToPlainText(string html) => WebUtility.HtmlDecode(
-        Regex.Replace(Regex.Replace(html, "<br\\s*/?>", "\n", RegexOptions.IgnoreCase), "<[^>]+>", string.Empty)
-    );
+    private static string ToPlainText(string html)
+        => WebUtility.HtmlDecode(HtmlRegex().Replace(NewLineRegex().Replace(html, "\n"), string.Empty));
 
     /// <summary>
     /// Encodes a URL for safe use in an <c>href</c> or <c>src</c>, dropping anything that is not an accepted scheme.
@@ -279,4 +278,10 @@ public abstract class BaseMailTemplate
     /// <since>2.5.0</since>
     private static string EncodeUrl(string? value)
         => MailUrl.IsAllowed(value) ? WebUtility.HtmlEncode(value) ?? string.Empty : string.Empty;
+
+    [GeneratedRegex("<[^>]+>")]
+    private static partial Regex HtmlRegex();
+
+    [GeneratedRegex("<br\\s*/?>", RegexOptions.IgnoreCase, "en-US")]
+    private static partial Regex NewLineRegex();
 }
