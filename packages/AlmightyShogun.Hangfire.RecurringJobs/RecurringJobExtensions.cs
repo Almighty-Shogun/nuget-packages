@@ -138,6 +138,9 @@ public static class RecurringJobExtensions
         /// The scan itself is deferred to the singleton <see cref="IRecurringJobRegistry"/>, so anything it rejects fails
         /// while the host starts rather than here. Job classes are registered scoped, so a job may depend on scoped
         /// services such as a database context, given that Hangfire's job activator resolves each run from its own scope.
+        /// Calls accumulate rather than replace one another: the scan runs over every assembly every call named, and an
+        /// assembly two calls both name is scanned once, so a library registering its own jobs composes with an
+        /// application calling this itself.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>

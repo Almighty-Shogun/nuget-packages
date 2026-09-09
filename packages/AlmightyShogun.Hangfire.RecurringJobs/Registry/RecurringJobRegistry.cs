@@ -6,7 +6,13 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// Runs the attribute scan once and holds its result for the scheduler and for application code.
 /// </summary>
 ///
-/// <param name="sources">The assemblies to scan, supplied by the registration call.</param>
+/// <param name="sources">
+/// One entry per registration call, since the call registers its own instance rather than replacing what an earlier one
+/// registered. The scan runs over the union, deduplicated by assembly identity because
+/// <see cref="AlmightyShogun.Utils.TypeDiscovery.FindAssignableTypes{T}(System.Reflection.Assembly[])"/> enumerates the
+/// array it is given without collapsing repeats, so an assembly two calls both name would yield each of its job types twice
+/// and stop the host on the duplicate job id <see cref="RecurringJobDiscovery.GetRecurringJobs"/> rejects.
+/// </param>
 /// <param name="settings">
 /// The <c>RecurringJobs</c> options. They carry the bound section only when the registration call was given a
 /// configuration, and their defaults otherwise.
@@ -30,8 +36,12 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
-internal sealed class RecurringJobRegistry(RecurringJobSources sources, IOptions<RecurringJobSettings> settings) : IRecurringJobRegistry
+internal sealed class RecurringJobRegistry(IEnumerable<RecurringJobSources> sources, IOptions<RecurringJobSettings> settings)
+    : IRecurringJobRegistry
 {
     /// <inheritdoc />
-    public IReadOnlyList<RecurringJobInfo> Jobs { get; } = RecurringJobDiscovery.GetRecurringJobs(sources.Assemblies, settings.Value);
+    public IReadOnlyList<RecurringJobInfo> Jobs { get; } = RecurringJobDiscovery.GetRecurringJobs(
+        [.. sources.SelectMany(static source => source.Assemblies).Distinct()],
+        settings.Value
+    );
 }
