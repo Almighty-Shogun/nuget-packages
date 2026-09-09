@@ -48,6 +48,10 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
     /// numeric format and the right side is a shorthand from <see cref="AnsiColor"/>. Without a <c>|</c> at all, the color
     /// follows the value's type. Every colored span written here is closed with <see cref="AnsiColor.Reset"/>, so a line
     /// never leaks its color into whatever the terminal prints next.
+    /// The prefix is built under <see cref="CultureInfo.InvariantCulture"/>, and its level upper-cased with
+    /// <see cref="string.ToUpperInvariant"/>, so the frame of the line reads the same whatever the host's culture is. The
+    /// values inside the message are not pinned the same way: <see cref="RenderPropertyValue"/> uses the invariant culture
+    /// only on the formatted path, so a value it renders unformatted follows the current culture instead.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -58,7 +62,10 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
         IReadOnlyDictionary<string, LogEventPropertyValue> properties = logEvent.Properties;
 
         Write(output, GetLogLevelColor(logEvent.Level));
-        output.Write($"[{logEvent.Timestamp:HH:mm:ss} {logEvent.Level.ToString()[..3].ToUpperInvariant()}] ");
+        output.Write(string.Create(
+            CultureInfo.InvariantCulture,
+            $"[{logEvent.Timestamp:HH:mm:ss} {logEvent.Level.ToString()[..3].ToUpperInvariant()}] "
+        ));
         Write(output, AnsiColor.Reset);
 
         foreach (MessageTemplateToken token in messageTemplate.Tokens)
