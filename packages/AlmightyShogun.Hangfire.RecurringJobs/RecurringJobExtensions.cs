@@ -17,13 +17,13 @@ public static class RecurringJobExtensions
 {
     /// <summary>
     /// Adds the package's two startup calls to the service collection. Neither resolves anything, so they may be written in
-    /// either order, but both are needed: the scan only records what to schedule, and the hosted service it registers hands
-    /// those schedules to the recurring job manager the Hangfire setup provides.
+    /// either order, but both are needed: the scan only records what to schedule and what to unschedule, and the hosted
+    /// service it registers is what acts on both through the recurring job manager the Hangfire setup provides.
     /// </summary>
     ///
     /// <param name="serviceCollection">
     /// The collection that receives the Hangfire services, the job classes, the <see cref="RecurringJobSettings"/> options,
-    /// the singleton registry, and the hosted service that puts the schedules into Hangfire. Those options are bound to the
+    /// the singleton registry, and the hosted service that applies the scan to Hangfire. Those options are bound to the
     /// <c>RecurringJobs</c> section only when a configuration is passed, and are left at their defaults otherwise. Every
     /// helper returns the collection, so the calls chain.
     /// </param>
@@ -138,6 +138,9 @@ public static class RecurringJobExtensions
         /// The scan itself is deferred to the singleton <see cref="IRecurringJobRegistry"/>, so anything it rejects fails
         /// while the host starts rather than here. Job classes are registered scoped, so a job may depend on scoped
         /// services such as a database context, given that Hangfire's job activator resolves each run from its own scope.
+        /// Calls accumulate rather than replace one another: the scan runs over every assembly every call named, and an
+        /// assembly two calls both name is scanned once, so a library registering its own jobs composes with an
+        /// application calling this itself.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
@@ -154,7 +157,8 @@ public static class RecurringJobExtensions
 
             return serviceCollection
                 .AddSingleton(new RecurringJobSources([.. assemblies]))
-                .AddSingleton<IRecurringJobRegistry, RecurringJobRegistry>()
+                .AddSingleton<RecurringJobRegistry>()
+                .AddSingleton<IRecurringJobRegistry>(static provider => provider.GetRequiredService<RecurringJobRegistry>())
                 .AddHostedService<JobSchedulerStartup>();
         }
     }

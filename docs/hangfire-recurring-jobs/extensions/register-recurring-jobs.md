@@ -1,7 +1,7 @@
 ---
 params:
     - name: assemblies
-      description: Assemblies scanned for recurring job classes. Use the overload without it to scan the calling assembly instead; an empty array registers the scheduler with nothing to schedule.
+      description: Assemblies scanned for recurring job classes. Use the overload without it to scan the calling assembly instead; an empty array registers the scheduler with nothing to schedule. Repeated calls accumulate rather than replace one another, and an assembly two calls both name is scanned once.
       type: Assembly[]
 
     - name: configuration

@@ -6,7 +6,13 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// Runs the attribute scan once and holds its result for the scheduler and for application code.
 /// </summary>
 ///
-/// <param name="sources">The assemblies to scan, supplied by the registration call.</param>
+/// <param name="sources">
+/// One entry per registration call, since the call registers its own instance rather than replacing what an earlier one
+/// registered. The scan runs over the union, deduplicated by assembly identity because
+/// <see cref="AlmightyShogun.Utils.TypeDiscovery.FindAssignableTypes{T}(System.Reflection.Assembly[])"/> enumerates the
+/// array it is given without collapsing repeats, so an assembly two calls both name would yield each of its job types twice
+/// and stop the host on the duplicate job id <see cref="RecurringJobDiscovery.GetRecurringJobs"/> rejects.
+/// </param>
 /// <param name="settings">
 /// The <c>RecurringJobs</c> options. They carry the bound section only when the registration call was given a
 /// configuration, and their defaults otherwise.
@@ -23,15 +29,37 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </exception>
 ///
 /// <remarks>
-/// Registered as a singleton, so the scan runs once no matter how many callers resolve the registry. Configuration is read
-/// through <see cref="IOptions{TOptions}"/> rather than the reloading variants, since a schedule already handed to Hangfire
-/// does not change when the file does.
+/// Registered as a singleton under both this type and <see cref="IRecurringJobRegistry"/>, resolving to one instance, so the
+/// scan runs once no matter how many callers resolve either. Configuration is read through <see cref="IOptions{TOptions}"/>
+/// rather than the reloading variants, since a schedule already handed to Hangfire does not change when the file does.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
-internal sealed class RecurringJobRegistry(RecurringJobSources sources, IOptions<RecurringJobSettings> settings) : IRecurringJobRegistry
+internal sealed class RecurringJobRegistry(IEnumerable<RecurringJobSources> sources, IOptions<RecurringJobSettings> settings)
+    : IRecurringJobRegistry
 {
+    /// <summary>
+    /// The one scan result both members read, so the parked ids belong to the same pass that produced the scheduled jobs.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private readonly RecurringJobScan _scan = RecurringJobDiscovery.GetRecurringJobs(
+        [.. sources.SelectMany(static source => source.Assemblies).Distinct()],
+        settings.Value
+    );
+
     /// <inheritdoc />
-    public IReadOnlyList<RecurringJobInfo> Jobs { get; } = RecurringJobDiscovery.GetRecurringJobs(sources.Assemblies, settings.Value);
+    public IReadOnlyList<RecurringJobInfo> Jobs => _scan.Jobs;
+
+    /// <summary>
+    /// The ids of the jobs the scan parked, which <see cref="JobSchedulerStartup"/> unschedules while
+    /// <see cref="RecurringJobSettings.RemoveParkedJobs"/> is set. It stays off <see cref="IRecurringJobRegistry"/>, so the
+    /// scheduler takes this type rather than the interface.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal IReadOnlyList<string> ParkedJobIds => _scan.ParkedJobIds;
 }

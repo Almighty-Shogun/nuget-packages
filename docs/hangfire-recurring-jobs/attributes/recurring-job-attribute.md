@@ -19,7 +19,7 @@ params:
       default: 'null'
 
     - name: Enabled
-      description: Whether the job is scheduled at all. Leaving it alone defers to the configuration section's `EnabledByDefault`, while stating either way ignores that. A parked job is still validated and still claims its job id.
+      description: Whether the job is scheduled at all. Leaving it alone defers to the configuration section's `EnabledByDefault`, while stating either way ignores that. A parked job is still validated and still claims its job id, and any schedule stored under that id is removed when the host starts unless [`RemoveParkedJobs`](../configuration) is `false`.
       type: bool
       default: 'true'
 ---

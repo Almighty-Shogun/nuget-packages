@@ -13,8 +13,9 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 public sealed record RecurringJobOverride
 {
     /// <summary>
-    /// Whether the job is scheduled. This is the value that turns a job off in one environment and leaves it on
-    /// everywhere else.
+    /// Whether the job is scheduled. This is the value that turns a job off in one environment and leaves it on everywhere
+    /// else. Turning it off also removes whatever schedule is stored under that job id when the host starts, for as long as
+    /// <see cref="RecurringJobSettings.RemoveParkedJobs"/> is set.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
