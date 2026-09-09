@@ -31,7 +31,7 @@ public static class ConsoleLifetimeExtensions
         /// <summary>
         /// Takes over the console lifetime so <c>Ctrl+C</c> no longer stops the application, for a worker or daemon that
         /// should only stop when something asks it to. Off Windows a <c>SIGTERM</c> handler is registered and still shuts
-        /// the host down in an orderly way; on Windows none is, so the host has to be asked to stop from inside the process.
+        /// the host down in an orderly way; on Windows none is, so this package only changes <c>Ctrl+C</c> behavior there.
         /// </summary>
         ///
         /// <returns>The <see cref="IServiceCollection"/> instance with the custom <see cref="IHostLifetime"/> registered.</returns>
@@ -41,8 +41,7 @@ public static class ConsoleLifetimeExtensions
         /// process stops when <c>SIGTERM</c> arrives off Windows, when something in the process calls
         /// <see cref="IHostApplicationLifetime.StopApplication"/>, or when it is killed from outside.
         ///
-        /// The default lifetime is replaced rather than added, so calling this twice still leaves exactly one registration.
-        /// The ordering that still applies is documented on
+        /// The default lifetime is replaced rather than added. The ordering that still applies is documented on
         /// <see cref="ServiceCollectionExtensions.ReplaceService{TService, TImplementation}"/>.
         /// </remarks>
         ///
