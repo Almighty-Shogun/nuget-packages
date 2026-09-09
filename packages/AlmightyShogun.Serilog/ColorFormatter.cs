@@ -34,10 +34,12 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
         !Console.IsOutputRedirected && string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NO_COLOR"));
 
     /// <summary>
-    /// Writes one event, then a trailing newline. A property named in the template but absent from the event is written back
-    /// as <c>{Name}</c>, or <c>{Name:format}</c> where the token carried a format, so a template typo is visible in the log
-    /// instead of silent. Alignment and destructuring hints are not carried through, so the token is recognisable rather
-    /// than identical to what the template held.
+    /// Writes one event, then a trailing newline. A rendered value is padded to the width its token's alignment asks for, on
+    /// the right for a left alignment and on the left otherwise, and is left as it is when already at least that wide. A
+    /// property named in the template but absent from the event is written back as <c>{Name}</c>, or <c>{Name:format}</c>
+    /// where the token carried a format, so a template typo is visible in the log instead of silent. That write-back carries
+    /// neither the alignment nor a destructuring hint, so the token is recognisable rather than identical to what the
+    /// template held.
     /// </summary>
     ///
     /// <param name="logEvent">The event to render, supplying the level, timestamp, template, properties, and exception.</param>
@@ -47,7 +49,8 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
     /// A property format specifier may carry a color after a <c>|</c>, as in <c>{Count:N0|c}</c>, where the left side is the
     /// numeric format and the right side is a shorthand from <see cref="AnsiColor"/>. Without a <c>|</c> at all, the color
     /// follows the value's type. Every colored span written here is closed with <see cref="AnsiColor.Reset"/>, so a line
-    /// never leaks its color into whatever the terminal prints next.
+    /// never leaks its color into whatever the terminal prints next. Alignment padding is measured on the rendered value
+    /// alone and written inside that span, so an escape code never counts toward the width.
     /// The prefix is built under <see cref="CultureInfo.InvariantCulture"/>, and its level upper-cased with
     /// <see cref="string.ToUpperInvariant"/>, so the frame of the line reads the same whatever the host's culture is. The
     /// values inside the message are not pinned the same way: <see cref="RenderPropertyValue"/> uses the invariant culture
@@ -107,6 +110,11 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
 
                     string renderedValue = RenderPropertyValue(propertyValue, numericFormat);
 
+                    if (propToken.Alignment is { } alignment)
+                        renderedValue = alignment.Direction == AlignmentDirection.Left
+                            ? renderedValue.PadRight(alignment.Width)
+                            : renderedValue.PadLeft(alignment.Width);
+
                     string ansiColor = colorSpec is not null ? AnsiColor.FromShort(colorSpec) : GetDefaultColor(propertyValue);
 
                     Write(output, ansiColor);
@@ -129,7 +137,7 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
     }
 
     /// <summary>
-    /// Turns a property value into the text that appears in the line.
+    /// Turns a property value into the text written for it, before <see cref="Format"/> applies any alignment padding.
     /// </summary>
     ///
     /// <param name="value">
