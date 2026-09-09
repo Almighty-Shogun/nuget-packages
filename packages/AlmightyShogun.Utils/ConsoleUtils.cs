@@ -103,6 +103,15 @@ public static class ConsoleUtils
     /// <exception cref="OperationCanceledException">
     /// <paramref name="cancellationToken"/> was signaled.
     /// </exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The next input line is too large for <see cref="Console.In"/> to return as a string.
+    /// </exception>
+    /// <exception cref="ObjectDisposedException">
+    /// <see cref="Console.In"/> was disposed before or during the read.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// <see cref="Console.In"/> was already in use by another asynchronous read operation.
+    /// </exception>
     /// <exception cref="IOException">
     /// Writing the prompt, setting the input color, reading the line, resetting the color, or erasing the prompt line through
     /// <see cref="RemoveLastLine"/> failed.

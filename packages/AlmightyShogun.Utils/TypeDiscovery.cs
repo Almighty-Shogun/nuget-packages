@@ -13,7 +13,7 @@ namespace AlmightyShogun.Utils;
 public static class TypeDiscovery
 {
     /// <summary>
-    /// Retrieves the concrete types in the calling assembly that inherit from or implement <typeparamref name="T"/>.
+    /// Retrieves the concrete types in the calling assembly that are assignable to <typeparamref name="T"/>.
     /// Use it from the assembly that owns the implementations; scanning a different one needs an explicit overload.
     /// </summary>
     ///
@@ -36,7 +36,7 @@ public static class TypeDiscovery
     public static IEnumerable<Type> FindAssignableTypes<T>() => FindAssignableTypes<T>(Assembly.GetCallingAssembly());
 
     /// <summary>
-    /// Retrieves the concrete types in one assembly that inherit from or implement <typeparamref name="T"/>. Reach for it
+    /// Retrieves the concrete types in one assembly that are assignable to <typeparamref name="T"/>. Reach for it
     /// when the implementations live somewhere other than the calling assembly, such as a separate contracts project.
     /// </summary>
     ///
@@ -58,7 +58,7 @@ public static class TypeDiscovery
     public static IEnumerable<Type> FindAssignableTypes<T>(Assembly assembly) => FindAssignableTypes<T>([assembly]);
     
     /// <summary>
-    /// Retrieves the concrete types in the specified assemblies that inherit from or implement <typeparamref name="T"/>.
+    /// Retrieves the concrete types in the specified assemblies that are assignable to <typeparamref name="T"/>.
     /// Interfaces and abstract classes are excluded, but nothing looks for an accessible constructor, so a type whose only
     /// constructor is private is still returned and still cannot be instantiated.
     /// </summary>
