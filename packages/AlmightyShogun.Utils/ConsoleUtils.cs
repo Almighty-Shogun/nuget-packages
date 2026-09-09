@@ -14,7 +14,9 @@ public static class ConsoleUtils
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    private static int _cancellationPrevented;
+    private static bool _cancellationPrevented;
+
+    private static readonly Lock _cancellationLock = new();
 
     /// <summary>
     /// Sets the console window title.
@@ -125,8 +127,13 @@ public static class ConsoleUtils
     /// <since>1.1.0</since>
     public static void PreventCancellation()
     {
-        if (Interlocked.Exchange(ref _cancellationPrevented, 1) != 0) return;
+        lock (_cancellationLock)
+        {
+            if (_cancellationPrevented)
+                return;
 
-        Console.CancelKeyPress += (_, e) => e.Cancel = true;
+            Console.CancelKeyPress += (_, e) => e.Cancel = true;
+            _cancellationPrevented = true;
+        }
     }
 }
