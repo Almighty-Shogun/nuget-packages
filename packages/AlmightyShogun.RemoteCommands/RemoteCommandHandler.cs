@@ -394,15 +394,18 @@ internal sealed class RemoteCommandHandler(
     /// <returns>
     /// A task that completes once one envelope has been sent, whether it carries the command's own response, a refusal, or
     /// the acknowledgement that stands in for a command which returned without answering. A command that throws is logged,
-    /// and answered with a refusal only while the write slot is still free: <see cref="StreamCommandResponse"/> claims that
-    /// slot before it serializes, so a command whose own write failed on a value it could not serialize leaves the client
-    /// with no frame at all, waiting until the idle timeout closes the connection under it.
+    /// the cancellation described below excepted, and answered with a refusal only while the write slot is still free:
+    /// <see cref="StreamCommandResponse"/> claims that slot before it serializes, so a command whose own write failed on a
+    /// value it could not serialize leaves the client with no frame at all, waiting until the idle timeout closes the
+    /// connection under it.
     /// </returns>
     ///
     /// <exception cref="OperationCanceledException">
-    /// The read timeout elapsed or the listener is stopping, either while the command was running or while any of the
-    /// frames written here was going out. This is deliberately not answered with a refusal: the connection is going away,
-    /// so nothing is sent and the caller closes it.
+    /// <paramref name="cancellationToken"/> was signaled, by the read timeout or by the listener stopping, either while
+    /// the command was running or while any of the frames written here was going out. That token's state when the
+    /// exception is caught is all that decides this, however the command came by the cancellation: with it signaled the
+    /// connection is going away, so nothing further is sent and the caller closes it, and with it clear the failure is
+    /// logged and refused like any other.
     /// </exception>
     /// <exception cref="IOException">
     /// The connection failed while a refusal or the acknowledgement was being written. The same failure inside the
@@ -416,10 +419,11 @@ internal sealed class RemoteCommandHandler(
     /// <see cref="RemoteCommandRefusal.Unauthorized"/>, and a name no command is registered under with
     /// <see cref="RemoteCommandRefusal.CommandNotFound"/>. Once the request has been handed to a command, a
     /// <c>JsonException</c> escaping it answers <see cref="RemoteCommandRefusal.InvalidMessage"/> whether it came from
-    /// binding the message or from the command's own body, and anything else other than a cancellation answers
-    /// <see cref="RemoteCommandRefusal.Other"/>. A frame omitting <c>data</c> entirely lands on
-    /// <see cref="RemoteCommandRefusal.Other"/> as well, because binding a default <see cref="JsonElement"/> raises
-    /// <see cref="InvalidOperationException"/> rather than a <c>JsonException</c>.
+    /// binding the message or from the command's own body, and anything else answers
+    /// <see cref="RemoteCommandRefusal.Other"/>, a cancellation included whenever <paramref name="cancellationToken"/>
+    /// is not signaled. A frame omitting <c>data</c> entirely lands on <see cref="RemoteCommandRefusal.Other"/> as well,
+    /// because binding a default <see cref="JsonElement"/> raises <see cref="InvalidOperationException"/> rather than a
+    /// <c>JsonException</c>.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -519,7 +523,7 @@ internal sealed class RemoteCommandHandler(
 
             return;
         }
-        catch (Exception exception) when (exception is not OperationCanceledException)
+        catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
             logger.LogError(exception, "The {Command:y} remote command failed", payload.Command);
 
