@@ -13,8 +13,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
-internal sealed class RegexValidationRule<TRequest, TProperty>
-    : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
+internal sealed class RegexValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
     /// The expression, built once when the rule is. Holding the instance keeps it out of the process-wide static cache, which holds fifteen

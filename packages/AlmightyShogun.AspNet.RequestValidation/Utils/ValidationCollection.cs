@@ -4,8 +4,8 @@ using System.Collections;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Reads loosely typed values as collections. A bound property may be an array, a list, or a dictionary, and a rule needs the same answer
-/// from all of them without knowing which it holds.
+/// Reads loosely typed values as collections.  A bound property may be an array, a list,
+/// or a dictionary, and a rule needs the same answer from all of them without knowing which it holds.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

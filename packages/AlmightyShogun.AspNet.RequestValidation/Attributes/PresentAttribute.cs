@@ -3,8 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the field to exist in the request even when the value is allowed to be empty. Use it when the API must distinguish omitted
-/// fields from explicitly provided empty values.
+/// Requires the field to exist in the request even when the value is allowed to be empty.
+/// Use it when the API must distinguish omitted fields from explicitly provided empty values.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

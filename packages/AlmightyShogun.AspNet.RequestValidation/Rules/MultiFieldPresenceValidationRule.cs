@@ -3,8 +3,8 @@ using System.Linq.Expressions;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Applies a presence requirement to this field based on whether several other fields are present or missing. An empty value is not
-/// skipped: it is what the target mode tests once the trigger has fired.
+/// Applies a presence requirement to this field based on whether several other fields are present or missing.
+/// An empty value is not skipped: it is what the target mode tests once the trigger has fired.
 /// </summary>
 ///
 /// <typeparam name="TRequest">The request type the rule is declared on and reads the watched fields from.</typeparam>

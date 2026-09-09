@@ -57,13 +57,12 @@ internal static class ValidationComparison
     /// <since>Unreleased</since>
     private static bool TryGetComparableNumber(object? value, out decimal number)
     {
-        if (value is string)
-        {
-            number = 0m;
+        if (value is not string)
+            return ValidationValue.TryGetNumber(value, out number);
 
-            return false;
-        }
+        number = 0m;
 
-        return ValidationValue.TryGetNumber(value, out number);
+        return false;
+
     }
 }

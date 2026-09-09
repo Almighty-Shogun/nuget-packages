@@ -144,7 +144,7 @@ public static class AuthExtensions
         if (!context.HttpContext.RequestServices.GetRequiredService<IOptions<AuthSettings>>().Value.IsScoped())
             return Task.CompletedTask;
 
-        IAppHostResolver appHostResolver = context.HttpContext.RequestServices.GetRequiredService<IAppHostResolver>();
+        var appHostResolver = context.HttpContext.RequestServices.GetRequiredService<IAppHostResolver>();
 
         if (!appHostResolver.TryResolveAppFromHost(context.HttpContext.Request.Host.Host, out string app))
             context.Fail("The request host resolves to no configured application.");

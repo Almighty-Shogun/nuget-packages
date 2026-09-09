@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the value to appear in another array-like field on the same request. An absent or empty value passes without being checked,
-/// so the rule never implies the field is required.
+/// Requires the value to appear in another array-like field on the same request.
+/// An absent or empty value passes without being checked, so the rule never implies the field is required.
 /// </summary>
 ///
 /// <typeparam name="TRequest">The request type the rule is declared on and reads the compared field from.</typeparam>

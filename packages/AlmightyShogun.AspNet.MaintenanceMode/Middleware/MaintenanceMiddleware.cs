@@ -134,16 +134,13 @@ internal sealed class MaintenanceMiddleware(
 
         context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
 
-        await context.Response.WriteAsJsonAsync(
-            new MaintenanceResponse
-            {
-                Message = state.Message,
-                StartsAt = state.StartsAt,
-                EndsAt = state.EndsAt,
-                EnabledAt = state.EnabledAt
-            },
-            context.RequestAborted
-        );
+        await context.Response.WriteAsJsonAsync(new MaintenanceResponse
+        {
+            Message = state.Message,
+            StartsAt = state.StartsAt,
+            EndsAt = state.EndsAt,
+            EnabledAt = state.EnabledAt
+        }, context.RequestAborted);
     }
 
     /// <summary>
@@ -290,7 +287,6 @@ internal sealed class MaintenanceMiddleware(
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static bool AcceptsHtml(HttpRequest request) => request.GetTypedHeaders().Accept
-        .Any(accept => accept.Quality.GetValueOrDefault(1) > 0
-                       && accept.MediaType.HasValue
-                       && accept.MediaType.Value.Equals("text/html", StringComparison.OrdinalIgnoreCase));
+        .Where(accept => accept.Quality.GetValueOrDefault(1) > 0)
+        .Any(accept => accept.MediaType.HasValue && accept.MediaType.Value.Equals("text/html", StringComparison.OrdinalIgnoreCase));
 }

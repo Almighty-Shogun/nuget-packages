@@ -36,10 +36,7 @@ public interface IAuthEmailService
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.1.0</since>
-    Task<string> RequestVerificationAsync(
-        Guid identifier,
-        CancellationToken cancellationToken = default
-    );
+    Task<string> RequestVerificationAsync(Guid identifier, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Issues a token for an address the user wants to move to, retiring the unspent change tokens that user had. The caller
@@ -71,11 +68,7 @@ public interface IAuthEmailService
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.1.0</since>
-    Task<string> RequestEmailChangeAsync(
-        Guid identifier,
-        string newEmail,
-        CancellationToken cancellationToken = default
-    );
+    Task<string> RequestEmailChangeAsync(Guid identifier, string newEmail, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Spends a registration token and stamps the user as verified. The address is left alone, since for this purpose the
@@ -119,10 +112,7 @@ public interface IAuthEmailService
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.1.0</since>
-    Task CompleteVerificationAsync(
-        CompleteEmailVerificationRequest request,
-        CancellationToken cancellationToken = default
-    );
+    Task CompleteVerificationAsync(CompleteEmailVerificationRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Spends a change token, moves the user to the address it carries, and stamps them as verified, since the address they

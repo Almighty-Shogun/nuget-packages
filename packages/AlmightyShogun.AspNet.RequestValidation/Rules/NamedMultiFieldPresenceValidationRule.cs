@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// The attribute form of the multi-field presence rule, reading its related fields by name because an attribute cannot hold expressions. An
-/// empty value is not skipped: it is what the target mode tests once the trigger has fired.
+/// The attribute form of the multi-field presence rule, reading its related fields by name because an attribute cannot hold expressions.
+/// An empty value is not skipped: it is what the target mode tests once the trigger has fired.
 /// </summary>
 ///
 /// <typeparam name="TRequest">The request type the rule is declared on and reads the watched fields from.</typeparam>

@@ -3,8 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the field value to exist in another array-like request field. An absent or empty value passes, so pair it with
-/// <see cref="RequiredAttribute"/> when the field is mandatory.
+/// Requires the field value to exist in another array-like request field.
+/// An absent or empty value passes, so pair it with <see cref="RequiredAttribute"/> when the field is mandatory.
 /// </summary>
 ///
 /// <param name="field">The other request field whose values must contain this value.</param>

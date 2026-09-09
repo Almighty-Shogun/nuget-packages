@@ -45,7 +45,7 @@ public static class HttpRequestExtensions
         /// <since>4.0.0</since>
         public IReadOnlyList<string> GetAcceptLanguages()
         {
-            IList<StringWithQualityHeaderValue>? languages = httpRequest.GetTypedHeaders().AcceptLanguage;
+            IList<StringWithQualityHeaderValue> languages = httpRequest.GetTypedHeaders().AcceptLanguage;
 
             return
             [

@@ -12,8 +12,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
-internal sealed class DoesNotValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty>
-    where TRequest : class
+internal sealed class DoesNotValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
     /// Which part of the text is forbidden from matching, which also decides the message a failure reports.

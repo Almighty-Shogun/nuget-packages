@@ -10,7 +10,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 /// </summary>
 ///
 /// <remarks>
-/// Registered by <c>AddAuthCredentials</c> whether or not it also registers the handler chain.
+/// Registered by <c>AddAuthCredentials</c> whether it also registers the handler chain.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

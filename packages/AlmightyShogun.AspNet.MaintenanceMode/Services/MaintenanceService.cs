@@ -41,7 +41,7 @@ internal sealed class MaintenanceService(IOptions<MaintenanceSettings> maintenan
     /// <inheritdoc />
     public async Task EnableAsync(MaintenanceRequest request)
     {
-        if (request.StartsAt is { } startsAt && request.EndsAt is { } endsAt && endsAt <= startsAt)
+        if (request is { StartsAt: { } startsAt, EndsAt: { } endsAt } && endsAt <= startsAt)
             throw new ArgumentException("A maintenance window must end after it starts.", nameof(request));
 
         await store.WriteAsync(new PersistedMaintenanceState

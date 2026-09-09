@@ -3,8 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires all values in an array-like field to be unique. An absent or empty value passes, so pair it with
-/// <see cref="RequiredAttribute"/> when the field is mandatory.
+/// Requires all values in an array-like field to be unique.
+/// An absent or empty value passes, so pair it with <see cref="RequiredAttribute"/> when the field is mandatory.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

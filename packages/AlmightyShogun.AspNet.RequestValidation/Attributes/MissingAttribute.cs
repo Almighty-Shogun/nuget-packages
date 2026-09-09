@@ -3,7 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the field to be absent from the request. Use it for server-controlled values that clients must never send.
+/// Requires the field to be absent from the request.
+/// Use it for server-controlled values that clients must never send.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

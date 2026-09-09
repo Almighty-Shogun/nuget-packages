@@ -36,8 +36,10 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
-internal sealed class RecurringJobRegistry(IEnumerable<RecurringJobSources> sources, IOptions<RecurringJobSettings> settings)
-    : IRecurringJobRegistry
+internal sealed class RecurringJobRegistry(
+    IEnumerable<RecurringJobSources> sources,
+    IOptions<RecurringJobSettings> settings
+) : IRecurringJobRegistry
 {
     /// <summary>
     /// The one scan result both members read, so the parked ids belong to the same pass that produced the scheduled jobs.

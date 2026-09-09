@@ -65,10 +65,12 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
         IReadOnlyDictionary<string, LogEventPropertyValue> properties = logEvent.Properties;
 
         Write(output, GetLogLevelColor(logEvent.Level));
+
         output.Write(string.Create(
             CultureInfo.InvariantCulture,
             $"[{logEvent.Timestamp:HH:mm:ss} {logEvent.Level.ToString()[..3].ToUpperInvariant()}] "
         ));
+
         Write(output, AnsiColor.Reset);
 
         foreach (MessageTemplateToken token in messageTemplate.Tokens)
@@ -77,6 +79,7 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
                 case TextToken textToken:
                     output.Write(textToken.Text);
                     break;
+
                 case PropertyToken propToken:
                 {
                     string format = propToken.Format ?? "";

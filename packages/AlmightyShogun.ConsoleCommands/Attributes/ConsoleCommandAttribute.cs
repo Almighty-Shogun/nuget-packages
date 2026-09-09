@@ -1,8 +1,8 @@
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Marks a class as a console command and carries the metadata the dispatcher needs. Required on every
-/// <see cref="ConsoleCommandBase"/> subclass.
+/// Marks a class as a console command and carries the metadata the dispatcher needs.
+/// Required on every <see cref="ConsoleCommandBase"/> subclass.
 /// </summary>
 ///
 /// <param name="name">The first token typed at the prompt, matched case-insensitively.</param>

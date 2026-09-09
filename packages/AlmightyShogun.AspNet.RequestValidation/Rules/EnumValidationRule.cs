@@ -21,8 +21,8 @@ internal sealed class EnumValidationRule<TRequest, TProperty>(
 ) : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
-    /// The enum membership is checked against, unwrapped from <see cref="Nullable{T}"/> so a nullable enum property is checked against
-    /// the same set its non-nullable spelling would be.
+    /// The enum membership is checked against, unwrapped from <see cref="Nullable{T}"/> so a nullable enum property
+    /// is checked against the same set its non-nullable spelling would be.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

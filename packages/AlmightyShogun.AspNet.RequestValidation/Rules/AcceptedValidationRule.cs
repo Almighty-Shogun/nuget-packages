@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires a value that reads as a yes. It does not skip an empty value, because a checkbox left unticked is exactly the case it must
-/// catch.
+/// Requires a value that reads as a yes. It does not skip an empty value,
+/// because a checkbox left unticked is exactly the case it must catch.
 /// </summary>
 ///
 /// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>

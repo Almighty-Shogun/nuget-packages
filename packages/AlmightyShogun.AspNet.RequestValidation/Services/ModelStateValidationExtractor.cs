@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Turns MVC's model-state failures into this package's error shape, so a binding failure and a rule failure reach the client as the same
-/// body rather than as two different ones.
+/// Turns MVC's model-state failures into this package's error shape,
+/// so a binding failure and a rule failure reach the client as the same body rather than as two different ones.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

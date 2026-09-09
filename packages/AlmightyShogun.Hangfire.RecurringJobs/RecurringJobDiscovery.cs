@@ -49,8 +49,9 @@ internal static class RecurringJobDiscovery
     /// <since>3.0.0</since>
     internal static RecurringJobScan GetRecurringJobs(ImmutableArray<Assembly> assemblies, RecurringJobSettings settings)
     {
-        List<RecurringJobInfo> jobs = [];
         List<string> parkedJobIds = [];
+        List<RecurringJobInfo> jobs = [];
+
         Dictionary<string, Type> seenJobIds = new(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, RecurringJobOverride> overrides = new(settings.Jobs, StringComparer.OrdinalIgnoreCase);
 

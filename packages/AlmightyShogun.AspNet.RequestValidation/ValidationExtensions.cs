@@ -88,10 +88,7 @@ public static class ValidationExtensions
             .AddScoped<RequestValidationFilter>()
             .AddScoped<EndpointValidationFilter>()
             .Configure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = true)
-            .Configure<ApiBehaviorOptions>(options =>
-            {
-                options.InvalidModelStateResponseFactory = ModelStateValidationResponseFactory.Create;
-            })
+            .Configure<ApiBehaviorOptions>(options => options.InvalidModelStateResponseFactory = ModelStateValidationResponseFactory.Create)
             .Configure<MvcOptions>(options =>
             {
                 options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;

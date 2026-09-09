@@ -12,7 +12,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 internal sealed class ValidationBag
 {
     /// <summary>
-    /// The failures per field, keyed case-insensitively so a field is recognised however the client spelled it. A list per field, though
+    /// The failures per field, keyed case-insensitively so a field is recognized however the client spelled it. A list per field, though
     /// only the first entry is ever rendered.
     /// </summary>
     ///

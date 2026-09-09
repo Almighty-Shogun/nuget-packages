@@ -3,8 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the value to be a hexadecimal color value. An absent or empty value passes, so pair it with <see cref="RequiredAttribute"/>
-/// when the field is mandatory.
+/// Requires the value to be a hexadecimal color value.
+/// An absent or empty value passes, so pair it with <see cref="RequiredAttribute"/> when the field is mandatory.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

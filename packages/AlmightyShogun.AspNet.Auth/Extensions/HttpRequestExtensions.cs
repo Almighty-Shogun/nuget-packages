@@ -55,13 +55,6 @@ public static class HttpRequestExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.3.0</since>
-        public string GetRefreshTokenCookie()
-        {
-            string? refreshToken = httpRequest.Cookies[CookieNames.RefreshToken];
-
-            return string.IsNullOrWhiteSpace(refreshToken)
-                ? throw new MissingRefreshTokenException()
-                : refreshToken;
-        }
+        public string GetRefreshTokenCookie() => httpRequest.TryGetRefreshTokenCookie() ?? throw new MissingRefreshTokenException();
     }
 }

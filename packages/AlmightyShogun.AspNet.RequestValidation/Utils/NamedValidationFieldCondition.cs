@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// A condition on another field, addressed by name. The attribute counterpart of the typed condition, since an attribute cannot hold an
-/// expression.
+/// A condition on another field, addressed by name,
+/// The attribute counterpart of the typed condition, since an attribute cannot hold an expression.
 /// </summary>
 ///
 /// <typeparam name="TRequest">The request type the controlling field is read from.</typeparam>

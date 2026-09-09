@@ -5,8 +5,8 @@ using System.Collections.Concurrent;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Runs a request's rules. Both sources are merged in the cache, so this deals in one rule set per request type rather than choosing
-/// between an attribute path and a fluent one.
+/// Runs a request's rules. Both sources are merged in the cache,
+/// so this deals in one rule set per request type rather than choosing between an attribute path and a fluent one.
 /// </summary>
 ///
 /// <param name="serviceProvider">Resolves what a rule needs of its own, such as a custom rule's dependencies.</param>

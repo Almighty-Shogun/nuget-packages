@@ -33,7 +33,7 @@ internal static class AnsiColor
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    private const string Blue = "\e[34m";
+    private const string _blue = "\e[34m";
 
     /// <summary>
     /// Cyan foreground, SGR 36, selected by the <c>c</c> shorthand.
@@ -98,7 +98,7 @@ internal static class AnsiColor
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    private const string BrightBlue = "\e[94m";
+    private const string _brightBlue = "\e[94m";
 
     /// <summary>
     /// Bright cyan foreground, SGR 96, reachable only through the <c>bc</c> shorthand.
@@ -106,7 +106,7 @@ internal static class AnsiColor
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    private const string BrightCyan = "\e[96m";
+    private const string _brightCyan = "\e[96m";
 
     /// <summary>
     /// Bright green foreground, SGR 92, reachable only through the <c>bg</c> shorthand.
@@ -114,7 +114,7 @@ internal static class AnsiColor
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    private const string BrightGreen = "\e[92m";
+    private const string _brightGreen = "\e[92m";
 
     /// <summary>
     /// Bright yellow foreground, SGR 93, reachable only through the <c>by</c> shorthand.
@@ -122,7 +122,7 @@ internal static class AnsiColor
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    private const string BrightYellow = "\e[93m";
+    private const string _brightYellow = "\e[93m";
 
     /// <summary>
     /// Bright magenta foreground, SGR 95, reachable only through the <c>bm</c> shorthand.
@@ -130,7 +130,7 @@ internal static class AnsiColor
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    private const string BrightMagenta = "\e[95m";
+    private const string _brightMagenta = "\e[95m";
 
     /// <summary>
     /// Maps every supported shorthand color code to its ANSI escape code. Adding a shorthand here is all that is needed to
@@ -139,20 +139,20 @@ internal static class AnsiColor
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    private static readonly FrozenDictionary<string, string> ShortCodes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly FrozenDictionary<string, string> _shortCodes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
         ["r"] = Red,
         ["g"] = Green,
-        ["b"] = Blue,
+        ["b"] = _blue,
         ["c"] = Cyan,
         ["y"] = Yellow,
         ["m"] = Magenta,
         ["br"] = BrightRed,
-        ["bg"] = BrightGreen,
-        ["bb"] = BrightBlue,
-        ["bc"] = BrightCyan,
-        ["by"] = BrightYellow,
-        ["bm"] = BrightMagenta
+        ["bg"] = _brightGreen,
+        ["bb"] = _brightBlue,
+        ["bc"] = _brightCyan,
+        ["by"] = _brightYellow,
+        ["bm"] = _brightMagenta
     }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
@@ -171,5 +171,5 @@ internal static class AnsiColor
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    internal static string FromShort(string shortCode) => ShortCodes.GetValueOrDefault(shortCode, White);
+    internal static string FromShort(string shortCode) => _shortCodes.GetValueOrDefault(shortCode, White);
 }

@@ -3,8 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the text value to end with none of the provided suffixes. An absent or empty value passes, so pair it with
-/// <see cref="RequiredAttribute"/> when the field is mandatory.
+/// Requires the text value to end with none of the provided suffixes.
+/// An absent or empty value passes, so pair it with <see cref="RequiredAttribute"/> when the field is mandatory.
 /// </summary>
 ///
 /// <param name="values">The suffixes the text is checked against.</param>

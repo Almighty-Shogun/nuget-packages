@@ -3,8 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the value to be a boolean, or text that parses as one. <c>null</c>, an empty string and an empty collection pass, so pair it
-/// with <see cref="RequiredAttribute"/> when the field is mandatory; a number and a zero-length upload do not.
+/// Requires the value to be a boolean, or text that parses as one. <c>null</c>, an empty string and an empty collection pass,
+/// so pair it with <see cref="RequiredAttribute"/> when the field is mandatory; a number and a zero-length upload do not.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

@@ -71,7 +71,7 @@ public sealed record RemoteServerSettings
 
     /// <summary>
     /// How long serving one request may take, in seconds, before it is abandoned. The window covers the command's
-    /// own work, not just the framing around it.
+    /// own work, not just the surrounding framing.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

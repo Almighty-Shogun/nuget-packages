@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Decides whether a field must exist, hold a value, or be absent. These run before value rules so a missing field reports that rather than
-/// a later failure.
+/// Decides whether a field must exist, hold a value, or be absent.
+/// These run before value rules so a missing field reports that rather than a later failure.
 /// </summary>
 ///
 /// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>

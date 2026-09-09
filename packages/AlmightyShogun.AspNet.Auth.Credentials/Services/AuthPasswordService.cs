@@ -45,37 +45,36 @@ internal sealed class AuthPasswordService<TUser>(
         ChangePasswordRequest request,
         string? currentRefreshToken = null,
         CancellationToken cancellationToken = default
-    )
-        => await ConflictRetry.RunAsync(async () =>
-        {
-            TUser user = await GetUserAsync(candidate => candidate.Identifier == identifier, cancellationToken);
+    ) => await ConflictRetry.RunAsync(async () =>
+    {
+        TUser user = await GetUserAsync(candidate => candidate.Identifier == identifier, cancellationToken);
 
-            if (request.NewPassword != request.ConfirmPassword)
-                throw new PasswordMismatchException();
+        if (request.NewPassword != request.ConfirmPassword)
+            throw new PasswordMismatchException();
 
-            string storedPasswordHash = user.Password;
+        string storedPasswordHash = user.Password;
 
-            if (_hasher.VerifyHashedPassword(user, storedPasswordHash, request.CurrentPassword) is PasswordVerificationResult.Failed)
-                throw new InvalidCredentialsException();
+        if (_hasher.VerifyHashedPassword(user, storedPasswordHash, request.CurrentPassword) is PasswordVerificationResult.Failed)
+            throw new InvalidCredentialsException();
 
-            if (_hasher.VerifyHashedPassword(user, storedPasswordHash, request.NewPassword) is not PasswordVerificationResult.Failed)
-                throw new PasswordReusedException();
+        if (_hasher.VerifyHashedPassword(user, storedPasswordHash, request.NewPassword) is not PasswordVerificationResult.Failed)
+            throw new PasswordReusedException();
 
-            string newPasswordHash = _hasher.HashPassword(user, request.NewPassword);
+        string newPasswordHash = _hasher.HashPassword(user, request.NewPassword);
 
-            await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
+        await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
 
-            if (!await SetPasswordAsync(user.Id, storedPasswordHash, newPasswordHash, cancellationToken))
-                return false;
+        if (!await SetPasswordAsync(user.Id, storedPasswordHash, newPasswordHash, cancellationToken))
+            return false;
 
-            await InvalidateActiveTokenAsync(user.Id, cancellationToken);
-            await RevokeUserSessionsAsync(user.Id, cancellationToken, currentRefreshToken);
-            await RetireTwoFactorChallengesAsync(user.Id, cancellationToken);
+        await InvalidateActiveTokenAsync(user.Id, cancellationToken);
+        await RevokeUserSessionsAsync(user.Id, cancellationToken, currentRefreshToken);
+        await RetireTwoFactorChallengesAsync(user.Id, cancellationToken);
 
-            await transaction.CommitAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
-            return true;
-        });
+        return true;
+    });
 
     /// <inheritdoc />
     public async Task<string?> RequestForgotPasswordAsync(

@@ -11,8 +11,11 @@ namespace AlmightyShogun.RemoteCommands;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
-public sealed class RemoteCommandUnreachableException(string host, int port, Exception innerException)
-    : RemoteCommandException($"The server at {host}:{port} could not be reached.", innerException)
+public sealed class RemoteCommandUnreachableException(
+    string host,
+    int port,
+    Exception innerException
+) : RemoteCommandException($"The server at {host}:{port} could not be reached.", innerException)
 {
     /// <summary>
     /// The host that was dialed, for logging which endpoint is unreachable when a client is built from settings.

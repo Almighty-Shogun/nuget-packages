@@ -69,8 +69,7 @@ internal sealed class AuthLockoutGuard<TUser>(
     {
         LockoutPolicy policy = credentialOptions.Value.Lockout;
 
-        if (!policy.Enabled)
-            return;
+        if (!policy.Enabled) return;
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
         DateTimeOffset lockoutEnd = now.AddMinutes(policy.DurationMinutes);

@@ -119,19 +119,17 @@ internal sealed class AuthSessionService<TUser>(
             rotated = false;
         }
 
-        if (!rotated)
-        {
-            await transaction.RollbackAsync(cancellationToken);
+        if (rotated)
+            return new AuthSessionResult<TUser>
+            {
+                User = user,
+                RefreshToken = newRefreshToken,
+                AccessToken = tokenGenerator.Generate(AuthClaimFactory.Create(user, app), app).Token
+            };
 
-            throw new InvalidSessionException();
-        }
+        await transaction.RollbackAsync(cancellationToken);
 
-        return new AuthSessionResult<TUser>
-        {
-            User = user,
-            RefreshToken = newRefreshToken,
-            AccessToken = tokenGenerator.Generate(AuthClaimFactory.Create(user, app), app).Token
-        };
+        throw new InvalidSessionException();
     }
 
     /// <inheritdoc />

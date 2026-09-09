@@ -1,10 +1,10 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace AlmightyShogun.AspNet.Localization;
 
@@ -286,9 +286,7 @@ internal sealed class JsonMessageProvider(
         {
             _misses.Set(missKey, version, _missCacheEntryOptions);
         }
-        catch (ObjectDisposedException)
-        {
-        }
+        catch (ObjectDisposedException) { }
     }
 
     /// <summary>

@@ -36,7 +36,7 @@ namespace AlmightyShogun.AspNet.Core;
 /// The client-abort branch is never entered under <c>UseExceptionHandler</c>. <c>ExceptionHandlerMiddlewareImpl</c>
 /// returns before running any <see cref="IExceptionHandler"/> when the exception is an
 /// <see cref="OperationCanceledException"/> or an <see cref="IOException"/> and <c>HttpContext.RequestAborted</c> is
-/// cancelled, logging the abort and setting <c>499</c> itself. That condition covers this handler's own, so an abort
+/// canceled, logging the abort and setting <c>499</c> itself. That condition covers this handler's own, so an abort
 /// never reaches <c>TryHandleAsync</c>.
 /// </remarks>
 ///

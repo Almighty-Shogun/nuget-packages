@@ -16,7 +16,7 @@ internal static class ValidationFile
 {
     /// <summary>
     /// Maps a file name to the content type its extension implies, so a declared type can be checked against the name rather than
-    /// trusted. Shared because building one walks a sizeable table.
+    /// trusted. Shared because building one walks a sizable table.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

@@ -3,8 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the field when any listed field is empty. A field posted blank, as an empty collection, or as a zero-length upload counts as
-/// empty here, not only one left out of the request.
+/// Requires the field when any listed field is empty.
+/// A field posted blank, as an empty collection, or as a zero-length upload counts as empty here, not only one left out of the request.
 /// </summary>
 ///
 /// <param name="fields">The request fields the trigger is evaluated against.</param>

@@ -15,24 +15,6 @@ namespace AlmightyShogun.Mail.Resend;
 public sealed record MailSendResult
 {
     /// <summary>
-    /// Initializes the outcome. Private so the two factories stay the only way to produce one, which is what keeps the
-    /// combinations of the three values to the two the package actually returns.
-    /// </summary>
-    ///
-    /// <param name="isSuccess">Whether Resend accepted the message.</param>
-    /// <param name="messageId">The Resend id, or <c>null</c> when the send failed.</param>
-    /// <param name="error">The failure message, or <c>null</c> when the send succeeded.</param>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
-    private MailSendResult(bool isSuccess, string? messageId, string? error)
-    {
-        IsSuccess = isSuccess;
-        MessageId = messageId;
-        Error = error;
-    }
-
-    /// <summary>
     /// Whether the send succeeded.
     /// </summary>
     ///
@@ -57,6 +39,24 @@ public sealed record MailSendResult
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public string? Error { get; }
+
+    /// <summary>
+    /// Initializes the outcome. Private so the two factories stay the only way to produce one,
+    /// which is what keeps the combinations of the three values to the two the package actually returns.
+    /// </summary>
+    ///
+    /// <param name="isSuccess">Whether Resend accepted the message.</param>
+    /// <param name="messageId">The Resend id, or <c>null</c> when the send failed.</param>
+    /// <param name="error">The failure message, or <c>null</c> when the send succeeded.</param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>4.0.0</since>
+    private MailSendResult(bool isSuccess, string? messageId, string? error)
+    {
+        IsSuccess = isSuccess;
+        MessageId = messageId;
+        Error = error;
+    }
 
     /// <summary>
     /// Creates the accepted outcome.

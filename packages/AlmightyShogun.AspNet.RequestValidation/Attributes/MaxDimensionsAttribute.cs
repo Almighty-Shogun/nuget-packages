@@ -3,8 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the uploaded image to be no larger than the provided width and height. An absent or empty value passes, so pair it with
-/// <see cref="RequiredAttribute"/> when the field is mandatory.
+/// Requires the uploaded image to be no larger than the provided width and height.
+/// An absent or empty value passes, so pair it with <see cref="RequiredAttribute"/> when the field is mandatory.
 /// </summary>
 ///
 /// <param name="width">The maximum image width in pixels.</param>

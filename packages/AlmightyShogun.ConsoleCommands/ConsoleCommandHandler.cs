@@ -182,7 +182,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
         {
             lines.Writer.TryComplete();
 
-            readerStop.Cancel();
+            await readerStop.CancelAsync();
             readerStop.Dispose();
 
             lock (_lifecycleGate)

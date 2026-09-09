@@ -1,8 +1,8 @@
 namespace AlmightyShogun.Hangfire.RecurringJobs;
 
 /// <summary>
-/// Marks a recurring Hangfire job class and defines how it is scheduled. It has no effect on a class that does not
-/// implement <see cref="IRecurringJob"/>, since the scan only looks for that contract.
+/// Marks a recurring Hangfire job class and defines how it is scheduled.
+/// It has no effect on a class that does not implement <see cref="IRecurringJob"/>, since the scan only looks for that contract.
 /// </summary>
 ///
 /// <param name="jobId">The id the schedule is stored under. Must be unique across the application.</param>

@@ -4,8 +4,8 @@ using System.Text.RegularExpressions;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the value to not match the regular expression pattern. An absent or empty value passes, so pair it with
-/// <see cref="RequiredAttribute"/> when the field is mandatory.
+/// Requires the value to not match the regular expression pattern.
+/// An absent or empty value passes, so pair it with <see cref="RequiredAttribute"/> when the field is mandatory.
 /// </summary>
 ///
 /// <param name="pattern">The regular expression pattern the value must not match.</param>

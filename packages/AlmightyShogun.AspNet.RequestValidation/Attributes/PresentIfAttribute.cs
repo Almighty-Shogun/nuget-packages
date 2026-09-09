@@ -3,8 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the field to be present when another field equals one of the provided values. The field may still be empty unless another rule
-/// rejects empty values.
+/// Requires the field to be present when another field equals one of the provided values.
+/// The field may still be empty unless another rule rejects empty values.
 /// </summary>
 ///
 /// <param name="field">The request field the condition reads.</param>

@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Builds the rule set for one request property. Split across several partial files by rule family, so the fluent surface stays one type
-/// while each family's methods sit together.
+/// Builds the rule set for one request property. Split across several partial files by rule family,
+/// so the fluent surface stays one type while each family's methods sit together.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

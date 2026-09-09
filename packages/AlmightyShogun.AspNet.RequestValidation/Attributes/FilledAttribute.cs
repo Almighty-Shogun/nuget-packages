@@ -3,7 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the field to contain a value when the client sends it. Missing values are allowed, but present empty values fail validation.
+/// Requires the field to contain a value when the client sends it.
+/// Missing values are allowed, but present empty values fail validation.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

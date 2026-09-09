@@ -3,8 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Base for an attribute that names a rule the application implements itself. Deriving from it, rather than using the generic form, is for
-/// an attribute that wants a name of its own at the call site.
+/// Base for an attribute that names a rule the application implements itself.
+/// Deriving from it, rather than using the generic form, is for an attribute that wants a name of its own at the call site.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -25,8 +25,8 @@ public abstract class CustomRuleAttribute : ValidationRuleAttribute
         => new CustomValidationRuleAdapter<TRequest, TProperty>(CreateCustomRule());
 
     /// <summary>
-    /// Names the rule type to run. A derived attribute implements this rather than being handed the type, so the type is fixed by the
-    /// attribute rather than by whoever applies it.
+    /// Names the rule type to run. A derived attribute implements this rather than being handed the type,
+    /// so the type is fixed by the attribute rather than by whoever applies it.
     /// </summary>
     ///
     /// <returns>The custom validation rule type.</returns>
@@ -52,8 +52,8 @@ public abstract class CustomRuleAttribute : ValidationRuleAttribute
 }
 
 /// <summary>
-/// Applies a rule the application implements, named directly as a type argument. Repeatable, so a property may carry several custom rules
-/// alongside the built-in ones.
+/// Applies a rule the application implements, named directly as a type argument.
+/// Repeatable, so a property may carry several custom rules alongside the built-in ones.
 /// </summary>
 ///
 /// <typeparam name="TRule">The custom validation rule type.</typeparam>

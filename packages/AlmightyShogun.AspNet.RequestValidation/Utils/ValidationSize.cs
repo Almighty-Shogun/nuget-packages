@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Http;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Reduces a value to the single number a size rule compares. What counts as its size depends on what it is, so one rule serves numbers,
-/// strings, collections, and uploads without knowing which it was handed.
+/// Reduces a value to the single number a size rule compares. What counts as its size depends on what it is,
+/// so one rule serves numbers, strings, collections, and uploads without knowing which it was handed.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

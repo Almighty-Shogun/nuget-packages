@@ -6,9 +6,9 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
 /// Returns a validation failure to the client. Validation carries a per-field error dictionary, which the shared
-/// <see cref="IHttpErrorResponseWriter"/> deliberately does not model, so this package returns its own body and leaves each caller to
-/// choose between writing it and handing back a result. The body itself is built by
-/// <see cref="ValidationErrorResponseFactory"/>, which every other path shares.
+/// <see cref="IHttpErrorResponseWriter"/> deliberately does not model,
+/// so this package returns its own body and leaves each caller to choose between writing it and handing back a result.
+/// The body itself is built by <see cref="ValidationErrorResponseFactory"/>, which every other path shares.
 /// </summary>
 ///
 /// <param name="messageResolver">The resolver used to produce the description and the per-field messages.</param>
@@ -34,8 +34,7 @@ internal sealed class ValidationResponseWriter(IMessageResolver messageResolver)
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    internal ValidationErrorResponse CreateResponse(ValidationBag errors)
-        => ValidationErrorResponseFactory.Create(messageResolver, errors);
+    internal ValidationErrorResponse CreateResponse(ValidationBag errors) => ValidationErrorResponseFactory.Create(messageResolver, errors);
 
     /// <summary>
     /// Builds the result for the gathered failures, for the callers that return a result rather than writing the response themselves.

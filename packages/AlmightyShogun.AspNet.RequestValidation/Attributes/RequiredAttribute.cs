@@ -3,8 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the field to be present and contain a non-empty value. It fails for missing values, <c>null</c>, empty text, empty
-/// collections, and empty uploaded files.
+/// Requires the field to be present and contain a non-empty value.
+/// It fails for missing values, <c>null</c>, empty text, empty collections, and empty uploaded files.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

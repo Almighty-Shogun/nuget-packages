@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Http;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Recognizes an image by the bytes it opens with rather than by what the client claimed it is. A name and a content type are both written
-/// by the caller and neither is evidence, so the rule that asks for an image asks here.
+/// Recognizes an image by the bytes it opens with rather than by what the client claimed it is.
+/// A name and a content type are both written by the caller and neither is evidence, so the rule that asks for an image asks here.
 /// </summary>
 ///
 /// <remarks>

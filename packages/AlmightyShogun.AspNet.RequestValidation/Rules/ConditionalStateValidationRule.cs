@@ -3,8 +3,8 @@ using System.Linq.Expressions;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Applies a presence requirement to this field only when a controlling field reads as accepted or declined. An empty value is not
-/// skipped: once the controlling field matches, emptiness is exactly what the requirement tests.
+/// Applies a presence requirement to this field only when a controlling field reads as accepted or declined.
+/// An empty value is not skipped: once the controlling field matches, emptiness is exactly what the requirement tests.
 /// </summary>
 ///
 /// <typeparam name="TRequest">The request type the rule is declared on and reads the controlling field from.</typeparam>

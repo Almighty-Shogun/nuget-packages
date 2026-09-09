@@ -147,11 +147,14 @@ public static class ConsoleUtils
             {
                 string? input = await Console.In.ReadLineAsync(cancellationToken);
 
-                if (input is null) return defaultValue;
+                if (input is null)
+                    return defaultValue;
 
-                if (input.Length >= 1) return input;
+                if (input.Length >= 1)
+                    return input;
 
-                if (defaultValue is not null) return defaultValue;
+                if (defaultValue is not null)
+                    return defaultValue;
             }
             finally
             {

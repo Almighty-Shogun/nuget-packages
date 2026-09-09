@@ -54,7 +54,7 @@ public sealed record UserAgent
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    private const string Unknown = "Unknown";
+    private const string _unknown = "Unknown";
 
     /// <summary>
     /// The shared parser instance. Creating one re-reads the embedded pattern set and rebuilds every regular expression,
@@ -64,7 +64,7 @@ public sealed record UserAgent
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    private static readonly Parser Parser = Parser.GetDefault();
+    private static readonly Parser _parser = Parser.GetDefault();
 
     /// <summary>
     /// Turns a raw header into the four recorded parts, falling back to placeholders rather than failing on a header it
@@ -89,13 +89,13 @@ public sealed record UserAgent
         if (string.IsNullOrEmpty(userAgent))
             return new UserAgent
             {
-                Browser = Unknown,
-                Os = Unknown,
-                Device = Unknown,
+                Browser = _unknown,
+                Os = _unknown,
+                Device = _unknown,
                 IsBot = false
             };
 
-        ClientInfo client = Parser.Parse(userAgent);
+        ClientInfo client = _parser.Parse(userAgent);
 
         return new UserAgent
         {

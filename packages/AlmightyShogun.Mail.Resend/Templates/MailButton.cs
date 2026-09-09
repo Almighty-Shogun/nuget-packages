@@ -31,12 +31,10 @@ public sealed record MailButton
         ArgumentException.ThrowIfNullOrWhiteSpace(url);
 
         if (!MailUrl.IsAllowed(url))
-        {
             throw new ArgumentException(
                 $"Button URL '{url}' must be an absolute http, https, or mailto URL.",
                 nameof(url)
             );
-        }
 
         Url = url;
         Label = label;

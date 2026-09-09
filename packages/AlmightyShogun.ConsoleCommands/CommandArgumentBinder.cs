@@ -217,7 +217,7 @@ internal static class CommandArgumentBinder
         }
 
         Type elementType = parameter.ParameterType.GetElementType()!;
-        Array tail = Array.CreateInstance(elementType, arguments.Length);
+        var tail = Array.CreateInstance(elementType, arguments.Length);
 
         for (var index = 0; index < arguments.Length; index++)
         {

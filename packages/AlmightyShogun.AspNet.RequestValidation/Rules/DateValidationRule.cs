@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Checks that a value is a date, matches an exact format, or orders correctly against a literal date or another field. An absent or
-/// empty value passes without being checked, so the rule never implies the field is required.
+/// Checks that a value is a date, matches an exact format, or orders correctly against a literal date or another field.
+/// An absent or empty value passes without being checked, so the rule never implies the field is required.
 /// </summary>
 ///
 /// <typeparam name="TRequest">The request type the rule is declared on, and the one a target field is read from.</typeparam>

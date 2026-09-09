@@ -32,11 +32,7 @@ internal sealed class AuthEmailService<TUser>(
     }
 
     /// <inheritdoc />
-    public async Task<string> RequestEmailChangeAsync(
-        Guid identifier,
-        string newEmail,
-        CancellationToken cancellationToken = default
-    )
+    public async Task<string> RequestEmailChangeAsync(Guid identifier, string newEmail, CancellationToken cancellationToken = default)
     {
         TUser user = await GetUserAsync(user => user.Identifier == identifier, cancellationToken);
 
@@ -73,29 +69,28 @@ internal sealed class AuthEmailService<TUser>(
         CompleteEmailVerificationRequest request,
         string? currentRefreshToken = null,
         CancellationToken cancellationToken = default
-    )
-        => await ConflictRetry.RunAsync(async () =>
-        {
-            EmailVerificationToken verificationToken =
-                await FindActiveTokenAsync(request.Token, EmailVerificationPurpose.EmailChange, cancellationToken);
+    ) => await ConflictRetry.RunAsync(async () =>
+    {
+        EmailVerificationToken verificationToken =
+            await FindActiveTokenAsync(request.Token, EmailVerificationPurpose.EmailChange, cancellationToken);
 
-            TUser user = await GetUserAsync(user => user.Id == verificationToken.UserId, cancellationToken);
+        TUser user = await GetUserAsync(user => user.Id == verificationToken.UserId, cancellationToken);
 
-            await EnsureEmailAvailableAsync(verificationToken.Email, user.Id, cancellationToken);
+        await EnsureEmailAvailableAsync(verificationToken.Email, user.Id, cancellationToken);
 
-            await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
+        await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
 
-            DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = DateTimeOffset.UtcNow;
 
-            await SpendTokenAsync(verificationToken.Id, now, cancellationToken);
-            await RetireActiveTokensAsync(user.Id, EmailVerificationPurpose.Registration, now, cancellationToken);
-            await MoveEmailAsync(user.Id, verificationToken.Email, now, cancellationToken);
-            await RevokeUserSessionsAsync(user.Id, cancellationToken, currentRefreshToken);
+        await SpendTokenAsync(verificationToken.Id, now, cancellationToken);
+        await RetireActiveTokensAsync(user.Id, EmailVerificationPurpose.Registration, now, cancellationToken);
+        await MoveEmailAsync(user.Id, verificationToken.Email, now, cancellationToken);
+        await RevokeUserSessionsAsync(user.Id, cancellationToken, currentRefreshToken);
 
-            await transaction.CommitAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
-            return true;
-        });
+        return true;
+    });
 
     /// <summary>
     /// Loads the one user matching a predicate, refusing rather than returning null, so every caller past this point has a
@@ -315,10 +310,9 @@ internal sealed class AuthEmailService<TUser>(
         EmailVerificationPurpose purpose,
         DateTimeOffset now,
         CancellationToken cancellationToken
-    )
-        => await databaseContext.EmailVerificationTokens
-            .Where(token => token.UserId == userId && token.Purpose == purpose && token.UsedAt == null)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(token => token.UsedAt, now), cancellationToken);
+    ) => await databaseContext.EmailVerificationTokens
+        .Where(token => token.UserId == userId && token.Purpose == purpose && token.UsedAt == null)
+        .ExecuteUpdateAsync(setters => setters.SetProperty(token => token.UsedAt, now), cancellationToken);
 
     /// <summary>
     /// Finds the token a verification presented, refusing one that is unknown, already spent, past its expiry, or issued

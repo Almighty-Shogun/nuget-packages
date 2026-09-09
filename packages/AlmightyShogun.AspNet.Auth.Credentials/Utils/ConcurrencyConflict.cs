@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Recognises the failures that mean another request wrote the same rows first, so the operation that lost can be run
+/// Recognizes the failures that mean another request wrote the same rows first, so the operation that lost can be run
 /// again instead of escaping unhandled. One collision reaches a caller in three shapes: a save's statement matches no row,
 /// because the row moved under a mapped concurrency token or is gone altogether, which Entity Framework reports as
 /// <see cref="DbUpdateConcurrencyException"/>; a server enforcing snapshot isolation rejects a save's statement and
@@ -41,7 +41,7 @@ internal static class ConcurrencyConflict
     /// <returns>
     /// <c>true</c> for a <see cref="DbUpdateConcurrencyException"/>, and for any exception whose chain holds a
     /// <see cref="DbException"/> the server raised for a conflict, the exception itself included so a provider's own
-    /// exception is recognised when nothing wrapped it. <c>false</c> for everything else, so a constraint violation such
+    /// exception is recognized when nothing wrapped it. <c>false</c> for everything else, so a constraint violation such
     /// as the unique index on an email address is left to surface as itself either way.
     /// </returns>
     ///

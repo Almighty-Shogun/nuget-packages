@@ -3,8 +3,8 @@ using System.Reflection;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the field to match a confirmation field. Without an explicit target, the validator looks for the property name with
-/// <c>Confirmation</c> appended, then for <c>Confirm</c> prefixed to it.
+/// Requires the field to match a confirmation field. Without an explicit target,
+/// the validator looks for the property name with <c>Confirmation</c> appended, then for <c>Confirm</c> prefixed to it.
 /// </summary>
 ///
 /// <param name="field">The confirmation field name to compare against.</param>

@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Restricts text to a character class, or requires it to already be in a given case. An absent or empty value passes without being
-/// checked, so the rule never implies the field is required.
+/// Restricts text to a character class, or requires it to already be in a given case.
+/// An absent or empty value passes without being checked, so the rule never implies the field is required.
 /// </summary>
 ///
 /// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>

@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using AlmightyShogun.AspNet.Auth;
 
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 

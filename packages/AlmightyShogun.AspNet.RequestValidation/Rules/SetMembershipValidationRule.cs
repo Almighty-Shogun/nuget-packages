@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Requires the value to be inside, or outside, a fixed set of values. An absent or empty value passes without being checked, so the rule
-/// never implies the field is required.
+/// Requires the value to be inside, or outside, a fixed set of values.
+/// An absent or empty value passes without being checked, so the rule never implies the field is required.
 /// </summary>
 ///
 /// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
@@ -10,8 +10,7 @@ namespace AlmightyShogun.AspNet.RequestValidation;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
-internal sealed class SetMembershipValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty>
-    where TRequest : class
+internal sealed class SetMembershipValidationRule<TRequest, TProperty> : IPropertyValidationRule<TRequest, TProperty> where TRequest : class
 {
     /// <summary>
     /// The permitted or forbidden values, tested for membership. The failure message carries only the field name, so these

@@ -74,6 +74,7 @@ internal readonly record struct ValidationRuleIdentity(string Value)
                 AppendLiteral(builder, text);
 
                 return true;
+
             case Type valueType:
                 AppendLiteral(builder, valueType.AssemblyQualifiedName ?? valueType.FullName ?? valueType.Name);
 
@@ -83,14 +84,14 @@ internal readonly record struct ValidationRuleIdentity(string Value)
         if (type.IsPrimitive || value is decimal or Guid)
         {
             AppendLiteral(builder, Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty);
-            
+
             return true;
         }
 
         if (type.IsEnum)
         {
             AppendLiteral(builder, $"{type.FullName}.{value}");
-            
+
             return true;
         }
 
@@ -100,6 +101,7 @@ internal readonly record struct ValidationRuleIdentity(string Value)
                 AppendLiteral(builder, dateTime.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture));
 
                 return true;
+
             case DateTimeOffset dateTimeOffset:
                 AppendLiteral(builder, dateTimeOffset.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture));
 

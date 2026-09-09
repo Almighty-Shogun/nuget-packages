@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Checks that a value is numeric, integral, of a given scale, or a multiple of something. An absent or empty value passes without being
-/// checked, so the rule never implies the field is required.
+/// Checks that a value is numeric, integral, of a given scale, or a multiple of something.
+/// An absent or empty value passes without being checked, so the rule never implies the field is required.
 /// </summary>
 ///
 /// <typeparam name="TRequest">The request type the rule is declared on, though only the bound value decides the outcome.</typeparam>
