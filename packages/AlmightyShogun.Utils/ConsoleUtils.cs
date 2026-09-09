@@ -43,10 +43,13 @@ public static class ConsoleUtils
     /// <since>4.0.0</since>
     public static void RemoveLastLine()
     {
-        if (Console.IsOutputRedirected || Console.CursorTop <= 0) return;
+        if (Console.IsOutputRedirected) return;
 
         try
         {
+            if (Console.CursorTop <= 0)
+                return;
+
             int line = Console.CursorTop - 1;
 
             Console.SetCursorPosition(0, line);
@@ -100,7 +103,7 @@ public static class ConsoleUtils
                 if (input is null)
                     return defaultValue;
 
-                if (input.Length >= 1)
+                if (input.Length > 0)
                     return input;
 
                 if (defaultValue is not null)
@@ -108,7 +111,14 @@ public static class ConsoleUtils
             }
             finally
             {
-                Console.ResetColor();
+                try
+                {
+                    Console.ResetColor();
+                }
+                catch (Exception exception) when (exception is IOException or InvalidOperationException)
+                {
+                }
+                
                 RemoveLastLine();
             }
         }
