@@ -40,5 +40,6 @@ public sealed record CompleteForgotPasswordRequest
     /// <since>4.0.0</since>
     [Min(8)]
     [Required]
+    [SameAs(nameof(NewPassword))]
     public string ConfirmPassword { get; set; } = string.Empty;
 }
