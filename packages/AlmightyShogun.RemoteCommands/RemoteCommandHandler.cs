@@ -162,25 +162,39 @@ internal sealed class RemoteCommandHandler(
 
             while (!stopSource.IsCancellationRequested)
             {
-                TcpClient client;
-
                 try
                 {
                     await _connectionLimit.WaitAsync(stopSource.Token);
-
-                    client = await listener.AcceptTcpClientAsync(stopSource.Token);
                 }
                 catch (OperationCanceledException)
                 {
                     break;
                 }
 
-                Task handling = HandleClientSafelyAsync(client, stopSource.Token);
+                var transferred = false;
 
-                lock (_lifecycleGate)
+                try
                 {
-                    _inFlight.RemoveAll(task => task.IsCompleted);
-                    _inFlight.Add(handling);
+                    TcpClient client = await listener.AcceptTcpClientAsync(stopSource.Token);
+
+                    Task handling = HandleClientSafelyAsync(client, stopSource.Token);
+
+                    transferred = true;
+
+                    lock (_lifecycleGate)
+                    {
+                        _inFlight.RemoveAll(task => task.IsCompleted);
+                        _inFlight.Add(handling);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                finally
+                {
+                    if (!transferred)
+                        _connectionLimit.Release();
                 }
             }
         }
@@ -284,6 +298,12 @@ internal sealed class RemoteCommandHandler(
     /// <c>Task.WhenAny</c>, which completes without unwrapping the task it selects, so a failure allowed to escape here
     /// would surface as an unobserved exception rather than a log line.
     /// </returns>
+    ///
+    /// <remarks>
+    /// The slot is taken by the accept loop before a client exists, and passes to this method with the call that starts
+    /// it, so the release here is the only one once that call has been made. An accept that ends without reaching that
+    /// call, cancelled or failed, releases the slot in the loop instead.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
