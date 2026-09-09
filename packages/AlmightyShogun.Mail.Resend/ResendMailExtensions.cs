@@ -30,7 +30,14 @@ public static class ResendMailExtensions
         "BaseEmailButton.html"
     ];
 
+    /// <summary>
+    /// Provides the registration helper on service collections.
+    /// </summary>
+    ///
     /// <param name="serviceCollection">The service collection the Resend client, template loader, and mail service are added to.</param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.5.0</since>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>

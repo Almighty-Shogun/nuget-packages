@@ -11,9 +11,10 @@ namespace AlmightyShogun.Mail.Resend;
 /// </summary>
 ///
 /// <remarks>
-/// The two bodies differ in ways no single value controls: the HTML rendering encodes every value it substitutes while the
-/// plain-text one encodes nothing, a blank <see cref="Title"/> is left out of the text body, each button is repeated there as
-/// a label and URL pair, and <see cref="AdditionalValues"/> is applied to the HTML alone, after the built-in placeholders.
+/// The two bodies differ in ways no single value controls: the HTML rendering encodes text and URL values while leaving
+/// <see cref="EmailTemplateSettings.IgnoreText"/> as markup, the plain-text one encodes nothing, a blank
+/// <see cref="Title"/> is left out of the text body, each button is repeated there as a label and URL pair, and
+/// <see cref="AdditionalValues"/> is applied to the HTML alone, after the built-in placeholders.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
