@@ -1,8 +1,8 @@
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Thrown when sign-in is refused because the account is locked after repeated failures. Distinct from wrong credentials
-/// on purpose: the caller is told to wait rather than to try again.
+/// Thrown when a credential flow or session refresh is refused because the account is locked after repeated failures.
+/// Distinct from wrong credentials on purpose: the caller is told to wait rather than to try again.
 /// </summary>
 ///
 /// <param name="lockoutEnd">The moment the lockout expires.</param>

@@ -22,6 +22,8 @@ public static class TokenHasher
     ///
     /// <returns>The digest as uppercase hexadecimal, stable enough to store in a column and index on.</returns>
     ///
+    /// <exception cref="ArgumentNullException"><paramref name="token"/> is <c>null</c>.</exception>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public static string Hash(string token)

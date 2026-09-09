@@ -39,7 +39,8 @@ public sealed class UserLockout
 
     /// <summary>
     /// How many credential checks stand unanswered against the account, wrong passwords and wrong two-factor codes
-    /// together, which never exceeds the configured limit.
+    /// together. Normally reaches the configured limit and then locks; it can stand above a limit that was lowered after
+    /// the row was written.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
