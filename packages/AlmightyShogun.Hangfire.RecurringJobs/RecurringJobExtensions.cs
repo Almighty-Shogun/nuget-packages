@@ -157,7 +157,8 @@ public static class RecurringJobExtensions
 
             return serviceCollection
                 .AddSingleton(new RecurringJobSources([.. assemblies]))
-                .AddSingleton<IRecurringJobRegistry, RecurringJobRegistry>()
+                .AddSingleton<RecurringJobRegistry>()
+                .AddSingleton<IRecurringJobRegistry>(static provider => provider.GetRequiredService<RecurringJobRegistry>())
                 .AddHostedService<JobSchedulerStartup>();
         }
     }

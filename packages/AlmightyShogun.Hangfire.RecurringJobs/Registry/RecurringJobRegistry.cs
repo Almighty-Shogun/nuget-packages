@@ -29,9 +29,9 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 /// </exception>
 ///
 /// <remarks>
-/// Registered as a singleton, so the scan runs once no matter how many callers resolve the registry. Configuration is read
-/// through <see cref="IOptions{TOptions}"/> rather than the reloading variants, since a schedule already handed to Hangfire
-/// does not change when the file does.
+/// Registered as a singleton under both this type and <see cref="IRecurringJobRegistry"/>, resolving to one instance, so the
+/// scan runs once no matter how many callers resolve either. Configuration is read through <see cref="IOptions{TOptions}"/>
+/// rather than the reloading variants, since a schedule already handed to Hangfire does not change when the file does.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -39,9 +39,26 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 internal sealed class RecurringJobRegistry(IEnumerable<RecurringJobSources> sources, IOptions<RecurringJobSettings> settings)
     : IRecurringJobRegistry
 {
-    /// <inheritdoc />
-    public IReadOnlyList<RecurringJobInfo> Jobs { get; } = RecurringJobDiscovery.GetRecurringJobs(
+    /// <summary>
+    /// The one scan result both members read, so the parked ids belong to the same pass that produced the scheduled jobs.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private readonly RecurringJobScan _scan = RecurringJobDiscovery.GetRecurringJobs(
         [.. sources.SelectMany(static source => source.Assemblies).Distinct()],
         settings.Value
     );
+
+    /// <inheritdoc />
+    public IReadOnlyList<RecurringJobInfo> Jobs => _scan.Jobs;
+
+    /// <summary>
+    /// The ids of the jobs the scan parked. It stays off <see cref="IRecurringJobRegistry"/>, so the scheduler takes this
+    /// type rather than the interface.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    internal IReadOnlyList<string> ParkedJobIds => _scan.ParkedJobIds;
 }

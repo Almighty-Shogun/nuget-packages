@@ -18,7 +18,8 @@ internal static class RecurringJobDiscovery
     /// <summary>
     /// Builds the scheduling metadata for every job type in the provided assemblies, taking the job id from the attribute,
     /// the cron expression, time zone and queue from the override first and the attribute second, and enablement from the
-    /// override, then the attribute, then the section's default. Jobs that end up disabled are dropped.
+    /// override, then the attribute, then the section's default. A job that ends up disabled contributes its id rather than
+    /// its metadata.
     /// </summary>
     ///
     /// <param name="assemblies">
@@ -27,7 +28,10 @@ internal static class RecurringJobDiscovery
     /// </param>
     /// <param name="settings">The configuration section. Pass the defaults when the application has no section.</param>
     ///
-    /// <returns>The recurring jobs to schedule, in the order the scan found them.</returns>
+    /// <returns>
+    /// The recurring jobs to schedule, in the order the scan found them, alongside the ids of the ones that resolved to
+    /// disabled.
+    /// </returns>
     ///
     /// <exception cref="ArgumentNullException">
     /// A job's attribute declares a <c>null</c> job id, which fails while the per-job overrides are looked up, before the job
@@ -42,9 +46,10 @@ internal static class RecurringJobDiscovery
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>3.0.0</since>
-    internal static IReadOnlyList<RecurringJobInfo> GetRecurringJobs(ImmutableArray<Assembly> assemblies, RecurringJobSettings settings)
+    internal static RecurringJobScan GetRecurringJobs(ImmutableArray<Assembly> assemblies, RecurringJobSettings settings)
     {
         List<RecurringJobInfo> jobs = [];
+        List<string> parkedJobIds = [];
         Dictionary<string, Type> seenJobIds = new(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, RecurringJobOverride> overrides = new(settings.Jobs, StringComparer.OrdinalIgnoreCase);
 
@@ -76,12 +81,14 @@ internal static class RecurringJobDiscovery
 
             if (jobOverride?.Enabled ?? attribute.DeclaredEnabled ?? settings.EnabledByDefault)
                 jobs.Add(job);
+            else
+                parkedJobIds.Add(job.JobId);
         }
 
         foreach (string jobId in overrides.Keys.Where(jobId => !seenJobIds.ContainsKey(jobId)))
             throw new InvalidOperationException($"The RecurringJobs configuration overrides '{jobId}', which no discovered job declares.");
 
-        return jobs;
+        return new RecurringJobScan(jobs, parkedJobIds);
     }
 
     /// <summary>
