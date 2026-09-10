@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace AlmightyShogun.Utils;
 
@@ -24,6 +25,7 @@ public static class TypeDiscovery
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
+    [MethodImpl(MethodImplOptions.NoInlining)]
     public static IEnumerable<Type> FindAssignableTypes<T>() => FindAssignableTypes<T>(Assembly.GetCallingAssembly());
 
     /// <summary>
@@ -44,7 +46,7 @@ public static class TypeDiscovery
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public static IEnumerable<Type> FindAssignableTypes<T>(Assembly assembly) => FindAssignableTypes<T>([assembly]);
-    
+
     /// <summary>
     /// Finds concrete types in the specified assemblies that are assignable to <typeparamref name="T"/>.
     /// </summary>
@@ -60,37 +62,9 @@ public static class TypeDiscovery
     /// The discovered types.
     /// </returns>
     ///
-    /// <remarks>
-    /// Types that cannot be loaded from assemblies are skipped.
-    /// </remarks>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
     public static IEnumerable<Type> FindAssignableTypes<T>(Assembly[] assemblies) => assemblies
-        .SelectMany(SafeGetTypes)
+        .SelectMany(static assembly => assembly.GetTypes())
         .Where(t => typeof(T).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false });
-
-    /// <summary>
-    /// Gets the types that can be loaded from the specified assembly.
-    /// </summary>
-    ///
-    /// <param name="assembly">The assembly to inspect.</param>
-    ///
-    /// <returns>
-    /// The types that were successfully loaded.
-    /// </returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
-    private static IEnumerable<Type> SafeGetTypes(Assembly assembly)
-    {
-        try
-        {
-            return assembly.GetTypes();
-        }
-        catch (ReflectionTypeLoadException exception)
-        {
-            return exception.Types.Where(type => type is not null)!;
-        }
-    }
 }
