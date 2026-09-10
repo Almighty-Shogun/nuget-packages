@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,9 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace AlmightyShogun.Utils;
 
 /// <summary>
-/// Provides the registration helpers this package contributes to startup: binding a validated options class, running a
-/// reusable registration module, replacing a registration something else already made, and discovering implementations
-/// across assemblies instead of listing them by hand.
+/// Provides extension methods for configuring services in an <see cref="IServiceCollection"/>.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -17,11 +16,11 @@ namespace AlmightyShogun.Utils;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Provides the registration helpers as extensions on the collection being built during startup.
+    /// Provides extension methods for configuring the service collection.
     /// </summary>
     ///
     /// <param name="serviceCollection">
-    /// The collection that receives the registrations. Every helper returns it so calls can be chained.
+    /// The service collection to configure.
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
@@ -29,21 +28,14 @@ public static class ServiceCollectionExtensions
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Runs a registration module, letting a feature keep its wiring in one reusable type instead of spreading it across
-        /// startup. The module is constructed directly rather than resolved, so it cannot take constructor dependencies.
+        /// Registers the services using the specified service registry.
         /// </summary>
         ///
         /// <typeparam name="T">
-        /// The module to run. It must implement <see cref="IServiceRegistry"/> and expose a public parameterless constructor,
-        /// which the <c>new()</c> constraint enforces at compile time rather than at startup.
+        /// The service registry to use.
         /// </typeparam>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with the module's registrations applied.</returns>
-        ///
-        /// <remarks>
-        /// A fresh instance is constructed on every call and nothing deduplicates, so running the same module twice applies its
-        /// registrations twice, in the order the calls were made.
-        /// </remarks>
+        /// <returns>The configured service collection.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
@@ -55,26 +47,24 @@ public static class ServiceCollectionExtensions
         }
 
         /// <summary>
-        /// Binds a configuration section to a strongly typed options class and, unless told otherwise, registers the data
-        /// annotation validator and runs it while the host starts. Validation is only what <typeparamref name="T"/> declares as
-        /// annotations, so a type carrying none is never rejected and an absent section binds to defaults in silence.
+        /// Binds a configuration section to options of type <typeparamref name="T"/>.
         /// </summary>
         ///
-        /// <typeparam name="T">The options class to bind. Resolved afterward through <see cref="IOptions{TOptions}"/>.</typeparam>
+        /// <typeparam name="T">
+        /// The options type to configure.
+        /// </typeparam>
         /// <param name="section">
-        /// The configuration section to bind from. An absent section binds successfully and leaves every property at its
-        /// default, which is why validation rather than binding is what catches a missing configuration.
+        /// The configuration section to bind.
         /// </param>
+        /// 
         /// <param name="validateDataAnnotations">
-        /// Whether to enforce the data annotations declared on <typeparamref name="T"/>. Pass <c>false</c> for a settings type
-        /// that is legitimately partial.
+        /// Whether to validate the options using data annotations.
         /// </param>
         /// <param name="validateOnStart">
-        /// Whether to validate while the host starts rather than the first time the options are resolved. Pass <c>false</c> to
-        /// defer the failure to first resolution.
+        /// Whether to validate options when the application starts.
         /// </param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with the options binding configured.</returns>
+        /// <returns>The configured service collection.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
@@ -96,25 +86,23 @@ public static class ServiceCollectionExtensions
         }
 
         /// <summary>
-        /// Swaps whatever is registered for <typeparamref name="TService"/> with
-        /// <typeparamref name="TImplementation"/>, for overriding a default that a framework or another package has
-        /// already registered.
+        /// Replaces the first registration of <typeparamref name="TService"/> with
+        /// <typeparamref name="TImplementation"/>.
         /// </summary>
         ///
         /// <typeparam name="TService">
-        /// The service type whose existing registration is discarded. Only the first registration is replaced, so this is
-        /// the wrong tool for a service registered many times and resolved as a sequence.
+        /// The service type to replace.
         /// </typeparam>
-        /// <typeparam name="TImplementation">The implementation registered in its place.</typeparam>
-        /// <param name="serviceLifetime">The lifetime applied to the replacement, which need not match the one it displaces.</param>
+        /// 
+        /// <typeparam name="TImplementation">
+        /// The replacement implementation type.
+        /// </typeparam>
+        /// 
+        /// <param name="serviceLifetime">
+        /// The lifetime of the replacement service.
+        /// </param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with the registration replaced.</returns>
-        ///
-        /// <remarks>
-        /// Adds the registration when nothing was there to replace, so it is safe to call before the default is
-        /// registered. Order still matters the other way around: a later plain <c>Add</c> for the same service wins when
-        /// the service is resolved singly, because the last registration is the one returned.
-        /// </remarks>
+        /// <returns>The configured service collection.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
@@ -124,56 +112,45 @@ public static class ServiceCollectionExtensions
             => serviceCollection.Replace(ServiceDescriptor.Describe(typeof(TService), typeof(TImplementation), serviceLifetime));
 
         /// <summary>
-        /// Registers every concrete type assignable to <typeparamref name="T"/> in the calling assembly, under
-        /// <typeparamref name="T"/> and with no filter. The shortest form, for the common case where the implementations sit
-        /// beside the startup code that registers them.
+        /// Registers concrete types assignable to <typeparamref name="T"/>.
         /// </summary>
-        ///
+        /// 
         /// <typeparam name="T">
-        /// The base type or interface to match, and the service type each implementation is registered under.
+        /// The service type to register.
         /// </typeparam>
-        /// <param name="serviceLifetime">The lifetime applied to every registration this call produces.</param>
-        ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with matching implementations registered.</returns>
-        ///
-        /// <remarks>
-        /// The assembly is resolved from the call stack, so it is whichever assembly contains the code that called this, not
-        /// the one that started the process. Name the assembly explicitly when registering from a shared startup helper.
-        /// </remarks>
-        ///
+        /// <param name="serviceLifetime">The lifetime of the registered services.</param>
+        /// <param name="assembly">The assembly to scan. If <c>null</c>, the calling assembly is used.</param>
+        /// <returns>The configured service collection.</returns>
+        /// 
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
-        public IServiceCollection RegisterOnInherit<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Singleton) where T : class
-            => serviceCollection.RegisterOnInherit<T>([Assembly.GetCallingAssembly()], serviceLifetime);
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public IServiceCollection RegisterOnInherit<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Singleton,
+            Assembly? assembly = null) where T : class
+        {
+            assembly ??= Assembly.GetCallingAssembly();
+            return serviceCollection.RegisterOnInherit<T>([assembly], serviceLifetime);
+        }
 
         /// <summary>
-        /// Registers every concrete type assignable to <typeparamref name="T"/> found in the given assemblies, for command
-        /// handlers, jobs, rules, and anything else better discovered than listed by hand, across as many assemblies as the
-        /// implementations are spread over.
+        /// Registers concrete types in the specified assemblies that are assignable to <typeparamref name="T"/>. 
         /// </summary>
         ///
         /// <typeparam name="T">
-        /// The base type or interface to match, and by default the service type each implementation is registered under.
+        /// The type to which discovered implementations must be assignable.
         /// </typeparam>
         /// <param name="assemblies">
-        /// The assemblies to scan, in the order they should be searched. An empty array registers nothing; the overload that
-        /// takes no assembly at all is the one that falls back to the calling assembly.
+        /// The assemblies to scan.
         /// </param>
-        /// <param name="serviceLifetime">The lifetime applied to every registration this call produces.</param>
+        /// <param name="serviceLifetime">The lifetime of the registered services.</param>
         /// <param name="registerAsBaseType">
-        /// Whether to register each implementation under <typeparamref name="T"/>, which is what a consumer resolving
-        /// <see cref="IEnumerable{T}"/> needs, or under its own concrete type when <c>false</c>.
+        /// Whether to register each implementation as <typeparamref name="T"/> rather than as its concrete type.
         /// </param>
         /// <param name="filter">
-        /// An optional predicate narrowing what is registered. Only types it accepts are registered.
+        /// An optional predicate used to filter discovered types.
         /// </param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with matching implementations registered.</returns>
-        ///
-        /// <remarks>
-        /// Registrations are added rather than replaced, so calling this twice over the same assembly registers everything
-        /// twice.
-        /// </remarks>
+        /// <returns>The configured service collection.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
@@ -185,29 +162,20 @@ public static class ServiceCollectionExtensions
         ) where T : class => serviceCollection.InternalRegister<T>(serviceLifetime, registerAsBaseType, filter, assemblies);
 
         /// <summary>
-        /// Performs the discovery and registration every public overload ends up at, once the assemblies have been resolved
-        /// to an explicit array.
+        /// Discovers and registers implementations of <typeparamref name="T"/> from the specified assemblies.
         /// </summary>
         ///
-        /// <typeparam name="T">The base type or interface to match.</typeparam>
-        /// <param name="serviceLifetime">The lifetime applied to every registration.</param>
+        /// <typeparam name="T">The type to which discovered implementations must be assignable.</typeparam>
+        /// <param name="serviceLifetime">The lifetime of the registered services.</param>
         /// <param name="registerAsBaseType">
-        /// Whether to register each implementation under <typeparamref name="T"/> instead of its own concrete type.
+        /// Whether to register each implementation under <typeparamref name="T"/> rather than as its concrete type.
         /// </param>
-        /// <param name="filter">An optional predicate applied to each discovered type. Only types it accepts are registered.</param>
+        /// <param name="filter">An optional predicate used to filter discovered types.</param>
         /// <param name="assemblies">
-        /// The assemblies to scan. Already resolved by the caller, so an empty array here scans nothing rather than falling
-        /// back to the calling assembly.
+        /// The assemblies to scan.
         /// </param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with matching implementations registered.</returns>
-        ///
-        /// <remarks>
-        /// Discovery is left to <see cref="TypeDiscovery.FindAssignableTypes{T}(Assembly[])"/>, and two predicates then narrow
-        /// what it returns, in this order: types carrying <see cref="SkipAutoRegistrationAttribute"/> are dropped, and
-        /// <paramref name="filter"/> is applied to whatever survives that. The attribute is read with <c>inherit: false</c>, so
-        /// it excludes only the type that carries it and a class deriving from a marked base is registered like any other.
-        /// </remarks>
+        /// <returns>The configured service collection.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
@@ -219,13 +187,18 @@ public static class ServiceCollectionExtensions
         ) where T : class
         {
             IEnumerable<Type> types = TypeDiscovery.FindAssignableTypes<T>(assemblies)
-                .Where(t => !t.IsDefined(typeof(SkipAutoRegistrationAttribute), false))
+                .Where(t => !t.IsDefined(typeof(SkipAutoRegistrationAttribute)))
                 .Where(t => filter is null || filter(t));
 
             foreach (Type type in types)
             {
                 Type serviceType = registerAsBaseType ? typeof(T) : type;
-                serviceCollection.Add(new ServiceDescriptor(serviceType, type, serviceLifetime));
+                var descriptor = new ServiceDescriptor(serviceType, type, serviceLifetime);
+
+                if (registerAsBaseType)
+                    serviceCollection.TryAddEnumerable(descriptor);
+                else
+                    serviceCollection.TryAdd(descriptor);
             }
 
             return serviceCollection;
