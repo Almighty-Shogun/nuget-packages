@@ -3,9 +3,7 @@ using System.Reflection;
 namespace AlmightyShogun.Utils;
 
 /// <summary>
-/// Finds concrete implementations across assemblies by reflection, which is what the registration helpers in this package
-/// are built on. It is a raw primitive with no dependency-injection semantics: nothing here reads
-/// <see cref="SkipAutoRegistrationAttribute"/> or decides a lifetime.
+/// Provides utilities for discovering assignable types in assemblies.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -13,44 +11,34 @@ namespace AlmightyShogun.Utils;
 public static class TypeDiscovery
 {
     /// <summary>
-    /// Retrieves the concrete types in the calling assembly that are assignable to <typeparamref name="T"/>.
-    /// Use it from the assembly that owns the implementations; scanning a different one needs an explicit overload.
+    /// Finds concrete types in the calling assembly that are assignable to <typeparamref name="T"/>.
     /// </summary>
     ///
     /// <typeparam name="T">
-    /// The base type or interface to match. Assignability is used, so an indirect subclass or an interface implemented by a
-    /// base class matches just as well as a direct one.
+    /// The type to which discovered types must be assignable.
     /// </typeparam>
     ///
     /// <returns>
-    /// The matching concrete types in the caller's own assembly, lazily. Empty when the assembly declares none.
+    /// The discovered types.
     /// </returns>
-    ///
-    /// <remarks>
-    /// The assembly is resolved from the call stack, so this reports whichever assembly contains the code that called it,
-    /// not the one that started the process.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public static IEnumerable<Type> FindAssignableTypes<T>() => FindAssignableTypes<T>(Assembly.GetCallingAssembly());
 
     /// <summary>
-    /// Retrieves the concrete types in one assembly that are assignable to <typeparamref name="T"/>. Reach for it
-    /// when the implementations live somewhere other than the calling assembly, such as a separate contracts project.
+    /// Finds concrete types in the specified assembly that are assignable to <typeparamref name="T"/>.
     /// </summary>
     ///
     /// <typeparam name="T">
-    /// The base type or interface to match. Assignability is used, so an indirect subclass or an interface implemented by a
-    /// base class matches just as well as a direct one.
+    /// The type to which discovered types must be assignable.
     /// </typeparam>
     /// <param name="assembly">
-    /// The assembly to scan. Passed through unchanged, so an assembly whose types cannot all be loaded still contributes
-    /// the ones that did.
+    /// The assembly to scan.
     /// </param>
     ///
     /// <returns>
-    /// The matching concrete types in that assembly, lazily. Empty when it declares none.
+    /// The discovered types.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
@@ -58,29 +46,22 @@ public static class TypeDiscovery
     public static IEnumerable<Type> FindAssignableTypes<T>(Assembly assembly) => FindAssignableTypes<T>([assembly]);
     
     /// <summary>
-    /// Retrieves the concrete types in the specified assemblies that are assignable to <typeparamref name="T"/>.
-    /// Interfaces and abstract classes are excluded, but nothing looks for an accessible constructor, so a type whose only
-    /// constructor is private is still returned and still cannot be instantiated.
+    /// Finds concrete types in the specified assemblies that are assignable to <typeparamref name="T"/>.
     /// </summary>
     ///
     /// <typeparam name="T">
-    /// The base type or interface to match. Assignability is used, so an indirect subclass or an interface implemented by a
-    /// base class matches just as well as a direct one.
+    /// The type to which discovered types must be assignable.
     /// </typeparam>
     /// <param name="assemblies">
-    /// The assemblies to scan, in the order they should be searched. An empty array yields nothing rather than falling
-    /// back to the calling assembly; the parameterless overload is what does that.
+    /// The assemblies to scan.
     /// </param>
     ///
     /// <returns>
-    /// The matching concrete types, grouped by assembly in the order <paramref name="assemblies"/> lists them. Within an
-    /// assembly the order is whatever reflection reports and is not guaranteed. The sequence is lazy, so the reflection work
-    /// happens as it is enumerated rather than when this method returns.
+    /// The discovered types.
     /// </returns>
     ///
     /// <remarks>
-    /// An assembly whose types cannot all be loaded contributes the types that did load, so one unresolvable dependency does
-    /// not end the scan.
+    /// Types that cannot be loaded from assemblies are skipped.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -90,20 +71,14 @@ public static class TypeDiscovery
         .Where(t => typeof(T).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false });
 
     /// <summary>
-    /// Reads the types defined in an assembly, keeping the ones that loaded when others could not.
+    /// Gets the types that can be loaded from the specified assembly.
     /// </summary>
     ///
-    /// <param name="assembly">The assembly to read the defined types from.</param>
+    /// <param name="assembly">The assembly to inspect.</param>
     ///
     /// <returns>
-    /// Every type the assembly defines, or the subset that loaded when a dependency could not be resolved.
+    /// The types that were successfully loaded.
     /// </returns>
-    ///
-    /// <remarks>
-    /// A partially loadable assembly throws <see cref="ReflectionTypeLoadException"/> from
-    /// <see cref="Assembly.GetTypes"/> while still exposing the types that succeeded on the exception itself. Discovery is a
-    /// best-effort scan, so the usable subset is preferable to failing the whole call over one missing dependency.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

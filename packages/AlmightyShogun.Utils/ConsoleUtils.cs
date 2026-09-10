@@ -115,9 +115,7 @@ public static class ConsoleUtils
                 {
                     Console.ResetColor();
                 }
-                catch (Exception exception) when (exception is IOException or InvalidOperationException)
-                {
-                }
+                catch (Exception exception) when (exception is IOException or InvalidOperationException) { }
                 
                 RemoveLastLine();
             }

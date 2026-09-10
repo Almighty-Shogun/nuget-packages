@@ -3,10 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AlmightyShogun.Utils;
 
 /// <summary>
-/// Defines a reusable registration module that groups related service registrations behind a single type, so a feature can
-/// own its own wiring instead of spreading it across startup code. An implementation cannot take constructor dependencies,
-/// because <see cref="ServiceCollectionExtensions.AddService{T}"/> constructs it directly; anything it needs must be passed
-/// through the service collection it receives.
+/// Defines a module for registering services with the specified service collection.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -14,12 +11,11 @@ namespace AlmightyShogun.Utils;
 public interface IServiceRegistry
 {
     /// <summary>
-    /// Adds the module's registrations to the supplied collection.
+    /// Registers services with the specified service collection.
     /// </summary>
     ///
     /// <param name="serviceCollection">
-    /// The collection the module adds its registrations to. It is the application's live collection, not a copy, so every
-    /// change is visible to the rest of startup and there is nothing to hand back.
+    /// The service collection to configure.
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
