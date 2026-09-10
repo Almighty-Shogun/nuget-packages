@@ -65,9 +65,6 @@ public static class DeserializeExtensions
         /// <exception cref="ArgumentNullException">
         /// The JSON string is <c>null</c>.
         /// </exception>
-        /// <exception cref="NotSupportedException">
-        /// There is no compatible converter for <typeparamref name="T"/> or its members.
-        /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
@@ -75,15 +72,13 @@ public static class DeserializeExtensions
         {
             try
             {
-                var value = JsonSerializer.Deserialize<T>(json, options ?? DefaultOptions);
+                result = JsonSerializer.Deserialize<T>(json, options ?? DefaultOptions);
 
-                result = value!;
-
-                return value is not null;
+                return result is not null;
             }
-            catch (JsonException)
+            catch (Exception exception) when (exception is JsonException or NotSupportedException)
             {
-                result = default!;
+                result = default;
 
                 return false;
             }
@@ -128,9 +123,9 @@ public static class DeserializeExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.1.0</since>
-        public async Task<T?> DeserializeAsync<T>(
+        public ValueTask<T?> DeserializeAsync<T>(
             JsonSerializerOptions? options = null,
             CancellationToken cancellationToken = default
-        ) => await JsonSerializer.DeserializeAsync<T>(stream, options ?? DefaultOptions, cancellationToken);
+        ) => JsonSerializer.DeserializeAsync<T>(stream, options ?? DefaultOptions, cancellationToken);
     }
 }
