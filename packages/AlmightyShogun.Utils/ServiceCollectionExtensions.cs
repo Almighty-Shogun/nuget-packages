@@ -187,7 +187,12 @@ public static class ServiceCollectionExtensions
             foreach (Type type in types)
             {
                 Type serviceType = registerAsBaseType ? typeof(T) : type;
-                serviceCollection.Add(new ServiceDescriptor(serviceType, type, serviceLifetime));
+                var descriptor = new ServiceDescriptor(serviceType, type, serviceLifetime);
+
+                if (registerAsBaseType)
+                    serviceCollection.TryAddEnumerable(descriptor);
+                else
+                    serviceCollection.TryAdd(descriptor);
             }
 
             return serviceCollection;
