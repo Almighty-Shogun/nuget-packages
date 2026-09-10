@@ -6,13 +6,11 @@ using System.Globalization;
 namespace AlmightyShogun.Serilog;
 
 /// <summary>
-/// Renders a Serilog event as one console line: a colored level and timestamp prefix, then the message template with each
-/// property colored by its type or by an explicit shorthand, and any exception appended below in dark gray.
+/// Formats Serilog events for colored console output.
 /// </summary>
 ///
 /// <param name="enableColors">
-/// Whether escape codes are written at all. When <c>false</c> the same text is produced without them, so a redirected log
-/// stays readable rather than filling with escape sequences.
+/// Whether ANSI colors are enabled.
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
@@ -20,13 +18,9 @@ namespace AlmightyShogun.Serilog;
 internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
 {
     /// <summary>
-    /// Whether escape codes should be written by default: <c>true</c> when the process output is not redirected and
-    /// <c>NO_COLOR</c> is unset or set to an empty string. Nothing here tests what the receiving terminal can render.
+    /// Indicates whether ANSI colors should be enabled based on output redirection
+    /// and the <c>NO_COLOR</c> environment variable.
     /// </summary>
-    ///
-    /// <remarks>
-    /// Evaluated once per process, so a console redirected after start is not noticed.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -34,27 +28,16 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
         !Console.IsOutputRedirected && string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NO_COLOR"));
 
     /// <summary>
-    /// Writes one event, then a trailing newline. A rendered value is padded to the width its token's alignment asks for, on
-    /// the right for a left alignment and on the left otherwise, and is left as it is when already at least that wide. A
-    /// property named in the template but absent from the event is written back as <c>{Name}</c>, or <c>{Name:format}</c>
-    /// where the token carried a format, so a template typo is visible in the log instead of silent. That write-back carries
-    /// neither the alignment nor a destructuring hint, so the token is recognisable rather than identical to what the
-    /// template held.
+    /// Formats a Serilog event and writes it to the output.
     /// </summary>
     ///
-    /// <param name="logEvent">The event to render, supplying the level, timestamp, template, properties, and exception.</param>
-    /// <param name="output">The writer receiving the line. Not flushed here.</param>
+    /// <param name="logEvent">The log event to format.</param>
+    /// <param name="output">The writer receiving the formatted event.</param>
     ///
     /// <remarks>
-    /// A property format specifier may carry a color after a <c>|</c>, as in <c>{Count:N0|c}</c>, where the left side is the
-    /// numeric format and the right side is a shorthand from <see cref="AnsiColor"/>. Without a <c>|</c> at all, the color
-    /// follows the value's type. Every colored span written here is closed with <see cref="AnsiColor.Reset"/>, so a line
-    /// never leaks its color into whatever the terminal prints next. Alignment padding is measured on the rendered value
-    /// alone and written inside that span, so an escape code never counts toward the width.
-    /// The prefix is built under <see cref="CultureInfo.InvariantCulture"/>, and its level upper-cased with
-    /// <see cref="string.ToUpperInvariant"/>, so the frame of the line reads the same whatever the host's culture is. The
-    /// values inside the message are not pinned the same way: <see cref="RenderPropertyValue"/> uses the invariant culture
-    /// only on the formatted path, so a value it renders unformatted follows the current culture instead.
+    /// Property format specifiers may include a color shorthand after <c>|</c>, such as <c>{Count:N0|c}</c>.
+    /// Without an explicit color shorthand, property colors are selected from the value type.
+    /// Missing properties are written back as placeholders rather than omitted.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -66,10 +49,10 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
 
         Write(output, GetLogLevelColor(logEvent.Level));
 
-        output.Write(string.Create(
-            CultureInfo.InvariantCulture,
-            $"[{logEvent.Timestamp:HH:mm:ss} {logEvent.Level.ToString()[..3].ToUpperInvariant()}] "
-        ));
+        output.Write(
+            string.Create(
+                CultureInfo.InvariantCulture,
+                $"[{logEvent.Timestamp:HH:mm:ss} {logEvent.Level.ToString()[..3].ToUpperInvariant()}] "));
 
         Write(output, AnsiColor.Reset);
 
@@ -140,25 +123,22 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
     }
 
     /// <summary>
-    /// Turns a property value into the text written for it, before <see cref="Format"/> applies any alignment padding.
+    /// Renders a Serilog property value as text.
     /// </summary>
     ///
     /// <param name="value">
-    /// The value to render. A scalar is written directly; anything structured falls back to Serilog's own rendering.
+    /// The property value to render.
     /// </param>
     /// <param name="numericFormat">
-    /// The format applied when the scalar's own value implements <see cref="IFormattable"/>, under
-    /// <see cref="CultureInfo.InvariantCulture"/>. Ignored when empty, when that value is not formattable, and for a
-    /// structured value, which Serilog renders with the default format provider instead.
+    /// The format to apply to formattable scalar values.
     /// </param>
     ///
-    /// <returns>The rendered text, or the literal <c>null</c> for a scalar holding no value.</returns>
+    /// <returns>The rendered value, or the literal <c>null</c> for a null scalar.</returns>
     ///
     /// <remarks>
-    /// A format string the value rejects with a <c>FormatException</c> is swallowed and the unformatted value is written
-    /// instead; anything else it throws escapes. Only the formatted path uses <see cref="CultureInfo.InvariantCulture"/>: an
-    /// empty format, a value that is not formattable, and that swallowed failure all fall back to
-    /// <see cref="object.ToString"/>.
+    /// Formattable scalar values are rendered using <see cref="CultureInfo.InvariantCulture"/>.
+    /// If a format is invalid, the value is rendered without it.
+    /// Non-scalar values use Serilog's default rendering.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -192,11 +172,11 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
     }
 
     /// <summary>
-    /// Writes an escape code, or nothing when colors are off.
+    /// Writes an ANSI color code when colors are enabled.
     /// </summary>
     ///
-    /// <param name="output">The writer receiving the escape code.</param>
-    /// <param name="ansiColor">The escape code to write, discarded when colors are off.</param>
+    /// <param name="output">The writer to write to.</param>
+    /// <param name="ansiColor">The ANSI color code to write.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -207,16 +187,14 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
     }
 
     /// <summary>
-    /// Picks a color from the value's type, used for a property the event carries whose format holds no <c>|</c>. A format
-    /// that holds one bypasses this method, leaving <see cref="AnsiColor.FromShort"/> to decide the color, including for an
-    /// empty or unrecognized shorthand.
+    /// Determines the default ANSI color for a property value.
     /// </summary>
     ///
-    /// <param name="value">The value whose runtime type decides the color.</param>
+    /// <param name="value">The property value to determine a color for.</param>
     ///
     /// <returns>
-    /// Cyan for numeric types, magenta for <see cref="bool"/>, dark gray for null, and white for strings and anything else,
-    /// including structured values.
+    /// Cyan for numeric values, magenta for booleans, dark gray for <c>null</c>,
+    /// and white for all other values.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
@@ -242,14 +220,14 @@ internal sealed class ColorFormatter(bool enableColors) : ITextFormatter
     }
 
     /// <summary>
-    /// Picks the color of the level and timestamp prefix.
+    /// Determines the ANSI color for a log level.
     /// </summary>
     ///
-    /// <param name="logLevel">The level being written.</param>
+    /// <param name="logLevel">The log level to determine a color for.</param>
     ///
     /// <returns>
-    /// Green for <c>Information</c>, yellow for <c>Warning</c>, red for <c>Error</c>, bright red for <c>Fatal</c>, and white
-    /// for <c>Verbose</c> and <c>Debug</c>.
+    /// Green for <c>Information</c>, yellow for <c>Warning</c>, red for <c>Error</c>,
+    /// bright red for <c>Fatal</c>, and white for <c>Verbose</c>, <c>Debug</c>, and unrecognized values.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
