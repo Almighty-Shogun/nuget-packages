@@ -11,5 +11,5 @@ namespace AlmightyShogun.Utils;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
-[AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public sealed class SkipAutoRegistrationAttribute : Attribute;

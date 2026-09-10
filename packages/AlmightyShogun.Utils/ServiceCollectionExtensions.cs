@@ -181,7 +181,7 @@ public static class ServiceCollectionExtensions
         ) where T : class
         {
             IEnumerable<Type> types = TypeDiscovery.FindAssignableTypes<T>(assemblies)
-                .Where(t => !t.IsDefined(typeof(SkipAutoRegistrationAttribute), false))
+                .Where(t => !t.IsDefined(typeof(SkipAutoRegistrationAttribute)))
                 .Where(t => filter is null || filter(t));
 
             foreach (Type type in types)
