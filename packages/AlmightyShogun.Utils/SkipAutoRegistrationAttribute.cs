@@ -6,7 +6,7 @@ namespace AlmightyShogun.Utils;
 /// <summary>
 /// Excludes a class from the registration performed by
 /// <see cref="ServiceCollectionExtensions.RegisterOnInherit{T}(IServiceCollection, Assembly[], ServiceLifetime, bool, Func{Type, bool})"/>
-/// and <see cref="ServiceCollectionExtensions.RegisterOnInherit{T}(IServiceCollection, ServiceLifetime)"/>.
+/// and <see cref="ServiceCollectionExtensions.RegisterOnInherit{T}(IServiceCollection, ServiceLifetime, Assembly)"/>.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

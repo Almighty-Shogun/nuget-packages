@@ -12,23 +12,6 @@ namespace AlmightyShogun.Utils;
 public static class TypeDiscovery
 {
     /// <summary>
-    /// Finds concrete types in the calling assembly that are assignable to <typeparamref name="T"/>.
-    /// </summary>
-    ///
-    /// <typeparam name="T">
-    /// The type to which discovered types must be assignable.
-    /// </typeparam>
-    ///
-    /// <returns>
-    /// The discovered types.
-    /// </returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    public static IEnumerable<Type> FindAssignableTypes<T>() => FindAssignableTypes<T>(Assembly.GetCallingAssembly());
-
-    /// <summary>
     /// Finds concrete types in the specified assembly that are assignable to <typeparamref name="T"/>.
     /// </summary>
     ///
@@ -36,7 +19,7 @@ public static class TypeDiscovery
     /// The type to which discovered types must be assignable.
     /// </typeparam>
     /// <param name="assembly">
-    /// The assembly to scan.
+    /// The assembly to scan. If <c>null</c>, the calling assembly is used.
     /// </param>
     ///
     /// <returns>
@@ -45,7 +28,13 @@ public static class TypeDiscovery
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    public static IEnumerable<Type> FindAssignableTypes<T>(Assembly assembly) => FindAssignableTypes<T>([assembly]);
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static IEnumerable<Type> FindAssignableTypes<T>(Assembly? assembly = null)
+    {
+        assembly ??= Assembly.GetCallingAssembly();
+        
+        return FindAssignableTypes<T>([assembly]);
+    }
 
     /// <summary>
     /// Finds concrete types in the specified assemblies that are assignable to <typeparamref name="T"/>.

@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -111,20 +112,25 @@ public static class ServiceCollectionExtensions
             => serviceCollection.Replace(ServiceDescriptor.Describe(typeof(TService), typeof(TImplementation), serviceLifetime));
 
         /// <summary>
-        /// Registers concrete types in the calling assembly that are assignable to <typeparamref name="T"/>.
+        /// Registers concrete types assignable to <typeparamref name="T"/>.
         /// </summary>
-        ///
+        /// 
         /// <typeparam name="T">
         /// The service type to register.
         /// </typeparam>
         /// <param name="serviceLifetime">The lifetime of the registered services.</param>
-        ///
+        /// <param name="assembly">The assembly to scan. If <c>null</c>, the calling assembly is used.</param>
         /// <returns>The configured service collection.</returns>
-        ///
+        /// 
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
-        public IServiceCollection RegisterOnInherit<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Singleton) where T : class
-            => serviceCollection.RegisterOnInherit<T>([Assembly.GetCallingAssembly()], serviceLifetime);
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public IServiceCollection RegisterOnInherit<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Singleton,
+            Assembly? assembly = null) where T : class
+        {
+            assembly ??= Assembly.GetCallingAssembly();
+            return serviceCollection.RegisterOnInherit<T>([assembly], serviceLifetime);
+        }
 
         /// <summary>
         /// Registers concrete types in the specified assemblies that are assignable to <typeparamref name="T"/>. 
