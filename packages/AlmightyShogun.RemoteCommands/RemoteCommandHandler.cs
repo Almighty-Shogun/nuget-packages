@@ -281,8 +281,7 @@ internal sealed class RemoteCommandHandler(
                 logger.LogWarning(
                     "{Name:y} is already registered, so {Skipped:c} will never be dispatched",
                     descriptor.Name,
-                    descriptor.ImplementationType.Name
-                );
+                    descriptor.ImplementationType.Name);
         }
 
         return table;
@@ -362,8 +361,7 @@ internal sealed class RemoteCommandHandler(
                 logger.LogWarning(
                     "Rejected connection from {Address:c}; whitelist is {Whitelist:c}",
                     remoteEndPoint?.Address,
-                    string.Join(", ", _config.Whitelisted)
-                );
+                    string.Join(", ", _config.Whitelisted));
 
             return;
         }
@@ -467,8 +465,7 @@ internal sealed class RemoteCommandHandler(
             await RemoteCommandProtocol.WriteFrameAsync(
                 stream,
                 RemoteCommandResponse.Refused(RemoteCommandRefusal.MalformedPayload),
-                cancellationToken
-            );
+                cancellationToken);
 
             return;
         }
@@ -481,8 +478,7 @@ internal sealed class RemoteCommandHandler(
             await RemoteCommandProtocol.WriteFrameAsync(
                 stream,
                 RemoteCommandResponse.Refused(RemoteCommandRefusal.MissingCommandName),
-                cancellationToken
-            );
+                cancellationToken);
 
             return;
         }
@@ -493,14 +489,12 @@ internal sealed class RemoteCommandHandler(
                 logger.LogWarning(
                     "Rejected {Command:y} from {Address:c} because the pre-shared key did not match",
                     payload.Command,
-                    remoteEndPoint
-                );
+                    remoteEndPoint);
 
             await RemoteCommandProtocol.WriteFrameAsync(
                 stream,
                 RemoteCommandResponse.Refused(RemoteCommandRefusal.Unauthorized),
-                cancellationToken
-            );
+                cancellationToken);
 
             return;
         }
@@ -513,8 +507,7 @@ internal sealed class RemoteCommandHandler(
             await RemoteCommandProtocol.WriteFrameAsync(
                 stream,
                 RemoteCommandResponse.Refused(RemoteCommandRefusal.CommandNotFound),
-                cancellationToken
-            );
+                cancellationToken);
 
             return;
         }
@@ -528,23 +521,28 @@ internal sealed class RemoteCommandHandler(
 
         var command = (IInternalRemoteCommand)scope.ServiceProvider.GetRequiredService(descriptor.ImplementationType);
 
+        object message;
+
         try
         {
-            await command.HandleRawAsync(payload.Data, response, cancellationToken);
+            message = command.Bind(payload.Data);
         }
         catch (JsonException exception)
         {
             if (logger.IsEnabled(LogLevel.Warning))
                 logger.LogWarning("The {Command:y} payload did not match its message type: {Reason:c}", payload.Command, exception.Message);
 
-            if (!response.HasWritten)
-                await RemoteCommandProtocol.WriteFrameAsync(
-                    stream,
-                    RemoteCommandResponse.Refused(RemoteCommandRefusal.InvalidMessage),
-                    cancellationToken
-                );
+            await RemoteCommandProtocol.WriteFrameAsync(
+                stream,
+                RemoteCommandResponse.Refused(RemoteCommandRefusal.InvalidMessage),
+                cancellationToken);
 
             return;
+        }
+
+        try
+        {
+            await command.ExecuteAsync(message, response, cancellationToken);
         }
         catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
@@ -554,8 +552,7 @@ internal sealed class RemoteCommandHandler(
                 await RemoteCommandProtocol.WriteFrameAsync(
                     stream,
                     RemoteCommandResponse.Refused(RemoteCommandRefusal.Other),
-                    cancellationToken
-                );
+                    cancellationToken);
 
             return;
         }
@@ -606,6 +603,6 @@ internal sealed class RemoteCommandHandler(
             return true;
 
         return supplied is not null
-            && CryptographicOperations.FixedTimeEquals(SHA256.HashData(Encoding.UTF8.GetBytes(supplied)), _secret);
+               && CryptographicOperations.FixedTimeEquals(SHA256.HashData(Encoding.UTF8.GetBytes(supplied)), _secret);
     }
 }

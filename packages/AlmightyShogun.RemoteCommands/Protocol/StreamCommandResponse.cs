@@ -44,13 +44,13 @@ internal sealed class StreamCommandResponse(Stream stream) : ICommandResponse
     /// <inheritdoc />
     public async Task WriteAsync<TResponse>(TResponse data, CancellationToken cancellationToken = default)
     {
-        if (Interlocked.CompareExchange(ref _hasWritten, 1, 0) != 0)
-            throw new InvalidOperationException("A response has already been written for this command.");
-
         RemoteCommandResponse envelope = new()
         {
             Data = JsonSerializer.SerializeToElement(data, RemoteCommandProtocol.SerializerOptions)
         };
+        
+        if (Interlocked.CompareExchange(ref _hasWritten, 1, 0) != 0)
+            throw new InvalidOperationException("A response has already been written for this command.");
 
         await RemoteCommandProtocol.WriteFrameAsync(stream, envelope, cancellationToken);
     }
