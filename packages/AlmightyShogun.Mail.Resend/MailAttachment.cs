@@ -1,7 +1,7 @@
 namespace AlmightyShogun.Mail.Resend;
 
 /// <summary>
-/// Represents a file delivered alongside a message body.
+/// Represents an email attachment.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -9,8 +9,7 @@ namespace AlmightyShogun.Mail.Resend;
 public sealed record MailAttachment
 {
     /// <summary>
-    /// The name carried with the attachment. Nothing here constrains or rewrites it, so what a recipient's client makes
-    /// of it is that client's business.
+    /// Gets the attachment file name.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -18,7 +17,7 @@ public sealed record MailAttachment
     public required string FileName { get; init; }
 
     /// <summary>
-    /// The raw bytes. Nothing here imposes a size limit of its own.
+    /// Gets the attachment content.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -26,7 +25,7 @@ public sealed record MailAttachment
     public required byte[] Content { get; init; }
 
     /// <summary>
-    /// The MIME type, or <c>null</c> to leave it unstated.
+    /// Gets the MIME content type.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

@@ -3,8 +3,7 @@ using System.Collections.Concurrent;
 namespace AlmightyShogun.Mail.Resend;
 
 /// <summary>
-/// Loads the shared mail templates from the application's <c>mail</c> output directory, caching each file so a send after
-/// the first touches no disk.
+/// Loads and caches email templates from the mail directory.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -12,8 +11,7 @@ namespace AlmightyShogun.Mail.Resend;
 internal sealed class FileEmailTemplateLoader : IEmailTemplateLoader
 {
     /// <summary>
-    /// The directory the templates are read from, resolved against the output directory rather than the working directory so
-    /// it holds wherever the process was launched from.
+    /// Gets the mail templates directory.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -21,15 +19,8 @@ internal sealed class FileEmailTemplateLoader : IEmailTemplateLoader
     internal static readonly string TemplatesDirectory = Path.Combine(AppContext.BaseDirectory, "mail");
 
     /// <summary>
-    /// The completed template reads. Only a finished read is stored, never the task producing it, so a failure or a
-    /// cancellation leaves nothing behind and the next send retries the file instead of replaying the first outcome.
+    /// Stores cached templates by name.
     /// </summary>
-    ///
-    /// <remarks>
-    /// Caching the task would let concurrent first-time loads share one read, at the cost of caching a faulted or canceled
-    /// one forever: a template deleted after startup would then fail every later send, and one canceled send would poison
-    /// the entry for every other caller.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -47,34 +38,22 @@ internal sealed class FileEmailTemplateLoader : IEmailTemplateLoader
     }
 
     /// <summary>
-    /// Reads one template from disk, refusing a name that would climb out of the templates' directory.
+    /// Reads a template from disk.
     /// </summary>
     ///
-    /// <param name="templateName">The file name to read, combined with the templates directory and then checked.</param>
-    /// <param name="cancellationToken">The token cancelling this read alone, since nothing is cached until it completes.</param>
+    /// <param name="templateName">The template name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
     /// <returns>The template contents.</returns>
     ///
-    /// <exception cref="ArgumentException">The name would resolve outside the templates' directory.</exception>
-    /// <exception cref="IOException">The file is missing, or unreadable for a reason the file system reports as an I/O error.</exception>
+    /// <exception cref="ArgumentException">The template resolves outside the mail directory.</exception>
+    /// <exception cref="IOException">The template could not be read.</exception>
     /// <exception cref="UnauthorizedAccessException">
-    /// The process may not read the file. This does not derive from <see cref="IOException"/>, so a caller guarding only
-    /// against that does not catch it.
+    /// The template could not be accessed.
     /// </exception>
     /// <exception cref="OperationCanceledException">
-    /// <paramref name="cancellationToken"/> was signaled. It surfaces from the returned task, since the read is handed back
-    /// rather than awaited here.
+    /// The operation was canceled.
     /// </exception>
-    ///
-    /// <remarks>
-    /// The check compares resolved paths rather than scanning for <c>..</c>, so it also covers an absolute path and a name
-    /// that only escapes once the platform has normalized it.
-    ///
-    /// Containment is decided by <see cref="Path.GetRelativePath"/> rather than by a string prefix. Under a <c>mail</c> root,
-    /// <c>../mail-hacked/secret</c> resolves to a full path that still begins with the root as a string, so a prefix test
-    /// would read it as contained. Its relative path starts with <c>..</c>, which is what is rejected here, along with one
-    /// that comes back rooted.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

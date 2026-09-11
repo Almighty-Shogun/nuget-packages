@@ -1,7 +1,7 @@
 namespace AlmightyShogun.Mail.Resend;
 
 /// <summary>
-/// Represents the addressing and delivery choices for one message.
+/// Represents options for sending an email.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -9,7 +9,7 @@ namespace AlmightyShogun.Mail.Resend;
 public sealed record MailOptions
 {
     /// <summary>
-    /// The primary recipients. Nothing here checks that an entry is a well-formed address.
+    /// Gets the primary recipients.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -17,7 +17,7 @@ public sealed record MailOptions
     public required IReadOnlyList<string> To { get; init; }
 
     /// <summary>
-    /// The recipients visible to everyone else on the message.
+    /// Gets the carbon copy recipients.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -25,8 +25,7 @@ public sealed record MailOptions
     public IReadOnlyList<string> Cc { get; init; } = [];
 
     /// <summary>
-    /// The recipients hidden from the others. Nothing here caps how many there are, so any limit on a large blind list
-    /// is Resend's own.
+    /// Gets the blind carbon copy recipients.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -34,8 +33,7 @@ public sealed record MailOptions
     public IReadOnlyList<string> Bcc { get; init; } = [];
 
     /// <summary>
-    /// The addresses a reply is directed to instead of the configured sender, for sending from an address nobody
-    /// monitors.
+    /// Gets the reply-to addresses.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -43,7 +41,7 @@ public sealed record MailOptions
     public IReadOnlyList<string> ReplyTo { get; init; } = [];
 
     /// <summary>
-    /// The files delivered with the message.
+    /// Gets the attachments.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -51,14 +49,8 @@ public sealed record MailOptions
     public IReadOnlyList<MailAttachment> Attachments { get; init; } = [];
 
     /// <summary>
-    /// The idempotency key sent with the request. What Resend makes of a repeated key is the provider's own behavior,
-    /// not something this package enforces.
+    /// Gets the idempotency key.
     /// </summary>
-    ///
-    /// <remarks>
-    /// Set it explicitly when the caller can itself be retried, for example a background job, so every one of those retries
-    /// sends the same key.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

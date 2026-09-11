@@ -1,7 +1,7 @@
 namespace AlmightyShogun.Mail.Resend;
 
 /// <summary>
-/// Represents a message rendered but not sent, for inspecting what a template produces.
+/// Represents a rendered email preview.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -9,7 +9,7 @@ namespace AlmightyShogun.Mail.Resend;
 public sealed record MailPreview
 {
     /// <summary>
-    /// The rendered HTML body.
+    /// Gets the rendered HTML body.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -17,7 +17,7 @@ public sealed record MailPreview
     public required string Html { get; init; }
 
     /// <summary>
-    /// The plain-text alternative to <see cref="Html"/>, rendered from the same template values.
+    /// Gets the rendered plain-text body.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

@@ -6,24 +6,15 @@ using System.Text.RegularExpressions;
 namespace AlmightyShogun.Mail.Resend;
 
 /// <summary>
-/// Base class for application email templates. A subclass supplies the content as values, and this class renders both the
-/// HTML and the plain-text body from them, so a template never handles encoding or the shared chrome itself.
+/// Represents a base class for email templates.
 /// </summary>
-///
-/// <remarks>
-/// The two bodies differ in ways no single value controls: the HTML rendering encodes text and URL values while leaving
-/// <see cref="EmailTemplateSettings.IgnoreText"/> as markup, the plain-text one encodes nothing, a blank
-/// <see cref="Title"/> is left out of the text body, each button is repeated there as a label and URL pair, and
-/// <see cref="AdditionalValues"/> is applied to the HTML alone, after the built-in placeholders.
-/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.5.0</since>
 public abstract partial class BaseMailTemplate
 {
     /// <summary>
-    /// The subject line. Public because the mail service reads it when building the message, and it is the one value
-    /// not rendered into either body.
+    /// Gets the email subject.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -31,8 +22,7 @@ public abstract partial class BaseMailTemplate
     public abstract string Subject { get; }
 
     /// <summary>
-    /// The message heading, distinct from <see cref="Subject"/>: a template may repeat the subject here or say something
-    /// different. A blank value is accepted.
+    /// Gets the email title.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -40,7 +30,7 @@ public abstract partial class BaseMailTemplate
     protected abstract string Title { get; }
 
     /// <summary>
-    /// The opening line addressing the recipient, an empty string when a template has nobody to name.
+    /// Gets the email greeting.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -48,7 +38,7 @@ public abstract partial class BaseMailTemplate
     protected abstract string Greeting { get; }
 
     /// <summary>
-    /// The body paragraphs, in the order they appear in the message. Empty by default.
+    /// Gets the email paragraphs.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -56,7 +46,7 @@ public abstract partial class BaseMailTemplate
     protected virtual IReadOnlyList<string> Paragraphs => [];
 
     /// <summary>
-    /// The call-to-action buttons, in the order they appear in the message. Empty by default.
+    /// Gets the email buttons.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -64,45 +54,23 @@ public abstract partial class BaseMailTemplate
     protected virtual IReadOnlyList<MailButton> Buttons => [];
 
     /// <summary>
-    /// Extra placeholder values for the template, keyed by the name written as <c>{{Key}}</c> in the template files.
+    /// Gets additional template placeholder values.
     /// </summary>
-    ///
-    /// <remarks>
-    /// Override this to add template fields beyond the built-in placeholders.
-    ///
-    /// The default is the shared empty <see cref="FrozenDictionary{TKey,TValue}"/> rather than a new dictionary, because this
-    /// is read on every render and a template that adds no fields should allocate nothing to say so.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     protected virtual IReadOnlyDictionary<string, string> AdditionalValues => FrozenDictionary<string, string>.Empty;
 
     /// <summary>
-    /// Assembles the HTML body from the shared fragments, filling the chrome from settings and the content from this
-    /// template.
+    /// Renders the template as HTML.
     /// </summary>
     ///
-    /// <param name="templateHtml">The document fragment, holding the placeholders for the chrome and the assembled body.</param>
-    /// <param name="paragraphTemplateHtml">The fragment repeated once per entry in <see cref="Paragraphs"/>.</param>
-    /// <param name="buttonTemplateHtml">The fragment repeated once per entry in <see cref="Buttons"/>.</param>
-    /// <param name="settings">The bound settings supplying the brand, logo, and footer values.</param>
+    /// <param name="templateHtml">The email template.</param>
+    /// <param name="paragraphTemplateHtml">The paragraph template.</param>
+    /// <param name="buttonTemplateHtml">The button template.</param>
+    /// <param name="settings">The email settings.</param>
     ///
-    /// <returns>The rendered HTML body, with the chrome and content placeholders substituted.</returns>
-    ///
-    /// <remarks>
-    /// Built-in placeholders are replaced before the subclass ones, so a value returned by <see cref="AdditionalValues"/>
-    /// cannot inject a built-in placeholder that then gets substituted. It can still inject an additional one, as
-    /// <see cref="ApplyAdditionalValues"/> describes.
-    ///
-    /// Each text value goes through <see cref="Encode"/> and each URL through <see cref="EncodeUrl"/> as it is substituted.
-    /// <c>{{IgnoreTextHtml}}</c> is the exception among the configured values: it is substituted as written, so
-    /// <see cref="EmailTemplateSettings.IgnoreText"/> may carry markup.
-    /// The <c>{{BodyHtml}}</c> and <c>{{ButtonsHtml}}</c> placeholders take assembled markup instead, whose own paragraphs,
-    /// labels, and URLs were already encoded as each fragment was built. Those two are substituted last, after every other
-    /// placeholder and after the additional values, so a placeholder appearing in caller-supplied text is left as written
-    /// rather than being filled in.
-    /// </remarks>
+    /// <returns>The rendered HTML</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.5.0</since>
@@ -138,24 +106,12 @@ public abstract partial class BaseMailTemplate
     }
 
     /// <summary>
-    /// Renders the template as plain text, sent alongside the HTML for clients that will not display it.
+    /// Renders the template as plain text.
     /// </summary>
     ///
-    /// <param name="settings">The bound settings supplying the footer values.</param>
+    /// <param name="settings">The email settings.</param>
     ///
-    /// <returns>The rendered plain-text body, trimmed of the trailing blank lines the footer would otherwise leave.</returns>
-    ///
-    /// <remarks>
-    /// Nothing is encoded here, because there is no markup to escape. <see cref="AdditionalValues"/> is still not applied, so
-    /// a template relying on an additional value for its wording renders it only in the HTML.
-    ///
-    /// A blank <see cref="Title"/> is dropped rather than opening the body with a blank line, and each entry in
-    /// <see cref="Buttons"/> follows the paragraphs as a label and URL pair, so the destination survives for a client that
-    /// shows only text.
-    ///
-    /// The configurable footer text goes through the same resolution the HTML body applies, so <c>{app_name}</c> and
-    /// <c>{app_url}</c> read the same in both bodies rather than reaching the reader unsubstituted here.
-    /// </remarks>
+    /// <returns>The rendered plain-text body.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.5.0</since>
@@ -185,25 +141,13 @@ public abstract partial class BaseMailTemplate
     }
 
     /// <summary>
-    /// Substitutes the <c>{app_name}</c> and <c>{app_url}</c> placeholders shared by the configurable footer text.
+    /// Resolves placeholders in a configured template value.
     /// </summary>
     ///
-    /// <param name="value">The configured text, which may contain neither, either, nor both placeholders.</param>
-    /// <param name="settings">The bound settings the replacements are read from.</param>
+    /// <param name="value">The template value.</param>
+    /// <param name="settings">The email settings.</param>
     ///
-    /// <returns>
-    /// The text with both placeholders substituted. An unset URL, or one whose scheme <see cref="MailUrl.IsAllowed"/>
-    /// rejects, becomes an empty string.
-    /// </returns>
-    ///
-    /// <remarks>
-    /// Matched case-insensitively, so configuration written as <c>{App_Name}</c> still resolves. This runs before encoding,
-    /// which is what keeps a brand name containing markup from reaching the document.
-    ///
-    /// The URL is scheme-checked here rather than left to <see cref="EncodeUrl"/>, because this value also reaches the
-    /// plain-text body, which does no encoding at all. Only the check is applied, not the encoding, since the HTML path
-    /// passes the result through <see cref="Encode"/> afterwards and would otherwise double-encode it.
-    /// </remarks>
+    /// <returns>The resolved value.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.5.0</since>
@@ -216,18 +160,12 @@ public abstract partial class BaseMailTemplate
         );
 
     /// <summary>
-    /// Applies the subclass-supplied placeholder values, written as <c>{{Key}}</c> in the template.
+    /// Applies additional placeholder values to the HTML.
     /// </summary>
     ///
-    /// <param name="html">The HTML with the built-in placeholders already replaced.</param>
+    /// <param name="html">The HTML to process.</param>
     ///
-    /// <returns>The HTML with each additional value encoded and substituted, unmatched keys left untouched.</returns>
-    ///
-    /// <remarks>
-    /// A key naming a built-in placeholder has no effect, since that one was already replaced. Enumeration order does
-    /// matter: each replacement runs over the result of the last, and <see cref="Encode"/> leaves braces alone, so a value
-    /// containing <c>{{Key}}</c> is itself substituted when that key is enumerated after it.
-    /// </remarks>
+    /// <returns>The processed HTML.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -235,26 +173,24 @@ public abstract partial class BaseMailTemplate
         .Aggregate(html, (current, value) => current.Replace($"{{{{{value.Key}}}}}", Encode(value.Value), StringComparison.Ordinal));
 
     /// <summary>
-    /// Encodes text for safe HTML output, applied to each text value as it is substituted into a placeholder.
+    /// HTML-encodes the specified value.
     /// </summary>
     ///
-    /// <param name="value">The text to encode.</param>
+    /// <param name="value">The value to encode.</param>
     ///
-    /// <returns>The text with the HTML-significant characters replaced by entities.</returns>
+    /// <returns>The encoded value.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.5.0</since>
     private static string Encode(string value) => WebUtility.HtmlEncode(value);
 
     /// <summary>
-    /// Reduces markup to the text a plain-text client can show, so a value written as HTML for the body does not reach the
-    /// text alternative with its tags intact. A <c>br</c> becomes a line break, every other tag is dropped, and the result
-    /// is decoded, so an entity written in the configured value arrives as the character it stands for.
+    /// Converts HTML content to plain text.
     /// </summary>
     ///
-    /// <param name="html">The already resolved value, which may carry markup.</param>
+    /// <param name="html">The HTML content.</param>
     ///
-    /// <returns>The value with its tags reduced to text. A value carrying no markup comes back unchanged.</returns>
+    /// <returns>The plain-text content.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.1.0</since>
@@ -262,17 +198,12 @@ public abstract partial class BaseMailTemplate
         => WebUtility.HtmlDecode(HtmlRegex().Replace(NewLineRegex().Replace(html, "\n"), string.Empty));
 
     /// <summary>
-    /// Encodes a URL for safe use in an <c>href</c> or <c>src</c>, dropping anything that is not an accepted scheme.
+    /// Encodes a URL for use in HTML.
     /// </summary>
     ///
-    /// <param name="value">The URL to encode, which may be <c>null</c> when the setting behind it is unset.</param>
+    /// <param name="value">The URL to encode.</param>
     ///
-    /// <returns>The encoded URL, or an empty string when it is unset or uses a scheme that is not accepted.</returns>
-    ///
-    /// <remarks>
-    /// Dropping the value rather than throwing keeps one bad configured URL from failing every send, at the cost of a logo or
-    /// footer link silently disappearing. A button takes the opposite trade and throws at construction instead.
-    /// </remarks>
+    /// <returns>The encoded URL, or an empty string when the URL is not allowed.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.5.0</since>
