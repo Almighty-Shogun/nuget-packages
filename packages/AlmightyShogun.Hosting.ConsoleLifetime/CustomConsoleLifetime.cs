@@ -4,26 +4,17 @@ using System.Runtime.InteropServices;
 namespace AlmightyShogun.Hosting.ConsoleLifetime;
 
 /// <summary>
-/// Keeps a console application alive when <c>Ctrl+C</c> is pressed, unless <c>DOTNET_RUNNING_IN_IDE</c> is set. Off Windows
-/// it also registers a <c>SIGTERM</c> handler
-/// that shuts the host down in an orderly way; on Windows none is registered. Registered through
-/// <see cref="ConsoleLifetimeExtensions"/>; it is never constructed by consumer code.
+/// Provides a custom console lifetime for hosted applications.
 /// </summary>
 ///
-/// <param name="applicationLifetime">
-/// The lifetime asked to begin shutdown. The <c>SIGTERM</c> handler is its only call site, so on Windows, where that
-/// handler is never registered, it is never called. Going through it lets hosted services run their stop path, rather than
-/// the process ending where it stands.
-/// </param>
+/// <param name="applicationLifetime"> The application lifetime.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.0.0</since>
 internal sealed class CustomConsoleLifetime(IHostApplicationLifetime applicationLifetime) : IHostLifetime, IDisposable
 {
     /// <summary>
-    /// Holds whether <c>DOTNET_RUNNING_IN_IDE</c> was set to a non-empty value, read once when the instance is constructed.
-    /// When it is, <c>Ctrl+C</c> keeps working, so a debug session can still be stopped the usual way. Nothing checks that an
-    /// IDE actually set it; whoever launches the process decides.
+    /// Indicates whether the application is running in an IDE.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -31,8 +22,7 @@ internal sealed class CustomConsoleLifetime(IHostApplicationLifetime application
     private readonly bool _runningInIde = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_IDE"));
 
     /// <summary>
-    /// Holds the <c>SIGTERM</c> handler so it can be released with the lifetime. Stays null on Windows, where no
-    /// registration is made.
+    /// Stores the <c>SIGTERM</c> registration.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -42,53 +32,32 @@ internal sealed class CustomConsoleLifetime(IHostApplicationLifetime application
     /// <inheritdoc />
     ///
     /// <exception cref="PlatformNotSupportedException">
-    /// <c>SIGTERM</c> is not supported by the platform, as documented on <see cref="PosixSignalRegistration.Create"/>.
-    /// Nothing here catches it, so it escapes into <see cref="IHost.StartAsync"/>.
+    /// Signal handling is not supported by the platform.
     /// </exception>
     /// <exception cref="IOException">
-    /// Setting up the signal handling or installing the handler failed, as documented on
-    /// <see cref="PosixSignalRegistration.Create"/>. Nothing here catches it either.
+    /// The signal handler could not be registered.
     /// </exception>
-    ///
-    /// <remarks>
-    /// The <c>SIGTERM</c> handler cancels the default handling of the signal before requesting shutdown, so the runtime does
-    /// not terminate the process while hosted services are still stopping. <see cref="HostOptions.ShutdownTimeout"/>, which
-    /// <see cref="ConsoleLifetimeExtensions"/> sets when its host options helper is called, still caps how long the host
-    /// waits for them.
-    ///
-    /// The registration is made only off Windows, and <paramref name="cancellationToken"/> is not observed.
-    /// </remarks>
     public Task WaitForStartAsync(CancellationToken cancellationToken)
     {
         Console.CancelKeyPress += OnCancelKeyPress;
 
         if (!OperatingSystem.IsWindows())
-            _sigTermRegistration = PosixSignalRegistration.Create(PosixSignal.SIGTERM, context =>
-            {
-                context.Cancel = true;
+            _sigTermRegistration = PosixSignalRegistration.Create(
+                PosixSignal.SIGTERM,
+                context =>
+                {
+                    context.Cancel = true;
 
-                applicationLifetime.StopApplication();
-            });
+                    applicationLifetime.StopApplication();
+                });
 
         return Task.CompletedTask;
     }
 
     /// <inheritdoc />
-    ///
-    /// <remarks>
-    /// Nothing to wait for. Shutdown is driven by the <c>SIGTERM</c> handler where one was registered, by anything that calls
-    /// <see cref="IHostApplicationLifetime.StopApplication"/>, and by a direct <see cref="IHost.StopAsync"/>, so by the
-    /// time this runs the decision has already been made. <paramref name="cancellationToken"/> is not observed.
-    /// </remarks>
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     /// <inheritdoc />
-    ///
-    /// <remarks>
-    /// <see cref="Console.CancelKeyPress"/> is static and the handler holds no reference to the host, so a leaked subscription
-    /// would keep swallowing key presses for the rest of the process. That bites hardest where a host is built and disposed
-    /// more than once, such as in tests.
-    /// </remarks>
     public void Dispose()
     {
         Console.CancelKeyPress -= OnCancelKeyPress;
@@ -96,17 +65,11 @@ internal sealed class CustomConsoleLifetime(IHostApplicationLifetime application
     }
 
     /// <summary>
-    /// Swallows <c>Ctrl+C</c> and <c>Ctrl+Break</c>, which raise the same event, so an operator cannot stop a long-running
-    /// process by accident, except when <c>DOTNET_RUNNING_IN_IDE</c> is set.
+    /// Handles console cancellation.
     /// </summary>
     ///
-    /// <param name="sender">
-    /// Whatever <see cref="Console.CancelKeyPress"/> supplies. Unused; the decision depends only on the environment.
-    /// </param>
-    /// <param name="eventArgs">
-    /// Carries the cancel flag. Setting it keeps the process running, so it is set for either key combination unless
-    /// <c>DOTNET_RUNNING_IN_IDE</c> is set.
-    /// </param>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="eventArgs">The console cancellation event arguments.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.0.0</since>
