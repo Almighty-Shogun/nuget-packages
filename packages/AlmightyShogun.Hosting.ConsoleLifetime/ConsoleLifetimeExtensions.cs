@@ -5,9 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AlmightyShogun.Hosting.ConsoleLifetime;
 
 /// <summary>
-/// Provides the two startup helpers this package contributes: taking over the console lifetime so <c>Ctrl+C</c> no longer
-/// stops the process unless <c>DOTNET_RUNNING_IN_IDE</c> is set, and setting the host options that govern shutdown. Each is
-/// offered on all three startup entry points.
+/// Provides console lifetime and host option configuration extensions.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -15,55 +13,35 @@ namespace AlmightyShogun.Hosting.ConsoleLifetime;
 public static class ConsoleLifetimeExtensions
 {
     /// <summary>
-    /// Provides both helpers on the service collection, which is where the registrations actually land. The two builder
-    /// receivers below forward here rather than registering anything of their own.
+    /// Provides console lifetime extensions for <see cref="IServiceCollection"/>.
     /// </summary>
     ///
-    /// <param name="serviceCollection">
-    /// The collection the registrations are made on. Use this receiver from a registration module or anywhere the builder
-    /// itself is out of reach. Both helpers return it so calls can be chained.
-    /// </param>
+    /// <param name="serviceCollection">The service collection.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.0.0</since>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Takes over the console lifetime so <c>Ctrl+C</c> no longer stops the application, for a worker or daemon that
-        /// should only stop when something asks it to. Off Windows a <c>SIGTERM</c> handler is registered and still shuts
-        /// the host down in an orderly way; on Windows none is, so this package only changes <c>Ctrl+C</c> behavior there.
+        /// Replaces the host lifetime with the custom console lifetime.
         /// </summary>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with the custom <see cref="IHostLifetime"/> registered.</returns>
-        ///
-        /// <remarks>
-        /// Set <c>DOTNET_RUNNING_IN_IDE</c> to a non-empty value to keep <c>Ctrl+C</c> working while debugging. Without it, the
-        /// process stops when <c>SIGTERM</c> arrives off Windows, when something in the process calls
-        /// <see cref="IHostApplicationLifetime.StopApplication"/>, or when it is killed from outside.
-        ///
-        /// The default lifetime is replaced rather than added. The ordering that still applies is documented on
-        /// <see cref="ServiceCollectionExtensions.ReplaceService{TService, TImplementation}"/>.
-        /// </remarks>
+        /// <returns>The configured service collection.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.0.0</since>
         public IServiceCollection UseCustomConsoleLifetime() => serviceCollection.ReplaceService<IHostLifetime, CustomConsoleLifetime>();
 
         /// <summary>
-        /// Sets how long shutdown may take and what a failing background service does to the host.
+        /// Configures host shutdown behavior.
         /// </summary>
         ///
-        /// <param name="shutdownTimeout">
-        /// How long the host waits for hosted services to stop before it gives up and continues shutting down. Too short
-        /// truncates work that was mid-flight; too long leaves the process alive after it has stopped serving.
-        /// </param>
+        /// <param name="shutdownTimeout">The shutdown timeout.</param>
         /// <param name="backgroundServiceExceptionBehavior">
-        /// What an unhandled exception in a <see cref="BackgroundService"/> does, either
-        /// <see cref="BackgroundServiceExceptionBehavior.StopHost"/> or
-        /// <see cref="BackgroundServiceExceptionBehavior.Ignore"/>.
+        /// The background service exception behavior.
         /// </param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with the host options configured.</returns>
+        /// <returns>The configured service collection.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.0.0</since>
@@ -78,31 +56,20 @@ public static class ConsoleLifetimeExtensions
     }
 
     /// <summary>
-    /// Provides both helpers on the modern host builder, each forwarding to the service collection receiver so startup code
-    /// never has to reach through <c>Services</c> itself.
+    /// Provides console lifetime extensions for <see cref="IHostApplicationBuilder"/>.
     /// </summary>
     ///
-    /// <param name="hostApplicationBuilder">
-    /// The builder whose services receive the registrations. This is the receiver to reach for in a modern minimal-hosting
-    /// <c>Program.cs</c>, where the builder is what startup code has in hand.
-    /// </param>
+    /// <param name="hostApplicationBuilder">The host application builder.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     extension(IHostApplicationBuilder hostApplicationBuilder)
     {
         /// <summary>
-        /// Takes over the console lifetime so <c>Ctrl+C</c> no longer stops the application, unless
-        /// <c>DOTNET_RUNNING_IN_IDE</c> is set. Off Windows a <c>SIGTERM</c> handler is registered as the orderly way out;
-        /// on Windows none is.
+        /// Replaces the host lifetime with the custom console lifetime.
         /// </summary>
         ///
-        /// <returns>The <see cref="IHostApplicationBuilder"/> instance with the custom <see cref="IHostLifetime"/> registered.</returns>
-        ///
-        /// <remarks>
-        /// Delegates to the <see cref="IServiceCollection"/> receiver, so the behavior and the <c>DOTNET_RUNNING_IN_IDE</c>
-        /// escape hatch documented there apply unchanged.
-        /// </remarks>
+        /// <returns>The configured host application builder.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
@@ -114,17 +81,15 @@ public static class ConsoleLifetimeExtensions
         }
 
         /// <summary>
-        /// Sets how long shutdown may take and what a failing background service does to the host.
+        /// Configures host shutdown behavior.
         /// </summary>
         ///
-        /// <param name="shutdownTimeout">
-        /// How long the host waits for hosted services to stop before it gives up and continues shutting down.
-        /// </param>
+        /// <param name="shutdownTimeout">The shutdown timeout.</param>
         /// <param name="backgroundServiceExceptionBehavior">
-        /// Whether an unhandled exception in a <see cref="BackgroundService"/> stops the host or is logged and ignored.
+        /// The background service exception behavior.
         /// </param>
         ///
-        /// <returns>The <see cref="IHostApplicationBuilder"/> instance with the host options configured.</returns>
+        /// <returns>The configured host application builder.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
@@ -140,34 +105,20 @@ public static class ConsoleLifetimeExtensions
     }
 
     /// <summary>
-    /// Provides both helpers on the generic host builder, each deferring its registration into
-    /// <see cref="HostingHostBuilderExtensions.ConfigureServices(IHostBuilder, Action{IServiceCollection})"/> rather than
-    /// applying it where it is called.
+    /// Provides console lifetime extensions for <see cref="IHostBuilder"/>.
     /// </summary>
     ///
-    /// <param name="hostBuilder">
-    /// The generic host builder that receives the registrations. This is the receiver for an application still built with
-    /// <c>Host.CreateDefaultBuilder</c> rather than the newer builder.
-    /// </param>
+    /// <param name="hostBuilder">The host builder.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     extension(IHostBuilder hostBuilder)
     {
         /// <summary>
-        /// Takes over the console lifetime so <c>Ctrl+C</c> no longer stops the application. Off Windows a <c>SIGTERM</c>
-        /// handler is registered as the orderly way out; on Windows none is.
+        /// Replaces the host lifetime with the custom console lifetime.
         /// </summary>
         ///
-        /// <returns>The <see cref="IHostBuilder"/> instance with the custom <see cref="IHostLifetime"/> queued for registration.</returns>
-        ///
-        /// <remarks>
-        /// Registration is deferred into
-        /// <see cref="HostingHostBuilderExtensions.ConfigureServices(IHostBuilder, Action{IServiceCollection})"/>, so it
-        /// lands whenever the builder runs its callbacks rather than at the moment this is called. The registration itself
-        /// delegates to the <see cref="IServiceCollection"/> receiver, so the behavior and the <c>DOTNET_RUNNING_IN_IDE</c>
-        /// escape hatch documented there apply unchanged.
-        /// </remarks>
+        /// <returns>The configured host builder.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
@@ -175,17 +126,15 @@ public static class ConsoleLifetimeExtensions
             => hostBuilder.ConfigureServices(services => services.UseCustomConsoleLifetime());
 
         /// <summary>
-        /// Sets how long shutdown may take and what a failing background service does to the host.
+        /// Configures host shutdown behavior.
         /// </summary>
         ///
-        /// <param name="shutdownTimeout">
-        /// How long the host waits for hosted services to stop before it gives up and continues shutting down.
-        /// </param>
+        /// <param name="shutdownTimeout">The shutdown timeout.</param>
         /// <param name="backgroundServiceExceptionBehavior">
-        /// Whether an unhandled exception in a <see cref="BackgroundService"/> stops the host or is logged and ignored.
+        /// The background service exception behavior.
         /// </param>
         ///
-        /// <returns>The <see cref="IHostBuilder"/> instance with the host options queued for configuration.</returns>
+        /// <returns>The configured host builder.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
