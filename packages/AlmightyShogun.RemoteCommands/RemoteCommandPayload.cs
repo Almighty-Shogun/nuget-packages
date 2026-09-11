@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// The request frame a client sends: one command name, one message, and the key when the server asks for one.
+/// Represents a remote command request.
 /// </summary>
 ///
 /// <remarks>
@@ -16,7 +16,7 @@ namespace AlmightyShogun.RemoteCommands;
 public sealed record RemoteCommandPayload
 {
     /// <summary>
-    /// The name of the command to run, as declared on that command's <see cref="RemoteCommandAttribute"/>.
+    /// Gets the command name.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -24,7 +24,7 @@ public sealed record RemoteCommandPayload
     public string Command { get; init; } = string.Empty;
 
     /// <summary>
-    /// The command's own message, left unbound here because only the command it is addressed to knows its type.
+    /// Gets the command message data.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -32,7 +32,7 @@ public sealed record RemoteCommandPayload
     public JsonElement Data { get; init; }
 
     /// <summary>
-    /// The pre-shared key sent with the request, or <c>null</c> when the client sends none.
+    /// Gets the optional pre-shared key.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

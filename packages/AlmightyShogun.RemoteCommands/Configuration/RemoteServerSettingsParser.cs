@@ -3,29 +3,22 @@ using System.Net;
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// Turns the textual <see cref="RemoteServerSettings"/> values into the network types the listener binds and matches
-/// against, so the settings record stays a description of the configuration rather than a participant in reading it.
+/// Parses remote server network settings.
 /// </summary>
-///
-/// <remarks>
-/// Both members are called once when the handler is constructed, so a bad value is reported when the listener is
-/// resolved rather than when it first tries to bind or match.
-/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 internal static class RemoteServerSettingsParser
 {
     /// <summary>
-    /// Parses the configured bind address, so an unusable value is reported by name rather than as a socket failure that
-    /// says nothing about which setting produced it.
+    /// Parses the configured bind address.
     /// </summary>
     ///
-    /// <param name="value">The configured <c>RemoteServer:Address</c> value.</param>
+    /// <param name="value">The configured address.</param>
     ///
-    /// <returns>The address to bind.</returns>
+    /// <returns>The parsed IP address.</returns>
     ///
-    /// <exception cref="InvalidOperationException">The configured value is not an IP address.</exception>
+    /// <exception cref="InvalidOperationException">The configured value is not a valid IP address.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -34,20 +27,17 @@ internal static class RemoteServerSettingsParser
         : throw new InvalidOperationException($"RemoteServer:Address '{value}' is not an IP address.");
 
     /// <summary>
-    /// Parses the configured whitelist into the networks a connecting address is matched against, accepting a CIDR range
-    /// and a bare address through the same path.
+    /// Parses the configured whitelist entries as IP networks.
     /// </summary>
     ///
-    /// <param name="values">The configured <c>RemoteServer:Whitelisted</c> entries, each an address or a CIDR range.</param>
+    /// <param name="values">The configured IP addresses or CIDR ranges.</param>
     ///
     /// <returns>
-    /// One network per entry, a bare address becoming a single-address network so matching never has to special-case it.
-    /// Empty when none are configured, which is what makes an unconfigured whitelist refuse every connection.
+    /// The parsed IP networks.
     /// </returns>
     ///
     /// <exception cref="InvalidOperationException">
-    /// An entry is neither an address nor a CIDR range. Rejected rather than skipped, because an entry that silently never
-    /// matches leaves a whitelist that looks correct refusing the client it was written for.
+    /// A configured entry is neither a valid IP address nor a CIDR range.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>

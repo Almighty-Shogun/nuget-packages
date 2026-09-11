@@ -3,8 +3,7 @@ using System.Text.Json;
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// The frame the listener sends back for every request, carrying either a refusal or the command's own response. Both
-/// travel in one envelope so a client never has to guess which it received by inspecting the shape.
+/// Represents a response to a remote command request.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -12,8 +11,7 @@ namespace AlmightyShogun.RemoteCommands;
 public sealed record RemoteCommandResponse
 {
     /// <summary>
-    /// Why the request was declined, or <c>null</c> when it was served. Serialized as the underlying number, so a
-    /// value a newer server introduces still arrives and is kept here as that raw number.
+    /// Gets the refusal reason, or <c>null</c> if the request was not refused.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -21,7 +19,7 @@ public sealed record RemoteCommandResponse
     public RemoteCommandRefusal? Refusal { get; init; }
 
     /// <summary>
-    /// Whatever the command wrote, or <c>null</c> when it was refused or ran without writing anything.
+    /// Gets the command response data, or <c>null</c> if no data was returned.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -29,12 +27,12 @@ public sealed record RemoteCommandResponse
     public JsonElement? Data { get; init; }
 
     /// <summary>
-    /// Builds the envelope for a refusal.
+    /// Creates a refused response.
     /// </summary>
     ///
-    /// <param name="reason">What the listener objected to.</param>
+    /// <param name="reason">The refusal reason.</param>
     ///
-    /// <returns>The envelope to send, carrying the reason and no data.</returns>
+    /// <returns>A response containing the refusal reason.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

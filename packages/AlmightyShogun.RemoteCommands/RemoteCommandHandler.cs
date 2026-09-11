@@ -10,35 +10,23 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// Accepts connections on the configured endpoint and serves framed requests on each until the client goes away. A
-/// connection outlives one request, so a caller may run several commands without reconnecting.
+/// Accepts and dispatches remote command requests.
 /// </summary>
 ///
 /// <param name="remoteServerSettings">
-/// The bound listener settings. Read once into fields, so a reload does not change the behavior of a listener that is
-/// already bound, and the address and whitelist are parsed here rather than on every connection.
+/// The remote server settings.
 /// </param>
-/// <param name="logger">The logger every lifecycle event and rejected request is reported through.</param>
+/// <param name="logger">The logger used by the handler.</param>
 /// <param name="descriptors">
-/// Every registered command's name and class, enumerated once to build the dispatch table. Descriptors rather than
-/// commands, so this singleton never captures an instance and a command stays free to depend on scoped services.
+/// The registered remote command descriptors.
 /// </param>
 /// <param name="scopeFactory">
-/// The factory each request's scope comes from. A command is resolved inside that scope and released with it, which is
-/// what makes a transient registration behave as one.
+/// The service scope factory used to resolve commands.
 /// </param>
 ///
 /// <exception cref="InvalidOperationException">
-/// Thrown while constructing, when the configured address or a whitelist entry does not parse, or a registered command
-/// does not derive from <see cref="RemoteCommand{T}"/>. Everything the listener needs is therefore settled before it can
-/// be started, rather than failing part-way through binding.
+/// The configured address or whitelist is invalid, or a registered command type is not dispatchable.
 /// </exception>
-///
-/// <remarks>
-/// Resolving a command by type out of a scope is the service locator pattern, taken deliberately. The listener is a
-/// singleton that outlives every request, so the alternative is injecting the commands themselves and turning each into a
-/// singleton too, which is what this replaced.
-/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>1.0.0</since>
@@ -49,38 +37,15 @@ internal sealed class RemoteCommandHandler(
     IServiceScopeFactory scopeFactory
 ) : IRemoteCommandHandler
 {
-    /// <summary>
-    /// The settings snapshot the listener runs on, taken at construction rather than read per request.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>3.0.0</since>
     private readonly RemoteServerSettings _config = remoteServerSettings.Value;
 
-    /// <summary>
-    /// The whitelist as networks rather than strings, parsed once. An empty list matches nothing, so a configuration
-    /// without a whitelist refuses every connection rather than accepting every one.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
     private readonly IReadOnlyList<IPNetwork> _whitelist =
         RemoteServerSettingsParser.ParseWhitelist(remoteServerSettings.Value.Whitelisted);
 
-    /// <summary>
-    /// The address the listener binds to, parsed at construction so a bad value is reported when the handler is resolved
-    /// rather than when it first tries to bind.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
     private readonly IPAddress _address = RemoteServerSettingsParser.ParseAddress(remoteServerSettings.Value.Address);
 
     /// <summary>
-    /// The SHA-256 digest of the required key, or <c>null</c> when the server asks for none. Held as a digest rather than
-    /// the key bytes so every comparison is over the same thirty-two bytes: <see cref="CryptographicOperations.FixedTimeEquals"/>
-    /// returns early on a length mismatch, so comparing raw keys would leak the secret's length to a client that varies the
-    /// length it sends.
+    /// The digest of the configured pre-shared key, or <c>null</c> when no key is required.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -89,52 +54,10 @@ internal sealed class RemoteCommandHandler(
         ? SHA256.HashData(Encoding.UTF8.GetBytes(secret))
         : null;
 
-    /// <summary>
-    /// Every command name mapped to the class serving it, compared with ordinal case sensitivity so a wire name must
-    /// match exactly. Built once, because the set of commands cannot change while the process runs.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>3.0.0</since>
     private readonly Dictionary<string, RemoteCommandDescriptor> _commands = BuildCommandTable(descriptors, logger);
-
-    /// <summary>
-    /// The cap on connections served at once. A further client is accepted only when a slot frees, so load is refused by
-    /// waiting rather than by exhausting the process.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
     private readonly SemaphoreSlim _connectionLimit = new(remoteServerSettings.Value.MaxConcurrentConnections);
-
-    /// <summary>
-    /// Guards the lifecycle source and the in-flight list, so a stop cannot observe either mid-update.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
     private readonly Lock _lifecycleGate = new();
-
-    /// <summary>
-    /// The connections still being served, awaited for five seconds on shutdown so the listener does not return while they
-    /// are still running. A stop, or a canceled start token, cancels the token their frame reads and the dispatcher's own
-    /// writes are made under, though a command's response write is cut off only where the command forwards the token it
-    /// was handed. A listener ending on an unexpected failure reaches the same wait with nothing canceled, so a
-    /// connection still running when the five seconds are up is abandoned rather than cut off. Completed entries are
-    /// pruned as new ones are added.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
     private readonly List<Task> _inFlight = [];
-
-    /// <summary>
-    /// The source canceled to stop the listener, and the flag for whether one is running: non-null only between the
-    /// start of a listener and its exit.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
     private CancellationTokenSource? _stopSource;
 
     /// <inheritdoc />
@@ -246,21 +169,22 @@ internal sealed class RemoteCommandHandler(
     }
 
     /// <summary>
-    /// Builds the dispatch table once, keeping the first command to claim each name rather than failing the whole
-    /// listener over a collision.
+    /// Builds the command dispatch table.
     /// </summary>
     ///
-    /// <param name="descriptors">The registered command descriptors, read without resolving anything.</param>
-    /// <param name="logger">The logger a dropped duplicate name is reported through.</param>
+    /// <param name="descriptors">The registered command descriptors.</param>
+    /// <param name="logger">The logger used to report duplicate command names.</param>
     ///
     /// <returns>
-    /// Every usable command keyed by name. A name claimed twice keeps its first command, so registration order decides
-    /// the winner and the loser is unreachable.
+    /// The command descriptors keyed by command name.
     /// </returns>
     ///
+    /// <remarks>
+    /// When multiple commands use the same name, the first registration is retained.
+    /// </remarks>
+    /// 
     /// <exception cref="InvalidOperationException">
-    /// A registered command does not derive from <see cref="RemoteCommand{T}"/> and so exposes no entry point to
-    /// dispatch to. Checked against the type rather than an instance, so it still surfaces before the listener binds.
+    /// A registered command type does not implement the internal dispatch contract.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -288,24 +212,15 @@ internal sealed class RemoteCommandHandler(
     }
 
     /// <summary>
-    /// Serves one connection, turning whatever escapes into a log line, and releases the connection slot however the
-    /// connection ends.
+    /// Handles an accepted connection and releases its connection slot when finished.
     /// </summary>
     ///
-    /// <param name="client">The accepted connection, disposed by the inner call whatever happens.</param>
-    /// <param name="cancellationToken">Signaled when the listener is stopping.</param>
+    /// <param name="client">The accepted client.</param>
+    /// <param name="cancellationToken">A token used to stop connection handling.</param>
     ///
     /// <returns>
-    /// A task that always completes successfully. Nothing awaits it for a result: shutdown reaches it only through a
-    /// <c>Task.WhenAny</c>, which completes without unwrapping the task it selects, so a failure allowed to escape here
-    /// would surface as an unobserved exception rather than a log line.
+    /// A task that completes when connection handling finishes.
     /// </returns>
-    ///
-    /// <remarks>
-    /// The slot is taken by the accept loop before a client exists, and passes to this method with the call that starts
-    /// it, so the release here is the only one once that call has been made. An accept that ends without reaching that
-    /// call, cancelled or failed, releases the slot in the loop instead.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -326,26 +241,15 @@ internal sealed class RemoteCommandHandler(
     }
 
     /// <summary>
-    /// Checks the client against the whitelist, then serves its requests one at a time until it disconnects, goes idle
-    /// past the timeout, sends something unreadable, or the listener stops.
+    /// Serves requests from an accepted client until the connection ends.
     /// </summary>
     ///
-    /// <param name="client">The accepted connection, taken over and disposed when this returns.</param>
-    /// <param name="cancellationToken">Signaled when the listener is stopping.</param>
+    /// <param name="client">The accepted client.</param>
+    /// <param name="cancellationToken">A token used to stop connection handling.</param>
     ///
     /// <returns>
-    /// A task that completes when the address fails the whitelist and is dropped without an answer, or afterwards when
-    /// the client disconnects, goes idle past the timeout, sends something unreadable, or the listener stops. The
-    /// connection is kept open between requests, so one client may run many commands on it.
+    /// A task that completes when the connection is no longer being served.
     /// </returns>
-    ///
-    /// <exception cref="OperationCanceledException">
-    /// The read timeout elapsed or the listener stopped while a request was being dispatched. Only the frame read is
-    /// guarded, so this escapes to <see cref="HandleClientSafelyAsync"/> rather than ending the loop quietly.
-    /// </exception>
-    /// <exception cref="IOException">
-    /// The connection failed while a refusal or the acknowledgement was being written back.
-    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
@@ -403,49 +307,31 @@ internal sealed class RemoteCommandHandler(
     }
 
     /// <summary>
-    /// Turns one request frame into a command invocation, answering with a refusal rather than a dropped connection
-    /// whenever it cannot be served.
+    /// Dispatches a request frame and writes its response.
     /// </summary>
     ///
-    /// <param name="frame">The request bytes, one complete frame.</param>
-    /// <param name="stream">The connection to answer on.</param>
-    /// <param name="remoteEndPoint">The client address, used only to name it in the log.</param>
-    /// <param name="cancellationToken">Signaled when the read timeout elapses or the listener is stopping.</param>
+    /// <param name="frame">The request payload.</param>
+    /// <param name="stream">The stream used to write the response.</param>
+    /// <param name="remoteEndPoint">The remote client endpoint.</param>
+    /// <param name="cancellationToken">A token used to cancel request processing.</param>
     ///
     /// <returns>
-    /// A task that completes once one envelope has been sent, whether it carries the command's own response, a refusal, or
-    /// the acknowledgement that stands in for a command which returned without answering. A command that throws is logged,
-    /// the cancellation described below excepted, and answered with a refusal only while the write slot is still free:
-    /// <see cref="StreamCommandResponse"/> claims that slot before it serializes, so a command whose own write failed on a
-    /// value it could not serialize leaves the client with no frame at all, waiting until the idle timeout closes the
-    /// connection under it.
+    /// A task that completes when request processing finishes.
     /// </returns>
     ///
+    /// <remarks>
+    /// Malformed requests, missing command names, failed authentication, unknown commands, and invalid command messages
+    /// are returned as their corresponding <see cref="RemoteCommandRefusal"/> values. Command failures are returned as
+    /// <see cref="RemoteCommandRefusal.Other"/> when the command has not already written a response. A successful command
+    /// that writes no response receives an empty acknowledgement.
+    /// </remarks>
+    /// 
     /// <exception cref="OperationCanceledException">
-    /// <paramref name="cancellationToken"/> was signaled, by the read timeout or by the listener stopping, either while
-    /// the command was running or while any of the frames written here was going out. That token's state when the
-    /// exception is caught is all that decides this, however the command came by the cancellation: with it signaled the
-    /// connection is going away, so nothing further is sent and the caller closes it, and with it clear the failure is
-    /// logged and refused like any other.
+    /// Request processing was canceled.
     /// </exception>
     /// <exception cref="IOException">
-    /// The connection failed while a refusal or the acknowledgement was being written. The same failure inside the
-    /// command's own write is caught and logged instead, because it escapes the command rather than these calls.
+    /// A response could not be written to the connection.
     /// </exception>
-    ///
-    /// <remarks>
-    /// This is where every <see cref="RemoteCommandRefusal"/> is decided, in guard order. A frame that is not readable as
-    /// JSON is answered with <see cref="RemoteCommandRefusal.MalformedPayload"/>, one that deserializes to nothing or
-    /// carries a blank name with <see cref="RemoteCommandRefusal.MissingCommandName"/>, one whose key does not match with
-    /// <see cref="RemoteCommandRefusal.Unauthorized"/>, and a name no command is registered under with
-    /// <see cref="RemoteCommandRefusal.CommandNotFound"/>. Once the request has been handed to a command, a
-    /// <c>JsonException</c> escaping it answers <see cref="RemoteCommandRefusal.InvalidMessage"/> whether it came from
-    /// binding the message or from the command's own body, and anything else answers
-    /// <see cref="RemoteCommandRefusal.Other"/>, a cancellation included whenever <paramref name="cancellationToken"/>
-    /// is not signaled. A frame omitting <c>data</c> entirely lands on <see cref="RemoteCommandRefusal.Other"/> as well,
-    /// because binding a default <see cref="JsonElement"/> raises <see cref="InvalidOperationException"/> rather than a
-    /// <c>JsonException</c>.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -562,16 +448,19 @@ internal sealed class RemoteCommandHandler(
     }
 
     /// <summary>
-    /// Checks a remote address against the parsed whitelist.
+    /// Checks whether a remote address is allowed by the configured whitelist.
     /// </summary>
     ///
     /// <param name="address">
-    /// The connecting address, or <c>null</c> when the socket reported no endpoint. An IPv4-mapped IPv6 address is
-    /// unmapped first, so a rule written as IPv4 still matches a client arriving on a dual-stack socket.
+    /// The remote address.
     /// </param>
     ///
-    /// <returns><c>true</c> when some configured network contains the address; otherwise <c>false</c>.</returns>
+    /// <returns><c>true</c> if the address is allowed; otherwise, <c>false</c>.</returns>
     ///
+    /// <remarks>
+    /// IPv4-mapped IPv6 addresses are normalized to IPv4 before matching.
+    /// </remarks>
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private bool IsWhitelisted(IPAddress? address)
@@ -585,14 +474,13 @@ internal sealed class RemoteCommandHandler(
     }
 
     /// <summary>
-    /// Compares the supplied pre-shared key in constant time.
+    /// Checks whether the supplied pre-shared key is valid.
     /// </summary>
     ///
-    /// <param name="supplied">The key from the request, or <c>null</c> when the client sent none.</param>
+    /// <param name="supplied">The supplied pre-shared key.</param>
     ///
     /// <returns>
-    /// <c>true</c> when the server requires no key, or when the supplied one matches. Comparison takes the same time
-    /// whatever the value, so a wrong key cannot be recovered a character at a time.
+    /// <c>true</c> if no key is required or the supplied key matches; otherwise, <c>false</c>.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>

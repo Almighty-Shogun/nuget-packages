@@ -4,13 +4,11 @@ using System.Reflection;
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// The base every remote command inherits. It reads the command name from the class attribute once and binds each
-/// request's payload to <typeparamref name="T"/> before handing it to the subclass.
+/// Provides the base implementation for a remote command that handles messages of type <typeparamref name="T"/>.
 /// </summary>
 ///
 /// <typeparam name="T">
-/// The message this command expects. Its shape is part of the command's wire contract, so changing it changes what
-/// existing clients must send.
+/// The command message type.
 /// </typeparam>
 ///
 /// <author>Almighty-Shogun</author>
@@ -18,8 +16,7 @@ namespace AlmightyShogun.RemoteCommands;
 public abstract class RemoteCommand<T> : IRemoteCommand<T>, IInternalRemoteCommand where T : class
 {
     /// <summary>
-    /// The command name, read once when the command is constructed. Held in a field rather than read per access, so a
-    /// subclass using it repeatedly within one request does not reflect on its own type each time.
+    /// The declared command name.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -27,14 +24,11 @@ public abstract class RemoteCommand<T> : IRemoteCommand<T>, IInternalRemoteComma
     private readonly string _name;
 
     /// <summary>
-    /// Reads the declared command name for the subclass's own use. A command is resolved from a fresh scope per request,
-    /// so this runs once per invocation rather than once per process.
+    /// Initializes the remote command.
     /// </summary>
     ///
     /// <exception cref="InvalidOperationException">
-    /// The class does not carry <see cref="RemoteCommandAttribute"/>, so it declares no name to be reachable by. Anything
-    /// reaching here through the container has already passed the same check at registration, which leaves this covering
-    /// a command constructed directly, such as in a test.
+    ///  The command type is not marked with <see cref="RemoteCommandAttribute"/>.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>

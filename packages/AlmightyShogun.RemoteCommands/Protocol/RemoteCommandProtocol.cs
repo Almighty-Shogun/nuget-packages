@@ -4,22 +4,15 @@ using System.Text.Json;
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// Owns the wire format: a big-endian four-byte length prefix followed by that many bytes of UTF-8 JSON.
+/// Provides framing and serialization for remote command messages.
 /// </summary>
-///
-/// <remarks>
-/// Both the server and <see cref="RemoteCommandClient"/> use this type, which is what stops the two sides of the wire
-/// drifting apart. A framing mismatch surfaces only as an unreadable payload, with nothing indicating which side is wrong.
-/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 internal static class RemoteCommandProtocol
 {
     /// <summary>
-    /// The serializer options used for every frame in both directions. Web defaults give camel-case output and
-    /// case-insensitive matching, so both casings are accepted on the wire. No string enum converter is registered, so an
-    /// enum such as <see cref="RemoteCommandRefusal"/> travels as its underlying number.
+    /// The serializer options used by the protocol.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -27,31 +20,27 @@ internal static class RemoteCommandProtocol
     internal static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
 
     /// <summary>
-    /// Reads one whole message, blocking until every declared byte has arrived, so a caller never sees a partial frame.
+    /// Reads a length-prefixed message from a stream.
     /// </summary>
     ///
-    /// <param name="stream">The connection to read from, left open for the next message.</param>
+    /// <param name="stream">The stream to read from.</param>
     /// <param name="maxPayloadBytes">
-    /// The largest payload accepted. Checked against the declared length before a buffer is rented, so a hostile length
-    /// prefix cannot make the server allocate on its behalf.
+    /// The maximum accepted payload size, in bytes.
     /// </param>
-    /// <param name="cancellationToken">Signaled when the idle timeout elapses or the listener is stopping.</param>
+    /// <param name="cancellationToken">A token used to cancel the read.</param>
     ///
     /// <returns>
-    /// The payload bytes, or <c>null</c> when the peer closed the connection between messages, which is the ordinary way
-    /// a client goes away and not an error.
+    /// The payload bytes, or <c>null</c> if the stream ends before a new frame begins.
     /// </returns>
     ///
     /// <exception cref="EndOfStreamException">
-    /// The connection ended part-way through a message. A peer that died and a peer that closed cleanly mid-frame are
-    /// indistinguishable here; only a close between messages is told apart, and that returns <c>null</c> instead.
+    /// The stream ended before the complete payload was received.
     /// </exception>
     /// <exception cref="InvalidDataException">
-    /// The declared length was zero, negative, or above the accepted maximum, so the frame is unreadable and the
-    /// connection can no longer be trusted to be in sync.
+    /// The declared payload length is invalid or exceeds <paramref name="maxPayloadBytes"/>.
     /// </exception>
-    /// <exception cref="IOException">The connection failed while reading.</exception>
-    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled mid-read.</exception>
+    /// <exception cref="IOException">The stream could not be read.</exception>
+    /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -77,27 +66,23 @@ internal static class RemoteCommandProtocol
     }
 
     /// <summary>
-    /// Writes one whole message as a length prefix followed by the body, then flushes the stream. Completion means the
-    /// bytes were handed to the stream, not that the peer has received them. No size limit applies on the way out, so
-    /// the only cap on a frame is the one whoever reads it passes to
-    /// <see cref="ReadFrameAsync(Stream, int, CancellationToken)"/>.
+    /// Writes a length-prefixed serialized message to a stream.
     /// </summary>
     ///
-    /// <typeparam name="T">The value's type, serialized with the shared web defaults.</typeparam>
-    /// <param name="stream">The connection to write to, left open for the next message.</param>
-    /// <param name="value">The value to send as the frame body.</param>
-    /// <param name="cancellationToken">Signaled when the read timeout elapses or the listener is stopping.</param>
+    /// <typeparam name="T">The value type.</typeparam>
+    /// <param name="stream">The stream to write to.</param>
+    /// <param name="value">The value to serialize and write.</param>
+    /// <param name="cancellationToken">A token used to cancel the write.</param>
     ///
     /// <returns>
-    /// A task that completes once the length prefix and the body have both been written and the stream flushed.
+    /// A task that completes when the message has been written.
     /// </returns>
     ///
     /// <exception cref="IOException">
-    /// The connection failed while writing. The prefix may already have gone, in which case the peer is left waiting for
-    /// a body that never arrives.
+    /// The stream could not be written.
     /// </exception>
-    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled mid-write.</exception>
-    /// <exception cref="JsonException"><typeparamref name="T"/> could not be serialized, so nothing was written.</exception>
+    /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
+    /// <exception cref="JsonException"><paramref name="value"/> could not be serialized.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -112,21 +97,18 @@ internal static class RemoteCommandProtocol
     }
 
     /// <summary>
-    /// Fills a buffer completely, or reports that the stream ended first.
+    /// Attempts to fill a buffer from a stream.
     /// </summary>
     ///
-    /// <param name="stream">The connection to read from.</param>
-    /// <param name="buffer">The buffer to fill completely, whose length is how many bytes are expected.</param>
-    /// <param name="cancellationToken">Signaled when the idle timeout elapses or the listener is stopping.</param>
+    /// <param name="stream">The stream to read from.</param>
+    /// <param name="buffer">The buffer to fill.</param>
+    /// <param name="cancellationToken">A token used to cancel the read.</param>
     ///
     /// <returns>
-    /// <c>true</c> when the buffer was filled, and <c>false</c> when the peer closed before sending anything. The
-    /// distinction matters: nothing read is a clean disconnect, some read is a truncated message.
+    /// <c>true</c> if the buffer was filled; <c>false</c> if the stream ended before any bytes were read.
     /// </returns>
     ///
-    /// <exception cref="EndOfStreamException">The connection ended after part of the expected bytes had arrived.</exception>
-    /// <exception cref="IOException">The connection failed while reading.</exception>
-    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled mid-read.</exception>
+    /// <exception cref="EndOfStreamException">The stream ended after only part of the buffer was filled.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

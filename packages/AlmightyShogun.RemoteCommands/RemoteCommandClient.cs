@@ -4,25 +4,16 @@ using System.Net.Sockets;
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// Sends remote commands to a listener, using the same framing the server reads.
+/// Sends remote commands to a remote command server.
 /// </summary>
 ///
-/// <param name="host">The listener host, resolved on first use rather than at construction.</param>
-/// <param name="port">The listener port.</param>
-/// <param name="secret">
-/// The pre-shared key to send with every request. Leave it <c>null</c> against a server that requires none; sending one
-/// the server does not ask for is ignored rather than refused.
-/// </param>
-/// <param name="maxPayloadBytes">
-/// The largest response frame accepted, in bytes. Like every limit in the protocol it bounds what is read rather than
-/// what is written, so raise it where a command returns more than the default. The server bounds the requests it reads
-/// with its own <see cref="RemoteServerSettings.MaxPayloadBytes"/>.
-/// </param>
+/// <param name="host">The server host.</param>
+/// <param name="port">The server port.</param>
+/// <param name="secret">The optional pre-shared key sent with requests.</param>
+/// <param name="maxPayloadBytes">The maximum accepted response payload size, in bytes.</param>
 ///
 /// <remarks>
-/// The connection stays open, so several commands can be sent in sequence without reconnecting. Requests are sequential:
-/// one request, one response, then the next. Not safe for concurrent use, because two callers would interleave frames on
-/// the same socket and each read the other's response.
+/// Requests are sent sequentially over a reusable connection. This type is not safe for concurrent use.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -36,11 +27,7 @@ public sealed class RemoteCommandClient(
 {
 
     /// <summary>
-    /// The connection, opened on first use and reused afterward. Discarded on every path that leaves it unusable or out
-    /// of step: a transport failure, a canceled wait, a server that closed without sending a frame, a framing error, and
-    /// a frame that is not a readable envelope. The next call then reconnects rather than writing into a broken socket.
-    /// A response body that does not bind to the caller's type is not one of those, since the frame was read in full and
-    /// the connection is still in step.
+    /// The current TCP connection.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -48,7 +35,7 @@ public sealed class RemoteCommandClient(
     private TcpClient? _client;
 
     /// <summary>
-    /// The stream over the current connection, held alongside it because both have to be disposed together.
+    /// The stream for the current connection.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -56,44 +43,33 @@ public sealed class RemoteCommandClient(
     private NetworkStream? _stream;
 
     /// <summary>
-    /// Sends one command and waits for the single frame that answers it, opening the connection first if this is the
-    /// first call or the previous one failed.
+    /// Sends a command and waits for its response.
     /// </summary>
     ///
-    /// <typeparam name="TMessage">The message type, which must match what the command declares on the server.</typeparam>
-    /// <typeparam name="TResponse">The shape expected back, bound from the response frame.</typeparam>
-    /// <param name="command">The command name, as declared on that command's <see cref="RemoteCommandAttribute"/>.</param>
-    /// <param name="message">The message to send as the request's data.</param>
-    /// <param name="cancellationToken">Cancels the send and the wait for a response.</param>
+    /// <typeparam name="TMessage">The command message type.</typeparam>
+    /// <typeparam name="TResponse">The expected response type.</typeparam>
+    /// <param name="command">The command name.</param>
+    /// <param name="message">The command message.</param>
+    /// <param name="cancellationToken">A token used to cancel the operation.</param>
     ///
-    /// <returns>
-    /// The response, or <c>default</c> in two cases nothing here tells apart: the envelope carried no
-    /// <see cref="RemoteCommandResponse.Data"/>, or the command wrote a value that serialized to JSON <c>null</c>.
-    /// </returns>
+    /// <returns>The response, or <c>default</c> if no response data was returned.</returns>
     ///
-    /// <exception cref="RemoteCommandUnreachableException">The connection could not be opened, so nothing was sent.</exception>
+    /// <exception cref="RemoteCommandUnreachableException">The server could not be reached.</exception>
     /// <exception cref="RemoteCommandDisconnectedException">
-    /// The connection closed before a response arrived, which usually means this address is not whitelisted.
+    /// The connection closed before a response was received.
     /// </exception>
-    /// <exception cref="RemoteCommandProtocolException">The frame deserialized to <c>null</c>, so it carried no envelope.</exception>
+    /// <exception cref="RemoteCommandProtocolException">The server returned an invalid response envelope.</exception>
     /// <exception cref="RemoteCommandRefusedException">
-    /// The server answered and declined. Its <see cref="RemoteCommandRefusedException.Reason"/> says what it objected to,
-    /// and reports <see cref="RemoteCommandRefusal.Other"/> for a reason this client does not know.
+    /// The server refused the command.
     /// </exception>
     /// <exception cref="InvalidDataException">
-    /// The frame's declared length is unusable or exceeds the <c>maxPayloadBytes</c> cap this client was constructed with. The
-    /// connection is discarded, so the next call opens a fresh one.
+    /// The response frame length is invalid or exceeds the configured maximum.
     /// </exception>
     /// <exception cref="JsonException">
-    /// <paramref name="message"/> could not be serialized into the request, in which case nothing catches it and the
-    /// connection is left open. The response raises it too: a frame that is not valid JSON for an envelope discards the
-    /// connection, while data that does not bind to <typeparamref name="TResponse"/> keeps it, because the frame was read
-    /// in full. None of these is a <see cref="RemoteCommandException"/>, so a caller catching only that type does not see
-    /// it.
+    /// The request or response could not be serialized or deserialized.
     /// </exception>
     /// <exception cref="OperationCanceledException">
-    /// <paramref name="cancellationToken"/> was signaled. Rethrown as-is rather than wrapped, though the connection is
-    /// discarded first.
+    /// The operation was canceled.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -182,33 +158,26 @@ public sealed class RemoteCommandClient(
     }
 
     /// <summary>
-    /// Sends a command whose response is not wanted, still waiting for the answer because the frame has to leave the
-    /// connection before the next request can be read.
+    /// Sends a command and waits for the server to acknowledge it.
     /// </summary>
     ///
-    /// <typeparam name="TMessage">The message type, which must match what the command declares on the server.</typeparam>
-    /// <param name="command">The command name, as declared on that command's <see cref="RemoteCommandAttribute"/>.</param>
-    /// <param name="message">The message to send as the request's data.</param>
-    /// <param name="cancellationToken">Cancels the send and the wait for a response.</param>
+    /// <typeparam name="TMessage">The command message type.</typeparam>
+    /// <param name="command">The command name.</param>
+    /// <param name="message">The command message.</param>
+    /// <param name="cancellationToken">A token used to cancel the operation.</param>
     ///
     /// <returns>
-    /// A task that completes when the server has answered. Any response body is read and discarded, because the frame
-    /// still has to leave the connection for the next request to be readable.
+    /// A task that completes when the server responds.
     /// </returns>
     ///
     /// <exception cref="RemoteCommandException">
-    /// Which subclass is thrown says whether the server refused the command, could not be reached, closed the connection
-    /// without answering, or sent a frame that is not an envelope. Only
-    /// <see cref="RemoteCommandUnreachableException"/> means nothing was sent. A
-    /// <see cref="RemoteCommandRefusedException"/> carries a <see cref="RemoteCommandRefusal"/> saying what the server
-    /// objected to, and a disconnection can mean the command ran and the answer never came back, because the server runs
-    /// a command before it writes.
+    /// A remote command error occurred.
     /// </exception>
-    /// <exception cref="InvalidDataException">The frame was unusable. Carries the same meaning as on the overload this calls.</exception>
+    /// <exception cref="InvalidDataException">The response frame is invalid.</exception>
     /// <exception cref="JsonException">
-    /// The frame was not a valid envelope. Carries the same meaning as on the overload this calls.
+    /// The request or response could not be serialized or deserialized.
     /// </exception>
-    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled.</exception>
+    /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -216,12 +185,10 @@ public sealed class RemoteCommandClient(
         => SendAsync<TMessage, JsonElement>(command, message, cancellationToken);
 
     /// <summary>
-    /// Closes the current connection and forgets it, leaving this instance usable: no disposed flag is set, so a send
-    /// after an <c>await using</c> block opens a fresh connection rather than throwing. Called on every failure path that
-    /// leaves the connection unusable or out of step as well, which makes it as much a reset as a disposal.
+    /// Closes the current connection.
     /// </summary>
     ///
-    /// <returns>A <see cref="ValueTask"/> that completes once the stream and the socket have been disposed.</returns>
+    /// <returns>A task that completes when the connection has been disposed.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -237,23 +204,14 @@ public sealed class RemoteCommandClient(
     }
 
     /// <summary>
-    /// Opens the connection on first use and reuses it afterwards.
+    /// Gets the current connection stream, connecting if necessary.
     /// </summary>
     ///
-    /// <param name="cancellationToken">Cancels the connection attempt.</param>
+    /// <param name="cancellationToken">A token used to cancel the connection attempt.</param>
     ///
     /// <returns>
-    /// The stream for the live connection, whether it was already open or has just been established.
+    /// The active connection stream.
     /// </returns>
-    ///
-    /// <exception cref="SocketException">
-    /// The host could not be reached. Left unwrapped here and turned into a
-    /// <see cref="RemoteCommandUnreachableException"/> by the caller, which is the only path that reaches consumers.
-    /// </exception>
-    /// <exception cref="OperationCanceledException">
-    /// <paramref name="cancellationToken"/> was signaled while the socket was connecting. Left unwrapped here, and the
-    /// caller discards the connection before rethrowing it as-is.
-    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
