@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using AlmightyShogun.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,6 +51,7 @@ public static class RemoteCommandExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public IServiceCollection RegisterRemoteCommands() => serviceCollection.RegisterRemoteCommands([Assembly.GetCallingAssembly()]);
 
         /// <summary>
