@@ -7,22 +7,13 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AlmightyShogun.Mail.Resend;
 
 /// <summary>
-/// Registers the Resend client, the shared template loader, and the mail service as one unit, so an application binds the
-/// <c>Email</c> section once instead of wiring the three separately.
+/// Provides dependency injection extensions for Resend email services.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.5.0</since>
 public static class ResendMailExtensions
 {
-    /// <summary>
-    /// The template files every rendered message is assembled from. The package ships none of them, so
-    /// <see cref="EnsureTemplatesExist"/> names the whole list when the directory itself is missing, and only the absent
-    /// subset when the directory exists.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
     private static readonly string[] _requiredTemplates =
     [
         "BaseEmailTemplate.html",
@@ -34,7 +25,7 @@ public static class ResendMailExtensions
     /// Provides the registration helper on service collections.
     /// </summary>
     ///
-    /// <param name="serviceCollection">The service collection the Resend client, template loader, and mail service are added to.</param>
+    /// <param name="serviceCollection">The service collection.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.5.0</since>
@@ -44,24 +35,13 @@ public static class ResendMailExtensions
         /// Registers the Resend email services and binds the <c>Email</c> configuration section.
         /// </summary>
         ///
-        /// <param name="configuration">
-        /// The configuration carrying the <c>Email</c> section. An absent section binds successfully and fails validation
-        /// instead, which is what reports the missing token rather than a binding error.
-        /// </param>
+        /// <param name="configuration">The application configuration.</param>
         ///
-        /// <returns>
-        /// The <see cref="IServiceCollection"/> instance with the Resend client, template loader, and mail service registered.
-        /// </returns>
+        /// <returns>The service collection.</returns>
         ///
         /// <exception cref="InvalidOperationException">
-        /// The <c>mail</c> directory or one of its templates is missing. This is thrown while registering rather than while
-        /// the host starts, so a test that only builds a service collection hits it too.
+        /// The mail template directory or one of the required templates is missing.
         /// </exception>
-        ///
-        /// <remarks>
-        /// The mail service is transient and the template loader a singleton, so the file cache is shared across sends. The
-        /// Resend client is registered as a typed <c>HttpClient</c> with the standard resilience handler.
-        /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.5.0</since>
@@ -84,15 +64,10 @@ public static class ResendMailExtensions
     }
 
     /// <summary>
-    /// Fails while registering when the shared templates are missing, rather than on the first send.
+    /// Ensures the required mail templates are present.
     /// </summary>
     ///
-    /// <exception cref="InvalidOperationException">The directory or a template file is missing.</exception>
-    ///
-    /// <remarks>
-    /// The package ships no templates, so providing them is the application's job. Checking here turns a confusing
-    /// <see cref="DirectoryNotFoundException"/> from the first email into a registration failure naming what to add.
-    /// </remarks>
+    /// <exception cref="InvalidOperationException">The mail template directory or one of the required templates is missing.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

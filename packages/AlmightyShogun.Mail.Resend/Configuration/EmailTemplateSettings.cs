@@ -1,8 +1,7 @@
 namespace AlmightyShogun.Mail.Resend;
 
 /// <summary>
-/// Represents the footer and fallback wording every rendered template shares, so copy that appears in each message is
-/// configured once instead of restated by every template class.
+/// Represents shared email template settings.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -10,8 +9,7 @@ namespace AlmightyShogun.Mail.Resend;
 public sealed record EmailTemplateSettings
 {
     /// <summary>
-    /// The copyright text for the footer, wherever the application's own base template puts it. It may contain the
-    /// <c>{app_name}</c> and <c>{app_url}</c> placeholders.
+    /// Gets the footer copyright text.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -19,7 +17,7 @@ public sealed record EmailTemplateSettings
     public string CopyrightText { get; init; } = "© {app_name}";
 
     /// <summary>
-    /// The visible text of the footer link. It takes the same placeholders as <see cref="CopyrightText"/>.
+    /// Gets the footer link text.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -27,10 +25,7 @@ public sealed record EmailTemplateSettings
     public string FooterLinkText { get; init; } = "{app_name}";
 
     /// <summary>
-    /// The line telling a recipient to disregard a message they did not expect. Empty by default, and it takes the same
-    /// placeholders as <see cref="CopyrightText"/>. Unlike the other two, it is substituted into the HTML body as
-    /// written rather than encoded, so it may carry markup such as <c>&lt;strong&gt;</c>, and the plain-text alternative
-    /// reduces that markup to text. Because it is injected as markup, it holds only values the application controls.
+    /// Gets the message ignore text.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

@@ -1,8 +1,7 @@
 namespace AlmightyShogun.Mail.Resend;
 
 /// <summary>
-/// Checks that a URL is safe to place in an <c>href</c> or <c>src</c>. Shared, because the check has to agree between the
-/// point a button is constructed and the point a settings URL is rendered.
+/// Provides validation for email URLs.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -10,14 +9,13 @@ namespace AlmightyShogun.Mail.Resend;
 internal static class MailUrl
 {
     /// <summary>
-    /// Determines whether a URL is absolute and uses one of the accepted schemes.
+    /// Determines whether the specified URL is allowed.
     /// </summary>
     ///
-    /// <param name="url">The URL to check. <c>null</c> and blank are rejected rather than treated as absent.</param>
+    /// <param name="url">The URL to validate.</param>
     ///
     /// <returns>
-    /// <c>true</c> when the URL is absolute and uses http, https, or mailto. A relative URL is rejected, since an email has
-    /// no base to resolve one against.
+    /// <c>true</c> if the URL is absolute and uses a supported scheme; otherwise, <c>false</c>.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>

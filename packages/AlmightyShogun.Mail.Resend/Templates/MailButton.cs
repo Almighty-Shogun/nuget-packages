@@ -1,8 +1,7 @@
 namespace AlmightyShogun.Mail.Resend;
 
 /// <summary>
-/// Represents a call-to-action button rendered into both the HTML and the plain-text body, validated at construction so an
-/// unsafe URL cannot reach either.
+/// Represents a call-to-action button in an email.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -10,18 +9,15 @@ namespace AlmightyShogun.Mail.Resend;
 public sealed record MailButton
 {
     /// <summary>
-    /// Creates a button, rejecting a URL that cannot safely be rendered.
+    /// Initializes a new <see cref="MailButton"/>.
     /// </summary>
     ///
-    /// <param name="label">The visible text, HTML encoded when rendered, so markup in it is shown rather than applied.</param>
-    /// <param name="url">The absolute destination, which must use http, https, or mailto.</param>
+    /// <param name="label">The button label.</param>
+    /// <param name="url">The button URL.</param>
     ///
-    /// <exception cref="ArgumentException">The label is blank, or the URL is blank or not an accepted scheme.</exception>
-    ///
-    /// <remarks>
-    /// Validated here rather than at render time, because the HTML and plain-text renderers are separate paths. Encoding
-    /// the HTML one alone would leave a <c>javascript:</c> URL visible verbatim in the plain-text alternative.
-    /// </remarks>
+    /// <exception cref="ArgumentException"><paramref name="label"/> or <paramref name="url"/> is empty or whitespace,
+    /// or <paramref name="url"/> uses an unsupported scheme.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.5.0</since>
@@ -41,7 +37,7 @@ public sealed record MailButton
     }
 
     /// <summary>
-    /// The visible text, encoded into the HTML body and written verbatim into the plain-text one.
+    /// Gets the button label.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -49,7 +45,7 @@ public sealed record MailButton
     public string Label { get; }
 
     /// <summary>
-    /// The destination, checked against the accepted schemes at construction.
+    /// Gets the button URL.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
