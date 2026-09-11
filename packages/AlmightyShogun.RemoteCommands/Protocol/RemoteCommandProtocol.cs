@@ -1,5 +1,4 @@
 using System.Net;
-using System.Buffers;
 using System.Text.Json;
 
 namespace AlmightyShogun.RemoteCommands;
@@ -67,24 +66,14 @@ internal static class RemoteCommandProtocol
 
         if (length <= 0 || length > maxPayloadBytes)
             throw new InvalidDataException(
-                $"Declared payload length {length} is outside the accepted range of 1 to {maxPayloadBytes} bytes."
-            );
+                $"Declared payload length {length} is outside the accepted range of 1 to {maxPayloadBytes} bytes.");
 
-        byte[] rented = ArrayPool<byte>.Shared.Rent(length);
+        var payload = new byte[length];
 
-        try
-        {
-            Memory<byte> payload = rented.AsMemory(0, length);
+        if (!await TryReadExactlyAsync(stream, payload, cancellationToken))
+            throw new EndOfStreamException("The connection ended before the full payload was received.");
 
-            if (!await TryReadExactlyAsync(stream, payload, cancellationToken))
-                throw new EndOfStreamException("The connection ended before the full payload was received.");
-
-            return payload.ToArray();
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(rented);
-        }
+        return payload;
     }
 
     /// <summary>
