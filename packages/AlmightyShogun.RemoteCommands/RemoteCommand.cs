@@ -64,13 +64,20 @@ public abstract class RemoteCommand<T> : IRemoteCommand<T>, IInternalRemoteComma
     public abstract Task HandleCommandAsync(T message, ICommandResponse response, CancellationToken cancellationToken = default);
 
     /// <inheritdoc />
-    async Task IInternalRemoteCommand.HandleRawAsync(JsonElement data, ICommandResponse response, CancellationToken cancellationToken)
+    object IInternalRemoteCommand.Bind(JsonElement data)
     {
-        var message = data.Deserialize<T>(RemoteCommandProtocol.SerializerOptions);
+        if (data.ValueKind is JsonValueKind.Undefined)
+            throw new JsonException($"The '{_name}' request did not contain data.");
+
+        T? message = data.Deserialize<T>(RemoteCommandProtocol.SerializerOptions);
 
         if (message is null)
-            throw new JsonException($"The '{_name}' payload did not contain the properties {typeof(T).Name} requires.");
+            throw new JsonException($"The '{_name}' payload could not be deserialized to {typeof(T).Name}.");
 
-        await HandleCommandAsync(message, response, cancellationToken);
+        return message;
     }
+
+    /// <inheritdoc />
+    Task IInternalRemoteCommand.ExecuteAsync(object message, ICommandResponse response, CancellationToken cancellationToken) =>
+        HandleCommandAsync((T)message, response, cancellationToken);
 }

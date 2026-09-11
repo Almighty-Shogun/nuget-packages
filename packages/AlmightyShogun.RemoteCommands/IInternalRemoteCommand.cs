@@ -3,8 +3,7 @@ using System.Text.Json;
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// Exposes the untyped entry point the dispatcher calls, which is what lets one table hold commands whose message types
-/// have nothing in common. The generic base implements it by binding the payload and forwarding.
+/// Exposes the untyped contract used by the dispatcher to bind and execute remote commands.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -12,29 +11,29 @@ namespace AlmightyShogun.RemoteCommands;
 internal interface IInternalRemoteCommand
 {
     /// <summary>
-    /// Binds the request payload to the command's message type and runs it.
+    /// Binds the raw request payload to the command's message type.
     /// </summary>
-    ///
-    /// <param name="data">
-    /// The <c>data</c> field of the request frame exactly as it arrived, still unbound because only the command knows
-    /// what type it should become.
-    /// </param>
-    /// <param name="response">The writer for this request, usable exactly once.</param>
-    /// <param name="cancellationToken">Signaled when the read timeout elapses or the listener is stopping.</param>
-    ///
-    /// <returns>A task that completes when the command has finished.</returns>
-    ///
-    /// <exception cref="JsonException">
-    /// The payload could not become the command's message type, or the command's own body raised one after binding
-    /// succeeded. Nothing here tells the two apart.
-    /// </exception>
-    /// <exception cref="InvalidOperationException">
-    /// <paramref name="data"/> was a default <see cref="JsonElement"/>, whose <see cref="JsonValueKind.Undefined"/>
-    /// cannot be bound at all. Nothing guards the parameter, so a request frame omitting its <c>data</c> field arrives
-    /// this way.
-    /// </exception>
-    ///
+    /// <param name="data">The raw request payload.</param>
+    /// 
+    /// <returns>The bound command message.</returns>
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>3.0.0</since>
-    Task HandleRawAsync(JsonElement data, ICommandResponse response, CancellationToken cancellationToken);
+    object Bind(JsonElement data);
+
+    /// <summary>
+    /// Executes the command with an already bound message.
+    /// </summary>
+    /// 
+    /// <param name="message">The bound command message.</param>
+    /// 
+    /// <param name="response">The response writer for the command.</param>
+    /// 
+    /// <param name="cancellationToken">A token used to cancel command execution.</param>
+    /// 
+    /// <returns>A task that completes when command execution finishes.</returns>
+    /// 
+    /// <author>Almighty-Shogun</author>
+    /// <since>3.0.0</since>
+    Task ExecuteAsync(object message, ICommandResponse response, CancellationToken cancellationToken);
 }
