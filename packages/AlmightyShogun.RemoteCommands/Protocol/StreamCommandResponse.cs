@@ -3,13 +3,11 @@ using System.Text.Json;
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// Wraps a command's response in the standard envelope and writes it straight onto the connection, remembering that it
-/// did so the dispatcher knows whether it still owes the client a frame.
+/// Writes command responses to a stream.
 /// </summary>
 ///
 /// <param name="stream">
-/// The connection to write to. Not owned: the connection outlives this response, because the same client may send
-/// another request on it.
+/// The stream to write responses to.
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>
@@ -17,8 +15,7 @@ namespace AlmightyShogun.RemoteCommands;
 internal sealed class StreamCommandResponse(Stream stream) : ICommandResponse
 {
     /// <summary>
-    /// Whether the write slot has been claimed, as an <see cref="int"/> so it can be tested and taken in one atomic step.
-    /// <c>0</c> means the command still owes a frame, <c>1</c> means one caller has taken the slot.
+    /// Tracks whether the response slot has been claimed.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -26,16 +23,8 @@ internal sealed class StreamCommandResponse(Stream stream) : ICommandResponse
     private int _hasWritten;
 
     /// <summary>
-    /// Whether the command answered for itself, which is what stops a client waiting on a command that returned
-    /// without writing and stops the dispatcher sending a second frame after one that did.
+    /// Gets whether a response has been written for the current command.
     /// </summary>
-    ///
-    /// <remarks>
-    /// Read through <see cref="Volatile"/> because the slot may have been claimed on another thread, and it turns
-    /// <c>true</c> when a write begins rather than when it finishes. <see cref="RemoteCommandHandler"/> reads it only
-    /// after the command has returned, so a command that awaited its own write has already seen it complete or throw; one
-    /// that returns without awaiting leaves this <c>true</c> with the write still in flight.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

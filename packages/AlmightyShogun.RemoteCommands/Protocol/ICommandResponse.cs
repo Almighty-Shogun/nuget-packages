@@ -1,8 +1,7 @@
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// Writes the single response frame a command is allowed to send. Commands depend on this rather than on a
-/// <c>NetworkStream</c>.
+/// Writes a command response.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -10,33 +9,31 @@ namespace AlmightyShogun.RemoteCommands;
 public interface ICommandResponse
 {
     /// <summary>
-    /// Serializes a value and sends it as this request's response. A command that writes nothing is answered by the
-    /// dispatcher instead, so calling this is optional but calling it twice is not allowed.
+    /// Writes a response for the current command.
     /// </summary>
     ///
+    /// <remarks>
+    /// A command may write at most one response. If no response is written, the dispatcher sends an empty acknowledgement.
+    /// </remarks>
+    /// 
     /// <typeparam name="TResponse">
-    /// The shape sent back. Serialized with the same web defaults the request was read with, so properties reach the
-    /// client in camel case.
+    /// The response type.
     /// </typeparam>
     /// <param name="data">
-    /// The value to send. Carried as the response envelope's data rather than written bare, so a command whose own shape
-    /// happens to have a <c>refusal</c> property is still read by the client as a success.
+    /// The response value.
     /// </param>
-    /// <param name="cancellationToken">Signaled when the read timeout elapses or the listener is stopping.</param>
+    /// <param name="cancellationToken">A token used to cancel the write.</param>
     ///
-    /// <returns>A task that completes once the frame has been written and flushed to the connection.</returns>
+    /// <returns>A task that completes when the response has been written.</returns>
     ///
     /// <exception cref="InvalidOperationException">
-    /// A response was already written for this request. The protocol is one frame per request, so a second write would
-    /// be read by the client as the answer to whatever it sends next. The slot is claimed before the frame is written, so
-    /// a write that fails still spends it and no retry is possible.
+    /// A response was already written for the current command.
     /// </exception>
     /// <exception cref="System.Text.Json.JsonException">
-    /// <paramref name="data"/> could not be serialized. The slot is claimed before serialization, so this spends it with
-    /// no frame reaching the client, and the dispatcher then sends nothing in its place.
+    /// <paramref name="data"/> could not be serialized.
     /// </exception>
-    /// <exception cref="IOException">The connection failed while writing the frame.</exception>
-    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was signaled mid-write.</exception>
+    /// <exception cref="IOException">The response could not be written to the connection.</exception>
+    /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

@@ -1,13 +1,12 @@
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// Thrown when the connection could never be opened, so nothing was sent. The listener is down, the port is wrong, or a
-/// network rule dropped the attempt; retrying is reasonable, unlike for a refusal.
+/// Thrown when a remote command server cannot be reached.
 /// </summary>
 ///
-/// <param name="host">The host that was dialed, as configured on the client rather than as resolved.</param>
-/// <param name="port">The port that was dialed.</param>
-/// <param name="innerException">The socket failure underneath, which carries the specific reason.</param>
+/// <param name="host">The server host.</param>
+/// <param name="port">The server port.</param>
+/// <param name="innerException">The underlying connection exception.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
@@ -18,7 +17,7 @@ public sealed class RemoteCommandUnreachableException(
 ) : RemoteCommandException($"The server at {host}:{port} could not be reached.", innerException)
 {
     /// <summary>
-    /// The host that was dialed, for logging which endpoint is unreachable when a client is built from settings.
+    ///  Gets the server host.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -26,7 +25,7 @@ public sealed class RemoteCommandUnreachableException(
     public string Host { get; } = host;
 
     /// <summary>
-    /// The port that was dialed.
+    /// Gets the server port.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

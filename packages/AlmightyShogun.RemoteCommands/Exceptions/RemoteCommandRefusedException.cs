@@ -1,21 +1,17 @@
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// Thrown when the server answered and declined to run the command. The request reached the listener, so retrying it
-/// unchanged produces the same refusal for every reason except <see cref="RemoteCommandRefusal.Other"/>, which this
-/// package's server also sends for a command that ran and threw.
+/// Thrown when the server refuses a remote command request.
 /// </summary>
 ///
-/// <param name="reason">What the server objected to.</param>
+/// <param name="reason">The refusal reason.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 public sealed class RemoteCommandRefusedException(RemoteCommandRefusal reason) : RemoteCommandException(Describe(reason))
 {
     /// <summary>
-    /// What the server objected to, which is the value to branch on. Stored exactly as it was passed in: nothing
-    /// here checks it is defined, and <see cref="RemoteCommandClient"/> is what maps a value it does not recognize onto
-    /// <see cref="RemoteCommandRefusal.Other"/> before constructing this.
+    /// Gets the refusal reason.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -23,15 +19,13 @@ public sealed class RemoteCommandRefusedException(RemoteCommandRefusal reason) :
     public RemoteCommandRefusal Reason { get; } = reason;
 
     /// <summary>
-    /// Explains a reason in words, chosen from the value itself so the message cannot drift from what a caller matches.
+    /// Creates an error message for a refusal reason.
     /// </summary>
     ///
-    /// <param name="reason">The reason to explain.</param>
+    /// <param name="reason">The refusal reason.</param>
     ///
     /// <returns>
-    /// The explanation, safe to show to whoever ran the command. <see cref="RemoteCommandRefusal.Other"/> has no arm of
-    /// its own and takes the fallback wording about an unrecognized reason, even though this package's server also sends
-    /// it for a command that ran and threw.
+    /// The corresponding error message.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>

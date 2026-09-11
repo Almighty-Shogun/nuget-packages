@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using AlmightyShogun.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,29 +7,25 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// Registers the remote command listener and the command implementations it dispatches to.
+/// Provides remote command registration extensions.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>1.0.0</since>
 public static class RemoteCommandExtensions
 {
-    /// <param name="serviceCollection">
-    /// The service collection the listener and the discovered command classes are registered into.
-    /// </param>
+    /// <param name="serviceCollection">The service collection to configure.</param>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Registers the listener and binds the <c>RemoteServer</c> section it needs. A port or timeout outside its range
-        /// stops the host from starting; an unparseable address or whitelist entry stops the listener being resolved.
+        /// Registers the remote command server.
         /// </summary>
         ///
         /// <param name="configuration">
-        /// The application configuration. Read for a <c>RemoteServer</c> section, which is required: <c>Port</c> has no
-        /// default, so an absent section fails validation rather than binding a listener nobody asked for.
+        /// The application configuration.
         /// </param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with the remote command listener registered.</returns>
+        /// <returns>The configured service collection.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
@@ -37,46 +34,33 @@ public static class RemoteCommandExtensions
             .AddSingleton<IRemoteCommandHandler, RemoteCommandHandler>();
 
         /// <summary>
-        /// Registers the command classes declared in the calling assembly, which is the usual case when the commands
-        /// live in the startup project. Reach for the overload taking assemblies when they do not.
+        /// Registers remote commands from the calling assembly.
         /// </summary>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with the remote commands registered.</returns>
+        /// <returns>The configured service collection.</returns>
         ///
         /// <exception cref="InvalidOperationException">
-        /// A discovered command class carries no <see cref="RemoteCommandAttribute"/> and so declares no name to be
-        /// reachable by. Raised by the overload taking assemblies, which this forwards to.
+        /// A discovered command is not marked with <see cref="RemoteCommandAttribute"/>.
         /// </exception>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public IServiceCollection RegisterRemoteCommands() => serviceCollection.RegisterRemoteCommands([Assembly.GetCallingAssembly()]);
 
         /// <summary>
-        /// Registers the command classes declared in the given assemblies as transient services under their own concrete
-        /// type, alongside a descriptor naming each one, so a fresh instance is built per request from a fresh scope and a
-        /// command may depend on scoped application services.
+        /// Registers remote commands from the specified assemblies.
         /// </summary>
         ///
         /// <param name="assemblies">
-        /// The assemblies to scan, in the order they should be searched. An empty array registers nothing; the overload
-        /// taking no assembly at all is the one that falls back to the calling assembly.
+        /// The assemblies to scan.
         /// </param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with the remote commands registered.</returns>
+        /// <returns>The configured service collection.</returns>
         ///
         /// <exception cref="InvalidOperationException">
-        /// A discovered command class carries no <see cref="RemoteCommandAttribute"/> and so declares no name to be
-        /// reachable by. Raised here rather than when the listener is resolved, because the name is what a descriptor is
-        /// built from.
+        /// A discovered command is not marked with <see cref="RemoteCommandAttribute"/>.
         /// </exception>
-        ///
-        /// <remarks>
-        /// Commands are registered under their concrete type rather than under the command interface, because the listener
-        /// resolves one by type from a per-request scope instead of enumerating them all. A class carrying
-        /// <see cref="SkipAutoRegistrationAttribute"/> is skipped, and a name claimed twice is reported when the dispatch
-        /// table is built rather than here.
-        /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.2.0</since>

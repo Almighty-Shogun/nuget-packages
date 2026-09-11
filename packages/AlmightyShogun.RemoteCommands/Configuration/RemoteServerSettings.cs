@@ -3,8 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// The bound <c>RemoteServer</c> section. A port or timeout outside its range is caught while the host starts; an address
-/// or whitelist entry that does not parse is caught when the listener is resolved, since neither is a range check.
+/// Configures the remote command server.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -12,8 +11,7 @@ namespace AlmightyShogun.RemoteCommands;
 public sealed record RemoteServerSettings
 {
     /// <summary>
-    /// The local address to bind. The default accepts only connections from the same machine; binding a routable
-    /// address exposes the listener to everything that can reach it, subject to the whitelist.
+    /// Gets the local address to bind to.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -22,8 +20,7 @@ public sealed record RemoteServerSettings
     public string Address { get; init; } = "127.0.0.1";
 
     /// <summary>
-    /// The port to bind. Required, and the reason an absent <c>RemoteServer</c> section fails validation rather than
-    /// starting a listener on a port nobody chose.
+    /// Gets the port to bind to.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -32,7 +29,8 @@ public sealed record RemoteServerSettings
     public required int Port { get; init; }
 
     /// <summary>
-    /// The addresses allowed to connect, each a bare address or a CIDR range. Deny by default: an empty list matches nothing.
+    /// Gets the addresses allowed to connect, specified as IP addresses or CIDR ranges.
+    /// An empty list denies all connections.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -40,7 +38,7 @@ public sealed record RemoteServerSettings
     public IReadOnlyList<string> Whitelisted { get; init; } = [];
 
     /// <summary>
-    /// Whether each accepted command is logged by name, which covers ordinary traffic only and not refusals.
+    /// Gets whether successfully received commands are logged.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -48,12 +46,11 @@ public sealed record RemoteServerSettings
     public bool EnableReceiveLog { get; init; }
 
     /// <summary>
-    /// The optional pre-shared key a client must present. When set, a request without a matching key is refused.
+    /// Gets the optional pre-shared key required from clients.
     /// </summary>
     ///
     /// <remarks>
-    /// This raises the floor from "anyone who can reach the port from a whitelisted address" to "anyone who also holds
-    /// the key". It is not a substitute for transport security: the connection is still plaintext.
+    /// The key does not provide transport security. Connections remain unencrypted.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -61,7 +58,7 @@ public sealed record RemoteServerSettings
     public string? Secret { get; init; }
 
     /// <summary>
-    /// The largest request accepted, in bytes. It bounds what the listener reads only, never the size of what it writes back.
+    /// Gets the maximum request payload size, in bytes.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -70,8 +67,7 @@ public sealed record RemoteServerSettings
     public int MaxPayloadBytes { get; init; } = 1024 * 1024;
 
     /// <summary>
-    /// How long serving one request may take, in seconds, before it is abandoned. The window covers the command's
-    /// own work, not just the surrounding framing.
+    /// Gets the maximum time, in seconds, allowed to process a request, including command execution.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -80,21 +76,16 @@ public sealed record RemoteServerSettings
     public int ReadTimeout { get; init; } = 30;
 
     /// <summary>
-    /// How long a connection may sit idle between requests, in seconds, before it is closed.
+    /// Gets the maximum time, in seconds, a connection may remain idle between requests.
     /// </summary>
-    ///
-    /// <remarks>
-    /// Distinct from <see cref="ReadTimeout"/>, which only bounds a request that has already started. Without an idle
-    /// timeout a client that connects and goes quiet holds a connection slot indefinitely.
-    /// </remarks>
-    ///
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     [Range(1, int.MaxValue)]
     public int IdleTimeout { get; init; } = 120;
 
     /// <summary>
-    /// How many connections are served at once, which bounds the memory and threads the listener spends on connections.
+    /// Gets the maximum number of connections served concurrently.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

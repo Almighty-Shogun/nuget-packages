@@ -1,13 +1,11 @@
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// Thrown when the connection opened but closed before a response arrived. The usual cause is the address not being
-/// whitelisted, because the listener drops such a client without answering rather than explaining itself.
+/// Thrown when the server disconnects before sending a response.
 /// </summary>
 ///
 /// <param name="innerException">
-/// The transport failure underneath, or <c>null</c> when the peer closed cleanly between frames and there was no error
-/// to observe.
+/// The underlying transport exception, if available.
 /// </param>
 ///
 /// <author>Almighty-Shogun</author>

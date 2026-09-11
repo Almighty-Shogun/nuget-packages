@@ -1,8 +1,7 @@
 namespace AlmightyShogun.RemoteCommands;
 
 /// <summary>
-/// Why the server declined to run a command. This is the vocabulary both ends share and the only place a refusal is
-/// named.
+/// Specifies why a remote command request was refused.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -10,9 +9,7 @@ namespace AlmightyShogun.RemoteCommands;
 public enum RemoteCommandRefusal
 {
     /// <summary>
-    /// The request was accepted and handed to its command, but serving it failed for a reason with no more specific code
-    /// here. That covers a command that ran and threw as well as a request the command could never be given, so this on
-    /// its own does not say whether the command's own body ran.
+    /// The request failed for a reason not represented by another refusal value.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -20,9 +17,7 @@ public enum RemoteCommandRefusal
     Other = 0,
 
     /// <summary>
-    /// The request was not readable as JSON, so the server never looked for a command name. This package's own client
-    /// serializes every request before sending it, so from such a client the bytes were valid when they left and the
-    /// fault is on the connection: frames out of step with each other, or corruption in transit.
+    /// The request payload contains malformed JSON.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -30,8 +25,7 @@ public enum RemoteCommandRefusal
     MalformedPayload,
 
     /// <summary>
-    /// The request parsed but named no command. A blank or whitespace name produces this rather than
-    /// <see cref="CommandNotFound"/>, because there was nothing to look up.
+    /// The request does not specify a command name.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -39,8 +33,7 @@ public enum RemoteCommandRefusal
     MissingCommandName,
 
     /// <summary>
-    /// The server requires a pre-shared key and the one sent did not match, or none was sent. The address was
-    /// whitelisted, otherwise the connection would have been dropped without an answer.
+    /// The request does not provide a valid pre-shared key.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -48,8 +41,7 @@ public enum RemoteCommandRefusal
     Unauthorized,
 
     /// <summary>
-    /// No command is registered under that name. Names match with ordinal case sensitivity, so this is as likely to be a
-    /// difference in capitalization as a command the server does not have.
+    /// No command is registered with the requested name.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -57,10 +49,7 @@ public enum RemoteCommandRefusal
     CommandNotFound,
 
     /// <summary>
-    /// The command exists but a <c>JsonException</c> escaped it, usually because the data could not become its message type,
-    /// a property carried the wrong JSON type, or the payload was not an object. A command that itself raises one after
-    /// running is reported the same way. An omitted property binds to its default, unless the message marks it
-    /// <c>required</c>, which is refused here the same way a wrong type is.
+    /// The request data could not be bound to the command's message type.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
