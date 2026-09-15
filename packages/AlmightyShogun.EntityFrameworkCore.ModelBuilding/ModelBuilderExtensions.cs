@@ -484,8 +484,7 @@ public static class ModelBuilderExtensions
                 throw new InvalidOperationException(
                     $"ApplyManyToMany cannot configure a self-referencing many-to-many on '{typeof(TEntity).Name}', "
                     + $"because both join columns would be named '{typeof(TEntity).Name}Id'. Configure the join entity "
-                    + "with UsingEntity directly, giving each foreign key its own column name."
-                );
+                    + "with UsingEntity directly, giving each foreign key its own column name.");
 
             modelBuilder.Entity<TEntity>()
                 .HasMany(navigation)
@@ -493,43 +492,51 @@ public static class ModelBuilderExtensions
                 .UsingEntity(
                     joinTableName,
                     left => left.HasOne(typeof(TRelated)).WithMany().HasForeignKey($"{typeof(TRelated).Name}Id"),
-                    right => right.HasOne(typeof(TEntity)).WithMany().HasForeignKey($"{typeof(TEntity).Name}Id")
-                );
+                    right => right.HasOne(typeof(TEntity)).WithMany().HasForeignKey($"{typeof(TEntity).Name}Id"));
 
             return modelBuilder;
         }
 
         /// <summary>
-        /// Stores an enum as its name rather than its underlying number, so a row stays readable and reordering the
-        /// enum cannot silently repoint existing data.
+        /// Configures an enum property to be stored as a string.
         /// </summary>
         ///
-        /// <typeparam name="TEntity">The entity the property is declared on.</typeparam>
-        /// <typeparam name="TProperty">
-        /// The enum being stored. The <c>struct</c> constraint excludes <see cref="Nullable{T}"/>, so a nullable enum
-        /// property cannot be configured through this helper and needs the fluent call written out.
-        /// </typeparam>
-        /// <param name="property">The property to convert, stored through EF Core's enum-to-string conversion.</param>
-        /// <param name="maxLength">
-        /// The column width. It should fit the longest member name; nothing here checks a written value against it. The
-        /// value reaches <see cref="PropertyBuilder{T}.HasMaxLength(int)"/> unchanged.
-        /// </param>
+        /// <typeparam name="TEntity">The entity containing the property.</typeparam>
+        /// <typeparam name="TProperty">The enum type.</typeparam>
+        /// 
+        /// <param name="property">The enum property to configure.</param>
+        /// <param name="maxLength">The maximum length of the stored string.</param>
         ///
-        /// <returns>The <see cref="ModelBuilder"/> instance with the property stored as text.</returns>
-        ///
-        /// <exception cref="ArgumentException">
-        /// <paramref name="property"/> is not a simple property or field access.
-        /// </exception>
-        /// <exception cref="ArgumentNullException"><paramref name="property"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="maxLength"/> is less than <c>-1</c>. <c>-1</c> itself is accepted rather than rejected as
-        /// out of range.
-        /// </exception>
+        /// <returns>The <see cref="ModelBuilder"/> instance with the property configured.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
         public ModelBuilder ApplyEnumAsString<TEntity, TProperty>(
             Expression<Func<TEntity, TProperty>> property,
+            int maxLength = 32
+        ) where TEntity : class where TProperty : struct, Enum
+        {
+            modelBuilder.Entity<TEntity>().Property(property).HasConversion<string>().HasMaxLength(maxLength);
+
+            return modelBuilder;
+        }
+
+        /// <summary>
+        /// Configures a nullable enum property to be stored as a string.
+        /// </summary>
+        /// 
+        /// <param name="property">The nullable enum property to configure.</param>
+        /// <param name="maxLength">The maximum length of the stored string.</param>
+        /// 
+        /// <typeparam name="TEntity">The entity containing the property.</typeparam>
+        /// <typeparam name="TProperty">The enum type.</typeparam>
+        /// 
+        /// <returns>The <see cref="ModelBuilder"/> instance with the property configured.</returns>
+        ///
+        /// <author>Almighty-Shogun</author>
+        /// <since>4.0.0</since>
+        public ModelBuilder ApplyEnumAsString<TEntity, TProperty>(
+            Expression<Func<TEntity, TProperty?>> property,
             int maxLength = 32
         ) where TEntity : class where TProperty : struct, Enum
         {
