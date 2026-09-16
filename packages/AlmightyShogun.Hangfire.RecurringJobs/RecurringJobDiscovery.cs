@@ -122,20 +122,15 @@ internal static class RecurringJobDiscovery
     }
 
     /// <summary>
-    /// Checks the merged job id, cron expression and time zone up front, so a mistake in one of them stops the host with a
-    /// message naming the offending type. The expression is parsed with the five-field Cronos overload, so one carrying
-    /// seconds is rejected here even though Hangfire itself accepts it. An unknown time zone or an unparseable expression
-    /// would stop the host anyway, from the time zone lookup or from Hangfire's own cron validation, but without naming
-    /// which job caused it. The merged queue is not checked, here or anywhere else in the package, so a name Hangfire
-    /// rejects surfaces from <see cref="CreateExecutionMethod"/> instead.
+    /// Validates the merged job id, cron expression, and time zone.
     /// </summary>
     ///
     /// <param name="type">The job type being validated.</param>
-    /// <param name="job">
-    /// The merged values, so an overridden cron expression or time zone is checked exactly like a declared one.
-    /// </param>
+    /// <param name="job">The merged recurring job metadata.</param>
     ///
-    /// <exception cref="InvalidOperationException">The merged job id, cron expression or time zone is not usable.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// The job id is empty, the cron expression is invalid, or the time zone cannot be resolved.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -171,8 +166,19 @@ internal static class RecurringJobDiscovery
                 exception);
         }
     }
-
-
+        
+    /// <summary>
+    /// Validates a five- or six-field cron expression.
+    /// </summary>
+    ///
+    /// <param name="cronExpression">The cron expression to validate.</param>
+    ///
+    /// <exception cref="CronFormatException">
+    /// The expression is not a valid five- or six-field cron expression.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>4.0.0</since>
     private static void ValidateCron(string cronExpression)
     {
         try
