@@ -4,14 +4,10 @@ using System.Collections.Immutable;
 namespace AlmightyShogun.Hangfire.RecurringJobs;
 
 /// <summary>
-/// Carries the assemblies one registration call named, so the scan is a container-resolved service rather than work done
-/// inside that call. Each call registers its own instance, and <see cref="RecurringJobRegistry"/> scans all of them.
+/// Contains assemblies to scan for recurring jobs.
 /// </summary>
 ///
-/// <param name="Assemblies">
-/// The assemblies this call named, scanned for recurring job classes. Immutable because the scan runs when the host starts
-/// rather than when this is constructed.
-/// </param>
+/// <param name="Assemblies"> The assemblies to scan.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>

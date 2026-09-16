@@ -17,7 +17,7 @@ public sealed record RecurringJobSettings
     public bool EnabledByDefault { get; init; } = true;
 
     /// <summary>
-    /// Whether parked jobs are removed from Hangfire storage when the host starts.
+    /// Whether disabled jobs are removed from Hangfire storage when the host starts.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

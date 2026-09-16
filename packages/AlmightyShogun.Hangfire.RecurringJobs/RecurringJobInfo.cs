@@ -1,8 +1,7 @@
 namespace AlmightyShogun.Hangfire.RecurringJobs;
 
 /// <summary>
-/// Describes one recurring job as it was actually scheduled, which is the attribute's arguments with any configuration
-/// override already applied rather than what the class alone declares.
+/// Describes a discovered recurring job after configuration overrides are applied.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -10,7 +9,7 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 public sealed record RecurringJobInfo
 {
     /// <summary>
-    /// The stable Hangfire recurring job id, unique across the application.
+    /// The recurring job id.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -18,7 +17,7 @@ public sealed record RecurringJobInfo
     public required string JobId { get; init; }
 
     /// <summary>
-    /// The cron expression the job is scheduled with, in the standard five-field format.
+    /// The five- or six-field cron expression the job is scheduled with.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -26,7 +25,7 @@ public sealed record RecurringJobInfo
     public required string CronExpression { get; init; }
 
     /// <summary>
-    /// The class implementing the job, which is the concrete type rather than <see cref="IRecurringJob"/>.
+    /// The concrete type implementing the recurring job.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -34,7 +33,7 @@ public sealed record RecurringJobInfo
     public required Type JobType { get; init; }
 
     /// <summary>
-    /// The time zone the cron expression is evaluated in, or <c>null</c> for UTC.
+    ///  The time zone the cron expression is evaluated in, or <c>null</c> for UTC.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

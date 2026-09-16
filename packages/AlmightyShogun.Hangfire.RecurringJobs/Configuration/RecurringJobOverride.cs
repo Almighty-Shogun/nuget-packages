@@ -48,6 +48,10 @@ public sealed record RecurringJobOverride
     /// The queue to use instead of the declared one.
     /// </summary>
     ///
+    /// <remarks>
+    /// When unset, the declared queue is preserved. Use <see cref="ClearQueue"/> to explicitly clear it.
+    /// </remarks>
+    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public string? Queue { get; init; }

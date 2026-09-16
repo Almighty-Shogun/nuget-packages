@@ -7,7 +7,7 @@ using System.Collections.Immutable;
 namespace AlmightyShogun.Hangfire.RecurringJobs;
 
 /// <summary>
-/// Overrides recurring job settings for a specific environment.
+/// Discovers and validates recurring jobs.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -15,27 +15,17 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 internal static class RecurringJobDiscovery
 {
     /// <summary>
-    /// Builds the scheduling metadata for every job type in the provided assemblies, taking the job id from the attribute,
-    /// the cron expression, time zone and queue from the override first and the attribute second, and enablement from the
-    /// override, then the attribute, then the section's default. A job that ends up disabled contributes its id rather than
-    /// its metadata, since those are the ids <see cref="JobSchedulerStartup"/> unschedules when
-    /// <see cref="RecurringJobSettings.RemoveParkedJobs"/> is set.
+    /// Discovers recurring jobs and applies their configuration overrides.
     /// </summary>
     ///
-    /// <param name="assemblies">
-    /// The assemblies to scan. An <see cref="IRecurringJob"/> implementation without the attribute is passed over silently,
-    /// since a job invoked directly by other code is a legitimate reason to implement it.
-    /// </param>
-    /// <param name="settings">The configuration section. Pass the defaults when the application has no section.</param>
+    /// <param name="assemblies">The assemblies to scan.</param>
+    /// <param name="settings">The recurring job settings.</param>
     ///
-    /// <returns>
-    /// The recurring jobs to schedule, in the order the scan found them, alongside the ids of the ones that resolved to
-    /// disabled.
-    /// </returns>
+    /// <returns>The active recurring jobs and the ids of disabled jobs.</returns>
     ///
     /// <exception cref="InvalidOperationException">
-    /// A job declares invalid scheduling metadata or execution method, two jobs share a job id,
-    /// an override names an unknown job, or an override both sets and clears the same value.
+    /// A job has invalid metadata or execution method, job ids are duplicated,
+    /// an override targets an unknown job, or an override contains conflicting values.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -110,20 +100,14 @@ internal static class RecurringJobDiscovery
     }
 
     /// <summary>
-    /// Builds the Hangfire invocation for one discovered job.
+    /// Creates the Hangfire invocation for a recurring job.
     /// </summary>
     ///
-    /// <param name="job">The discovered job to build an invocation for.</param>
+    /// <param name="job">The recurring job.</param>
     ///
-    /// <returns>The Hangfire job that invokes the recurring job implementation.</returns>
+    /// <returns>The Hangfire job invocation.</returns>
     ///
-    /// <exception cref="InvalidOperationException">The job type exposes no public run method taking a cancellation token.</exception>
-    ///
-    /// <remarks>
-    /// The invocation pins <c>CancellationToken.None</c> as the argument. Hangfire substitutes the running server's own
-    /// token for a cancellation token argument before it invokes the method, so this stands in for a token rather than
-    /// being the one the job receives.
-    /// </remarks>
+    /// <exception cref="InvalidOperationException">The job type does not expose a public <see cref="IRecurringJob.RunAsync"/> method.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -135,11 +119,11 @@ internal static class RecurringJobDiscovery
     }
 
     /// <summary>
-    /// Validates the merged cron expression, time zone, and queue.
+    /// Validates the cron expression, time zone, and queue.
     /// </summary>
     ///
     /// <param name="type">The job type being validated.</param>
-    /// <param name="job">The merged recurring job metadata.</param>
+    /// <param name="job">The recurring job metadata.</param>
     ///
     /// <exception cref="InvalidOperationException">
     /// The cron expression, time zone, or queue is invalid.
@@ -183,6 +167,16 @@ internal static class RecurringJobDiscovery
     }
 
 
+    /// <summary>
+    /// Determines whether a queue name is valid.
+    /// </summary>
+    ///
+    /// <param name="queue">The queue name to validate.</param>
+    ///
+    /// <returns><c>true</c> when the queue name is valid; otherwise, <c>false</c>.</returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private static bool IsValidQueue(string queue)
     {
         if (string.IsNullOrWhiteSpace(queue))
@@ -201,7 +195,7 @@ internal static class RecurringJobDiscovery
     /// <param name="cronExpression">The cron expression to validate.</param>
     ///
     /// <exception cref="CronFormatException">
-    /// The expression is not a valid five- or six-field cron expression.
+    /// The cron expression is invalid.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -219,14 +213,14 @@ internal static class RecurringJobDiscovery
     }
 
     /// <summary>
-    /// Validates mutually exclusive recurring job override values.
+    /// Validates a recurring job override.
     /// </summary>
     ///
     /// <param name="jobId">The recurring job id.</param>
     /// <param name="jobOverride">The override to validate.</param>
     ///
     /// <exception cref="InvalidOperationException">
-    /// A value is specified together with its corresponding clear option.
+    /// The override both sets and clears the same value.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -243,17 +237,15 @@ internal static class RecurringJobDiscovery
     }
 
     /// <summary>
-    /// Finds the implementation Hangfire invokes, rather than the interface declaration, so the serialized job records the
-    /// concrete type's method.
+    /// Resolves the public run method for a recurring job type.
     /// </summary>
     ///
-    /// <param name="type">The job class, whose own public declaration is searched rather than the interface's.</param>
+    /// <param name="type">The recurring job type.</param>
     ///
-    /// <returns>The method Hangfire should invoke.</returns>
+    /// <returns>The run method.</returns>
     ///
     /// <exception cref="InvalidOperationException">
-    /// The type exposes no public matching run method, which happens when the interface is implemented explicitly, since an
-    /// explicit implementation is private and Hangfire cannot invoke it.
+    /// The type does not expose a public <see cref="IRecurringJob.RunAsync"/> method.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>

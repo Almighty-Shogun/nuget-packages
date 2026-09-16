@@ -1,32 +1,20 @@
 namespace AlmightyShogun.Hangfire.RecurringJobs;
 
 /// <summary>
-/// Contract for a recurring Hangfire job. Implementing it is not enough on its own: the class is only scheduled when it
-/// also carries <see cref="RecurringJobAttribute"/> and its assembly is passed to one of the registration overloads.
+/// Represents a recurring Hangfire job.
 /// </summary>
-///
-/// <remarks>
-/// A run gets its own instance, so no field survives from one run to the next, and the lifetime the registration gives a
-/// job class is described on <see cref="RecurringJobExtensions"/>. An exception that escapes a run is left to Hangfire,
-/// whose own retry policy decides what happens next; this package installs no job filter of its own.
-/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 public interface IRecurringJob
 {
     /// <summary>
-    /// Executes the recurring Hangfire job. Implement it publicly rather than explicitly, since Hangfire invokes the method
-    /// by reflection and an explicit implementation is private.
+    /// Executes the recurring job.
     /// </summary>
     ///
-    /// <param name="cancellationToken">
-    /// Hangfire supplies the running server's own token here, signalled when the job is aborted or the server is shutting
-    /// down. A job with nothing to unwind can ignore it, but Hangfire waits on a long-running one that never observes it,
-    /// which delays shutdown.
-    /// </param>
+    /// <param name="cancellationToken">The cancellation token for the current execution.</param>
     ///
-    /// <returns>A task that represents the asynchronous execution of the recurring job.</returns>
+    /// <returns>A task that represents the asynchronous execution.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
