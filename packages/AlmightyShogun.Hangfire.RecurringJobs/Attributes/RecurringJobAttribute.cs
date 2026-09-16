@@ -2,34 +2,51 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 
 /// <summary>
 /// Marks a recurring Hangfire job class and defines how it is scheduled.
-/// It has no effect on a class that does not implement <see cref="IRecurringJob"/>, since the scan only looks for that contract.
 /// </summary>
-///
-/// <param name="jobId">The id the schedule is stored under. Must be unique across the application.</param>
-/// <param name="cronExpression">
-/// The schedule, as a cron expression in the standard five-field format. <see cref="CronSchedules"/> holds the common ones.
-/// </param>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>2.2.0</since>
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-public sealed class RecurringJobAttribute(string jobId, string cronExpression) : Attribute
+public sealed class RecurringJobAttribute : Attribute
 {
+    /// <summary>
+    /// Marks a recurring Hangfire job class and defines how it is scheduled.
+    /// </summary>
+    ///
+    /// <param name="jobId">The id the schedule is stored under. Must be unique across the application.</param>
+    /// <param name="cronExpression">
+    /// The schedule, as a five- or six-field cron expression. <see cref="CronSchedules"/> holds the common ones.
+    /// </param>
+    ///
+    /// <exception cref="ArgumentException">
+    /// <paramref name="jobId"/> or <paramref name="cronExpression"/> is null, empty, or whitespace.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>2.2.0</since>
+    public RecurringJobAttribute(string jobId, string cronExpression)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(jobId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(cronExpression);
+
+        JobId = jobId;
+        CronExpression = cronExpression;
+    }
+
     /// <summary>
     /// The id the schedule is stored under, which must be unique across the application.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.2.0</since>
-    public string JobId { get; } = jobId;
+    public string JobId { get; }
 
     /// <summary>
-    /// The cron expression the schedule uses, in the standard five-field format.
+    /// The five- or six-field cron expression the schedule uses.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.2.0</since>
-    public string CronExpression { get; } = cronExpression;
+    public string CronExpression { get; }
 
     /// <summary>
     /// The time zone the cron expression is evaluated in. Defaults to UTC when unset.

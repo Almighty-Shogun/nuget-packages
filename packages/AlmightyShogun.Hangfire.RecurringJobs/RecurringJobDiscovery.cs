@@ -34,10 +34,6 @@ internal static class RecurringJobDiscovery
     /// disabled.
     /// </returns>
     ///
-    /// <exception cref="ArgumentNullException">
-    /// A job's attribute declares a <c>null</c> job id, which fails while the per-job overrides are looked up, before the job
-    /// id is checked at all.
-    /// </exception>
     /// <exception cref="InvalidOperationException">
     /// A job declares a blank job id, or declares or is overridden with an unparseable cron expression or an unknown time
     /// zone, two jobs share a job id, or an override names a job id the scan did not find. The job id comes from the
@@ -61,11 +57,16 @@ internal static class RecurringJobDiscovery
 
             if (attribute is null) continue;
 
-            RecurringJobOverride? jobOverride = overrides.GetValueOrDefault(attribute.JobId);
+            string jobId = attribute.JobId;
+
+            if (string.IsNullOrWhiteSpace(jobId))
+                throw new InvalidOperationException($"{type.FullName} declares an empty recurring job id.");
+
+            RecurringJobOverride? jobOverride = overrides.GetValueOrDefault(jobId);
 
             RecurringJobInfo job = new()
             {
-                JobId = attribute.JobId,
+                JobId = jobId,
                 CronExpression = jobOverride?.CronExpression ?? attribute.CronExpression,
                 JobType = type,
                 TimeZone = jobOverride?.TimeZone ?? attribute.TimeZone,
@@ -74,16 +75,16 @@ internal static class RecurringJobDiscovery
 
             Validate(type, job);
 
-            if (seenJobIds.TryGetValue(job.JobId, out Type? existing))
+            if (seenJobIds.TryGetValue(jobId, out Type? existing))
                 throw new InvalidOperationException(
-                    $"Recurring job id '{job.JobId}' is declared by both {existing.FullName} and {type.FullName}.");
+                    $"Recurring job id '{jobId}' is declared by both {existing.FullName} and {type.FullName}.");
 
-            seenJobIds[job.JobId] = type;
+            seenJobIds[jobId] = type;
 
             if (jobOverride?.Enabled ?? attribute.DeclaredEnabled ?? settings.EnabledByDefault)
                 jobs.Add(job);
             else
-                parkedJobIds.Add(job.JobId);
+                parkedJobIds.Add(jobId);
         }
 
         foreach (string jobId in overrides.Keys.Where(jobId => !seenJobIds.ContainsKey(jobId)))
@@ -122,23 +123,20 @@ internal static class RecurringJobDiscovery
     }
 
     /// <summary>
-    /// Validates the merged job id, cron expression, and time zone.
+    /// Validates the merged cron expression and time zone.
     /// </summary>
     ///
     /// <param name="type">The job type being validated.</param>
     /// <param name="job">The merged recurring job metadata.</param>
     ///
     /// <exception cref="InvalidOperationException">
-    /// The job id is empty, the cron expression is invalid, or the time zone cannot be resolved.
+    /// The cron expression is invalid or the time zone cannot be resolved.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static void Validate(Type type, RecurringJobInfo job)
     {
-        if (string.IsNullOrWhiteSpace(job.JobId))
-            throw new InvalidOperationException($"{type.FullName} declares an empty recurring job id.");
-
         if (string.IsNullOrWhiteSpace(job.CronExpression))
             throw new InvalidOperationException($"{type.FullName} resolves to an empty cron expression.");
 
@@ -166,7 +164,7 @@ internal static class RecurringJobDiscovery
                 exception);
         }
     }
-        
+
     /// <summary>
     /// Validates a five- or six-field cron expression.
     /// </summary>
