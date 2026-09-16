@@ -1,5 +1,6 @@
 using Hangfire;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using AlmightyShogun.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -116,6 +117,7 @@ public static class RecurringJobExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.2.0</since>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public IServiceCollection RegisterRecurringJobs(IConfiguration? configuration = null)
             => serviceCollection.RegisterRecurringJobs([Assembly.GetCallingAssembly()], configuration);
 
