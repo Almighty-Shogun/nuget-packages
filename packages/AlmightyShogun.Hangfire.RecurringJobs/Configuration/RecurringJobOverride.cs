@@ -1,21 +1,15 @@
 namespace AlmightyShogun.Hangfire.RecurringJobs;
 
 /// <summary>
-/// Replaces what one job's attribute declares, so a schedule can differ per environment without a rebuild.
+/// Overrides settings declared by a recurring job.
 /// </summary>
-///
-/// <remarks>
-/// Every property is nullable, so a section only has to name what changes.
-/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 public sealed record RecurringJobOverride
 {
     /// <summary>
-    /// Whether the job is scheduled. This is the value that turns a job off in one environment and leaves it on everywhere
-    /// else. Turning it off also removes whatever schedule is stored under that job id when the host starts, for as long as
-    /// <see cref="RecurringJobSettings.RemoveParkedJobs"/> is set.
+    /// Whether the job is scheduled.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -23,8 +17,7 @@ public sealed record RecurringJobOverride
     public bool? Enabled { get; init; }
 
     /// <summary>
-    /// The cron expression to schedule with instead of the declared one, for retuning a schedule per environment or
-    /// without a deployment.
+    /// The cron expression to use instead of the declared one.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -32,20 +25,42 @@ public sealed record RecurringJobOverride
     public string? CronExpression { get; init; }
 
     /// <summary>
-    /// The time zone to evaluate the expression in instead of the declared one. It cannot be cleared back to UTC, since
-    /// an unset value means the attribute wins.
+    /// The time zone to use instead of the declared one.
     /// </summary>
+    ///
+    /// <remarks>
+    /// When unset, the declared time zone is preserved. Use <see cref="ClearTimeZone"/> to explicitly clear it.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public string? TimeZone { get; init; }
 
     /// <summary>
-    /// The queue to enqueue on instead of the declared one, for steering a job onto a queue only some environments
-    /// have a server listening on.
+    /// Whether the declared time zone should be cleared.
     /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public bool ClearTimeZone { get; init; }
+
+    /// <summary>
+    /// The queue to use instead of the declared one.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// When unset, the declared queue is preserved. Use <see cref="ClearQueue"/> to explicitly clear it.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public string? Queue { get; init; }
+
+    /// <summary>
+    /// Whether the declared queue should be cleared.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    public bool ClearQueue { get; init; }
 }

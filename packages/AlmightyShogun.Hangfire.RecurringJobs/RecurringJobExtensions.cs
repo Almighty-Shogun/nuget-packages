@@ -1,5 +1,6 @@
 using Hangfire;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using AlmightyShogun.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,8 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AlmightyShogun.Hangfire.RecurringJobs;
 
 /// <summary>
-/// Holds the two startup calls the package exposes: the Hangfire host setup, and the attribute scan that turns job classes
-/// into schedules.
+/// Provides registration for Hangfire and recurring jobs.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -16,16 +16,11 @@ namespace AlmightyShogun.Hangfire.RecurringJobs;
 public static class RecurringJobExtensions
 {
     /// <summary>
-    /// Adds the package's two startup calls to the service collection. Neither resolves anything, so they may be written in
-    /// either order, but both are needed: the scan only records what to schedule and what to unschedule, and the hosted
-    /// service it registers is what acts on both through the recurring job manager the Hangfire setup provides.
+    /// Provides recurring job registration extensions for a service collection.
     /// </summary>
     ///
     /// <param name="serviceCollection">
-    /// The collection that receives the Hangfire services, the job classes, the <see cref="RecurringJobSettings"/> options,
-    /// the singleton registry, and the hosted service that applies the scan to Hangfire. Those options are bound to the
-    /// <c>RecurringJobs</c> section only when a configuration is passed, and are left at their defaults otherwise. Every
-    /// helper returns the collection, so the calls chain.
+    /// The service collection.
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>
@@ -33,53 +28,27 @@ public static class RecurringJobExtensions
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Registers Hangfire with in-memory storage, and optionally the background processing server.
+        /// Registers Hangfire with in-memory storage.
         /// </summary>
         ///
-        /// <param name="addServer">
-        /// Whether to run a background processing server in this application. Set it to <c>false</c> for a client that only
-        /// enqueues work.
-        /// </param>
+        /// <param name="addServer">Whether to register a Hangfire background processing server.</param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with Hangfire configured.</returns>
-        ///
-        /// <remarks>
-        /// Storage is Hangfire's own in-memory provider, so its limits are Hangfire's rather than this package's: job state
-        /// is lost on restart and every replica keeps its own store, which leaves an application running more than one
-        /// replica running each recurring job once per replica. Reach for the delegate overload to point Hangfire at a
-        /// durable store instead.
-        /// </remarks>
+        /// <returns>The service collection.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.2.0</since>
         public IServiceCollection AddCustomHangfire(bool addServer = true) => serviceCollection.AddCustomHangfire(
             static configuration => configuration.UseInMemoryStorage().SetDataCompatibilityLevel(CompatibilityLevel.Version_180),
-            addServer
-        );
+            addServer);
 
         /// <summary>
-        /// Registers Hangfire with serializer defaults, the caller's storage and data compatibility configuration, and
-        /// optionally the background processing server.
+        /// Registers Hangfire using the supplied configuration.
         /// </summary>
         ///
-        /// <param name="configure">
-        /// Selects the storage provider and data compatibility level. The package sets neither, so it is Hangfire that
-        /// rejects a configuration leaving the storage unset, and Hangfire's own default that stands in when the
-        /// compatibility level is left alone.
-        /// </param>
-        /// <param name="addServer">
-        /// Whether to run a background processing server in this application. Set it to <c>false</c> for a client that only
-        /// enqueues work.
-        /// </param>
+        /// <param name="configure">Configures Hangfire.</param>
+        /// <param name="addServer">Whether to register a Hangfire background processing server.</param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with Hangfire configured.</returns>
-        ///
-        /// <remarks>
-        /// The package still applies the simple assembly-name type serializer and recommended serializer settings, but the
-        /// delegate owns the storage and data compatibility level. An application sharing a store with one running a
-        /// different Hangfire version calls <c>SetDataCompatibilityLevel</c> to match it, since a newer level writes payloads
-        /// an older Hangfire reader cannot deserialize.
-        /// </remarks>
+        /// <returns>The service collection.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
@@ -98,50 +67,27 @@ public static class RecurringJobExtensions
         }
 
         /// <summary>
-        /// Registers the recurring job classes declared by the calling assembly and schedules them when the host starts.
+        /// Registers recurring jobs from the calling assembly.
         /// </summary>
         ///
-        /// <param name="configuration">
-        /// Read for a <c>RecurringJobs</c> section overriding what the attributes declare. Leave it out when every
-        /// environment schedules the same jobs the same way.
-        /// </param>
+        /// <param name="configuration">Optional configuration containing recurring job overrides.</param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with recurring jobs and the startup scheduler registered.</returns>
-        ///
-        /// <remarks>
-        /// Reach for the <c>RegisterRecurringJobs(Assembly[], IConfiguration)</c> overload when the jobs live somewhere other
-        /// than the assembly making the call, which is the usual case once registration is factored into a shared startup
-        /// extension.
-        /// </remarks>
+        /// <returns>The service collection.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.2.0</since>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public IServiceCollection RegisterRecurringJobs(IConfiguration? configuration = null)
             => serviceCollection.RegisterRecurringJobs([Assembly.GetCallingAssembly()], configuration);
 
         /// <summary>
-        /// Registers the recurring job classes declared in the given assemblies and schedules them when the host starts.
+        /// Registers recurring jobs from the specified assemblies.
         /// </summary>
         ///
-        /// <param name="assemblies">
-        /// The assemblies to scan for recurring job classes. Passing an empty array registers the scheduler with nothing to
-        /// schedule rather than falling back to the calling assembly.
-        /// </param>
-        /// <param name="configuration">
-        /// Read for a <c>RecurringJobs</c> section overriding what the attributes declare. Leave it out when every
-        /// environment schedules the same jobs the same way.
-        /// </param>
+        /// <param name="assemblies">The assemblies to scan for recurring jobs.</param>
+        /// <param name="configuration">Optional configuration containing recurring job overrides.</param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with recurring jobs and the startup scheduler registered.</returns>
-        ///
-        /// <remarks>
-        /// The scan itself is deferred to the singleton <see cref="IRecurringJobRegistry"/>, so anything it rejects fails
-        /// while the host starts rather than here. Job classes are registered scoped, so a job may depend on scoped
-        /// services such as a database context, given that Hangfire's job activator resolves each run from its own scope.
-        /// Calls accumulate rather than replace one another: the scan runs over every assembly every call named, and an
-        /// assembly two calls both name is scanned once, so a library registering its own jobs composes with an
-        /// application calling this itself.
-        /// </remarks>
+        /// <returns>The service collection.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.2.0</since>

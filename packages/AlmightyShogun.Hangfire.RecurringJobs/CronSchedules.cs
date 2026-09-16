@@ -1,13 +1,8 @@
 namespace AlmightyShogun.Hangfire.RecurringJobs;
 
 /// <summary>
-/// Common cron expressions, so a schedule can be written without hand-typing one.
+/// Common cron expressions.
 /// </summary>
-///
-/// <remarks>
-/// These are ordinary cron strings rather than helper calls, so any other expression in the standard five-field format can
-/// be written out by hand instead.
-/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
