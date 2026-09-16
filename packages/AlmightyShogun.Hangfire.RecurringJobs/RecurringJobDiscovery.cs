@@ -7,8 +7,7 @@ using System.Collections.Immutable;
 namespace AlmightyShogun.Hangfire.RecurringJobs;
 
 /// <summary>
-/// Discovers recurring job types, merges the configuration section over what each one declares, and turns the result into
-/// scheduling metadata.
+/// Overrides recurring job settings for a specific environment.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -35,10 +34,8 @@ internal static class RecurringJobDiscovery
     /// </returns>
     ///
     /// <exception cref="InvalidOperationException">
-    /// A job declares a blank job id, or declares or is overridden with an unparseable cron expression or an unknown time
-    /// zone, two jobs share a job id, or an override names a job id the scan did not find. The job id comes from the
-    /// attribute alone and cannot be overridden. A disabled job is checked and claims its id like any other, so a collision
-    /// cannot lie dormant until someone enables it.
+    /// A job declares invalid scheduling metadata, two jobs share a job id, an override names an unknown job,
+    /// or an override both sets and clears the same value.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -64,13 +61,26 @@ internal static class RecurringJobDiscovery
 
             RecurringJobOverride? jobOverride = overrides.GetValueOrDefault(jobId);
 
+            if (jobOverride is not null)
+                ValidateJobOverride(jobId, jobOverride);
+
             RecurringJobInfo job = new()
             {
                 JobId = jobId,
                 CronExpression = jobOverride?.CronExpression ?? attribute.CronExpression,
                 JobType = type,
-                TimeZone = jobOverride?.TimeZone ?? attribute.TimeZone,
-                Queue = jobOverride?.Queue ?? attribute.Queue
+                TimeZone = jobOverride switch
+                {
+                    { ClearTimeZone: true } => null,
+                    { TimeZone: not null } => jobOverride.TimeZone,
+                    _ => attribute.TimeZone
+                },
+                Queue = jobOverride switch
+                {
+                    { ClearQueue: true } => null,
+                    { Queue: not null } => jobOverride.Queue,
+                    _ => attribute.Queue
+                }
             };
 
             Validate(type, job);
@@ -186,6 +196,30 @@ internal static class RecurringJobDiscovery
         catch (CronFormatException)
         {
             CronExpression.Parse(cronExpression, CronFormat.IncludeSeconds);
+        }
+    }
+
+    /// <summary>
+    /// Validates mutually exclusive recurring job override values.
+    /// </summary>
+    ///
+    /// <param name="jobId">The recurring job id.</param>
+    /// <param name="jobOverride">The override to validate.</param>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// A value is specified together with its corresponding clear option.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
+    private static void ValidateJobOverride(string jobId, RecurringJobOverride jobOverride)
+    {
+        switch (jobOverride)
+        {
+            case { ClearTimeZone: true, TimeZone: not null }:
+                throw new InvalidOperationException($"Recurring job '{jobId}' cannot specify both a time zone and ClearTimeZone.");
+            case { ClearQueue: true, Queue: not null }:
+                throw new InvalidOperationException($"Recurring job '{jobId}' cannot specify both a queue and ClearQueue.");
         }
     }
 
