@@ -83,18 +83,23 @@ internal static class RecurringJobDiscovery
                 }
             };
 
-            Validate(type, job);
-
             if (seenJobIds.TryGetValue(jobId, out Type? existing))
                 throw new InvalidOperationException(
                     $"Recurring job id '{jobId}' is declared by both {existing.FullName} and {type.FullName}.");
 
             seenJobIds[jobId] = type;
 
-            if (jobOverride?.Enabled ?? attribute.DeclaredEnabled ?? settings.EnabledByDefault)
+            bool enabled = jobOverride?.Enabled ?? attribute.DeclaredEnabled ?? settings.EnabledByDefault;
+
+            if (enabled)
+            {
+                Validate(type, job);
                 jobs.Add(job);
+            }
             else
+            {
                 parkedJobIds.Add(jobId);
+            }
         }
 
         foreach (string jobId in overrides.Keys.Where(jobId => !seenJobIds.ContainsKey(jobId)))
