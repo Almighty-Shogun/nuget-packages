@@ -111,10 +111,6 @@ internal static class RecurringJobDiscovery
     ///
     /// <returns>The Hangfire job that invokes the recurring job implementation.</returns>
     ///
-    /// <exception cref="ArgumentException">
-    /// The merged queue name is not one Hangfire accepts. Nothing in this package checks the queue, so the Hangfire job
-    /// constructor is what rejects it.
-    /// </exception>
     /// <exception cref="InvalidOperationException">The job type exposes no public run method taking a cancellation token.</exception>
     ///
     /// <remarks>
@@ -133,14 +129,14 @@ internal static class RecurringJobDiscovery
     }
 
     /// <summary>
-    /// Validates the merged cron expression and time zone.
+    /// Validates the merged cron expression, time zone, and queue.
     /// </summary>
     ///
     /// <param name="type">The job type being validated.</param>
     /// <param name="job">The merged recurring job metadata.</param>
     ///
     /// <exception cref="InvalidOperationException">
-    /// The cron expression is invalid or the time zone cannot be resolved.
+    /// The cron expression, time zone, or queue is invalid.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -161,18 +157,35 @@ internal static class RecurringJobDiscovery
                 exception);
         }
 
-        if (job.TimeZone is null) return;
+        if (job.TimeZone is not null)
+        {
+            try
+            {
+                TimeZoneInfo.FindSystemTimeZoneById(job.TimeZone);
+            }
+            catch (Exception exception) when (exception is TimeZoneNotFoundException or InvalidTimeZoneException)
+            {
+                throw new InvalidOperationException(
+                    $"{type.FullName} resolves to the time zone '{job.TimeZone}', which this system does not recognise.",
+                    exception);
+            }
+        }
 
-        try
-        {
-            TimeZoneInfo.FindSystemTimeZoneById(job.TimeZone);
-        }
-        catch (Exception exception) when (exception is TimeZoneNotFoundException or InvalidTimeZoneException)
-        {
+        if (job.Queue is not null && !IsValidQueue(job.Queue))
             throw new InvalidOperationException(
-                $"{type.FullName} resolves to the time zone '{job.TimeZone}', which this system does not recognise.",
-                exception);
-        }
+                $"{type.FullName} resolves to the queue '{job.Queue}', which is not a valid Hangfire queue name.");
+    }
+
+
+    private static bool IsValidQueue(string queue)
+    {
+        if (string.IsNullOrWhiteSpace(queue))
+            return false;
+
+        return queue.All(character =>
+            character is >= 'a' and <= 'z'
+                or >= '0' and <= '9'
+                or '_' or '-');
     }
 
     /// <summary>
