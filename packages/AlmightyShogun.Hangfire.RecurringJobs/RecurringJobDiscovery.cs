@@ -34,8 +34,8 @@ internal static class RecurringJobDiscovery
     /// </returns>
     ///
     /// <exception cref="InvalidOperationException">
-    /// A job declares invalid scheduling metadata, two jobs share a job id, an override names an unknown job,
-    /// or an override both sets and clears the same value.
+    /// A job declares invalid scheduling metadata or execution method, two jobs share a job id,
+    /// an override names an unknown job, or an override both sets and clears the same value.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -93,6 +93,7 @@ internal static class RecurringJobDiscovery
 
             if (enabled)
             {
+                ResolveRunMethod(type);
                 Validate(type, job);
                 jobs.Add(job);
             }
