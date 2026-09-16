@@ -76,8 +76,7 @@ internal static class RecurringJobDiscovery
 
             if (seenJobIds.TryGetValue(job.JobId, out Type? existing))
                 throw new InvalidOperationException(
-                    $"Recurring job id '{job.JobId}' is declared by both {existing.FullName} and {type.FullName}."
-                );
+                    $"Recurring job id '{job.JobId}' is declared by both {existing.FullName} and {type.FullName}.");
 
             seenJobIds[job.JobId] = type;
 
@@ -150,14 +149,13 @@ internal static class RecurringJobDiscovery
 
         try
         {
-            CronExpression.Parse(job.CronExpression);
+            ValidateCron(job.CronExpression);
         }
         catch (CronFormatException exception)
         {
             throw new InvalidOperationException(
                 $"{type.FullName} resolves to the cron expression '{job.CronExpression}', which is not valid: {exception.Message}",
-                exception
-            );
+                exception);
         }
 
         if (job.TimeZone is null) return;
@@ -170,8 +168,20 @@ internal static class RecurringJobDiscovery
         {
             throw new InvalidOperationException(
                 $"{type.FullName} resolves to the time zone '{job.TimeZone}', which this system does not recognise.",
-                exception
-            );
+                exception);
+        }
+    }
+
+
+    private static void ValidateCron(string cronExpression)
+    {
+        try
+        {
+            CronExpression.Parse(cronExpression);
+        }
+        catch (CronFormatException)
+        {
+            CronExpression.Parse(cronExpression, CronFormat.IncludeSeconds);
         }
     }
 
@@ -200,11 +210,9 @@ internal static class RecurringJobDiscovery
             BindingFlags.Public | BindingFlags.Instance,
             null,
             [typeof(CancellationToken)],
-            null
-        );
+            null);
 
         return method ?? throw new InvalidOperationException(
-            $"{type.FullName} does not expose a public {runAsync} method. Implement {nameof(IRecurringJob)} publicly, not explicitly."
-        );
+            $"{type.FullName} does not expose a public {runAsync} method. Implement {nameof(IRecurringJob)} publicly, not explicitly.");
     }
 }
