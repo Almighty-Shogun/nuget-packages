@@ -74,28 +74,70 @@ public static class ConsoleCommandExtensions
             IEnumerable<Type> commandTypes = ConsoleCommandDiscovery.GetConsoleCommandTypes(assemblies)
                 .Where(type => !type.IsDefined(typeof(SkipAutoRegistrationAttribute), false));
 
+            ConsoleCommandDescriptor[] existingDescriptors =
+            [
+                .. serviceCollection
+                    .Where(descriptor => descriptor.ServiceType == typeof(ConsoleCommandDescriptor))
+                    .Select(descriptor => descriptor.ImplementationInstance)
+                    .OfType<ConsoleCommandDescriptor>()
+            ];
+
+            HashSet<Type> registeredTypes =
+            [
+                .. existingDescriptors
+                    .Select(descriptor => descriptor.ImplementationType)
+            ];
+
+            var claimedNames = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (ConsoleCommandDescriptor descriptor in existingDescriptors)
+            {
+                Claim(descriptor.Name, descriptor.ImplementationType, claimedNames);
+
+                foreach (string alias in descriptor.Aliases)
+                {
+                    Claim(alias, descriptor.ImplementationType, claimedNames);
+                }
+            }
+
+            var commands = new List<ConsoleCommandDescriptor>();
+
             foreach (Type commandType in commandTypes)
             {
-                (ConsoleCommandAttribute attribute, _) = CommandMetadata.Describe(commandType);
-                
-                serviceCollection.TryAdd(new ServiceDescriptor(commandType, commandType, ServiceLifetime.Transient));
-                
-                bool descriptorRegistered = serviceCollection.Any(descriptor => descriptor.ServiceType == typeof(ConsoleCommandDescriptor)
-                && descriptor.ImplementationInstance is ConsoleCommandDescriptor existing 
-                && existing.ImplementationType == commandType);
+                if (registeredTypes.Contains(commandType))
+                    continue;
 
-                if (!descriptorRegistered)
+                (ConsoleCommandAttribute attribute, _) = CommandMetadata.Describe(commandType);
+
+                IReadOnlyList<string> aliases = commandType.GetCustomAttribute<AliasAttribute>()?.Aliases ?? [];
+
+                Claim(attribute.Name, commandType, claimedNames);
+
+                foreach (string alias in aliases)
                 {
-                    serviceCollection.AddSingleton(
-                        new ConsoleCommandDescriptor(
-                            attribute.Name,
-                            commandType.GetCustomAttribute<AliasAttribute>()?.Aliases ?? [],
-                            commandType));
+                    Claim(alias, commandType, claimedNames);
                 }
-                
+
+                commands.Add(new ConsoleCommandDescriptor(attribute.Name, aliases, commandType));
+            }
+
+            foreach (ConsoleCommandDescriptor command in commands)
+            {
+                serviceCollection.TryAdd(
+                    new ServiceDescriptor(command.ImplementationType, command.ImplementationType, ServiceLifetime.Transient));
+
+                serviceCollection.AddSingleton(command);
             }
 
             return serviceCollection;
         }
+    }
+
+    private static void Claim(string name, Type implementationType, Dictionary<string, Type> claimedNames)
+    {
+        if (!claimedNames.TryAdd(name, implementationType) && claimedNames[name] != implementationType)
+            throw new InvalidOperationException(
+                $"Command name or alias '{name}' is claimed by both " +
+                $"{claimedNames[name].Name} and {implementationType.Name}.");
     }
 }
