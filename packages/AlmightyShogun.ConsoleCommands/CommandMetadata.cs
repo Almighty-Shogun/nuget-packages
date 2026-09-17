@@ -120,6 +120,14 @@ internal static class CommandMetadata
             error = $"{commandType.Name}.ExecuteAsync cannot declare ref, out, or in parameters.";
             return false;
         }
+        
+        for (var index = 0; index < parameters.Length - 1; index++)
+        {
+            if (parameters[index].ParameterType != typeof(CancellationToken)) continue;
+            error = $"{commandType.Name}.ExecuteAsync may only declare CancellationToken as its final parameter.";
+
+            return false;
+        }
 
         attribute = declaredAttribute;
         handlerMethod = declaredHandlerMethod;
