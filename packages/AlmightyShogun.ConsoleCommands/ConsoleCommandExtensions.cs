@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -37,6 +38,7 @@ public static class ConsoleCommandExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public IServiceCollection RegisterConsoleCommands() => serviceCollection.RegisterConsoleCommands([Assembly.GetCallingAssembly()]);
 
         /// <summary>
