@@ -21,6 +21,8 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     /// <since>4.0.0</since>
     private readonly Lock _lifecycleGate = new();
 
+    private Thread? _readerThread;
+
     /// <summary>
     /// The source canceled to end the running loop, and the flag for whether one is running at all. It is set before the
     /// setup the loop needs, the reader thread included, and cleared in the loop's <c>finally</c>, so a failure in that
@@ -119,72 +121,137 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
                 return;
             }
 
+            if (_readerThread is not null)
+            {
+                _logger.LogError("Cannot start the console command handler because the previous console reader is still stopping.");
+
+                return;
+            }
+
             stopSource = _stopSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         }
 
+        bool? previousTreatControlCAsInput = null;
         try
         {
-            Console.TreatControlCAsInput = false;
-        }
-        catch (IOException) { }
-
-        Channel<string> lines = Channel.CreateUnbounded<string>(new UnboundedChannelOptions
-        {
-            SingleReader = true,
-            SingleWriter = true
-        });
-
-        var requests = new SemaphoreSlim(0, 1);
-        var readerStop = new CancellationTokenSource();
-
-        var reader = new Thread(() => ReadLines(lines.Writer, requests, readerStop.Token))
-        {
-            IsBackground = true,
-            Name = "Console command reader"
-        };
-
-        reader.Start();
-
-        try
-        {
-            while (!stopSource.IsCancellationRequested)
+            try
             {
-                string input;
+                previousTreatControlCAsInput = Console.TreatControlCAsInput;
+                Console.TreatControlCAsInput = false;
+            }
+            catch (IOException) { }
 
-                requests.Release();
+            Channel<string> lines = Channel.CreateUnbounded<string>(
+                new UnboundedChannelOptions
+                {
+                    SingleReader = true,
+                    SingleWriter = true
+                });
 
+            var requests = new SemaphoreSlim(0, 1);
+            var readerStop = new CancellationTokenSource();
+
+            var reader = new Thread(() =>
+            {
                 try
                 {
-                    input = await lines.Reader.ReadAsync(stopSource.Token);
+                    ReadLines(lines.Writer, requests, readerStop.Token);
                 }
-                catch (OperationCanceledException) when (stopSource.IsCancellationRequested)
+                finally
                 {
-                    break;
+                    lock (_lifecycleGate)
+                    {
+                        if (ReferenceEquals(_readerThread, Thread.CurrentThread))
+                            _readerThread = null;
+
+                        readerStop.Dispose();
+                        requests.Dispose();
+                    }
                 }
-                catch (ChannelClosedException exception) when (exception.InnerException is null)
-                {
-                    break;
-                }
+            })
+            {
+                IsBackground = true,
+                Name = "Console command reader"
+            };
 
-                if (string.IsNullOrWhiteSpace(input)) continue;
+            var readerStarted = false;
 
-                Utils.ConsoleUtils.RemoveLastLine();
-
-                await HandleCommandAsync(input, stopSource.Token);
+            lock (_lifecycleGate)
+            {
+                _readerThread = reader;
             }
-        }
-        catch (OperationCanceledException) when (stopSource.IsCancellationRequested) { }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, "The console command handler stopped unexpectedly.");
+
+            
+            try
+            {
+                reader.Start();
+                readerStarted = true;
+
+                while (!stopSource.IsCancellationRequested)
+                {
+                    string input;
+
+                    requests.Release();
+
+                    try
+                    {
+                        input = await lines.Reader.ReadAsync(stopSource.Token);
+                    }
+                    catch (OperationCanceledException) when (stopSource.IsCancellationRequested)
+                    {
+                        break;
+                    }
+                    catch (ChannelClosedException exception) when (exception.InnerException is null)
+                    {
+                        break;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(input)) continue;
+
+                    Utils.ConsoleUtils.RemoveLastLine();
+
+                    await HandleCommandAsync(input, stopSource.Token);
+                }
+            }
+            catch (OperationCanceledException) when (stopSource.IsCancellationRequested) { }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "The console command handler stopped unexpectedly.");
+            }
+            finally
+            {
+                lines.Writer.TryComplete();
+
+                lock (_lifecycleGate)
+                {
+                    if (!readerStarted)
+                    {
+                        if (ReferenceEquals(_readerThread, reader))
+                            _readerThread = null;
+
+                        readerStop.Dispose();
+                        requests.Dispose();
+                    }
+                    else if (ReferenceEquals(_readerThread, reader))
+                    {
+                        readerStop.Cancel();
+                    }
+                }
+            }
         }
         finally
         {
-            lines.Writer.TryComplete();
-
-            await readerStop.CancelAsync();
-            readerStop.Dispose();
-
+            if (previousTreatControlCAsInput is { } previous)
+            {
+                try
+                {
+                    Console.TreatControlCAsInput = previous;
+                }
+                catch (IOException)
+                {
+                }   
+            }
+            
             lock (_lifecycleGate)
             {
                 _stopSource?.Dispose();
@@ -299,8 +366,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
                 "{Name:y} is already registered by {Existing:c}, so {Skipped:c} will never be invocable under that name",
                 name,
                 _commands[name].Name,
-                commandType.Name
-            );
+                commandType.Name);
         }
     }
 
@@ -351,8 +417,8 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
             else
                 _logger.LogWarning(
                     "{CommandName:y} is not registered as a console command. Did you mean {Suggestion:c}?",
-                    commandName, suggestion
-                );
+                    commandName,
+                    suggestion);
 
             return;
         }
@@ -439,8 +505,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
 
                 costs[i, j] = Math.Min(
                     Math.Min(costs[i - 1, j] + 1, costs[i, j - 1] + 1),
-                    costs[i - 1, j - 1] + substitution
-                );
+                    costs[i - 1, j - 1] + substitution);
             }
         }
 
