@@ -77,13 +77,22 @@ public static class ConsoleCommandExtensions
             foreach (Type commandType in commandTypes)
             {
                 (ConsoleCommandAttribute attribute, _) = CommandMetadata.Describe(commandType);
+                
                 serviceCollection.TryAdd(new ServiceDescriptor(commandType, commandType, ServiceLifetime.Transient));
+                
+                bool descriptorRegistered = serviceCollection.Any(descriptor => descriptor.ServiceType == typeof(ConsoleCommandDescriptor)
+                && descriptor.ImplementationInstance is ConsoleCommandDescriptor existing 
+                && existing.ImplementationType == commandType);
 
-                serviceCollection.AddSingleton(
-                    new ConsoleCommandDescriptor(
-                        attribute.Name,
-                        commandType.GetCustomAttribute<AliasAttribute>()?.Aliases ?? [],
-                        commandType));
+                if (!descriptorRegistered)
+                {
+                    serviceCollection.AddSingleton(
+                        new ConsoleCommandDescriptor(
+                            attribute.Name,
+                            commandType.GetCustomAttribute<AliasAttribute>()?.Aliases ?? [],
+                            commandType));
+                }
+                
             }
 
             return serviceCollection;
