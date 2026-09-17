@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AlmightyShogun.ConsoleCommands;
 
@@ -70,20 +71,19 @@ public static class ConsoleCommandExtensions
         /// <since>1.1.0</since>
         public IServiceCollection RegisterConsoleCommands(Assembly[] assemblies)
         {
-            serviceCollection.RegisterOnInherit<IConsoleCommand>(assemblies, ServiceLifetime.Transient, false);
-
             IEnumerable<Type> commandTypes = ConsoleCommandDiscovery.GetConsoleCommandTypes(assemblies)
                 .Where(type => !type.IsDefined(typeof(SkipAutoRegistrationAttribute), false));
 
             foreach (Type commandType in commandTypes)
             {
                 (ConsoleCommandAttribute attribute, _) = CommandMetadata.Describe(commandType);
+                serviceCollection.TryAdd(new ServiceDescriptor(commandType, commandType, ServiceLifetime.Transient));
 
-                serviceCollection.AddSingleton(new ConsoleCommandDescriptor(
-                    attribute.Name,
-                    commandType.GetCustomAttribute<AliasAttribute>()?.Aliases ?? [],
-                    commandType
-                ));
+                serviceCollection.AddSingleton(
+                    new ConsoleCommandDescriptor(
+                        attribute.Name,
+                        commandType.GetCustomAttribute<AliasAttribute>()?.Aliases ?? [],
+                        commandType));
             }
 
             return serviceCollection;
