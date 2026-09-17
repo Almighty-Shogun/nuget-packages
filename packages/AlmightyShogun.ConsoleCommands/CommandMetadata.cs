@@ -56,6 +56,32 @@ internal static class CommandMetadata
             return false;
         }
 
+        var aliasAttribute = commandType.GetCustomAttribute<AliasAttribute>();
+
+        if (aliasAttribute is not null)
+        {
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                declaredAttribute.Name
+            };
+
+            foreach (string alias in aliasAttribute.Aliases)
+            {
+                if (!IsInvocableName(alias))
+                {
+                    error = $"{commandType.Name} declares the alias '{alias}', which cannot be typed at the prompt. "
+                            + "An alias must not be blank and must contain no whitespace.";
+
+                    return false;
+                }
+
+                if (names.Add(alias)) continue;
+                error = $"{commandType.Name} declares the command name or alias '{alias}' more than once.";
+
+                return false;
+            }
+        }
+
         MethodInfo[] handlerMethods =
         [
             .. commandType
@@ -70,7 +96,9 @@ internal static class CommandMetadata
             return false;
         }
 
-        if (!IsAwaitableReturn(handlerMethods[0].ReturnType))
+        MethodInfo declaredHandlerMethod = handlerMethods[0];
+
+        if (!IsAwaitableReturn(declaredHandlerMethod.ReturnType))
         {
             error = $"{commandType.Name}.ExecuteAsync must return {nameof(Task)} or {nameof(ValueTask)}. A command is only "
                     + "ever invoked by someone typing it at the prompt, so there is nowhere for a return value to go.";
@@ -78,8 +106,40 @@ internal static class CommandMetadata
             return false;
         }
 
+        if (declaredHandlerMethod.IsGenericMethodDefinition)
+        {
+            error = $"{commandType.Name}.ExecuteAsync must not be generic.";
+
+            return false;
+        }
+
+        ParameterInfo[] parameters = declaredHandlerMethod.GetParameters();
+
+        if (parameters.Any(parameter => parameter.ParameterType.IsByRef))
+        {
+            error = $"{commandType.Name}.ExecuteAsync cannot declare ref, out, or in parameters.";
+            return false;
+        }
+
+        for (var index = 0; index < parameters.Length; index++)
+        {
+            ParameterInfo parameter = parameters[index];
+            if (parameter.ParameterType == typeof(CancellationToken) && index != parameters.Length - 1)
+            {
+                error = $"{commandType.Name}.ExecuteAsync may only declare CancellationToken as its final parameter.";
+                return false;
+            }
+
+            if (parameter.ParameterType.IsArray
+                && !parameter.IsDefined(typeof(ParamArrayAttribute), false))
+            {
+                error = $"{commandType.Name}.ExecuteAsync cannot declare array parameters unless they use params.";
+                return false;
+            }
+        }
+
         attribute = declaredAttribute;
-        handlerMethod = handlerMethods[0];
+        handlerMethod = declaredHandlerMethod;
 
         return true;
     }

@@ -97,7 +97,7 @@ internal static class CommandArgumentBinder
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     internal static bool HasVariadicTail(ParameterInfo[] parameters)
-        => parameters.Length > 0 && parameters[^1].ParameterType.IsSZArray;
+        => parameters.Length > 0 && parameters[^1].IsDefined(typeof(ParamArrayAttribute) , false);
 
     /// <summary>
     /// Converts each argument to its parameter's type, matching them positionally and filling any parameter the user
