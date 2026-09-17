@@ -1,6 +1,8 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using AlmightyShogun.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AlmightyShogun.ConsoleCommands;
 
@@ -37,6 +39,7 @@ public static class ConsoleCommandExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public IServiceCollection RegisterConsoleCommands() => serviceCollection.RegisterConsoleCommands([Assembly.GetCallingAssembly()]);
 
         /// <summary>
@@ -68,23 +71,73 @@ public static class ConsoleCommandExtensions
         /// <since>1.1.0</since>
         public IServiceCollection RegisterConsoleCommands(Assembly[] assemblies)
         {
-            serviceCollection.RegisterOnInherit<IConsoleCommand>(assemblies, ServiceLifetime.Transient, false);
-
             IEnumerable<Type> commandTypes = ConsoleCommandDiscovery.GetConsoleCommandTypes(assemblies)
                 .Where(type => !type.IsDefined(typeof(SkipAutoRegistrationAttribute), false));
 
+            ConsoleCommandDescriptor[] existingDescriptors =
+            [
+                .. serviceCollection
+                    .Where(descriptor => descriptor.ServiceType == typeof(ConsoleCommandDescriptor))
+                    .Select(descriptor => descriptor.ImplementationInstance)
+                    .OfType<ConsoleCommandDescriptor>()
+            ];
+
+            HashSet<Type> registeredTypes =
+            [
+                .. existingDescriptors
+                    .Select(descriptor => descriptor.ImplementationType)
+            ];
+
+            var claimedNames = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (ConsoleCommandDescriptor descriptor in existingDescriptors)
+            {
+                Claim(descriptor.Name, descriptor.ImplementationType, claimedNames);
+
+                foreach (string alias in descriptor.Aliases)
+                {
+                    Claim(alias, descriptor.ImplementationType, claimedNames);
+                }
+            }
+
+            var commands = new List<ConsoleCommandDescriptor>();
+
             foreach (Type commandType in commandTypes)
             {
+                if (registeredTypes.Contains(commandType))
+                    continue;
+
                 (ConsoleCommandAttribute attribute, _) = CommandMetadata.Describe(commandType);
 
-                serviceCollection.AddSingleton(new ConsoleCommandDescriptor(
-                    attribute.Name,
-                    commandType.GetCustomAttribute<AliasAttribute>()?.Aliases ?? [],
-                    commandType
-                ));
+                IReadOnlyList<string> aliases = commandType.GetCustomAttribute<AliasAttribute>()?.Aliases ?? [];
+
+                Claim(attribute.Name, commandType, claimedNames);
+
+                foreach (string alias in aliases)
+                {
+                    Claim(alias, commandType, claimedNames);
+                }
+
+                commands.Add(new ConsoleCommandDescriptor(attribute.Name, aliases, commandType));
+            }
+
+            foreach (ConsoleCommandDescriptor command in commands)
+            {
+                serviceCollection.TryAdd(
+                    new ServiceDescriptor(command.ImplementationType, command.ImplementationType, ServiceLifetime.Transient));
+
+                serviceCollection.AddSingleton(command);
             }
 
             return serviceCollection;
         }
+    }
+
+    private static void Claim(string name, Type implementationType, Dictionary<string, Type> claimedNames)
+    {
+        if (!claimedNames.TryAdd(name, implementationType) && claimedNames[name] != implementationType)
+            throw new InvalidOperationException(
+                $"Command name or alias '{name}' is claimed by both " +
+                $"{claimedNames[name].Name} and {implementationType.Name}.");
     }
 }
