@@ -96,7 +96,9 @@ internal static class CommandMetadata
             return false;
         }
 
-        if (!IsAwaitableReturn(handlerMethods[0].ReturnType))
+        MethodInfo declaredHandlerMethod = handlerMethods[0];
+        
+        if (!IsAwaitableReturn(declaredHandlerMethod.ReturnType))
         {
             error = $"{commandType.Name}.ExecuteAsync must return {nameof(Task)} or {nameof(ValueTask)}. A command is only "
                     + "ever invoked by someone typing it at the prompt, so there is nowhere for a return value to go.";
@@ -104,12 +106,18 @@ internal static class CommandMetadata
             return false;
         }
 
-        MethodInfo declaredHandlerMethod = handlerMethods[0];
-
         if (declaredHandlerMethod.IsGenericMethodDefinition)
         {
             error = $"{commandType.Name}.ExecuteAsync must not be generic.";
 
+            return false;
+        }
+
+        ParameterInfo[] parameters = declaredHandlerMethod.GetParameters();
+
+        if (parameters.Any(parameter => parameter.ParameterType.IsByRef))
+        {
+            error = $"{commandType.Name}.ExecuteAsync cannot declare ref, out, or in parameters.";
             return false;
         }
 
