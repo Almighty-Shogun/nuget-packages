@@ -21,6 +21,8 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     /// <since>4.0.0</since>
     private readonly Lock _lifecycleGate = new();
 
+    private Thread? _readerThread;
+
     /// <summary>
     /// The source canceled to end the running loop, and the flag for whether one is running at all. It is set before the
     /// setup the loop needs, the reader thread included, and cleared in the loop's <c>finally</c>, so a failure in that
@@ -119,6 +121,13 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
                 return;
             }
 
+            if (_readerThread is not null)
+            {
+                _logger.LogError("Cannot start the console command handler because the previous console reader is still stopping.");
+
+                return;
+            }
+
             stopSource = _stopSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         }
 
@@ -140,16 +149,42 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
             var requests = new SemaphoreSlim(0, 1);
             var readerStop = new CancellationTokenSource();
 
-            var reader = new Thread(() => ReadLines(lines.Writer, requests, readerStop.Token))
+            var reader = new Thread(() =>
+            {
+                try
+                {
+                    ReadLines(lines.Writer, requests, readerStop.Token);
+                }
+                finally
+                {
+                    lock (_lifecycleGate)
+                    {
+                        if (ReferenceEquals(_readerThread, Thread.CurrentThread))
+                            _readerThread = null;
+
+                        readerStop.Dispose();
+                        requests.Dispose();
+                    }
+                }
+            })
             {
                 IsBackground = true,
                 Name = "Console command reader"
             };
 
+            var readerStarted = false;
+
+            lock (_lifecycleGate)
+            {
+                _readerThread = reader;
+            }
+
+            
             try
             {
                 reader.Start();
-                
+                readerStarted = true;
+
                 while (!stopSource.IsCancellationRequested)
                 {
                     string input;
@@ -184,8 +219,22 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
             finally
             {
                 lines.Writer.TryComplete();
-                await readerStop.CancelAsync();
-                readerStop.Dispose();
+
+                lock (_lifecycleGate)
+                {
+                    if (!readerStarted)
+                    {
+                        if (ReferenceEquals(_readerThread, reader))
+                            _readerThread = null;
+
+                        readerStop.Dispose();
+                        requests.Dispose();
+                    }
+                    else if (ReferenceEquals(_readerThread, reader))
+                    {
+                        readerStop.Cancel();
+                    }
+                }
             }
         }
         finally
