@@ -131,10 +131,12 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
             stopSource = _stopSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         }
 
+        bool? previousTreatControlCAsInput = null;
         try
         {
             try
             {
+                previousTreatControlCAsInput = Console.TreatControlCAsInput;
                 Console.TreatControlCAsInput = false;
             }
             catch (IOException) { }
@@ -239,6 +241,17 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
         }
         finally
         {
+            if (previousTreatControlCAsInput is { } previous)
+            {
+                try
+                {
+                    Console.TreatControlCAsInput = previous;
+                }
+                catch (IOException)
+                {
+                }   
+            }
+            
             lock (_lifecycleGate)
             {
                 _stopSource?.Dispose();
