@@ -60,4 +60,7 @@ public sealed class ConsoleCommandAttribute : Attribute
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
     public bool IgnoreExtraArgs { get; }
+    
+    public ArgumentParsingMode ArgumentParsing { get; set; }
+        = ArgumentParsingMode.Spaces;
 }
