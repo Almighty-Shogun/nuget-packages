@@ -371,14 +371,14 @@ internal static class CommandArgumentBinder
     private static bool TryConvertFromString(string argument, Type parameterType, out object? value)
     {
         value = null;
-
-        TypeConverter converter = TypeDescriptor.GetConverter(parameterType);
-
-        if (!converter.CanConvertFrom(typeof(string)))
-            return false;
-
+        
         try
         {
+            TypeConverter converter = TypeDescriptor.GetConverter(parameterType);
+
+            if (!converter.CanConvertFrom(typeof(string)))
+                return false;
+            
             value = converter.ConvertFromInvariantString(argument);
 
             return value is not null;
