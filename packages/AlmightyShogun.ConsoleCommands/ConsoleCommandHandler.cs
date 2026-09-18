@@ -465,33 +465,38 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     {
         var tokens = new List<string>();
         var current = new StringBuilder();
+
         var inQuotes = false;
+        var tokenStarted = false;
 
         foreach (char c in input)
         {
             if (c is '"')
             {
                 inQuotes = !inQuotes;
+                tokenStarted = true;
                 continue;
             }
 
             if (char.IsWhiteSpace(c) && !inQuotes)
             {
-                if (current.Length is 0)
+                if (!tokenStarted)
                     continue;
 
                 tokens.Add(current.ToString());
                 current.Clear();
+                tokenStarted = false;
                 continue;
             }
 
             current.Append(c);
+            tokenStarted = true;
         }
 
         if (inQuotes)
             throw new FormatException("Unterminated quoted argument.");
 
-        if (current.Length > 0)
+        if (tokenStarted)
             tokens.Add(current.ToString());
 
         return [.. tokens];
