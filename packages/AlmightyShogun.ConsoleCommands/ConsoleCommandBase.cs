@@ -153,7 +153,11 @@ public abstract class ConsoleCommandBase : IConsoleCommand, IInternalConsoleComm
             {
                 Task task => task,
                 ValueTask valueTask => valueTask.AsTask(),
-                _ => Task.CompletedTask
+                null => throw new InvalidOperationException(
+                    $"{_handlerMethod.DeclaringType?.Name}.{_handlerMethod.Name} returned null."),
+                _ => throw new InvalidOperationException(
+                    $"{_handlerMethod.DeclaringType?.Name}.{_handlerMethod.Name} returned an unsupported result.")
+                
             });
         }
         catch (TargetInvocationException exception) when (exception.InnerException is not null)
