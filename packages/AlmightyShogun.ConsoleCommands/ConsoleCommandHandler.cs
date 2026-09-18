@@ -181,7 +181,6 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
                 _readerThread = reader;
             }
 
-            
             try
             {
                 reader.Start();
@@ -247,11 +246,9 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
                 {
                     Console.TreatControlCAsInput = previous;
                 }
-                catch (IOException)
-                {
-                }   
+                catch (IOException) { }
             }
-            
+
             lock (_lifecycleGate)
             {
                 _stopSource?.Dispose();
@@ -422,16 +419,17 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
 
             return;
         }
-        
+
         try
         {
             await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
 
             var command = (IInternalConsoleCommand)scope.ServiceProvider.GetRequiredService(commandType);
-            
+
             await command.InternallyExecuteCommandAsync(parts[1..], _logger, cancellationToken);
         }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException exception) when (exception.CancellationToken == cancellationToken &&
+                                                           cancellationToken.IsCancellationRequested)
         {
             throw;
         }
@@ -447,8 +445,8 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     private void EmitCommandFailed(ConsoleCommandErrorEvent @event)
     {
         EventHandler<ConsoleCommandErrorEvent>? handlers = CommandFailed;
-        
-        if(handlers is null)
+
+        if (handlers is null)
             return;
 
         foreach (Delegate subscriber in handlers.GetInvocationList())
