@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
@@ -30,5 +32,12 @@ public sealed class ExampleAttribute : Attribute
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
-    public ExampleAttribute(params object[] args) => Example = string.Join(" ", args);
+    public ExampleAttribute(params object[] args) => Example = string.Join(
+        " ",
+        args.Select(static arg => arg switch
+        {
+            null => string.Empty,
+            IFormattable formattable => formattable.ToString(null, CultureInfo.InvariantCulture),
+            _ => arg.ToString() ?? string.Empty
+        }));
 }
