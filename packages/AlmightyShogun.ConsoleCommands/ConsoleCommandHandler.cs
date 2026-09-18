@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Text;
 using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
@@ -400,13 +402,18 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
     /// <since>1.0.0</since>
     private async Task HandleCommandAsync(string input, CancellationToken cancellationToken)
     {
-        string[] parts = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        string commandName = parts[0];
+        int separatorIndex = input.IndexOf(' ');
+        string commandName = separatorIndex < 0
+            ? input
+            : input[..separatorIndex];
+
+        string argumentText = separatorIndex < 0
+            ? string.Empty
+            : input[(separatorIndex + 1)..];
 
         if (!_commands.TryGetValue(commandName, out Type? commandType))
         {
             if (!_logger.IsEnabled(LogLevel.Warning)) return;
-
             string? suggestion = FindClosestCommand(commandName);
 
             if (suggestion is null)
@@ -420,48 +427,74 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
             return;
         }
 
+        ConsoleCommandAttribute attribute =
+            commandType.GetCustomAttribute<ConsoleCommandAttribute>()
+            ?? throw new InvalidOperationException($"{commandType.Name} is missing ConsoleCommandAttribute.");
+
+        string[] arguments = attribute.ArgumentParsing switch
+        {
+            ArgumentParsingMode.Spaces =>
+                argumentText.Split(' ', StringSplitOptions.RemoveEmptyEntries),
+
+            ArgumentParsingMode.Quotes =>
+                TokenizeQuoted(argumentText),
+
+            _ => throw new InvalidOperationException($"Unknown argument parsing mode: {attribute.ArgumentParsing}")
+        };
+
         try
         {
             await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
 
             var command = (IInternalConsoleCommand)scope.ServiceProvider.GetRequiredService(commandType);
 
-            await command.InternallyExecuteCommandAsync(parts[1..], _logger, cancellationToken);
+            await command.InternallyExecuteCommandAsync(arguments, _logger, cancellationToken);
         }
-        catch (OperationCanceledException exception) when (exception.CancellationToken == cancellationToken &&
-                                                           cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException exception) when (exception.CancellationToken == cancellationToken && cancellationToken.IsCancellationRequested)
         {
             throw;
         }
         catch (Exception exception)
         {
             _logger.LogError(exception, "The {CommandName:y} console command failed", commandName);
-
-            EmitCommandFailed(new ConsoleCommandErrorEvent(commandName, exception));
         }
     }
 
 
-    private void EmitCommandFailed(ConsoleCommandErrorEvent @event)
+    private static string[] TokenizeQuoted(string input)
     {
-        EventHandler<ConsoleCommandErrorEvent>? handlers = CommandFailed;
+        var tokens = new List<string>();
+        var current = new StringBuilder();
+        var inQuotes = false;
 
-        if (handlers is null)
-            return;
-
-        foreach (Delegate subscriber in handlers.GetInvocationList())
+        foreach (char c in input)
         {
-            try
+            if (c is '"')
             {
-                ((EventHandler<ConsoleCommandErrorEvent>)subscriber)(this, @event);
+                inQuotes = !inQuotes;
+                continue;
             }
-            catch (Exception exception)
+
+            if (char.IsWhiteSpace(c) && !inQuotes)
             {
-                _logger.LogError(
-                    exception,
-                    "A CommandFailed subscriber threw an exception.");
+                if (current.Length is 0)
+                    continue;
+
+                tokens.Add(current.ToString());
+                current.Clear();
+                continue;
             }
+
+            current.Append(c);
         }
+
+        if (inQuotes)
+            throw new FormatException("Unterminated quoted argument.");
+
+        if (current.Length > 0)
+            tokens.Add(current.ToString());
+
+        return [.. tokens];
     }
 
     /// <summary>
