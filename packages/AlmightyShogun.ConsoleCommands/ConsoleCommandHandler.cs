@@ -439,7 +439,30 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
         {
             _logger.LogError(exception, "The {CommandName:y} console command failed", commandName);
 
-            CommandFailed?.Invoke(this, new ConsoleCommandErrorEvent(commandName, exception));
+            EmitCommandFailed(new ConsoleCommandErrorEvent(commandName, exception));
+        }
+    }
+
+
+    private void EmitCommandFailed(ConsoleCommandErrorEvent @event)
+    {
+        EventHandler<ConsoleCommandErrorEvent>? handlers = CommandFailed;
+        
+        if(handlers is null)
+            return;
+
+        foreach (Delegate subscriber in handlers.GetInvocationList())
+        {
+            try
+            {
+                ((EventHandler<ConsoleCommandErrorEvent>)subscriber)(this, @event);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "A CommandFailed subscriber threw an exception.");
+            }
         }
     }
 
