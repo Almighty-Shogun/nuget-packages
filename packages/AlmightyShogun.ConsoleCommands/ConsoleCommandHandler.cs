@@ -422,13 +422,13 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
 
             return;
         }
-
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-
-        var command = (IInternalConsoleCommand)scope.ServiceProvider.GetRequiredService(commandType);
-
+        
         try
         {
+            await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+
+            var command = (IInternalConsoleCommand)scope.ServiceProvider.GetRequiredService(commandType);
+            
             await command.InternallyExecuteCommandAsync(parts[1..], _logger, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
