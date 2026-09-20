@@ -111,12 +111,68 @@ public static class ConsoleCommandDiscovery
                 : $"<{parameter.Name}:{parameter.ParameterType.Name}>")
         );
 
+        ExampleAttribute? exampleAttribute =
+            commandType.GetCustomAttribute<ExampleAttribute>();
+
+        string? example = exampleAttribute is null
+            ? null
+            : FormatExample(
+                exampleAttribute.Arguments,
+                attribute.ArgumentParsing);
+        
         return new ConsoleCommand(
             attribute.Name,
             attribute.Description,
             commandType.GetCustomAttribute<AliasAttribute>()?.Aliases ?? [],
             usage,
-            commandType.GetCustomAttribute<ExampleAttribute>()?.Example
+            example
         );
+    }
+    
+    private static string FormatExample(
+        string[] arguments,
+        ArgumentParsingMode parsingMode)
+    {
+        return parsingMode switch
+        {
+            ArgumentParsingMode.Spaces =>
+                FormatSpaceExample(arguments),
+
+            ArgumentParsingMode.Quotes =>
+                FormatQuotedExample(arguments),
+
+            _ => throw new InvalidOperationException(
+                $"Unknown argument parsing mode: {parsingMode}")
+        };
+    }
+    
+    
+    private static string FormatSpaceExample(string[] arguments)
+    {
+        if (arguments.Any(static argument =>
+                argument.Any(char.IsWhiteSpace)))
+        {
+            throw new InvalidOperationException(
+                "Example arguments cannot contain whitespace when space parsing is used.");
+        }
+
+        return string.Join(" ", arguments);
+    }
+    
+    private static string FormatQuotedExample(string[] arguments)
+    {
+        if (arguments.Any(static argument => argument.Contains('"')))
+        {
+            throw new InvalidOperationException(
+                "Example arguments containing quotes cannot be represented by quote parsing.");
+        }
+
+        return string.Join(
+            " ",
+            arguments.Select(static argument =>
+                argument.Length == 0 ||
+                argument.Any(char.IsWhiteSpace)
+                    ? $"\"{argument}\""
+                    : argument));
     }
 }
