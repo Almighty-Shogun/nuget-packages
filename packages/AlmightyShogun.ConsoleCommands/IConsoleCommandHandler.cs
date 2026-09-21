@@ -1,8 +1,7 @@
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Controls the console input loop that reads lines and dispatches them to the registered commands. Only one loop may run
-/// on it at a time.
+/// Controls the console command input loop.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -10,45 +9,16 @@ namespace AlmightyShogun.ConsoleCommands;
 public interface IConsoleCommandHandler
 {
     /// <summary>
-    /// Reads and dispatches console input until the token is canceled or <see cref="Stop"/> is called. Calling it while a
-    /// loop is already running logs an error and returns rather than starting a second reader on the same console.
+    /// Starts reading and dispatching console commands until cancellation or <see cref="Stop"/> is requested.
     /// </summary>
     ///
-    /// <param name="cancellationToken">
-    /// Stops the loop when signaled, which is how a hosted service hands over application shutdown. A command already
-    /// running is not interrupted unless it accepts the token itself.
-    /// </param>
+    /// <param name="cancellationToken">The token used to stop the command loop.</param>
     ///
-    /// <returns>A task that completes once the loop has stopped and the command in flight, if any, has finished.</returns>
+    /// <returns>A task that completes when the command loop stops.</returns>
     ///
     /// <remarks>
-    /// An exception escaping a command is logged and the prompt keeps reading, so one failing command does not take the
-    /// console down with it. Subscribe to <see cref="CommandFailed"/> to report it anywhere else. An exception that escapes
-    /// the dispatch of a line rather than the command itself ends the loop and is logged as an unexpected stop. The one
-    /// exception is a cancellation raised after a stop was asked for, which is how a command observing the token reports
-    /// the shutdown it was told about, and ends the loop without being logged at all.
-    ///
-    /// The loop also ends when the input stream does. A redirected process reaching end of input stops rather than
-    /// spinning on a reader that will never return another line.
-    ///
-    /// Lines are read on a background thread of the handler's own, which is what lets cancellation end the loop without
-    /// first waiting for one to be typed. That thread reads a single line each time the loop asks for one and waits for the
-    /// next request in between, so a command that prompts for input of its own is the one that receives the answer, and a
-    /// redirected input is consumed no faster than the loop dispatches it.
-    ///
-    /// A read already under way cannot be cancelled, only left behind. Stopping while the loop is waiting for a line
-    /// therefore leaves that thread to outlive the returned task until the next line or the end of the stream arrives, and
-    /// the line it was waiting for is taken off standard input and dropped rather than left for whatever reads next.
-    /// Stopping while a command is running ends the thread with the loop and drops nothing, since no read is outstanding.
-    ///
-    /// A line that is blank or contains only whitespace is dropped without being dispatched and without being reported, so
-    /// pressing enter at the prompt does nothing at all. For any other line, the row above the cursor is erased before the
-    /// dispatch, so a typed command is rewritten away rather than left on screen. That erase covers one row, and does
-    /// nothing at all when output is redirected or the cursor is on the first row.
-    ///
-    /// Starting sets <c>Console.TreatControlCAsInput</c> to <c>false</c> for the whole process, so Ctrl+C is handled as an
-    /// interrupt instead of being delivered to the reader as a line. It is never restored, and an <see cref="IOException"/>
-    /// from a console that does not support the write is swallowed.
+    /// Only one command loop may run at a time. Command failures are reported through <see cref="CommandFailed"/> without
+    /// stopping the loop.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -56,22 +26,15 @@ public interface IConsoleCommandHandler
     Task StartAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Raised after a command threw and the failure was logged, for reporting it somewhere the dispatcher knows nothing
-    /// about, such as telemetry or a non-zero exit code.
+    /// Raised when a command fails during execution.
     /// </summary>
-    ///
-    /// <remarks>
-    /// Handlers run on the loop's thread before the next line is read, so a slow one delays the prompt. An exception from a
-    /// handler escapes into <see cref="StartAsync"/> rather than being contained the way the command's own failure was.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     event EventHandler<ConsoleCommandErrorEvent>? CommandFailed;
 
     /// <summary>
-    /// Asks the running loop to stop, which is what a command such as <c>exit</c> calls on itself. Calling it when no loop
-    /// is running logs an error and returns, so it is safe to call from shutdown code that cannot know.
+    /// Requests that the running command loop stop.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

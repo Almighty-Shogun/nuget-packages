@@ -5,40 +5,64 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Reads the console a line at a time and dispatches each line to the command registered under its first token. Commands
-/// are resolved per invocation from a fresh scope, so one may depend on scoped application services.
+/// Owns the console input loop and forwards complete input lines to the command dispatcher.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>1.0.0</since>
 internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
 {
+    /// <summary>
+    /// Dispatches non-empty input lines to registered commands.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly ConsoleCommandDispatcher _dispatcher;
+
+    /// <summary>
+    /// The logger used for input-loop and lifecycle failures.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>1.0.0</since>
     private readonly ILogger<ConsoleCommandHandler> _logger;
 
     /// <summary>
-    /// Guards the lifecycle source, so <see cref="Stop"/> cannot observe it between the null check and the cancel.
+    /// Synchronizes access to the handler lifecycle state.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private readonly Lock _lifecycleGate = new();
 
+    /// <summary>
+    /// The active console reader thread, or <c>null</c> when no reader remains.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private Thread? _readerThread;
 
     /// <summary>
-    /// The source canceled to end the running loop, and the flag for whether one is running at all. It is set before the
-    /// setup the loop needs, the reader thread included, and cleared in the loop's <c>finally</c>, so a failure in that
-    /// setup leaves it set with no loop running, after which every further <see cref="StartAsync"/> logs that one is
-    /// already running and returns.
+    /// Cancels the active command loop and indicates whether one is running.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private CancellationTokenSource? _stopSource;
-    
-    
 
+
+    /// <summary>
+    /// Creates a console command handler and its command dispatcher.
+    /// </summary>
+    ///
+    /// <param name="logger">The logger used by the handler and dispatcher.</param>
+    /// <param name="scopeFactory">The factory used to create command invocation scopes.</param>
+    /// <param name="descriptors">The registered console command descriptors.</param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>1.0.0</since>
     public ConsoleCommandHandler(ILogger<ConsoleCommandHandler> logger,
         IServiceScopeFactory scopeFactory,
         IEnumerable<ConsoleCommandDescriptor> descriptors)
@@ -50,7 +74,7 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
 
     /// <inheritdoc />
     public event EventHandler<ConsoleCommandErrorEvent>? CommandFailed;
-    
+
     /// <inheritdoc />
     public async Task StartAsync(CancellationToken cancellationToken = default)
     {
@@ -200,9 +224,16 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
             }
         }
     }
-    
-    
-    
+
+    /// <summary>
+    /// Raises <see cref="CommandFailed"/> for each subscriber and isolates subscriber failures.
+    /// </summary>
+    ///
+    /// <param name="commandName">The name of the command that failed.</param>
+    /// <param name="exception">The command failure.</param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private void EmitCommandFailed(
         string commandName,
         Exception exception)
@@ -230,40 +261,19 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
             }
         }
     }
-    
-    
+
 
     /// <summary>
-    /// Reads standard input on a thread of its own, one line for each one the loop asks for, so that a read already under way
-    /// is abandoned rather than waited out when the handler stops and nothing is taken off the input between two requests.
+    /// Reads one console line for each request and publishes it to the input channel.
     /// </summary>
     ///
-    /// <param name="writer">
-    /// The channel end the lines are published to. Reaching the end of the input stream completes it, which is how the loop
-    /// learns there will be no further line.
-    /// </param>
-    /// <param name="requests">
-    /// Released once by the loop for every line it wants. Nothing is read until one has been taken, which is what leaves
-    /// standard input to a command for as long as one is running.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// Signaled by the loop on its way out, ending the wait for the next request. That wait is the only point this can be
-    /// stopped at, since a read already under way has to finish first.
-    /// </param>
+    /// <param name="writer">The channel receiving input lines.</param>
+    /// <param name="requests">Signals when another line should be read.</param>
+    /// <param name="cancellationToken">Stops the reader while it is waiting for another request.</param>
     ///
     /// <remarks>
-    /// This runs on a background thread, because a read parked in <see cref="TextReader.ReadLine"/> cannot be interrupted
-    /// and a foreground thread sitting in one would hold the process open. A stop that interrupts a read leaves the thread
-    /// to outlive <see cref="StartAsync"/> by however long the next line or the end of the stream takes to arrive: the loop
-    /// completes the channel on its way out, so the line that finally arrives is refused by the channel, dropped, and the
-    /// thread ends.
-    ///
-    /// A read that fails while no stop has been asked for completes the channel with the exception rather than as an
-    /// ordinary end of input, so it reaches the loop and is reported as an unexpected stop. It arrives wrapped in a
-    /// <see cref="ChannelClosedException"/>, except for an <see cref="OperationCanceledException"/>, which completes the
-    /// channel as a cancellation and reaches the loop as one. That is why the loop ends quietly on a cancellation only once
-    /// a stop has actually been asked for. A cancellation raised once the stop is under way, by the wait for the next
-    /// request or by the read itself, completes the channel as an ordinary end of input instead.
+    /// A blocking console read cannot be cancelled once it has started, so the reader may outlive the command loop until that
+    /// read completes.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -318,6 +328,4 @@ internal sealed class ConsoleCommandHandler : IConsoleCommandHandler
             }
         }
     }
-
-
 }

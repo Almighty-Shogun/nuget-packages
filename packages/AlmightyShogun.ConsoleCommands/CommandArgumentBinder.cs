@@ -6,8 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Turns the strings typed at the prompt into the values a handler's parameters are declared as. Everything arrives as
-/// text, so this is the only place a command's typed signature is reconciled with what the user actually wrote.
+/// Binds parsed command arguments to handler parameters.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -15,24 +14,14 @@ namespace AlmightyShogun.ConsoleCommands;
 internal static class CommandArgumentBinder
 {
     /// <summary>
-    /// Checks the argument count against the parameters before any conversion is attempted, so a plainly wrong line is
-    /// rejected without the cost of parsing it.
+    /// Determines whether an argument count can satisfy the supplied parameters.
     /// </summary>
     ///
-    /// <param name="parameters">The handler parameters, with any trailing cancellation token already removed.</param>
-    /// <param name="argumentCount">The number of tokens typed after the command name.</param>
-    /// <param name="ignoreExtraArguments">
-    /// Whether surplus tokens are tolerated. It relaxes only the upper bound; a line short of the required parameters is
-    /// rejected either way. A handler ending in an array parameter has no upper bound for it to relax.
-    /// </param>
+    /// <param name="parameters">The command parameters, excluding a trailing cancellation token.</param>
+    /// <param name="argumentCount">The number of parsed arguments.</param>
+    /// <param name="ignoreExtraArguments">Whether surplus arguments are allowed.</param>
     ///
-    /// <returns><c>true</c> when the count could fill the parameters; otherwise <c>false</c>.</returns>
-    ///
-    /// <remarks>
-    /// A trailing array parameter takes every token the parameters before it did not, so it lifts the upper bound
-    /// altogether and requires no argument of its own: a line stopping short of it is still counted as valid, and
-    /// <see cref="TryBind"/> decides what it is filled with.
-    /// </remarks>
+    /// <returns><c>true</c> when the argument count is valid; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -47,22 +36,12 @@ internal static class CommandArgumentBinder
     }
 
     /// <summary>
-    /// Counts the arguments a line must carry before <see cref="IsArgumentCountValid"/> will accept it, which is every
-    /// parameter without a default, less the trailing array parameter when that is the one missing a default.
+    /// Gets the minimum number of arguments required by the supplied parameters.
     /// </summary>
     ///
-    /// <param name="parameters">The handler parameters, with any trailing cancellation token already removed.</param>
+    /// <param name="parameters">The command parameters, excluding a trailing cancellation token.</param>
     ///
-    /// <returns>The smallest argument count that could fill the parameters.</returns>
-    ///
-    /// <remarks>
-    /// A trailing array parameter is counted as required by the declaration and yet is filled by an empty array when nothing
-    /// is left for it, so it is subtracted back out. One carrying a default is not counted in the first place, which is why
-    /// the subtraction is conditional rather than applied to every variadic signature.
-    ///
-    /// This is the lower bound only. The upper bound belongs to <see cref="IsArgumentCountValid"/>, which is where
-    /// <c>ignoreExtraArguments</c> and the absent bound of a variadic tail are decided.
-    /// </remarks>
+    /// <returns>The minimum required argument count.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -77,22 +56,12 @@ internal static class CommandArgumentBinder
     }
 
     /// <summary>
-    /// Checks whether the last parameter is the one every token left over is collected into, which is how an array in that
-    /// position is bound.
+    /// Determines whether the final parameter is a <c>params</c> array.
     /// </summary>
     ///
-    /// <param name="parameters">The handler parameters, with any trailing cancellation token already removed.</param>
+    /// <param name="parameters">The command parameters.</param>
     ///
-    /// <returns><c>true</c> when the last parameter is a single-dimension array; otherwise <c>false</c>.</returns>
-    ///
-    /// <remarks>
-    /// <see cref="ParamArrayAttribute"/> is not consulted, so a plain array in the last position collects the tail exactly
-    /// as a <c>params</c> one does. Only the last position is treated this way; an array declared before another parameter
-    /// is matched to a single token like any other type.
-    ///
-    /// Every element still comes from the input line split on spaces, so no element can carry a space, whatever it is
-    /// quoted with.
-    /// </remarks>
+    /// <returns><c>true</c> when the final parameter is a <c>params</c> array; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -100,37 +69,21 @@ internal static class CommandArgumentBinder
         => parameters.Length > 0 && parameters[^1].IsDefined(typeof(ParamArrayAttribute) , false);
 
     /// <summary>
-    /// Converts each argument to its parameter's type, matching them positionally and filling any parameter the user
-    /// stopped short of with its declared default. A trailing array parameter takes every token the others left instead of
-    /// a single one.
+    /// Binds parsed arguments to command parameters.
     /// </summary>
     ///
-    /// <param name="parameters">The handler parameters, with any trailing cancellation token already removed.</param>
+    /// <param name="parameters">The command parameters, excluding a trailing cancellation token.</param>
     /// <param name="arguments">
-    /// The tokens typed after the command name, which may be fewer than the parameters, and more than them only for a
-    /// handler ending in an array parameter or one declared with <c>ignoreExtraArgs</c>.
+    /// The parsed command arguments.
     /// </param>
     /// <param name="logger">
-    /// The logger a rejected argument is reported through, naming the parameter and, for an enum, the values that would
-    /// have worked.
+    /// The logger used to report conversion failures.
     /// </param>
     /// <param name="values">
-    /// The values to invoke with, positionally aligned to the parameters. Empty when the bind failed, so it is only
-    /// meaningful on <c>true</c>.
+    /// The bound parameter values when binding succeeds.
     /// </param>
     ///
-    /// <returns><c>true</c> when every supplied argument converted; otherwise <c>false</c>.</returns>
-    ///
-    /// <exception cref="Exception">
-    /// Whatever <see cref="TryConvert"/> let escape, which is a <see cref="TypeConverter"/> failing outside the call
-    /// <see cref="TryConvertFromString"/> guards. It is not caught here either, so such an argument leaves the bind by
-    /// exception rather than through <c>false</c>, and the dispatcher reports it as a command failure.
-    /// </exception>
-    ///
-    /// <remarks>
-    /// A failed conversion aborts the whole bind, so no parameter is filled with its default in place of an argument the
-    /// user typed. A surplus token beyond the declared parameters is dropped unless an array tail collects it.
-    /// </remarks>
+    /// <returns><c>true</c> when all arguments were bound successfully; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -181,29 +134,15 @@ internal static class CommandArgumentBinder
     }
 
     /// <summary>
-    /// Converts the tokens left over into an array of the parameter's element type, which is the value a trailing array
-    /// parameter is invoked with.
+    /// Binds remaining arguments to a <c>params</c> array parameter.
     /// </summary>
     ///
-    /// <param name="parameter">The trailing array parameter, used for its element type and for naming it in a complaint.</param>
-    /// <param name="arguments">The tokens from this parameter's position onwards, empty when the line stopped short of it.</param>
-    /// <param name="logger">The logger a rejected element is reported through, naming the parameter rather than the position.</param>
-    /// <param name="value">
-    /// The array to invoke with, or the parameter's declared default when the line supplied nothing and it has one;
-    /// <c>null</c> when an element failed to convert.
-    /// </param>
+    /// <param name="parameter">The variadic parameter.</param>
+    /// <param name="arguments">The remaining arguments.</param>
+    /// <param name="logger">The logger used to report conversion failures.</param>
+    /// <param name="value">The bound array value when binding succeeds.</param>
     ///
-    /// <returns><c>true</c> when every token converted to the element type; otherwise <c>false</c>.</returns>
-    ///
-    /// <exception cref="Exception">
-    /// Whatever <see cref="TryConvert"/> let escape for one of the elements, which passes through here unhandled just as it
-    /// does through <see cref="TryBind"/>.
-    /// </exception>
-    ///
-    /// <remarks>
-    /// One rejected element fails the whole bind rather than being skipped, so the handler never runs against a tail
-    /// shorter than what was typed.
-    /// </remarks>
+    /// <returns><c>true</c> when every element was bound successfully; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -237,37 +176,16 @@ internal static class CommandArgumentBinder
     }
 
     /// <summary>
-    /// Converts one token to one target type, unwrapping a nullable to its underlying type first so <c>int?</c> is parsed
-    /// exactly as <c>int</c> would be.
+    /// Converts one argument to the requested parameter type using invariant culture.
     /// </summary>
     ///
-    /// <param name="parameterType">
-    /// The type to convert to, which is the parameter's own type, or the element type when the token is one of the values
-    /// going into an array tail.
-    /// </param>
-    /// <param name="parameterName">The name to blame in a complaint, so a rejected token names the parameter it was meant for.</param>
-    /// <param name="argument">The token as typed.</param>
-    /// <param name="logger">The logger a rejected argument is reported through.</param>
-    /// <param name="value">The converted value, or <c>null</c> when the conversion failed.</param>
+    /// <param name="parameterType">The target parameter type.</param>
+    /// <param name="parameterName">The parameter name used when reporting failures.</param>
+    /// <param name="argument">The argument to convert.</param>
+    /// <param name="logger">The logger used to report conversion failures.</param>
+    /// <param name="value">The converted value when conversion succeeds.</param>
     ///
-    /// <returns><c>true</c> when the token converted; otherwise <c>false</c>.</returns>
-    ///
-    /// <exception cref="Exception">
-    /// Whatever <see cref="TryConvertFromString"/> let escape, which is a <see cref="TypeConverter"/> failing outside the
-    /// call that method guards. Nothing here catches it, so the token ends the bind instead of being rejected.
-    /// </exception>
-    ///
-    /// <remarks>
-    /// An enum is matched case-insensitively by name and then checked with <see cref="Enum.IsDefined(Type, object)"/>,
-    /// because <see cref="Enum.TryParse(Type, string, bool, out object)"/> also accepts any bare number and would
-    /// otherwise let an undefined value through.
-    ///
-    /// Everything else is tried against <see cref="Convert.ChangeType(object, Type, IFormatProvider)"/> first, which covers
-    /// the primitives, and then against the type's <see cref="TypeConverter"/>, which is what makes
-    /// <see cref="Guid"/>, <see cref="TimeSpan"/>, <see cref="DateOnly"/>, <see cref="Uri"/> and any type carrying a
-    /// <see cref="TypeConverterAttribute"/> bindable. Both run under the invariant culture, so a decimal or a date argument
-    /// means the same thing whatever machine the application runs on.
-    /// </remarks>
+    /// <returns><c>true</c> when conversion succeeds; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -312,15 +230,21 @@ internal static class CommandArgumentBinder
     }
 
     /// <summary>
-    /// Converts through <see cref="Convert.ChangeType(object, Type, IFormatProvider)"/>, which handles the primitives and
-    /// anything else implementing <see cref="IConvertible"/>.
+    /// Attempts to convert an argument using
+    /// <see cref="Convert.ChangeType(object, Type, IFormatProvider)"/> with invariant culture.
     /// </summary>
     ///
-    /// <param name="argument">The token as typed.</param>
-    /// <param name="parameterType">The target type, already unwrapped from <see cref="Nullable{T}"/>.</param>
-    /// <param name="value">The converted value on success; <c>null</c> otherwise.</param>
+    /// <param name="argument">The argument to convert.</param>
+    /// <param name="parameterType">The target type.</param>
+    /// <param name="value">>The converted value when conversion succeeds; otherwise <c>null</c>.</param>
     ///
-    /// <returns><c>true</c> when the token converted; otherwise <c>false</c>.</returns>
+    /// <returns><c>true</c> when conversion succeeds; otherwise <c>false</c>.</returns>
+    ///
+    /// <remarks>
+    /// Conversion failures caused by <see cref="InvalidCastException"/>, <see cref="FormatException"/>,
+    /// <see cref="OverflowException"/>, or <see cref="ArgumentNullException"/> are treated as unsuccessful conversions.
+    /// Other exceptions are allowed to propagate.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -346,25 +270,11 @@ internal static class CommandArgumentBinder
     /// declares its own string parsing with.
     /// </summary>
     ///
-    /// <param name="argument">The token as typed.</param>
-    /// <param name="parameterType">The target type, already unwrapped from <see cref="Nullable{T}"/>.</param>
-    /// <param name="value">The converted value on success; <c>null</c> otherwise.</param>
+    /// <param name="argument">The argument to convert</param>
+    /// <param name="parameterType">The target type.</param>
+    /// <param name="value">The converted value when conversion succeeds.</param>
     ///
-    /// <returns><c>true</c> when the token converted; otherwise <c>false</c>.</returns>
-    ///
-    /// <exception cref="Exception">
-    /// Whatever <c>TypeDescriptor.GetConverter</c> or <c>CanConvertFrom</c> raised. Both run before the <c>try</c>, so a
-    /// converter failing there is not turned into <c>false</c> the way one failing inside the conversion itself is.
-    /// </exception>
-    ///
-    /// <remarks>
-    /// Every exception out of <c>ConvertFromInvariantString</c> is swallowed rather than the parse-shaped ones alone,
-    /// because a converter is third-party code and may throw anything at all to mean "not my format". The caller reports
-    /// the failure either way.
-    ///
-    /// Only that call sits inside the catch. <c>TypeDescriptor.GetConverter</c> and <c>CanConvertFrom</c> run before it, so
-    /// the swallowing covers the conversion alone and not the two calls that select the converter.
-    /// </remarks>
+    /// <returns><c>true</c> when conversion succeeds; otherwise <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

@@ -1,8 +1,7 @@
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Marks a class as a console command and carries the metadata the dispatcher needs.
-/// Required on every <see cref="ConsoleCommandBase"/> subclass.
+/// Marks a class as a console command and defines its metadata.
 /// </summary>
 /// <author>Almighty-Shogun</author>
 /// <since>1.0.0</since>
@@ -10,18 +9,20 @@ namespace AlmightyShogun.ConsoleCommands;
 public sealed class ConsoleCommandAttribute : Attribute
 {
     /// <summary>
-    /// Marks a class as a console command and carries the metadata the dispatcher needs.
-    /// Required on every <see cref="ConsoleCommandBase"/> subclass.
+    /// Creates a console command declaration.
     /// </summary>
     ///
-    /// <param name="name">The first token typed at the prompt, matched case-insensitively.</param>
+    /// <param name="name">The primary command name.</param>
     /// <param name="description">
-    /// The one-line explanation, surfaced as <see cref="ConsoleCommand.Description"/> for an application to render. Left
-    /// <c>null</c> when omitted; nothing in this package prints it.
+    /// The command description, if any
     /// </param>
     /// <param name="ignoreExtraArgs">
-    /// When <c>true</c>, the command still runs when more tokens are typed than its handler declares parameters.
+    /// Whether arguments beyond the declared handler parameters are ignored.
     /// </param>
+    ///
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="name"/> is blank or contains whitespace.
+    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
@@ -38,7 +39,7 @@ public sealed class ConsoleCommandAttribute : Attribute
     }
 
     /// <summary>
-    /// The name the command is invoked by, before any alias is considered.
+    /// Gets the primary command name.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -46,7 +47,7 @@ public sealed class ConsoleCommandAttribute : Attribute
     public string Name { get; }
 
     /// <summary>
-    /// The explanation for a help listing, or <c>null</c> when the command was declared without one.
+    /// Gets the command description, if any.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -54,13 +55,19 @@ public sealed class ConsoleCommandAttribute : Attribute
     public string? Description { get; }
 
     /// <summary>
-    /// Whether the command tolerates more typed tokens than its handler declares parameters.
+    /// Gets whether arguments beyond the declared handler parameters are ignored.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
     public bool IgnoreExtraArgs { get; }
     
+    /// <summary>
+    /// Gets or sets how command arguments are parsed.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     public ArgumentParsingMode ArgumentParsing { get; set; }
         = ArgumentParsingMode.Spaces;
 }

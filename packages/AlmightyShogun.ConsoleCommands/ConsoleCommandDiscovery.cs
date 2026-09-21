@@ -4,7 +4,7 @@ using AlmightyShogun.Utils;
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Finds console command classes and builds the public metadata a help listing is rendered from.
+/// Discovers console commands and exposes their metadata.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -12,14 +12,13 @@ namespace AlmightyShogun.ConsoleCommands;
 public static class ConsoleCommandDiscovery
 {
     /// <summary>
-    /// Retrieves metadata for the commands declared in the calling assembly, which is what a help command in the startup
-    /// project wants. Reach for the overload taking assemblies when the commands live elsewhere.
+    /// Retrieves console command metadata from the calling assembly.
     /// </summary>
     ///
-    /// <returns>One entry per command class the calling assembly declares.</returns>
+    /// <returns>The discovered console commands.</returns>
     ///
     /// <exception cref="InvalidOperationException">
-    /// A discovered class breaks one of the rules named on <see cref="ConsoleCommandBase"/>. Reported rather than skipped.
+    /// Thrown when a discovered command is invalid.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -27,19 +26,15 @@ public static class ConsoleCommandDiscovery
     public static IReadOnlyList<ConsoleCommand> GetAllCommands() => GetAllCommands([Assembly.GetCallingAssembly()]);
 
     /// <summary>
-    /// Retrieves metadata for the commands declared in the given assemblies, read from the class attributes and the
-    /// parameters of each handler method rather than from resolved instances, so nothing is constructed.
+    /// Retrieves console command metadata from the specified assemblies.
     /// </summary>
     ///
-    /// <param name="assemblies">
-    /// The assemblies to scan, in the order they should be searched. An empty array yields nothing; the overload taking no
-    /// assembly at all is the one that falls back to the calling assembly.
-    /// </param>
+    /// <param name="assemblies">The assemblies to scan.</param>
     ///
-    /// <returns>One entry per command class, grouped by assembly in the order the assemblies were given.</returns>
+    /// <returns>The discovered console commands.</returns>
     ///
     /// <exception cref="InvalidOperationException">
-    /// A discovered class breaks one of the rules named on <see cref="ConsoleCommandBase"/>. Reported rather than skipped.
+    /// Thrown when a discovered command is invalid.
     /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
@@ -48,18 +43,12 @@ public static class ConsoleCommandDiscovery
         => [.. GetConsoleCommandTypes(assemblies).Select(Describe)];
 
     /// <summary>
-    /// Retrieves every command type in the given assemblies, valid or not, leaving each caller to decide what a malformed
-    /// one means.
+    /// Finds console command implementation types in the specified assemblies.
     /// </summary>
     ///
-    /// <param name="assemblies">The assemblies to scan, in the order they should be searched.</param>
+    /// <param name="assemblies">The assemblies to scan.</param>
     ///
-    /// <returns>The concrete types assignable to <see cref="IConsoleCommand"/>, lazily.</returns>
-    ///
-    /// <remarks>
-    /// Nothing is filtered here. A class that breaks the command rules is returned like any other, and so is one carrying
-    /// <see cref="SkipAutoRegistrationAttribute"/>.
-    /// </remarks>
+    /// <returns>The discovered command types.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>3.0.0</since>
@@ -67,18 +56,16 @@ public static class ConsoleCommandDiscovery
         => TypeDiscovery.FindAssignableTypes<IConsoleCommand>(assemblies);
 
     /// <summary>
-    /// Builds the public metadata for one command type.
+    /// Builds public metadata for a console command type.
     /// </summary>
     ///
-    /// <param name="commandType">The command class to reflect over.</param>
+    /// <param name="commandType">The command type to describe.</param>
     ///
     /// <returns>
-    /// The metadata, whose usage string lists each handler parameter as <c>&lt;name:Type&gt;</c>, and a trailing array
-    /// parameter as <c>&lt;name:Element...&gt;</c> for the zero or more tokens it takes. A trailing
-    /// <see cref="CancellationToken"/> is left out, because the dispatcher supplies it rather than the user typing it.
+    /// The console command metadata.
     /// </returns>
     ///
-    /// <exception cref="InvalidOperationException">The class breaks one of the rules named on <see cref="ConsoleCommandBase"/>.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the command metadata or example cannot be represented.</exception>
     ///
     /// <remarks>
     /// Only a trailing token is dropped, matching the one position <see cref="ConsoleCommandBase"/> fills in. A token
@@ -128,7 +115,23 @@ public static class ConsoleCommandDiscovery
             example
         );
     }
-    
+
+
+    /// <summary>
+    /// Formats example arguments according to the configured parsing mode.
+    /// </summary>
+    ///
+    /// <param name="arguments">The individual example arguments.</param>
+    /// <param name="parsingMode">The parsing mode used by the command.</param>
+    ///
+    /// <returns>The formatted example.</returns>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the parsing mode is unknown or the example cannot be represented by it.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private static string FormatExample(
         string[] arguments,
         ArgumentParsingMode parsingMode)
@@ -146,7 +149,16 @@ public static class ConsoleCommandDiscovery
         };
     }
     
-    
+    /// <summary>
+    /// Formats an example for space-delimited argument parsing.
+    /// </summary>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when an argument contains whitespace.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private static string FormatSpaceExample(string[] arguments)
     {
         if (arguments.Any(static argument =>
@@ -159,6 +171,16 @@ public static class ConsoleCommandDiscovery
         return string.Join(" ", arguments);
     }
     
+    /// <summary>
+    /// Formats an example for quote-aware argument parsing.
+    /// </summary>
+    ///
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when an argument contains a quote that cannot be represented by the parser.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private static string FormatQuotedExample(string[] arguments)
     {
         if (arguments.Any(static argument => argument.Contains('"')))

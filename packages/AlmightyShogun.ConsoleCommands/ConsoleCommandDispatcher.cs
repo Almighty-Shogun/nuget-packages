@@ -5,37 +5,57 @@ using Microsoft.Extensions.Logging;
 
 namespace AlmightyShogun.ConsoleCommands;
 
+/// <summary>
+/// Resolves and executes registered console commands from input lines.
+/// </summary>
+///
+/// <author>Almighty-Shogun</author>
+/// <since>Unreleased</since>
 internal sealed class ConsoleCommandDispatcher
 {
     /// <summary>
-    /// The logger every complaint goes through, both the dispatcher's own and the argument errors each command reports,
-    /// since a command is handed this one rather than holding a logger of its own.
+    /// The logger used for command lookup, execution, and argument errors.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>1.0.0</since>
+    /// <since>Unreleased</since>
     private readonly ILogger<ConsoleCommandHandler> _logger;
 
     /// <summary>
-    /// The factory for the per-invocation scope. A command is transient, but its dependencies may be scoped, which is what
-    /// makes the scope rather than the root provider necessary.
+    /// Creates the scope used for each command invocation.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
+    /// <since>Unreleased</since>
     private readonly IServiceScopeFactory _scopeFactory;
 
     /// <summary>
-    /// Every name and alias mapped to its command type, compared case-insensitively so the prompt is forgiving about
-    /// capitalisation. Types rather than instances, since each invocation builds its own.
+    /// Maps command names and aliases to their implementation types.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>1.0.0</since>
+    /// <since>Unreleased</since>
     private readonly Dictionary<string, Type> _commands = new(StringComparer.OrdinalIgnoreCase);
     
+    /// <summary>
+    /// Reports command execution failures back to the owning handler.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private readonly Action<string, Exception> _commandFailed;
 
+    /// <summary>
+    /// Creates a command dispatcher from the registered command descriptors.
+    /// </summary>
+    ///
+    /// <param name="logger">The logger used during command dispatch.</param>
+    /// <param name="scopeFactory">The factory used to create command invocation scopes.</param>
+    /// <param name="descriptors">The registered console command descriptors.</param>
+    /// <param name="commandFailed">The callback invoked when command execution fails.</param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     internal ConsoleCommandDispatcher(
         ILogger<ConsoleCommandHandler> logger,
         IServiceScopeFactory scopeFactory,
@@ -59,33 +79,13 @@ internal sealed class ConsoleCommandDispatcher
     }
 
     /// <summary>
-    /// Splits one input line and runs the command it names in its own scope. An unknown name is reported with the closest
-    /// registered match rather than a bare failure.
+    /// Dispatches an input line to the matching console command.
     /// </summary>
     ///
-    /// <param name="input">The line as typed, guaranteed non-blank by the caller so the first token always exists.</param>
-    /// <param name="cancellationToken">Signalled when the handler is stopping, forwarded to a command that accepts one.</param>
+    /// <param name="input">The non-empty input line to dispatch.</param>
+    /// <param name="cancellationToken">The cancellation token forwarded to the command.</param>
     ///
-    /// <returns>
-    /// A task that completes when the command has finished, or immediately when no command matched. A failure inside the
-    /// command is logged and raises <see cref="CommandFailed"/> rather than faulting the task; the exceptions below are the
-    /// ones that fault it instead.
-    /// </returns>
-    ///
-    /// <exception cref="OperationCanceledException">
-    /// Thrown out of the command while <paramref name="cancellationToken"/> is already signaled. The filter tests that
-    /// token alone, so one raised for an unrelated token during shutdown is rethrown with it. Either way it escapes into
-    /// <see cref="StartAsync"/>, which ends the loop on it without logging, since a stop had already been asked for.
-    /// </exception>
-    /// <exception cref="InvalidOperationException">
-    /// The command class could not be resolved from the scope, which is what a constructor dependency of its own that was
-    /// never registered produces. Resolution happens before the <c>try</c>, so this is neither logged nor turned into
-    /// <see cref="CommandFailed"/>.
-    /// </exception>
-    /// <exception cref="Exception">
-    /// Whatever the command's own constructor threw, for the same reason, or whatever a <see cref="CommandFailed"/>
-    /// subscriber threw, since the event is raised from inside the <c>catch</c> that would otherwise have handled it.
-    /// </exception>
+    /// <returns>A task that completes when command execution finishes.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
@@ -153,15 +153,14 @@ internal sealed class ConsoleCommandDispatcher
 
 
     /// <summary>
-    /// Claims one name for a command, first come, first served. A clash is a warning rather than a throw, so one careless
-    /// alias cannot stop an application from starting.
+    /// Registers a command name or alias in the dispatch table.
     /// </summary>
     ///
-    /// <param name="name">The name or alias to claim. A blank one is ignored, since it could never be typed.</param>
-    /// <param name="commandType">The type the name should dispatch to.</param>
+    /// <param name="name">The command name or alias.</param>
+    /// <param name="commandType">The command implementation type.</param>
     ///
     /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
+    /// <since>Unreleased</since>
     private void Register(string name, Type commandType)
     {
         if (string.IsNullOrWhiteSpace(name)) return;
@@ -177,6 +176,20 @@ internal sealed class ConsoleCommandDispatcher
     }
 
 
+    /// <summary>
+    /// Splits quote-aware command arguments while preserving whitespace inside quoted values.
+    /// </summary>
+    ///
+    /// <param name="input">The raw argument text.</param>
+    ///
+    /// <returns>The parsed argument tokens.</returns>
+    ///
+    /// <exception cref="FormatException">
+    /// Thrown when a quoted argument is not terminated.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private static string[] TokenizeQuoted(string input)
     {
         var tokens = new List<string>();
@@ -219,19 +232,12 @@ internal sealed class ConsoleCommandDispatcher
     }
 
     /// <summary>
-    /// Picks the registered name a mistyped one most likely meant.
+    /// Finds the closest registered command name to the supplied input.
     /// </summary>
     ///
-    /// <param name="commandName">The name that matched nothing.</param>
+    /// <param name="commandName">The unmatched command name.</param>
     ///
-    /// <returns>
-    /// The nearest registered name, or <c>null</c> when no name is within one edit per three characters of
-    /// <paramref name="commandName"/>. The allowance never drops below one, so a name shorter than three characters still
-    /// suggests anything a single edit away, and the ratio only governs names of three characters or more.
-    /// </returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
+    /// <returns>The closest acceptable match, or <c>null</c> when none is close enough.</returns>
     private string? FindClosestCommand(string commandName)
     {
         string? best = null;
@@ -251,17 +257,13 @@ internal sealed class ConsoleCommandDispatcher
     }
 
     /// <summary>
-    /// Computes the Levenshtein distance between two names, comparing case-insensitively so capitalisation alone never
-    /// counts as a difference.
+    /// Calculates the case-insensitive Levenshtein distance between two strings.
     /// </summary>
     ///
-    /// <param name="left">The name that was typed.</param>
-    /// <param name="right">The registered name to measure it against.</param>
+    /// <param name="left">The first string.</param>
+    /// <param name="right">The second string.</param>
     ///
-    /// <returns>The number of insertions, deletions, and substitutions separating the two.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
+    /// <returns>The Levenshtein distance.</returns>
     private static int Distance(string left, string right)
     {
         var costs = new int[left.Length + 1, right.Length + 1];
