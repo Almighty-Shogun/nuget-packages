@@ -108,14 +108,20 @@ internal sealed class FrameworkExceptionHandler(
             return false;
 
         string description;
+        var messageKey = $"http-error.{statusCode.Value}";
 
-        await using (AsyncServiceScope scope = serviceScopeFactory.CreateAsyncScope())
+        try
         {
+            await using AsyncServiceScope scope = serviceScopeFactory.CreateAsyncScope();
             description = scope.ServiceProvider
                 .GetRequiredService<IMessageResolver>()
-                .Resolve($"http-error.{statusCode.Value}");
+                .Resolve(messageKey);
         }
-
+        catch (Exception)
+        {
+            description = messageKey;
+        }
+        
         await responseWriter.WriteAsync(
             httpContext,
             statusCode.Value,
