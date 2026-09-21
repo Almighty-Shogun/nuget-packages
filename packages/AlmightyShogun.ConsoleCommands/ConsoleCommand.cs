@@ -1,8 +1,7 @@
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// The metadata describing one discovered command, built by reflection for a help listing to render. It is a read model
-/// and runs nothing, so holding one never constructs the command class it came from.
+/// Describes a discovered console command.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -10,7 +9,7 @@ namespace AlmightyShogun.ConsoleCommands;
 public sealed class ConsoleCommand
 {
     /// <summary>
-    /// The name the command is invoked by, which is also what the usage and example text are prefixed with.
+    /// Gets the primary command name.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -18,7 +17,7 @@ public sealed class ConsoleCommand
     public string Name { get; }
 
     /// <summary>
-    /// The explanation for a listing, or <c>null</c> when the command was declared without one.
+    /// Gets the command description, if any.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -26,7 +25,7 @@ public sealed class ConsoleCommand
     public string? Description { get; }
 
     /// <summary>
-    /// The extra names the command answers to, or an empty list when it declares none.
+    /// Gets the command aliases.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -34,10 +33,7 @@ public sealed class ConsoleCommand
     public IReadOnlyList<string> Aliases { get; }
 
     /// <summary>
-    /// The full line to type, as the name followed by one <c>&lt;name:Type&gt;</c> placeholder per handler parameter,
-    /// excluding a trailing <see cref="CancellationToken"/>, which the dispatcher supplies rather than the user. A trailing
-    /// array parameter appears as <c>&lt;name:Element...&gt;</c>, the ellipsis marking the zero or more tokens it takes. A
-    /// command taking no arguments yields the bare name, never a trailing space.
+    /// Gets the command usage text.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -45,7 +41,7 @@ public sealed class ConsoleCommand
     public string Usage { get; }
 
     /// <summary>
-    /// A complete sample invocation including the command name, or <c>null</c> when the command declares no example.
+    /// Gets the example invocation, if one is declared.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -53,15 +49,14 @@ public sealed class ConsoleCommand
     public string? Example { get; }
 
     /// <summary>
-    /// Assembles the metadata, prefixing the command name onto the usage and example text so both read as something the
-    /// user could type.
+    /// Creates console command metadata.
     /// </summary>
     ///
-    /// <param name="name">The name the command is invoked by.</param>
-    /// <param name="description">The explanation for a listing, or <c>null</c> when the command declares none.</param>
-    /// <param name="aliases">The extra names the command answers to, empty when it declares none.</param>
-    /// <param name="usage">The parameter shape, without the command name. Blank for a command that takes no arguments.</param>
-    /// <param name="example">The sample argument values, without the command name, or <c>null</c> when none were declared.</param>
+    /// <param name="name">The primary command name.</param>
+    /// <param name="description">The command description, if any.</param>
+    /// <param name="aliases">The command aliases.</param>
+    /// <param name="usage">The usage text without the command name.</param>
+    /// <param name="example">The example arguments without the command name, if any.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>

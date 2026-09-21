@@ -3,8 +3,7 @@ using Microsoft.Extensions.Logging;
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Exposes the execution entry point the dispatcher calls. Kept separate from <see cref="IConsoleCommand"/> so the
-/// metadata a command advertises can be read without exposing a way to run it.
+/// Defines the internal execution entry point used to run a console command.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -12,35 +11,14 @@ namespace AlmightyShogun.ConsoleCommands;
 internal interface IInternalConsoleCommand
 {
     /// <summary>
-    /// Binds the typed arguments to the handler parameters and invokes it, or logs why it could not and returns without
-    /// running anything. An argument that fails to convert stops the whole invocation rather than defaulting.
+    /// Binds the supplied arguments and invokes the command handler.
     /// </summary>
     ///
-    /// <param name="args">The tokens typed after the command name, already split on spaces and never <c>null</c>.</param>
-    /// <param name="logger">
-    /// The dispatcher's logger, supplied per invocation rather than held by the command, so a command that needs no
-    /// services of its own can declare no constructor and still report bad input.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// Signaled when the handler is stopping. Passed on only to a handler whose last parameter is a
-    /// <see cref="CancellationToken"/>; otherwise the command runs to completion regardless.
-    /// </param>
+    /// <param name="args">The parsed command arguments.</param>
+    /// <param name="logger">The logger used to report argument and execution errors.</param>
+    /// <param name="cancellationToken">The cancellation token forwarded to handlers that accept one.</param>
     ///
-    /// <returns>A task that completes when the handler has finished, or immediately when the arguments were rejected.</returns>
-    ///
-    /// <exception cref="Exception">
-    /// Whatever failed the command, which is what its own <c>ExecuteAsync</c> threw or what binding its
-    /// arguments raised, rethrown with its original stack trace rather than wrapped in
-    /// <see cref="System.Reflection.TargetInvocationException"/>. The dispatcher catches it, logs it, and raises
-    /// <see cref="IConsoleCommandHandler.CommandFailed"/>, except for a cancellation raised once the token it passed in was
-    /// already signaled, which it rethrows.
-    /// </exception>
-    ///
-    /// <remarks>
-    /// A handler returning <see cref="ValueTask"/> is converted with <see cref="ValueTask.AsTask"/> rather than awaited in
-    /// its own branch, because the two return types share no base to await through. The conversion allocates, but reflection
-    /// has already boxed the value, so the allocation <see cref="ValueTask"/> exists to avoid is gone either way.
-    /// </remarks>
+    /// <returns>A task that completes when command execution finishes.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>3.0.0</since>

@@ -1,8 +1,7 @@
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Declares extra names the dispatcher accepts for a command, so a short form or a retired name keeps working without a
-/// second command class. Every alias resolves to the same class as the command name itself.
+/// Declares alternative names for a console command.
 /// </summary>
 /// <author>Almighty-Shogun</author>
 /// <since>1.0.0</since>
@@ -10,11 +9,10 @@ namespace AlmightyShogun.ConsoleCommands;
 public sealed class AliasAttribute : Attribute
 {
     /// <summary>
-    /// Declares extra names the dispatcher accepts for a command, so a short form or a retired name keeps working without a
-    /// second command class. Every alias resolves to the same class as the command name itself.
+    /// Creates an alias declaration for a console command.
     /// </summary>
     ///
-    /// <param name="aliases">The names to accept, matched case-insensitively like the command name.</param>
+    /// <param name="aliases">The aliases to declare.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
@@ -39,8 +37,7 @@ public sealed class AliasAttribute : Attribute
     }
 
     /// <summary>
-    /// The declared alternative names, in the order they were written. Empty when the attribute was applied with no
-    /// arguments, which claims no extra names and leaves the command reachable only by its own.
+    /// Gets the declared aliases.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

@@ -3,8 +3,7 @@ using System.Globalization;
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Declares a sample invocation for a command, so a help listing can show what real arguments look like instead of only
-/// the generated parameter shape. Purely descriptive: nothing validates the values against the handler parameters.
+/// Declares example arguments for a console command.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -13,23 +12,27 @@ namespace AlmightyShogun.ConsoleCommands;
 public sealed class ExampleAttribute : Attribute
 {
     /// <summary>
-    /// The argument values as one space-separated string. The command name is not part of it; the metadata builder
-    /// prefixes that when it assembles <see cref="ConsoleCommand.Example"/>.
+    /// Gets the formatted example arguments as a single space-separated string.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>1.0.0</since>
     public string Example { get; }
 
+    /// <summary>
+    /// Gets the individually formatted example arguments.
+    /// </summary>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     internal string[] Arguments { get; }
 
     /// <summary>
-    /// Creates an example from the given values, joining them with single spaces in the order written.
+    /// Creates an example from the supplied argument values.
     /// </summary>
     ///
     /// <param name="args">
-    /// The argument values, converted with each one's own <c>ToString</c>. Supply them in handler parameter order, since
-    /// nothing reorders or names them.
+    /// The example argument values.
     /// </param>
     ///
     /// <author>Almighty-Shogun</author>

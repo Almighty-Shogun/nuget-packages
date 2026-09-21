@@ -7,35 +7,31 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace AlmightyShogun.ConsoleCommands;
 
 /// <summary>
-/// Registers console command services and command implementations in dependency injection.
+/// Provides dependency injection registration for console commands.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>2.1.0</since>
 public static class ConsoleCommandExtensions
 {
-    /// <param name="serviceCollection">
-    /// The service collection the console command services and command classes are registered into.
-    /// </param>
+    /// <param name="serviceCollection">The service collection to register console commands with.</param>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Registers the console command handler as a singleton. It only runs the input loop, so the command classes it
-        /// dispatches to still have to be registered with <see cref="RegisterConsoleCommands(IServiceCollection)"/>.
+        /// Registers the console command handler.
         /// </summary>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with the console command handler registered.</returns>
+        /// <returns>The service collection.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.0.0</since>
         public IServiceCollection AddConsoleCommands() => serviceCollection.AddSingleton<IConsoleCommandHandler, ConsoleCommandHandler>();
 
         /// <summary>
-        /// Registers the command classes declared in the calling assembly, which is the usual case when the commands live in
-        /// the startup project. Reach for the overload taking assemblies when they do not.
+        /// Registers console commands from the calling assembly.
         /// </summary>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with the console commands registered.</returns>
+        /// <returns>The service collection.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
@@ -43,29 +39,16 @@ public static class ConsoleCommandExtensions
         public IServiceCollection RegisterConsoleCommands() => serviceCollection.RegisterConsoleCommands([Assembly.GetCallingAssembly()]);
 
         /// <summary>
-        /// Registers the command classes declared in the given assemblies as transient services under their own concrete
-        /// type, alongside a descriptor naming each one, so a fresh instance is built for each invocation from a fresh scope
-        /// and a command may depend on scoped application services.
+        /// Discovers and registers console commands from the specified assemblies.
         /// </summary>
         ///
-        /// <param name="assemblies">
-        /// The assemblies to scan, in the order they should be searched. An empty array registers nothing; the overload taking
-        /// no assembly at all is the one that falls back to the calling assembly.
-        /// </param>
+        /// <param name="assemblies">The assemblies to scan for console commands.</param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with the console commands registered.</returns>
+        /// <returns>The service collection.</returns>
         ///
         /// <exception cref="InvalidOperationException">
-        /// A discovered class breaks one of the rules named on <see cref="ConsoleCommandBase"/>. Raised here so the offending
-        /// class is named at startup rather than quietly never answering the prompt.
+        /// Thrown when a discovered command is invalid or when a command name or alias is claimed by multiple commands.
         /// </exception>
-        ///
-        /// <remarks>
-        /// Commands are registered under their concrete type rather than under the command interface, because the dispatcher
-        /// resolves one by type from a per-invocation scope instead of enumerating them all. A class carrying
-        /// <see cref="SkipAutoRegistrationAttribute"/> is skipped, and a name claimed twice is reported when the dispatcher
-        /// builds its table rather than here.
-        /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>1.1.0</since>
