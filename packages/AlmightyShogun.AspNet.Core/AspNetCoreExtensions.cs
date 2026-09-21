@@ -251,13 +251,25 @@ public static class AspNetCoreExtensions
                 HttpContext httpContext = statusCodeContext.HttpContext;
 
                 int statusCode = httpContext.Response.StatusCode;
-                var messageResolver = httpContext.RequestServices.GetRequiredService<IMessageResolver>();
+                var messageKey =  $"http-error.{statusCode}";
+                string description;
+
+                try
+                {
+                    description = httpContext.RequestServices
+                        .GetRequiredService<IMessageResolver>()
+                        .Resolve(messageKey);
+                }
+                catch (Exception)
+                {
+                    description = messageKey;
+                }
 
                 await httpContext.RequestServices.GetRequiredService<IHttpErrorResponseWriter>().WriteAsync(
                     httpContext,
                     statusCode,
                     HttpErrorCodes.FromStatusCode(statusCode),
-                    messageResolver.Resolve($"http-error.{statusCode}"),
+                    description,
                     httpContext.RequestAborted
                 );
             });
