@@ -16,20 +16,23 @@ namespace AlmightyShogun.AspNet.Core;
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
-public sealed class HttpErrorResult : ObjectResult
+public sealed class HttpErrorResult : IActionResult
 {
-    /// <summary>
-    /// Wraps an error body in a result whose status comes from the body itself.
-    /// </summary>
-    ///
-    /// <param name="response">
-    /// The body to return. Its <see cref="HttpErrorResponse.Code"/> becomes
-    /// <see cref="ObjectResult.StatusCode"/> at construction, so the status a client reads in the headers matches the one in
-    /// the body without a caller setting both. <see cref="ObjectResult.StatusCode"/> stays settable, so assigning it
-    /// afterwards still parts them.
-    /// </param>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
-    public HttpErrorResult(HttpErrorResponse response) : base(response ?? throw new ArgumentNullException(nameof(response))) => StatusCode = response.Code;
+    private readonly HttpErrorResponse _response;
+    
+    public HttpErrorResult(HttpErrorResponse response)
+    {
+        _response = response ?? throw new ArgumentNullException(nameof(response));
+    }
+
+
+    public Task ExecuteResultAsync(ActionContext context)
+    {
+        ObjectResult result = new(_response)
+        {
+            StatusCode = _response.Code
+        };
+
+        return result.ExecuteResultAsync(context);
+    }
 }
