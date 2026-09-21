@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Diagnostics;
 using AlmightyShogun.AspNet.Localization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace AlmightyShogun.AspNet.Core;
 
@@ -38,7 +39,8 @@ namespace AlmightyShogun.AspNet.Core;
 /// <since>4.0.0</since>
 internal sealed class UnhandledExceptionHandler(
     IServiceScopeFactory serviceScopeFactory,
-    IHttpErrorResponseWriter responseWriter
+    IHttpErrorResponseWriter responseWriter,
+    ILogger<UnhandledExceptionHandler> logger
 ) : IExceptionHandler
 {
     /// <inheritdoc />
@@ -66,6 +68,8 @@ internal sealed class UnhandledExceptionHandler(
         if (httpContext.Response.HasStarted)
             return false;
 
+        logger.LogError(exception, "Unhandled exception while processing request");
+        
         string description;
 
         try
