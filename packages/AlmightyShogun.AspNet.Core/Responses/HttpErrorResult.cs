@@ -31,5 +31,5 @@ public sealed class HttpErrorResult : ObjectResult
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    public HttpErrorResult(HttpErrorResponse response) : base(response) => StatusCode = response.Code;
+    public HttpErrorResult(HttpErrorResponse response) : base(response ?? throw new ArgumentNullException(nameof(response))) => StatusCode = response.Code;
 }
