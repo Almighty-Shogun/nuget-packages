@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Net;
 
 namespace AlmightyShogun.AspNet.Core;
@@ -31,7 +32,7 @@ public static class CloudflareDefaults
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    public static IReadOnlyList<IPNetwork> Networks { get; } =
+    public static ImmutableArray<IPNetwork> Networks { get; } =
     [
         // IPv4
         IPNetwork.Parse("173.245.48.0/20"),
