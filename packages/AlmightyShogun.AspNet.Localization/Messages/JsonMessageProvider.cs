@@ -327,18 +327,17 @@ internal sealed class JsonMessageProvider(
             string messagesDirectory = Path.Combine(root, _messagesDirectoryName);
 
             if (!Directory.Exists(messagesDirectory)) continue;
-            
+
             string? directory = Directory
                 .EnumerateDirectories(messagesDirectory)
                 .FirstOrDefault(path =>
                     Path.GetFileName(path).Equals(
                         language,
-                        StringComparison.OrdinalIgnoreCase
-                    ));
+                        StringComparison.OrdinalIgnoreCase));
 
-            if(directory is null)
+            if (directory is null)
                 continue;
-            
+
             Dictionary<string, string> fromRoot = new(StringComparer.OrdinalIgnoreCase);
 
             IEnumerable<string> localizationFiles = Directory.EnumerateFiles(directory, "*.json");
@@ -407,7 +406,7 @@ internal sealed class JsonMessageProvider(
         StringComparer comparer = OperatingSystem.IsWindows()
             ? StringComparer.OrdinalIgnoreCase
             : StringComparer.Ordinal;
-        
+
         HashSet<string> seen = new(comparer);
 
         foreach (string root in EnumerateRoots())
@@ -469,26 +468,42 @@ internal sealed class JsonMessageProvider(
 
             _watching = true;
 
-            foreach (string root in GetSearchRoots())
+            List<FileSystemWatcher> watchers = [];
+
+            try
             {
-                string directory = Path.Combine(root, _messagesDirectoryName);
-
-                if (!Directory.Exists(directory)) continue;
-
-                FileSystemWatcher watcher = new(directory, "*.json")
+                foreach (string root in GetSearchRoots())
                 {
-                    IncludeSubdirectories = true,
-                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime
-                };
+                    string directory = Path.Combine(root, _messagesDirectoryName);
 
-                watcher.Changed += OnMessageFileChanged;
-                watcher.Created += OnMessageFileChanged;
-                watcher.Deleted += OnMessageFileChanged;
-                watcher.Renamed += OnMessageFileChanged;
+                    if (!Directory.Exists(directory)) continue;
 
-                watcher.EnableRaisingEvents = true;
+                    FileSystemWatcher watcher = new(directory, "*.json")
+                    {
+                        IncludeSubdirectories = true,
+                        NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime
+                    };
 
-                _watchers.Add(watcher);
+                    watcher.Changed += OnMessageFileChanged;
+                    watcher.Created += OnMessageFileChanged;
+                    watcher.Deleted += OnMessageFileChanged;
+                    watcher.Renamed += OnMessageFileChanged;
+                    watcher.Error += OnMessageWatcherError;
+
+                    watchers.Add(watcher);
+                    
+                    watcher.EnableRaisingEvents = true;
+                }
+
+                _watchers.AddRange(watchers);
+                _watching = true;
+            }
+            catch
+            {
+                foreach (FileSystemWatcher watcher in watchers)
+                    watcher.Dispose();
+                
+                throw;
             }
         }
     }
@@ -511,6 +526,17 @@ internal sealed class JsonMessageProvider(
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private void OnMessageFileChanged(object sender, FileSystemEventArgs eventArgs) => Interlocked.Increment(ref _cacheVersion);
+
+    private void OnMessageWatcherError(
+        object sender,
+        ErrorEventArgs eventArgs)
+    {
+        logger.LogWarning(
+            eventArgs.GetException(),
+            "Message file watcher encountered an error");
+
+        Interlocked.Increment(ref _cacheVersion);
+    }
 
     /// <summary>
     /// Flattens one parsed message file, prefixing every key with the file name.
@@ -545,7 +571,7 @@ internal sealed class JsonMessageProvider(
     }
 
     /// <summary>
-        /// Recursively flattens nested message objects into dot-separated keys.
+    /// Recursively flattens nested message objects into dot-separated keys.
     /// </summary>
     ///
     /// <param name="prefix">The key built from the path walked so far, which becomes the full key at a string leaf.</param>
