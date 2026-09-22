@@ -324,10 +324,21 @@ internal sealed class JsonMessageProvider(
 
         foreach (string root in GetSearchRoots())
         {
-            string directory = Path.Combine(root, _messagesDirectoryName, language);
+            string messagesDirectory = Path.Combine(root, _messagesDirectoryName);
 
-            if (!Directory.Exists(directory)) continue;
+            if (!Directory.Exists(messagesDirectory)) continue;
+            
+            string? directory = Directory
+                .EnumerateDirectories(messagesDirectory)
+                .FirstOrDefault(path =>
+                    Path.GetFileName(path).Equals(
+                        language,
+                        StringComparison.OrdinalIgnoreCase
+                    ));
 
+            if(directory is null)
+                continue;
+            
             Dictionary<string, string> fromRoot = new(StringComparer.OrdinalIgnoreCase);
 
             IEnumerable<string> localizationFiles = Directory.EnumerateFiles(directory, "*.json");
