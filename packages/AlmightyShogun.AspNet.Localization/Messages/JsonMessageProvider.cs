@@ -468,27 +468,42 @@ internal sealed class JsonMessageProvider(
 
             _watching = true;
 
-            foreach (string root in GetSearchRoots())
+            List<FileSystemWatcher> watchers = [];
+
+            try
             {
-                string directory = Path.Combine(root, _messagesDirectoryName);
-
-                if (!Directory.Exists(directory)) continue;
-
-                FileSystemWatcher watcher = new(directory, "*.json")
+                foreach (string root in GetSearchRoots())
                 {
-                    IncludeSubdirectories = true,
-                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime
-                };
+                    string directory = Path.Combine(root, _messagesDirectoryName);
 
-                watcher.Changed += OnMessageFileChanged;
-                watcher.Created += OnMessageFileChanged;
-                watcher.Deleted += OnMessageFileChanged;
-                watcher.Renamed += OnMessageFileChanged;
-                watcher.Error += OnMessageWatcherError;
+                    if (!Directory.Exists(directory)) continue;
 
-                watcher.EnableRaisingEvents = true;
+                    FileSystemWatcher watcher = new(directory, "*.json")
+                    {
+                        IncludeSubdirectories = true,
+                        NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime
+                    };
 
-                _watchers.Add(watcher);
+                    watcher.Changed += OnMessageFileChanged;
+                    watcher.Created += OnMessageFileChanged;
+                    watcher.Deleted += OnMessageFileChanged;
+                    watcher.Renamed += OnMessageFileChanged;
+                    watcher.Error += OnMessageWatcherError;
+
+                    watchers.Add(watcher);
+                    
+                    watcher.EnableRaisingEvents = true;
+                }
+
+                _watchers.AddRange(watchers);
+                _watching = true;
+            }
+            catch
+            {
+                foreach (FileSystemWatcher watcher in watchers)
+                    watcher.Dispose();
+                
+                throw;
             }
         }
     }
