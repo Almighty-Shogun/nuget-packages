@@ -72,9 +72,7 @@ internal sealed class JsonMessageResolver(
     /// </remarks>
     public string Resolve(string key, IReadOnlyList<object?> parameters)
     {
-        string language = ResolveLanguage();
-
-        IReadOnlyDictionary<string, string> messages = messageProvider.GetMessages(language);
+        (string language, IReadOnlyDictionary<string, string> messages) = ResolveMessages();
 
         if (messages.TryGetValue(key, out string? template))
             return Format(template, parameters, language);
@@ -101,11 +99,28 @@ internal sealed class JsonMessageResolver(
     /// </exception>
     public string ResolveLanguage()
     {
-        foreach (string language in GetLanguageCandidates())
-            if (messageProvider.GetMessages(language).Count > 0)
-                return language;
+        (string language, _) = ResolveMessages();
 
-        return localizationOptions.Value.DefaultLanguage;
+        return language;
+    }
+
+    private (string Language, IReadOnlyDictionary<string, string> Messages) ResolveMessages()
+    {
+        string defaultLanguage = localizationOptions.Value.DefaultLanguage;
+        IReadOnlyDictionary<string, string>? defaultMessages = null;
+
+        foreach (string language in GetLanguageCandidates())
+        {
+            IReadOnlyDictionary<string, string> messages = messageProvider.GetMessages(language);
+
+            if (language.Equals(defaultLanguage, StringComparison.OrdinalIgnoreCase))
+                defaultMessages = messages;
+
+            if (messages.Count > 0)
+                return (language, messages);
+        }
+
+        return (defaultLanguage, defaultMessages ?? messageProvider.GetMessages(defaultLanguage));
     }
 
     /// <summary>
