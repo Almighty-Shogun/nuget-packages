@@ -4,9 +4,7 @@ using System.Net;
 namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
-/// The published Cloudflare edge ranges and client-address header, exposed as data so an application can build its own
-/// forwarded-headers configuration. <c>AddCloudflareHeaders</c> already applies both; reach for these directly only
-/// when that helper's configuration is not what you want.
+/// Provides Cloudflare defaults for forwarded-header configuration.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -14,7 +12,7 @@ namespace AlmightyShogun.AspNet.Core;
 public static class CloudflareDefaults
 {
     /// <summary>
-    /// The header Cloudflare puts the originating client address in, in place of the <c>X-Forwarded-For</c> chain.
+    /// The header containing the originating client IP address.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -22,12 +20,11 @@ public static class CloudflareDefaults
     public const string ClientIpHeader = "CF-Connecting-IP";
 
     /// <summary>
-    /// The published Cloudflare IPv4 and IPv6 ranges, as written down here rather than fetched.
+    /// The published Cloudflare IPv4 and IPv6 network ranges.
     /// </summary>
     ///
     /// <remarks>
-    /// A range Cloudflare has added since this list was written fails silently rather than loudly: the request is not
-    /// recognized as proxied, and the recorded client address is the edge rather than the caller.
+    /// These ranges are stored statically and are not fetched or updated at runtime.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

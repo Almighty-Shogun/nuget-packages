@@ -3,9 +3,7 @@ using AlmightyShogun.AspNet.Localization;
 namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
-/// What one exception should become on the wire, produced by an <see cref="IExceptionMapper"/> and consumed by the
-/// handler that owns it. It is the whole presentation decision for a failure, kept away from the exception so a domain
-/// type never names an HTTP status or a message file.
+/// Describes how an exception maps to an HTTP error response.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -13,7 +11,7 @@ namespace AlmightyShogun.AspNet.Core;
 public sealed record ErrorMapping
 {
     /// <summary>
-    /// The HTTP status this failure should be answered with.
+    /// The HTTP status code.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -21,8 +19,7 @@ public sealed record ErrorMapping
     public required int StatusCode { get; init; }
 
     /// <summary>
-    /// The stable machine-readable identifier a client branches on, such as <c>invalid_credentials</c>. Treat it as
-    /// public API: renaming it breaks consumers without breaking a build.
+    /// The machine-readable error code.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -30,8 +27,7 @@ public sealed record ErrorMapping
     public required string Code { get; init; }
 
     /// <summary>
-    /// The key resolved through <see cref="IMessageResolver"/> for the human-readable description. It should read
-    /// as a key rather than as prose.
+    /// The message key used to resolve the human-readable description.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -39,8 +35,7 @@ public sealed record ErrorMapping
     public required string MessageKey { get; init; }
 
     /// <summary>
-    /// The values substituted into the resolved template by position, as <c>{0}</c> and onwards. Pass an empty list
-    /// when the message takes none.
+    /// The parameters used to format the resolved message.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
