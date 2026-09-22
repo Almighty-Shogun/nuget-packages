@@ -1,8 +1,7 @@
 namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
-/// The error body every failure in the application serializes to, so a client can parse one shape regardless of whether
-/// the failure came from an exception, a filter, or the pipeline below MVC.
+/// Represents a standardized HTTP error response.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -10,8 +9,7 @@ namespace AlmightyShogun.AspNet.Core;
 public record HttpErrorResponse
 {
     /// <summary>
-    /// The status code, repeated in the body so a client that has lost the response headers, as through a logging
-    /// or proxy layer, can still tell what happened.
+    /// The HTTP status code.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -19,8 +17,7 @@ public record HttpErrorResponse
     public required int Code { get; init; }
 
     /// <summary>
-    /// The machine-readable identifier to branch on, such as <c>not_found</c> or a code an
-    /// <see cref="ErrorMapping"/> supplied. This is the field a client should switch on, never the description.
+    /// The machine-readable error code.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -28,8 +25,7 @@ public record HttpErrorResponse
     public required string Error { get; init; }
 
     /// <summary>
-    /// The human-readable description as whoever wrote the error supplied it, or <c>null</c> when the error was
-    /// written without one. Nothing here resolves or formats it.
+    /// The human-readable error description, or <c>null</c> when unavailable.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

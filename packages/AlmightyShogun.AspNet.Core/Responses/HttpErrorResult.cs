@@ -3,29 +3,40 @@ using Microsoft.AspNetCore.Mvc;
 namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
-/// The standardized error body as an MVC result, for a controller or a filter that wants to return an error directly
-/// rather than throw a mapped exception and let the handler chain produce it.
+/// Represents a standardized HTTP error response as an MVC action result.
 /// </summary>
-///
-/// <remarks>
-/// Serialized by the application's configured MVC formatters rather than by <see cref="IHttpErrorResponseWriter"/>, so
-/// its content type follows MVC's negotiation and its property casing comes from <c>AddJsonOptions</c>. An error
-/// written below MVC goes through the writer instead, which reads the casing configured by
-/// <c>ConfigureHttpJsonOptions</c>; configure both when an application moves either away from the default.
-/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 public sealed class HttpErrorResult : IActionResult
 {
     private readonly HttpErrorResponse _response;
-    
-    public HttpErrorResult(HttpErrorResponse response)
-    {
-        _response = response ?? throw new ArgumentNullException(nameof(response));
-    }
+
+    /// <summary>
+    /// Creates an HTTP error result from the specified response.
+    /// </summary>
+    ///
+    /// <param name="response">The error response to return.</param>
+    ///
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="response"/> is <c>null</c>.
+    /// </exception>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>4.0.0</since>
+    public HttpErrorResult(HttpErrorResponse response) => _response = response ?? throw new ArgumentNullException(nameof(response));
 
 
+    /// <summary>
+    /// Executes the result using the configured MVC formatters.
+    /// </summary>
+    ///
+    /// <param name="context">The action context.</param>
+    ///
+    /// <returns>A task representing the result execution.</returns>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>4.0.0</since>
     public Task ExecuteResultAsync(ActionContext context)
     {
         ObjectResult result = new(_response)

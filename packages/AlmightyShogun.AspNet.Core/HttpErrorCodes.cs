@@ -4,43 +4,22 @@ using Microsoft.AspNetCore.WebUtilities;
 namespace AlmightyShogun.AspNet.Core;
 
 /// <summary>
-/// Maps a status code to the snake-case identifier clients branch on, derived from the reason phrase the framework
-/// names the status with. These strings are part of the response contract, so a mapping must not change once released,
-/// even to correct its wording.
+/// Maps HTTP status codes to machine-readable error codes.
 /// </summary>
-///
-/// <remarks>
-/// Deriving from <see cref="ReasonPhrases"/> rather than listing every status means a status the framework learns to
-/// name is covered without an edit here. It also ties the contract to a table this package does not own, which is why
-/// <c>425</c> is pinned below: the table does not name it at all, so without the pin it would fall to the numeric form.
-/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 internal static class HttpErrorCodes
 {
-    /// <summary>
-    /// The status the reason phrase table does not name, kept because clients already branch on the identifier it
-    /// mapped to before the table became the source.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
     private const int _tooEarly = 425;
 
     /// <summary>
-    /// Looks up the identifier a client sees in the <c>error</c> field, for a status the application is about to return.
+    /// Returns the error code for an HTTP status code.
     /// </summary>
     ///
-    /// <param name="statusCode">
-    /// The status code being returned. Every status the framework names is mapped, not only error statuses, so a
-    /// non-error code passed here yields its own phrase rather than being rejected.
-    /// </param>
+    /// <param name="statusCode">The HTTP status code.</param>
     ///
-    /// <returns>
-    /// The identifier for a status the framework names, such as <c>not_found</c>, or <c>http_error_{code}</c> for one
-    /// it does not. The fallback keeps the field populated, so a client can always read a code.
-    /// </returns>
+    /// <returns>The reason phrase in snake case, or <c>http_error_{code}</c> when no reason phrase is known.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -54,17 +33,12 @@ internal static class HttpErrorCodes
     }
 
     /// <summary>
-    /// Reduces a reason phrase to the lowercase underscore-separated form the <c>error</c> field carries.
+    /// Converts a reason phrase to a lowercase snake-case identifier.
     /// </summary>
     ///
-    /// <param name="phrase">The reason phrase as the framework spells it, such as <c>Range Not Satisfiable</c>.</param>
+    /// <param name="phrase">The reason phrase to convert.</param>
     ///
-    /// <returns>The phrase with its words joined by underscores, such as <c>range_not_satisfiable</c>.</returns>
-    ///
-    /// <remarks>
-    /// Punctuation is dropped rather than replaced, which is what turns <c>I'm a teapot</c> into <c>im_a_teapot</c>
-    /// instead of splitting it at the apostrophe. Only spaces and hyphens become separators.
-    /// </remarks>
+    /// <returns>The converted identifier.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
