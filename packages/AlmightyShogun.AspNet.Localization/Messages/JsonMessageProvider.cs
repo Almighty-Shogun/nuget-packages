@@ -404,7 +404,11 @@ internal sealed class JsonMessageProvider(
     /// <since>4.0.0</since>
     private IEnumerable<string> GetSearchRoots()
     {
-        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+        StringComparer comparer = OperatingSystem.IsWindows()
+            ? StringComparer.OrdinalIgnoreCase
+            : StringComparer.Ordinal;
+        
+        HashSet<string> seen = new(comparer);
 
         foreach (string root in EnumerateRoots())
             if (seen.Add(Path.TrimEndingDirectorySeparator(Path.GetFullPath(root))))
@@ -541,7 +545,7 @@ internal sealed class JsonMessageProvider(
     }
 
     /// <summary>
-    /// Recursively flattens nested message objects into dot-separated keys.
+        /// Recursively flattens nested message objects into dot-separated keys.
     /// </summary>
     ///
     /// <param name="prefix">The key built from the path walked so far, which becomes the full key at a string leaf.</param>
