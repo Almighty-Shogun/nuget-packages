@@ -1,8 +1,7 @@
 namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
-/// Provides the language used for HTTP message resolution. The default implementation reads the request
-/// <c>Accept-Language</c> header; register a replacement to negotiate from a cookie, a route value, or a user profile.
+/// Provides language preferences for message resolution.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -10,12 +9,11 @@ namespace AlmightyShogun.AspNet.Localization;
 public interface ILanguageProvider
 {
     /// <summary>
-    /// Gets the single language to resolve messages in, ignoring any lower-ranked alternative the caller would accept.
+    /// Gets the preferred language.
     /// </summary>
     ///
     /// <returns>
-    /// A language tag such as <c>nl-BE</c> or <c>en</c>. Never blank: an implementation with nothing to negotiate from
-    /// returns the configured default rather than an empty value, since the result is looked up as-is.
+    /// The preferred language.
     /// </returns>
     ///
     /// <author>Almighty-Shogun</author>
@@ -23,16 +21,13 @@ public interface ILanguageProvider
     string GetLanguage();
 
     /// <summary>
-    /// Gets every language the caller accepts, in preference order, so message resolution can try a lower-ranked
-    /// language before falling back to the configured default.
+    /// Gets the preferred languages in preference order.
     /// </summary>
     ///
-    /// <returns>The accepted languages in preference order. Never empty.</returns>
+    /// <returns>The preferred languages in preference order.</returns>
     ///
     /// <remarks>
-    /// This interface's own default body returns only <see cref="GetLanguage"/>, so a provider that leaves it alone
-    /// contributes a single accepted language. The package's header-reading provider overrides it, and so should any
-    /// provider whose source of the language is itself ranked.
+    /// By default, returns only <see cref="GetLanguage"/>.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

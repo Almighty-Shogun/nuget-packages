@@ -9,33 +9,12 @@ using Microsoft.Extensions.Caching.Memory;
 namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
-/// Loads the JSON message files for a language, flattens them to dot-separated keys, and caches the result for the life
-/// of the process unless automatic reload is enabled.
+/// Loads and caches localized messages from JSON files.
 /// </summary>
 ///
-/// <param name="localizationOptions">The settings deciding whether the message directories are watched for changes.</param>
-/// <param name="logger">
-/// The logger a skipped message file and a rejected language tag are reported on, both at warning level. A skipped file
-/// costs only the messages it defined; a rejected tag resolves nothing at all.
-/// </param>
-/// <param name="webHostEnvironment">
-/// The environment supplying the content root, which is searched ahead of the other roots. Optional so the provider can
-/// be resolved outside a web host, such as in a test or a console process.
-/// </param>
-///
-/// <remarks>
-/// A language with no directory is cached as well as one that has messages, so naming it again is answered from
-/// memory once its tag is held rather than by re-walking the filesystem. That means a directory added while the
-/// process runs is picked up only with <c>AutomaticReload</c> on, which is the same rule already governing file edits.
-/// </remarks>
-///
-/// <remarks>
-/// The two go to different caches. A language that defines messages goes to <see cref="_messages"/>, which the
-/// directories on disk already limit; one that defines none goes to <see cref="_misses"/>, which is capped near
-/// <see cref="_missCacheSizeLimit"/> tags, so a tag it has no room for is walked again by every request naming it.
-/// Keeping them apart is what stops a caller pushing the deployment's own languages out by naming absent ones, of
-/// which an <c>Accept-Language</c> header can carry as many as the server's header size limit allows.
-/// </remarks>
+/// <param name="localizationOptions">The localization settings.</param>
+/// <param name="logger"> The logger. </param>
+/// <param name="webHostEnvironment"> The web host environment, when available. </param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
@@ -45,134 +24,25 @@ internal sealed class JsonMessageProvider(
     IWebHostEnvironment? webHostEnvironment = null
 ) : IMessageProvider, IDisposable
 {
-    /// <summary>
-    /// The directory each search root is expected to contain, holding one subdirectory per language tag.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
     private const string _messagesDirectoryName = "messages";
-
-    /// <summary>
-    /// The size <see cref="_misses"/> is allowed to reach before <see cref="MemoryCache"/> compacts it. The figure
-    /// counts tags rather than bytes, because every entry is stored with a size of one. It is the point compaction
-    /// starts at rather than a level the cache sits on: a compaction trims to about 95 percent of it, so the entry
-    /// count oscillates just under this figure instead of settling on it.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    
     private const int _missCacheSizeLimit = 1024;
-
-    /// <summary>
-    /// The options every entry of <see cref="_misses"/> is stored with, giving each a size of one so the cache's limit
-    /// counts tags. No expiration is set, so an entry goes only when a compaction removes it, and a tag offered while
-    /// the cache is already at <see cref="_missCacheSizeLimit"/> is refused outright rather than displacing one, since
-    /// the compaction that refusal schedules runs on the thread pool and frees room only afterwards. A burst of tags
-    /// never seen before therefore goes largely unrecorded, and each of them is walked again on its next request.
-    /// </summary>
-    ///
-    /// <remarks>
-    /// Rewriting an entry under a newer generation is not affected, since replacing a tag the cache already holds
-    /// leaves its size unchanged and so is never the write that overruns the limit.
-    /// </remarks>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    
     private static readonly MemoryCacheEntryOptions _missCacheEntryOptions = new() { Size = 1 };
-
-    /// <summary>
-    /// The flattened messages of every language that defines at least one, keyed case-insensitively so <c>NL-be</c>
-    /// and <c>nl-BE</c> share an entry. A language that defines none is recorded in <see cref="_misses"/> instead,
-    /// which is what leaves this bounded by the message directories on disk and so needing no limit of its own.
-    /// Concurrent because resolution happens on request threads with no lock around the lookup. Each entry carries the
-    /// generation its files were read under, which is what makes a load that overlapped a file change detectable
-    /// instead of silently authoritative.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
+    
     private readonly ConcurrentDictionary<string, CachedMessages> _messages = new(StringComparer.OrdinalIgnoreCase);
-
-    /// <summary>
-    /// The language tags that resolved no messages, each held against the generation its failed load ran under, so
-    /// asking again for a language the deployment does not have costs a cache read instead of a filesystem walk. Its
-    /// size follows <see cref="_missCacheSizeLimit"/> rather than the number of distinct tags a client is willing to
-    /// send, so no header can grow it without limit.
-    /// </summary>
-    ///
-    /// <remarks>
-    /// Keys are lowercased before they are used, because <see cref="MemoryCache"/> matches a key exactly and would
-    /// otherwise keep <c>NL-be</c> and <c>nl-BE</c> apart where <see cref="_messages"/> shares them.
-    /// </remarks>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>Unreleased</since>
+    
     private readonly MemoryCache _misses = new(new MemoryCacheOptions { SizeLimit = _missCacheSizeLimit });
-
-    /// <summary>
-    /// The generation both caches are currently valid for, incremented by every watcher event. An entry stamped with
-    /// an earlier generation is ignored and reloaded rather than removed, so invalidation costs one interlocked
-    /// increment and never has to race the readers it invalidates.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
+    
     private long _cacheVersion;
-
-    /// <summary>
-    /// One watcher per search root that already holds a <c>messages</c> directory, held only to keep them alive and to
-    /// dispose them later. Empty when automatic reload is off, and never rebuilt afterward.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
+    
     private readonly List<FileSystemWatcher> _watchers = [];
-
-    /// <summary>
-    /// Serializes watcher setup against disposal. Only those two paths take it; a message lookup takes no lock of its
-    /// own, since both caches are safe for concurrent use.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
+    
     private readonly Lock _watcherGate = new();
-
-    /// <summary>
-    /// Whether setup has already run, or the provider has been disposed. Checked before taking the lock so the common
-    /// path costs a field read, and again inside it because the first check is not synchronized. Disposal sets it too,
-    /// so a lookup arriving during shutdown cannot create watchers that nothing will dispose.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
+    
     private bool _watching;
 
     /// <inheritdoc />
-    ///
-    /// <exception cref="DirectoryNotFoundException">
-    /// A language directory was removed between <see cref="Directory.Exists"/> reporting it and its files being
-    /// enumerated.
-    /// </exception>
-    /// <exception cref="UnauthorizedAccessException">
-    /// The process may not list the files of a language directory it can see.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    /// A <c>messages</c> directory was removed between the deferred watcher setup finding it and the watcher being
-    /// constructed for it. Only the lookup that runs that setup can raise it, and only with <c>AutomaticReload</c> on,
-    /// since setup is marked as done before the watchers are built and is never retried.
-    /// </exception>
-    ///
-    /// <remarks>
-    /// A load that no longer matches the generation it began under is returned to its caller but stored in neither
-    /// cache, so the next request repeats it against the files as they now stand.
-    /// </remarks>
-    ///
-    /// <remarks>
-    /// Both caches ignore case where the directory lookup does not, so on a case-sensitive filesystem the first casing
-    /// of a tag to reach a load decides what every other casing of it is answered with for as long as that record
-    /// stands. Asking for <c>EN</c> where only <c>messages/en</c> exists therefore leaves <c>en</c> resolving nothing.
-    /// </remarks>
     public IReadOnlyDictionary<string, string> GetMessages(string language)
     {
         if (!LanguageTag.IsValid(language))
@@ -211,13 +81,6 @@ internal sealed class JsonMessageProvider(
     }
 
     /// <inheritdoc />
-    ///
-    /// <remarks>
-    /// The negative cache is owned by the provider rather than injected, so it is disposed here. A lookup arriving
-    /// afterwards is still answered: <see cref="_messages"/> is left alone, and one that reaches the disposed cache
-    /// walks the filesystem instead of failing, which <see cref="IsCachedMiss"/> and <see cref="CacheMiss"/> are what
-    /// provide. Only the saved walk is lost, never the answer.
-    /// </remarks>
     public void Dispose()
     {
         lock (_watcherGate)
@@ -234,23 +97,15 @@ internal sealed class JsonMessageProvider(
     }
 
     /// <summary>
-    /// Reads <see cref="_misses"/> for a language tag, treating a disposed cache as one holding nothing.
+    /// Determines whether a language is cached as having no messages.
     /// </summary>
     ///
-    /// <param name="missKey">The lowercased language tag, since <see cref="MemoryCache"/> matches a key exactly.</param>
-    /// <param name="version">The generation the caller read before starting, which a stored entry has to match.</param>
+    /// <param name="missKey">The normalized language key.</param>
+    /// <param name="version">The current cache version.</param>
     ///
     /// <returns>
-    /// <c>true</c> when the tag is known to resolve nothing under this same generation, which lets the caller answer
-    /// without a filesystem walk. <c>false</c> when the tag is absent, was recorded under an earlier generation, or
-    /// the cache has been disposed, all of which cost a walk rather than an error.
+    /// <c>true</c> if the language is cached as missing for the specified version; otherwise, <c>false</c>.
     /// </returns>
-    ///
-    /// <remarks>
-    /// <see cref="Dispose"/> leaves the cache throwing on every read, and testing a flag first would not close the
-    /// window between the test and the read. Swallowing the failure is what keeps a lookup that outlives disposal
-    /// falling through to the filesystem, so resolution never fails over a caching detail.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -267,16 +122,11 @@ internal sealed class JsonMessageProvider(
     }
 
     /// <summary>
-    /// Records that a language resolved no messages, so the next request naming it is answered from memory.
+    /// Caches a language as having no messages.
     /// </summary>
     ///
-    /// <param name="missKey">The lowercased language tag, since <see cref="MemoryCache"/> matches a key exactly.</param>
-    /// <param name="version">The generation the failed load ran under, stored so a later watcher event retires it.</param>
-    ///
-    /// <remarks>
-    /// The write is dropped rather than raised when the cache is full or disposed, which costs the tag another walk
-    /// on its next request and nothing else. See <see cref="IsCachedMiss"/> for why disposal is swallowed here too.
-    /// </remarks>
+    /// <param name="missKey">The normalized language key.</param>
+    /// <param name="version">The current cache version.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -290,30 +140,16 @@ internal sealed class JsonMessageProvider(
     }
 
     /// <summary>
-    /// Loads and flattens every message file defined for a language, across all search roots.
+    /// Loads messages for a language from the configured search roots.
     /// </summary>
     ///
-    /// <param name="language">The exact language tag, used as the directory name under each search root.</param>
+    /// <param name="language">The language to load.</param>
     ///
-    /// <returns>
-    /// The merged messages from every search root, empty when no root holds a directory for the language and equally
-    /// empty when the directories that do exist define no messages.
-    /// </returns>
-    ///
-    /// <exception cref="DirectoryNotFoundException">
-    /// A language directory was removed between <see cref="Directory.Exists"/> reporting it and
-    /// <see cref="Directory.EnumerateFiles(string, string)"/> being walked. The enumeration sits outside the guard
-    /// <see cref="LoadFile"/> puts around a single file, so nothing here absorbs it.
-    /// </exception>
-    /// <exception cref="UnauthorizedAccessException">
-    /// The process may not list the files of a language directory it can see.
-    /// </exception>
+    /// <returns>The loaded messages.</returns>
     ///
     /// <remarks>
-    /// The first root to define a key keeps it, so the content root wins over the output and working directories rather
-    /// than the other way round: the application's own files should not be displaceable by whatever directory the
-    /// process happens to have been started from. Within one root, files are read in name order and later files do
-    /// overwrite earlier ones, which only matters when two files in the same directory define the same key.
+    /// Language directories are matched case-insensitively.
+    /// When multiple roots define the same key, the first root takes precedence.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -353,19 +189,11 @@ internal sealed class JsonMessageProvider(
     }
 
     /// <summary>
-    /// Loads a single message file into the dictionary, skipping it when it cannot be read or parsed.
+    /// Loads messages from a JSON file.
     /// </summary>
     ///
-    /// <param name="filePath">The file to read. Its name becomes the first segment of every key it contributes.</param>
-    /// <param name="messages">
-    /// The dictionary being built, mutated in place. Entries already added by an earlier file are overwritten on a key
-    /// collision rather than merged.
-    /// </param>
-    ///
-    /// <remarks>
-    /// A malformed or unreadable file is logged and skipped, so one bad file costs its own messages instead of every
-    /// message in the language. Anything outside JSON, IO, and access failures still propagates.
-    /// </remarks>
+    /// <param name="filePath">The message file.</param>
+    /// <param name="messages">The destination dictionary.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -385,19 +213,10 @@ internal sealed class JsonMessageProvider(
     }
 
     /// <summary>
-    /// Resolves the directories that may contain a <c>messages</c> folder.
+    /// Enumerates distinct message search roots.
     /// </summary>
     ///
-    /// <returns>
-    /// The content root when a web host supplied one, then the directory the assemblies were loaded from, then the
-    /// current working directory. All are searched rather than being alternatives, and a root repeated between them is
-    /// yielded once, since the content root and the working directory are commonly the same path.
-    /// </returns>
-    ///
-    /// <remarks>
-    /// The base directory is included because message files copied to the output folder do not sit under the content
-    /// root, and the working directory because a process launched from elsewhere would otherwise find neither.
-    /// </remarks>
+    /// <returns>The message search roots in precedence order. </returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -415,13 +234,10 @@ internal sealed class JsonMessageProvider(
     }
 
     /// <summary>
-    /// Yields the candidate roots in trust order, before duplicates between them are removed.
+    /// Enumerates candidate message search roots.
     /// </summary>
     ///
-    /// <returns>
-    /// The content root first, then the output directory, then the working directory. Outside a web host the first is
-    /// absent, which is what the optional environment allows for.
-    /// </returns>
+    /// <returns>The candidate roots in precedence order.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -435,25 +251,11 @@ internal sealed class JsonMessageProvider(
     }
 
     /// <summary>
-    /// Starts watching the message directories the first time messages are requested, when automatic reload is enabled.
+    /// Starts message file watchers when automatic reload is enabled.
     /// </summary>
     ///
-    /// <exception cref="ArgumentException">
-    /// A <c>messages</c> directory was removed between <see cref="Directory.Exists"/> reporting it and
-    /// <see cref="FileSystemWatcher"/> being constructed for it, which rejects a path it cannot find. Setup is marked as
-    /// done first, so the failure is not retried and the roots after it are never watched.
-    /// </exception>
-    ///
     /// <remarks>
-    /// Deferred to first use rather than done at construction so an application that never resolves a message pays for
-    /// no watchers. Setup happens exactly once, and only a root whose <c>messages</c> directory already exists gets a
-    /// watcher, so neither a root nor a <c>messages</c> directory created afterwards is ever watched.
-    /// </remarks>
-    ///
-    /// <remarks>
-    /// Each watcher is armed only once its handlers are attached. Setting <c>EnableRaisingEvents</c> in the object
-    /// initializer instead would leave a window in which a file edit raises an event that nothing is subscribed to, and
-    /// the cache generation would not be bumped for it.
+    /// Only message directories that already exist are watched.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -507,24 +309,7 @@ internal sealed class JsonMessageProvider(
             }
         }
     }
-
-    /// <summary>
-    /// Retires every cached language so the next resolution reloads from disk.
-    /// </summary>
-    ///
-    /// <param name="sender">The watcher that raised the event. Unused: every root invalidates the whole cache.</param>
-    /// <param name="eventArgs">
-    /// What changed. Unused for the same reason, and because an editor saving a file commonly raises several events for
-    /// one edit, which retiring everything absorbs without needing to be debounced.
-    /// </param>
-    ///
-    /// <remarks>
-    /// The generation is bumped rather than the entries removed. A load already in flight was started under the old
-    /// generation and will refuse to store its result, so a reader cannot publish a snapshot taken before this fired.
-    /// </remarks>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
+    
     private void OnMessageFileChanged(object sender, FileSystemEventArgs eventArgs) => Interlocked.Increment(ref _cacheVersion);
 
     private void OnMessageWatcherError(
@@ -539,20 +324,12 @@ internal sealed class JsonMessageProvider(
     }
 
     /// <summary>
-    /// Flattens one parsed message file, prefixing every key with the file name.
+    /// Flattens a message file into prefixed message keys.
     /// </summary>
     ///
-    /// <param name="filePath">The file the element came from. Only its name without extension is used, as the prefix.</param>
-    /// <param name="element">
-    /// The document root. A root that is not an object, such as a file holding a JSON array, contributes nothing and is
-    /// left behind without a key.
-    /// </param>
-    /// <param name="messages">The dictionary being built, mutated in place.</param>
-    ///
-    /// <remarks>
-    /// A top-level property matching the file name is not repeated in the key, so <c>errors.json</c> holding an
-    /// <c>errors</c> object yields <c>errors.notFound</c> rather than <c>errors.errors.notFound</c>.
-    /// </remarks>
+    /// <param name="filePath">The message file.</param>
+    /// <param name="element">The JSON document root.</param>
+    /// <param name="messages">The destination dictionary.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -571,15 +348,12 @@ internal sealed class JsonMessageProvider(
     }
 
     /// <summary>
-    /// Recursively flattens nested message objects into dot-separated keys.
+    /// Flattens nested message objects into dot-separated keys.
     /// </summary>
     ///
-    /// <param name="prefix">The key built from the path walked so far, which becomes the full key at a string leaf.</param>
-    /// <param name="element">
-    /// The node to walk. Strings are recorded and objects descended into; every other kind, arrays and numbers included,
-    /// is dropped, because a message is always a string.
-    /// </param>
-    /// <param name="messages">The dictionary being built, mutated in place.</param>
+    /// <param name="prefix">The current message key.</param>
+    /// <param name="element">The JSON element.</param>
+    /// <param name="messages">The destination dictionary.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -600,17 +374,12 @@ internal sealed class JsonMessageProvider(
     }
 
     /// <summary>
-    /// Strips a trailing <c>.default</c> from a flattened key.
+    /// Removes a trailing <c>.default</c> segment from a message key.
     /// </summary>
     ///
-    /// <param name="key">The fully built key of a string leaf.</param>
+    /// <param name="key">The message key.</param>
     ///
-    /// <returns>The key without its <c>.default</c> suffix, or the key unchanged when it has none.</returns>
-    ///
-    /// <remarks>
-    /// This is what lets a key be both a message and a group: <c>password.default</c> and <c>password.tooShort</c> can
-    /// live side by side, with the first resolving under the bare <c>password</c> key.
-    /// </remarks>
+    /// <returns>The normalized message key.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

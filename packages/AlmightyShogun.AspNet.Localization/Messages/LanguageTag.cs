@@ -3,9 +3,7 @@ using System.Text.RegularExpressions;
 namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
-/// Decides whether a string may be used as a language tag. Every value that reaches the filesystem as a message
-/// directory name passes through here, so the check lives beside the provider rather than at the boundary that happens to
-/// produce the value.
+/// Provides validation for language tags.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -13,51 +11,25 @@ namespace AlmightyShogun.AspNet.Localization;
 internal static partial class LanguageTag
 {
     /// <summary>
-    /// The shape a tag has to match: two or three letters, then any number of <c>-</c> separated parts of two to eight
-    /// letters or digits. Exposed so the configured default is validated against the same rule at startup, rather than
-    /// failing quietly at resolve time.
+    /// The pattern used to validate language tags.
     /// </summary>
-    ///
-    /// <remarks>
-    /// Ends on <c>\z</c> rather than <c>$</c>, which in .NET also matches before a trailing newline and would let
-    /// something like <c>en\n</c> through as a directory name.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     internal const string Pattern = @"^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*\z";
 
     /// <summary>
-    /// Determines whether a tag is well-formed enough to be trusted as a directory name.
+    /// Determines whether the specified language tag is valid.
     /// </summary>
     ///
-    /// <param name="language">The tag to check, from a request header, from configuration, or from a custom provider.</param>
+    /// <param name="language">The language tag to validate.</param>
     ///
-    /// <returns>
-    /// <c>true</c> for a two or three letter primary subtag followed by any number of two to eight character
-    /// alphanumeric subtags; otherwise <c>false</c>, which includes an empty value, a longer primary subtag such as
-    /// <c>english</c>, and anything carrying a path separator, a drive letter, or a relative segment.
-    /// </returns>
-    ///
-    /// <exception cref="ArgumentNullException"><paramref name="language"/> is <c>null</c>.</exception>
+    /// <returns><c>true</c> if <paramref name="language"/> is valid; otherwise, <c>false</c>.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     internal static bool IsValid(string language) => LanguageTagRegex().IsMatch(language);
-
-    /// <summary>
-    /// Matches a well-formed language tag. Anything else is rejected, because the value reaches the filesystem when
-    /// message files are resolved and an unvalidated tag would allow directory traversal.
-    /// </summary>
-    ///
-    /// <returns>
-    /// The generated matcher for a two or three letter primary tag followed by any number of alphanumeric subtags. It
-    /// is narrower than the BCP 47 grammar and turns away tags that grammar allows, among them a primary subtag of four
-    /// letters or more and any single-character subtag, such as the <c>x</c> that opens a private-use tag.
-    /// </returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
+    
     [GeneratedRegex(Pattern)]
     private static partial Regex LanguageTagRegex();
 }

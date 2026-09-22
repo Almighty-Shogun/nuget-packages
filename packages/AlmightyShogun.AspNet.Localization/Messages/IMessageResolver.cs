@@ -1,85 +1,48 @@
 namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
-/// Turns a message key into text in the negotiated language, which is the first of the caller's accepted languages or
-/// their shortened forms that has messages defined, or the configured default when none does. A key that language does
-/// not define is returned as-is, so a missing translation degrades to a readable identifier instead of a blank body.
+/// Resolves localized messages and their language.
 /// </summary>
-///
-/// <remarks>
-/// The registered implementation reads message files from disk as it resolves, so a directory disappearing or becoming
-/// unreadable mid-request escapes as an exception rather than degrading. That matters most to the exception handlers that
-/// resolve through this, where a throw while an error body is being built replaces the response with a second failure.
-/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 public interface IMessageResolver
 {
     /// <summary>
-    /// Resolves a message that takes no parameters. Equivalent to the overload with an empty parameter list, and the
-    /// one to use for a fixed message, since a template resolved this way keeps its placeholders literally.
+    /// Resolves a localized message.
     /// </summary>
     ///
-    /// <param name="key">
-    /// The dot-separated key, such as <c>http-error.404</c>, where the first segment names the message file and the rest
-    /// the path within it.
-    /// </param>
+    /// <param name="key">The message key.</param>
     ///
     /// <returns>
-    /// The message as the negotiated language defines it, or the key itself when that language does not. A returned key
-    /// signals a message file missing an entry, since the key is not tried against any other language.
+    /// The resolved message, or <paramref name="key"/> if no message is defined for it.
     /// </returns>
-    ///
-    /// <exception cref="DirectoryNotFoundException">A message directory was removed between being found and being enumerated.</exception>
-    /// <exception cref="UnauthorizedAccessException">
-    /// A message directory became unreadable between being found and being enumerated.
-    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     string Resolve(string key);
 
     /// <summary>
-    /// Resolves a message and substitutes the supplied values into its placeholders.
+    /// Resolves and formats a localized message.
     /// </summary>
     ///
-    /// <param name="key">The dot-separated key, resolved in the same negotiated language as <see cref="Resolve(string)"/>.</param>
-    /// <param name="parameters">
-    /// The values substituted by position, as <c>{0}</c> and onwards. Too few for the template leaves it unformatted
-    /// rather than throwing, so a placeholder can survive into the response; surplus values are ignored.
-    /// </param>
+    /// <param name="key">The message key.</param>
+    /// <param name="parameters">The values used to format the message.</param>
     ///
     /// <returns>
-    /// The formatted message, the unformatted template when substitution fails, or the key itself when the negotiated
-    /// language does not define it.
+    /// The formatted message, the unformatted message if formatting fails,
+    /// or <paramref name="key"/> if no message is defined for it.
     /// </returns>
-    ///
-    /// <exception cref="DirectoryNotFoundException">A message directory was removed between being found and being enumerated.</exception>
-    /// <exception cref="UnauthorizedAccessException">
-    /// A message directory became unreadable between being found and being enumerated.
-    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     string Resolve(string key, IReadOnlyList<object?> parameters);
 
     /// <summary>
-    /// Resolves the language that messages are currently being served in, following the same fallback chain as
-    /// <see cref="Resolve(string)"/>.
+    /// Resolves the language used for localized messages.
     /// </summary>
     ///
-    /// <returns>
-    /// The first candidate in the fallback chain that has messages defined for it, which is an accepted language, one of
-    /// its progressively shortened forms such as <c>nl</c> for an accepted <c>nl-BE</c>, or the configured default when
-    /// none of them does. Suitable for the <c>Content-Language</c> header, since it names what was actually served rather
-    /// than what was requested.
-    /// </returns>
-    ///
-    /// <exception cref="DirectoryNotFoundException">A message directory was removed between being found and being enumerated.</exception>
-    /// <exception cref="UnauthorizedAccessException">
-    /// A message directory became unreadable between being found and being enumerated.
-    /// </exception>
+    /// <returns>The resolved language.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

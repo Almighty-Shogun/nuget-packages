@@ -7,8 +7,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
-/// The package's startup surface: one call registers message resolution, the other adds the middleware that reports the
-/// negotiated language, and neither registers the other, so an application that only reads messages skips the middleware.
+/// Provides extensions for configuring message localization.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -16,35 +15,26 @@ namespace AlmightyShogun.AspNet.Localization;
 public static class LocalizationExtensions
 {
     /// <summary>
-    /// Provides the registration helper as an extension on the collection.
+    /// Provides message localization extensions for an <see cref="IServiceCollection"/>.
     /// </summary>
     ///
-    /// <param name="serviceCollection">
-    /// The collection that receives the registrations. It is returned, so calls can be chained or written as separate
-    /// statements without difference.
-    /// </param>
+    /// <param name="serviceCollection">The service collection.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Registers message resolution: the language provider that negotiates a language from the request, the provider
-        /// that reads the message files, and the resolver that turns a message key into localized text.
+        ///  Adds message localization services.
         /// </summary>
         ///
-        /// <param name="configuration">
-        /// The configuration read for the optional <c>Localization</c> section. Every setting has a default, so an
-        /// absent section resolves messages in English with reloading off.
-        /// </param>
+        /// <param name="configuration">The application configuration.</param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with message localization registered.</returns>
+        /// <returns>The service collection.</returns>
         ///
         /// <remarks>
-        /// <see cref="ILanguageProvider"/> and <see cref="IMessageResolver"/> are registered only when nothing has
-        /// claimed them yet, so a custom implementation registered before this call is kept. The message provider is
-        /// internal to the package and is always registered. Also registers the HTTP context accessor, which the
-        /// default language provider needs to read the request.
+        /// Configuration is read from the <c>Localization</c> section.
+        /// Existing <see cref="ILanguageProvider"/> and <see cref="IMessageResolver"/> registrations are preserved.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
@@ -64,27 +54,24 @@ public static class LocalizationExtensions
     }
 
     /// <summary>
-    /// Provides the middleware helper as an extension on the application builder.
+    /// Provides message localization extensions for an <see cref="IApplicationBuilder"/>.
     /// </summary>
     ///
-    /// <param name="applicationBuilder">
-    /// The pipeline the middleware is added to. It is returned, so calls can be chained in the order the middleware runs.
-    /// </param>
+    /// <param name="applicationBuilder">The application builder.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     extension(IApplicationBuilder applicationBuilder)
     {
         /// <summary>
-        /// Adds the middleware that writes the <c>Content-Language</c> header from the negotiated message language.
+        /// Adds middleware that sets the response <c>Content-Language</c> header to the resolved language.
         /// </summary>
         ///
-        /// <returns>The <see cref="IApplicationBuilder"/> instance with the message localization middleware configured.</returns>
+        /// <returns>The application builder.</returns>
         ///
         /// <remarks>
-        /// The middleware sets the header from an <c>OnStarting</c> callback, so this only needs to run before anything
-        /// that writes a body.
-        /// Requires <see cref="AddMessageLocalization"/>, which it does not register.
+        /// Requires services registered by <see cref="AddMessageLocalization"/>.
+        /// An existing <c>Content-Language</c> header is preserved.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>

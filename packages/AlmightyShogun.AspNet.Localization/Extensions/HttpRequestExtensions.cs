@@ -4,8 +4,7 @@ using Microsoft.Net.Http.Headers;
 namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
-/// Reads content negotiation off the request. Every language returned has been matched against a language tag pattern
-/// first, because these values reach the filesystem when message files are resolved.
+/// Provides extensions for reading language preferences from HTTP requests.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -13,32 +12,23 @@ namespace AlmightyShogun.AspNet.Localization;
 public static class HttpRequestExtensions
 {
     /// <summary>
-    /// Provides the negotiation helpers as extensions on the request.
+    /// Provides language preference extensions for an <see cref="HttpRequest"/>.
     /// </summary>
     ///
-    /// <param name="httpRequest">
-    /// The request being served. Only headers are read, so the helpers do not consume the body and can be called before
-    /// or after model binding without affecting it.
-    /// </param>
+    /// <param name="httpRequest">The HTTP request.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     extension(HttpRequest httpRequest)
     {
         /// <summary>
-        /// Gets every language from the request <c>Accept-Language</c> header, ordered by the quality value the client
-        /// assigned, highest first. Entries that are not well-formed language tags are dropped, as are those the client
-        /// refused with <c>q=0</c>, and duplicates are removed so the first occurrence keeps its position.
+        /// Gets the accepted languages from the <c>Accept-Language</c> header in preference order.
         /// </summary>
         ///
-        /// <returns>
-        /// The accepted languages in client preference order, or an empty list when the header is absent, holds only
-        /// the <c>*</c> wildcard, or names nothing that parses as a language tag.
-        /// </returns>
+        /// <returns>The accepted languages, or an empty list if none are available.</returns>
         ///
         /// <remarks>
-        /// The wildcard is dropped rather than expanded, since the package resolves messages against files on disk and
-        /// has no list of supported languages to expand it into.
+        /// Wildcards, refused languages, malformed language tags, and duplicate languages are excluded.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>
@@ -59,14 +49,10 @@ public static class HttpRequestExtensions
         }
 
         /// <summary>
-        /// Gets the language the client ranked highest, which is the first entry <see cref="GetAcceptLanguages"/>
-        /// returns. Reach for that method directly when a lower-ranked language is worth trying before the default.
+        /// Gets the most preferred language from the <c>Accept-Language</c> header.
         /// </summary>
         ///
-        /// <returns>
-        /// The highest-ranked accepted language, or <c>null</c> when nothing in the header survives negotiation: an
-        /// absent header, only the <c>*</c> wildcard, only refusals at <c>q=0</c>, or nothing that parses as a tag.
-        /// </returns>
+        /// <returns>The most preferred language, or <c>null</c> if none are available.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
