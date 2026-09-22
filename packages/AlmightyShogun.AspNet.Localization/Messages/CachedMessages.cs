@@ -1,16 +1,11 @@
 namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
-/// One language's loaded messages, paired with the cache generation its files were read under so
-/// <see cref="JsonMessageProvider"/> can recognize an entry as superseded without the invalidating side having to find and
-/// remove it.
+/// Represents cached messages and their cache version.
 /// </summary>
 ///
-/// <param name="Version">
-/// The provider's cache generation as it stood when the load began. A reader compares it against the current generation
-/// and reloads instead of trusting the entry when the two differ.
-/// </param>
-/// <param name="Messages">The flattened messages the load produced, keyed by their dot-separated key.</param>
+/// <param name="Version"> The cache version. </param>
+/// <param name="Messages">The cached messages.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>

@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Http;
 namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
-/// Reports the language a response body was written in. The value travels in a response header, so nothing here takes
-/// effect once the response has started.
+/// Provides extensions for accessing the response <c>Content-Language</c> header.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -12,24 +11,21 @@ namespace AlmightyShogun.AspNet.Localization;
 public static class HttpResponseExtensions
 {
     /// <summary>
-    /// Provides the content-language helpers as extensions on the response.
+    /// Provides content language extensions for an <see cref="HttpResponse"/>.
     /// </summary>
     ///
-    /// <param name="httpResponse">
-    /// The response being built. It is not written to or completed here, so the body remains the caller's to produce.
-    /// </param>
+    /// <param name="httpResponse">The HTTP response.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     extension(HttpResponse httpResponse)
     {
         /// <summary>
-        /// Gets the response <c>Content-Language</c> header as it currently stands.
+        /// Gets the response <c>Content-Language</c> header.
         /// </summary>
         ///
         /// <returns>
-        /// The header value, or <c>null</c> when it has not been set. Multiple languages come back joined by commas
-        /// rather than as separate values.
+        /// The header value, or <c>null</c> if it is not set.
         /// </returns>
         ///
         /// <author>Almighty-Shogun</author>
@@ -42,23 +38,18 @@ public static class HttpResponseExtensions
         }
 
         /// <summary>
-        /// Sets the response <c>Content-Language</c> header, replacing any language already set, while the response can
-        /// still take one and the value is one a header can carry.
+        /// Attempts to set the response <c>Content-Language</c> header.
         /// </summary>
         ///
-        /// <param name="language">The language tag to report the body as being written in.</param>
+        /// <param name="language">The content language.</param>
         ///
         /// <returns>
-        /// <c>true</c> when the header was written, or <c>false</c> when the response had already started, or the value
-        /// was blank or carried a control character. Nothing is left half-written either way, so a caller with no
-        /// alternative language to fall back to can ignore the result.
+        /// <c>true</c> if the header was set; otherwise, <c>false</c>.
         /// </returns>
         ///
         /// <remarks>
-        /// Reporting the refusal rather than throwing, as a direct header assignment would, is what makes it safe to
-        /// call late. Call it from an <c>OnStarting</c> callback when the language is only settled after the body is.
-        /// The value is checked rather than trusted, so a blank tag or one carrying a control character is refused here
-        /// instead of being handed to the header assignment.
+        /// The header is not set after the response has started or when
+        /// <paramref name="language"/> is blank or contains control characters.
         /// </remarks>
         ///
         /// <author>Almighty-Shogun</author>

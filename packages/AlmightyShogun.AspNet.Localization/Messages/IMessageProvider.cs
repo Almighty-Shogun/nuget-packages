@@ -1,8 +1,7 @@
 namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
-/// Supplies the messages defined for one language, already flattened to dot-separated keys. Knows nothing about fallback
-/// or negotiation: choosing which languages to ask for belongs to <see cref="IMessageResolver"/>.
+/// Provides localized messages for a language.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -10,27 +9,14 @@ namespace AlmightyShogun.AspNet.Localization;
 internal interface IMessageProvider
 {
     /// <summary>
-    /// Gets the flattened messages for one language, without trying any other.
+    /// Gets the messages defined for a language.
     /// </summary>
     ///
-    /// <param name="language">
-    /// The exact language tag to look up. Treated as a literal directory name, so <c>nl-BE</c> and <c>nl</c> are
-    /// separate lookups and neither stands in for the other, and so a tag carrying anything but letters, digits, and
-    /// hyphens resolves nothing at all.
-    /// </param>
+    /// <param name="language">The language to retrieve messages for.</param>
     ///
     /// <returns>
-    /// The messages keyed by their dot-separated key, or an empty dictionary. A rejected tag, a language no directory
-    /// holds messages for, and a directory whose files define no messages all come back the same way, so the caller
-    /// cannot tell them apart.
+    /// The messages keyed by their dot-separated keys, or an empty dictionary if none are available.
     /// </returns>
-    ///
-    /// <exception cref="DirectoryNotFoundException">
-    /// A language directory was removed between being found and being enumerated.
-    /// </exception>
-    /// <exception cref="UnauthorizedAccessException">
-    /// The process may not list the files of a language directory it can see.
-    /// </exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

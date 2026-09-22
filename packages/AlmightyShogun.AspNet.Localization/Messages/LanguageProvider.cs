@@ -4,16 +4,11 @@ using Microsoft.Extensions.Options;
 namespace AlmightyShogun.AspNet.Localization;
 
 /// <summary>
-/// Resolves the message language from the request <c>Accept-Language</c> header, falling back to the configured default
-/// when the header is absent or names nothing usable. This is the default <see cref="ILanguageProvider"/> that
-/// <see cref="LocalizationExtensions"/> registers, under the substitution rule documented there.
+/// Provides request-based language preferences using the <c>Accept-Language</c> header.
 /// </summary>
 ///
-/// <param name="httpContextAccessor">
-/// The accessor used to reach the current request. The context is read per call rather than captured; outside a request
-/// there is none, and the default language is used.
-/// </param>
-/// <param name="localizationOptions">The settings supplying the language used when the request asks for none.</param>
+/// <param name="httpContextAccessor"> The HTTP context accessor. </param>
+/// <param name="localizationOptions">The localization settings.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
