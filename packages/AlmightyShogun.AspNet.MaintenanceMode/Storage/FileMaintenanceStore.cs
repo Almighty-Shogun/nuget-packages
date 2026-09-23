@@ -318,8 +318,7 @@ internal sealed class FileMaintenanceStore(
                     logger.LogWarning(
                         exception,
                         "The maintenance state file at {FilePath} could not be read; keeping the last known state",
-                        FilePath
-                    );
+                        FilePath);
 
                     return new DiskRead(DiskReadOutcome.Unreadable, _cached?.State);
                 }
@@ -371,8 +370,6 @@ internal sealed class FileMaintenanceStore(
         {
             if (_watching) return;
 
-            _watching = true;
-
             string directory = Path.GetDirectoryName(FilePath) ?? webHostEnvironment.ContentRootPath;
 
             if (!Directory.Exists(directory)) return;
@@ -388,20 +385,30 @@ internal sealed class FileMaintenanceStore(
                 watcher.Created += OnStateFileChanged;
                 watcher.Deleted += OnStateFileChanged;
                 watcher.Renamed += OnStateFileChanged;
+                watcher.Error += OnWatcherError;
 
                 watcher.EnableRaisingEvents = true;
 
                 _watcher = watcher;
+                _watching = true;
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or PlatformNotSupportedException)
             {
                 logger.LogWarning(
                     exception,
                     "Could not watch {Directory} for maintenance state changes; an out-of-band edit will not be noticed",
-                    directory
-                );
+                    directory);
             }
         }
+    }
+
+    private void OnWatcherError(object sender, ErrorEventArgs eventArgs)
+    {
+        logger.LogWarning(
+            eventArgs.GetException(),
+            "Maintenance state watcher failed; cached state will be invalidated");
+
+        Interlocked.Increment(ref _cacheVersion);
     }
 
     /// <summary>
