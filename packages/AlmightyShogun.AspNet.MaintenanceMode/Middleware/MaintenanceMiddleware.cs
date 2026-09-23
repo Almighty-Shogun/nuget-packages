@@ -112,8 +112,7 @@ internal sealed class MaintenanceMiddleware(
             StatusCodes.Status503ServiceUnavailable,
             "service_unavailable",
             state.Message,
-            context.RequestAborted
-        );
+            context.RequestAborted);
     }
 
     /// <summary>
@@ -134,13 +133,15 @@ internal sealed class MaintenanceMiddleware(
 
         context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
 
-        await context.Response.WriteAsJsonAsync(new MaintenanceResponse
-        {
-            Message = state.Message,
-            StartsAt = state.StartsAt,
-            EndsAt = state.EndsAt,
-            EnabledAt = state.EnabledAt
-        }, context.RequestAborted);
+        await context.Response.WriteAsJsonAsync(
+            new MaintenanceResponse
+            {
+                Message = state.Message,
+                StartsAt = state.StartsAt,
+                EndsAt = state.EndsAt,
+                EnabledAt = state.EnabledAt
+            },
+            context.RequestAborted);
     }
 
     /// <summary>
@@ -256,8 +257,16 @@ internal sealed class MaintenanceMiddleware(
         IPAddress candidate = remote.IsIPv4MappedToIPv6 ? remote.MapToIPv4() : remote;
 
         foreach (string entry in allowed)
-            if (IPAddress.TryParse(entry, out IPAddress? parsed) && parsed.Equals(candidate))
+        {
+            if (!IPAddress.TryParse(entry, out IPAddress? parsed))
+                continue;
+
+            if (parsed.IsIPv4MappedToIPv6)
+                parsed = parsed.MapToIPv4();
+
+            if (parsed.Equals(candidate))
                 return true;
+        }
 
         return false;
     }
