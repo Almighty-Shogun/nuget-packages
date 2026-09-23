@@ -371,8 +371,6 @@ internal sealed class FileMaintenanceStore(
         {
             if (_watching) return;
 
-            _watching = true;
-
             string directory = Path.GetDirectoryName(FilePath) ?? webHostEnvironment.ContentRootPath;
 
             if (!Directory.Exists(directory)) return;
@@ -392,6 +390,7 @@ internal sealed class FileMaintenanceStore(
                 watcher.EnableRaisingEvents = true;
 
                 _watcher = watcher;
+                _watching = true;
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or PlatformNotSupportedException)
             {
