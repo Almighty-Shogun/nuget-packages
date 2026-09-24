@@ -1,20 +1,15 @@
 namespace AlmightyShogun.AspNet.MaintenanceMode;
 
 /// <summary>
-/// The current maintenance mode state, as a caller of <c>GetAsync</c> sees it.
+/// Represents the current maintenance state.
 /// </summary>
-///
-/// <remarks>
-/// This carries only what a caller needs. The persisted file additionally holds the behavioural settings that were in force when
-/// maintenance was enabled, which are configuration rather than state, so the file format can change without changing this type.
-/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 public sealed record MaintenanceState
 {
     /// <summary>
-    /// Whether a maintenance window is recorded as enabled, regardless of whether its start time has arrived.
+    /// Whether maintenance mode is enabled, including a window scheduled to start later.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -22,7 +17,7 @@ public sealed record MaintenanceState
     public bool IsEnabled { get; init; }
 
     /// <summary>
-    /// The explanation recorded on the window, absent when it carries none.
+    /// The maintenance message.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -30,7 +25,7 @@ public sealed record MaintenanceState
     public string? Message { get; init; }
 
     /// <summary>
-    /// The scheduled start, absent for a window that began immediately.
+    /// The scheduled start of the window, if any.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -38,7 +33,7 @@ public sealed record MaintenanceState
     public DateTimeOffset? StartsAt { get; init; }
 
     /// <summary>
-    /// The estimated end of the window, absent for one opened with no estimate.
+    /// The estimated end of the window, if any.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -46,7 +41,7 @@ public sealed record MaintenanceState
     public DateTimeOffset? EndsAt { get; init; }
 
     /// <summary>
-    /// When the window was opened, which is what tells an operator how long the site has been down.
+    /// When maintenance mode was enabled.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

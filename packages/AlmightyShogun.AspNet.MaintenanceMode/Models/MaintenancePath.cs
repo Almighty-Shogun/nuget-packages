@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 namespace AlmightyShogun.AspNet.MaintenanceMode;
 
 /// <summary>
-/// Normalizes configured maintenance paths into a comparable form.
+/// Normalizes maintenance paths for comparison.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -11,21 +11,16 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 internal static class MaintenancePath
 {
     /// <summary>
-    /// Normalizes a configured path into a leading-slash form without a trailing slash.
+    /// Normalizes a path to a leading slash with no trailing slash.
     /// </summary>
     ///
-    /// <param name="path">The configured path.</param>
-    /// <param name="fallback">The value used when the path is blank, normalized the same way rather than taken as given.</param>
+    /// <param name="path">The path to normalize.</param>
+    /// <param name="fallback">The path to use when <paramref name="path"/> is blank.</param>
     ///
     /// <returns>
-    /// The path with a leading slash and no trailing one, <c>/</c> for a value that is nothing but slashes, or
-    /// <see cref="PathString.Empty"/> when the path and the fallback are both blank.
+    /// The normalized path, <c>/</c> for a slash-only value, or
+    /// <see cref="PathString.Empty"/> when both inputs are blank.
     /// </returns>
-    ///
-    /// <remarks>
-    /// The fallback goes through the same normalization as the path, because <see cref="PathString"/> rejects a non-empty value that does
-    /// not start with a slash: passing one straight through would throw rather than produce an odd path.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

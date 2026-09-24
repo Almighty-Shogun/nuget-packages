@@ -1,21 +1,15 @@
 namespace AlmightyShogun.AspNet.MaintenanceMode;
 
 /// <summary>
-/// The body the maintenance path returns. Separate from the internal state so persistence and request-enforcement details are never exposed
-/// to whoever is being blocked.
+/// The response returned by the maintenance endpoint.
 /// </summary>
-///
-/// <remarks>
-/// Written straight to the response as JSON under a <c>503</c> status, rather than through the shared error response writer the middleware
-/// uses for the body a blocked request receives.
-/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 public sealed record MaintenanceResponse
 {
     /// <summary>
-    /// The explanation recorded on the window, absent when it carries none.
+    /// The maintenance message.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -23,7 +17,7 @@ public sealed record MaintenanceResponse
     public required string? Message { get; init; }
 
     /// <summary>
-    /// When the window starts, when scheduled ahead.
+    /// The scheduled start of the window, if any.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -31,7 +25,7 @@ public sealed record MaintenanceResponse
     public required DateTimeOffset? StartsAt { get; init; }
 
     /// <summary>
-    /// When the window is expected to end.
+    /// The estimated end of the window, if any.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
