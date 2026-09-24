@@ -1,8 +1,7 @@
 namespace AlmightyShogun.AspNet.MaintenanceMode;
 
 /// <summary>
-/// What a read of the state file established. Only one of these carries a revision the file is known to hold, which is what a
-/// conditional clear has to compare against before it deletes anything.
+/// Describes the result of reading the persisted maintenance state.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -10,7 +9,7 @@ namespace AlmightyShogun.AspNet.MaintenanceMode;
 internal enum DiskReadOutcome
 {
     /// <summary>
-    /// The file is not there, so no window is recorded and there is nothing to serve.
+    /// No state file exists.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -18,7 +17,7 @@ internal enum DiskReadOutcome
     Missing,
 
     /// <summary>
-    /// The file was opened and parsed, so the accompanying window and its revision are the file's own.
+    /// The file was read successfully and its state is authoritative.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -26,7 +25,7 @@ internal enum DiskReadOutcome
     Loaded,
 
     /// <summary>
-    /// The file was opened but does not parse, so the accompanying window is the fail-closed one rather than anything the file holds.
+    /// The file is invalid and a fail-closed state was substituted.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -34,8 +33,7 @@ internal enum DiskReadOutcome
     Corrupt,
 
     /// <summary>
-    /// The file is there but every attempt to open it failed, so the accompanying value is the last cached one and says nothing about
-    /// what the file holds now.
+    /// The file could not be read, so its current state is unknown.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

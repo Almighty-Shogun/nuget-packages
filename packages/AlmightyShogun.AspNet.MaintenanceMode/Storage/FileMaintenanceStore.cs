@@ -5,13 +5,11 @@ using Microsoft.Extensions.Logging;
 namespace AlmightyShogun.AspNet.MaintenanceMode;
 
 /// <summary>
-/// Persists maintenance state to a JSON file in the content root, caching it in memory.
+/// Persists maintenance state in a content-root JSON file and caches reads.
 /// </summary>
 ///
-/// <param name="webHostEnvironment">The web host environment used to resolve the content root.</param>
-/// <param name="logger">
-/// The logger used to report a state file that could not be parsed or could not be opened, and a watcher that could not be set up.
-/// </param>
+/// <param name="webHostEnvironment">The environment used to locate the state file.</param>
+/// <param name="logger"> Logs file and watcher failures. </param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
@@ -21,7 +19,7 @@ internal sealed class FileMaintenanceStore(
 ) : IMaintenanceStore, IDisposable
 {
     /// <summary>
-    /// The serializer settings, shared so the file this process writes is the same shape the one it reads expects.
+    /// JSON serialization settings for the state file.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -29,9 +27,7 @@ internal sealed class FileMaintenanceStore(
     private static readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
 
     /// <summary>
-    /// Serializes every write, so a conditional clear can compare the file against the revision it expects without a write landing in
-    /// between. A half-written file is already ruled out without it, since a write goes to a uniquely named temporary file that is then
-    /// moved into place.
+    /// Serializes writes and conditional clears.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -39,8 +35,7 @@ internal sealed class FileMaintenanceStore(
     private readonly SemaphoreSlim _writeLock = new(1, 1);
 
     /// <summary>
-    /// Guards watcher setup and disposal, so setup is attempted at most once and never after the store is disposed. Taken through
-    /// <see cref="EnsureWatching"/> on every read, cache hit or not, though once the attempt has run it is held only for a flag test.
+    /// Synchronizes watcher initialization and disposal.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -48,8 +43,7 @@ internal sealed class FileMaintenanceStore(
     private readonly Lock _watcherGate = new();
 
     /// <summary>
-    /// The cached state together with the generation it was read under. A read whose generation still matches is answered from here; any
-    /// other read goes to the file. It starts empty, and every watcher event and every <see cref="Publish"/> retires it.
+    /// The cached state and its generation.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -57,9 +51,7 @@ internal sealed class FileMaintenanceStore(
     private volatile CachedState? _cached;
 
     /// <summary>
-    /// The generation the cache is valid for, incremented by every watcher event and every <see cref="Publish"/>. An entry stamped with an
-    /// earlier generation is reloaded rather than trusted, which is what stops a read that overlapped a write from publishing the old
-    /// value.
+    /// Invalidates cached reads when the file changes.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -67,21 +59,15 @@ internal sealed class FileMaintenanceStore(
     private long _cacheVersion;
 
     /// <summary>
-    /// The generation a conditional clear last found the file unreadable under. It starts below every generation, so the first such clear
-    /// always reads the file.
+    /// The generation of the last unverified conditional clear.
     /// </summary>
-    ///
-    /// <remarks>
-    /// Set to a generation read before the failed attempt rather than after it, so a watcher event or a <see cref="Publish"/> landing while
-    /// that attempt ran leaves the two differing and the next clear reads again.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private long _unverifiableVersion = -1;
 
     /// <summary>
-    /// Watches the state file so an out-of-band edit is noticed.
+    /// Watches for external changes to the state file.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -89,8 +75,7 @@ internal sealed class FileMaintenanceStore(
     private FileSystemWatcher? _watcher;
 
     /// <summary>
-    /// Whether watcher setup has already run, or the store has been disposed. Read and written only under <see cref="_watcherGate"/>, so
-    /// no second caller can enter setup and no caller can build a watcher after disposal has swept.
+    /// Indicates that watching is active or the store has been disposed.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -98,8 +83,7 @@ internal sealed class FileMaintenanceStore(
     private bool _watching;
 
     /// <summary>
-    /// Resolves the state file's location under the content root, so the file travels with the deployment rather than the working
-    /// directory.
+    /// The maintenance state file in the content root.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -221,51 +205,28 @@ internal sealed class FileMaintenanceStore(
     }
 
     /// <summary>
-    /// Replaces the cache with the state that stands for the file as it is now, retiring every entry read before it. Called after every
-    /// write and clear, and after a conditional clear that read something other than the revision it expected, which is what lets the
-    /// caller's next read reach that value instead of the one that failed the guard.
+    /// Publishes a state and advances the cache generation.
     /// </summary>
     ///
-    /// <param name="state">
-    /// What to serve until the next invalidation: the window just written, the window the file was found to hold, the fail-closed window
-    /// standing in for one that does not parse, or <c>null</c> when the file was deleted or is not there.
-    /// </param>
-    ///
-    /// <remarks>
-    /// The generation is bumped before the entry is stored, so a read that started earlier declines to store its own result rather than
-    /// overwriting this. That read still returns the value it loaded; the reload happens on the next one. If a write or clear that led here
-    /// later raises a watcher event, that event costs one reload and cannot resurrect the old value.
-    /// </remarks>
+    /// <param name="state">The state to cache, or null when no file exists.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private void Publish(PersistedMaintenanceState? state) => _cached = new CachedState(Interlocked.Increment(ref _cacheVersion), state);
 
     /// <summary>
-    /// Whether a conditional clear has already found the file unreadable under the generation the cache still stands on, which bounds an
-    /// unreadable file to one failed read and its backoffs per generation instead of one per call.
+    /// Reports whether a conditional clear already failed to verify this generation.
     /// </summary>
     ///
-    /// <returns>
-    /// <c>true</c> while that attempt still stands, so reading again would open the same file behind the same cache entry;
-    /// <c>false</c> once a watcher event or a <see cref="Publish"/> has retired the entry it was made under.
-    /// </returns>
-    ///
-    /// <remarks>
-    /// Tested before <see cref="_writeLock"/> is taken, so a caller refused this way neither waits on the lock nor holds it, and again
-    /// after it is taken, which catches the callers that were already queued when the failure was recorded.
-    /// </remarks>
+    /// <returns>True if another disk read should be deferred until invalidation.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private bool IsKnownUnverifiable() => Volatile.Read(ref _unverifiableVersion) == Volatile.Read(ref _cacheVersion);
 
     /// <summary>
-    /// Deletes the state file when the current process can see it, which is what closing a window amounts to on disk.
+    /// Deletes the maintenance state file if it exists.
     /// </summary>
-    ///
-    /// <exception cref="IOException">The file exists but could not be deleted, so the window it holds stays open.</exception>
-    /// <exception cref="UnauthorizedAccessException">The process may not delete the file, so the window it holds stays open.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -276,16 +237,10 @@ internal sealed class FileMaintenanceStore(
     }
 
     /// <summary>
-    /// Reads and parses the state file, reporting what the read established alongside the value to serve, so a caller that may act only on
-    /// the file's own contents can tell those apart from a value that merely stood in for them.
+    /// Reads the file and distinguishes authoritative state from fallback state.
     /// </summary>
     ///
-    /// <returns>
-    /// <see cref="DiskReadOutcome.Missing"/> with no state when the file is not there; <see cref="DiskReadOutcome.Loaded"/> with the parsed
-    /// window; <see cref="DiskReadOutcome.Corrupt"/> with the fail-closed window when the file is there but does not parse; and
-    /// <see cref="DiskReadOutcome.Unreadable"/> with the last cached value, which may itself be <c>null</c>, when three attempts to open it
-    /// all failed.
-    /// </returns>
+    /// <returns>The read outcome and the state to serve. Only a loaded state is authoritative.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -331,10 +286,10 @@ internal sealed class FileMaintenanceStore(
     }
 
     /// <summary>
-    /// Builds the fail-closed state used when the file exists but cannot be parsed.
+    /// Creates an enabled, fail-closed state for an invalid file.
     /// </summary>
     ///
-    /// <returns>An enabled state that keeps maintenance active until the file is fixed.</returns>
+    /// <returns>A state that keeps maintenance enabled until the file is corrected.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -347,20 +302,8 @@ internal sealed class FileMaintenanceStore(
     };
 
     /// <summary>
-    /// Starts watching the content root for changes to the state file, on the first read. Setup runs once, so when the directory does not
-    /// exist at that moment nothing is watched for the life of the store, and unlike a setup that throws, that case is not logged.
+    /// Starts watching the state file, retrying setup on later reads if it fails.
     /// </summary>
-    ///
-    /// <remarks>
-    /// The flag is checked inside the lock rather than before it, because two requests arriving together would otherwise each build a
-    /// watcher and only one would be reachable to dispose. Disposal takes the same lock and sets the same flag, so a read arriving during
-    /// shutdown cannot create a watcher that nothing will dispose.
-    /// </remarks>
-    ///
-    /// <remarks>
-    /// The watcher is armed only once its handlers are attached. Setting <c>EnableRaisingEvents</c> in the object initializer instead would
-    /// leave a window in which an edit raises an event that nothing is subscribed to, and the cache would keep serving the old state.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -402,6 +345,15 @@ internal sealed class FileMaintenanceStore(
         }
     }
 
+    /// <summary>
+    /// Invalidates cached state when the file watcher reports an error.
+    /// </summary>
+    ///
+    /// <param name="sender">The file watcher.</param>
+    /// <param name="eventArgs">The watcher error.</param>
+    ///
+    /// <author>Almighty-Shogun</author>
+    /// <since>Unreleased</since>
     private void OnWatcherError(object sender, ErrorEventArgs eventArgs)
     {
         logger.LogWarning(
@@ -412,27 +364,21 @@ internal sealed class FileMaintenanceStore(
     }
 
     /// <summary>
-    /// Invalidates the cache after an out-of-band edit, so a file changed by hand takes effect without a restart.
+    /// Invalidates cached state after a file change.
     /// </summary>
     ///
-    /// <param name="sender">The watcher that raised the change. Unused: any change to the file invalidates the whole cache.</param>
-    /// <param name="eventArgs">The file system event arguments.</param>
-    ///
-    /// <remarks>
-    /// The generation is bumped rather than the entry removed. A read already in flight was started under the old generation and will
-    /// refuse to store its result, so an edit cannot be overtaken by a read that began before it.
-    /// </remarks>
+    /// <param name="sender">The file watcher.</param>
+    /// <param name="eventArgs">The file change event.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private void OnStateFileChanged(object sender, FileSystemEventArgs eventArgs) => Interlocked.Increment(ref _cacheVersion);
 
     /// <summary>
-    /// Wraps the cached value with the generation it was read under, so a cached <c>null</c> is distinguishable from nothing cached and a
-    /// superseded entry is recognizable without the invalidating side having to find and remove it.
+    /// Stores a cached state with its generation.
     /// </summary>
     ///
-    /// <param name="Version">The cache generation the value was read under.</param>
+    /// <param name="Version">The cache generation.</param>
     /// <param name="State">The cached state.</param>
     ///
     /// <author>Almighty-Shogun</author>
@@ -440,12 +386,11 @@ internal sealed class FileMaintenanceStore(
     private sealed record CachedState(long Version, PersistedMaintenanceState? State);
 
     /// <summary>
-    /// Pairs the value a read produced with what that read established about the file, so a value the store substituted is never mistaken
-    /// for the file's own contents.
+    /// Pairs a disk-read outcome with the state to serve.
     /// </summary>
     ///
-    /// <param name="Outcome">What the read established about the file.</param>
-    /// <param name="State">The value to serve, which is the file's own contents only for <see cref="DiskReadOutcome.Loaded"/>.</param>
+    /// <param name="Outcome">The result of reading the file.</param>
+    /// <param name="State">The loaded or fallback state.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>

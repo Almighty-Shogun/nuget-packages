@@ -1,35 +1,23 @@
 namespace AlmightyShogun.AspNet.MaintenanceMode;
 
 /// <summary>
-/// The on-disk shape of the state file. Kept separate from the public model so the file format can change without changing what callers
-/// see, and so a hand-edited file with missing fields still deserializes.
+/// Represents the persisted maintenance window and its request-enforcement settings.
 /// </summary>
-///
-/// <remarks>
-/// Internal and separate from <see cref="MaintenanceState"/>, so the file can carry the behavioral settings that were in force when
-/// maintenance was enabled without those appearing on the public model. Collections are nullable here because a hand-edited file may omit
-/// them; defaults are applied on read.
-/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 internal sealed record PersistedMaintenanceState
 {
     /// <summary>
-    /// The identity of this particular window, issued fresh each time one is opened. Compared by
-    /// <see cref="IMaintenanceStore.TryClearAsync"/> so expiring a window cannot close a different one written since it was read.
+    /// Identifies the window for revision-checked clearing.
     /// </summary>
-    ///
-    /// <remarks>
-    /// A hand-edited file that omits it deserializes as <see cref="Guid.Empty"/>, which still compares equal to itself.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public Guid Revision { get; init; }
 
     /// <summary>
-    /// Whether a window is recorded as open, which a hand-edited file can set directly.
+    /// Whether maintenance mode is enabled.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -37,7 +25,7 @@ internal sealed record PersistedMaintenanceState
     public bool IsEnabled { get; init; }
 
     /// <summary>
-    /// The explanation recorded on the window, absent when it carries none.
+    /// The maintenance message.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -45,7 +33,7 @@ internal sealed record PersistedMaintenanceState
     public string? Message { get; init; }
 
     /// <summary>
-    /// The scheduled start, absent for a window that began immediately.
+    /// The scheduled start of the window, if any.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -53,7 +41,7 @@ internal sealed record PersistedMaintenanceState
     public DateTimeOffset? StartsAt { get; init; }
 
     /// <summary>
-    /// The estimated end of the window, absent for one opened with no estimate.
+    /// The estimated end of the window, if any.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -61,7 +49,7 @@ internal sealed record PersistedMaintenanceState
     public DateTimeOffset? EndsAt { get; init; }
 
     /// <summary>
-    /// When the window was opened, which is what tells an operator how long the site has been down.
+    /// When maintenance mode was enabled.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -69,7 +57,7 @@ internal sealed record PersistedMaintenanceState
     public DateTimeOffset? EnabledAt { get; init; }
 
     /// <summary>
-    /// Whether maintenance mode disables itself once the end time has passed.
+    /// Whether maintenance mode automatically disables after the end time.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -85,7 +73,7 @@ internal sealed record PersistedMaintenanceState
     public bool RedirectBlockedRequests { get; init; }
 
     /// <summary>
-    /// The paths this window keeps open.
+    /// Allowed request paths. Null uses configured defaults.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -93,7 +81,7 @@ internal sealed record PersistedMaintenanceState
     public IReadOnlyList<string>? AllowedPaths { get; init; }
 
     /// <summary>
-    /// The path prefixes this window keeps open.
+    /// Allowed request path prefixes. Null uses configured defaults.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -101,7 +89,7 @@ internal sealed record PersistedMaintenanceState
     public IReadOnlyList<string>? AllowedPathPrefixes { get; init; }
 
     /// <summary>
-    /// The IP addresses allowed through while maintenance mode is enabled.
+    /// Allowed IP addresses. Null uses configured defaults.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -109,8 +97,7 @@ internal sealed record PersistedMaintenanceState
     public IReadOnlyList<string>? AllowedIpAddresses { get; init; }
 
     /// <summary>
-    /// Converts the stored window into what a caller sees, dropping persistence and request-enforcement fields absent from the public
-    /// state.
+    /// Converts the persisted window to its public state.s
     /// </summary>
     ///
     /// <returns>The public maintenance state.</returns>
