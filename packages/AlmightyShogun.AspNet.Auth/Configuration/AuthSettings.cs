@@ -150,7 +150,7 @@ public sealed record AuthSettings
                 "Auth:DefaultApp must be set when Auth:Hosts is empty, because every token carries an audience and it is always validated."
             );
 
-        HashSet<string> audiences = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> audiences = new(StringComparer.Ordinal);
 
         if (!string.IsNullOrWhiteSpace(DefaultApp))
             audiences.Add(DefaultApp);

@@ -28,7 +28,7 @@ internal static class AppAudience
     /// <since>4.0.0</since>
     internal static bool Matches(ClaimsPrincipal? principal, string app) => principal is not null && principal.Claims
         .Where(IsAudienceClaim)
-        .Any(claim => string.Equals(claim.Value, app, StringComparison.OrdinalIgnoreCase));
+        .Any(claim => string.Equals(claim.Value, app, StringComparison.Ordinal));
 
     /// <summary>
     /// Reports whether a claim is an audience, accepting both the short JWT name and the long identity URI form.
