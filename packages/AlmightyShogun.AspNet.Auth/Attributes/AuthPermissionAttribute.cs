@@ -22,5 +22,9 @@ public sealed class AuthPermissionAttribute : AuthorizeAttribute
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
-    public AuthPermissionAttribute(string permission) => Policy = $"{AuthPolicies.PermissionPrefix}{permission}";
+    public AuthPermissionAttribute(string permission)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(permission);
+        Policy = $"{AuthPolicies.PermissionPrefix}{permission}";
+    }
 }
