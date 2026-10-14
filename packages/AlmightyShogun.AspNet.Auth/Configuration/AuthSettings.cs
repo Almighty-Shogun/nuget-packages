@@ -41,7 +41,7 @@ public sealed record AuthSettings
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
-    [Range(1, int.MaxValue)]
+    [Range(1, 1440)]
     public int AccessTokenMinutes { get; init; } = 60;
 
     /// <summary>
@@ -51,7 +51,7 @@ public sealed record AuthSettings
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
-    [Range(1, int.MaxValue)]
+    [Range(1, 365)]
     public int RefreshTokenDays { get; init; } = 30;
 
     /// <summary>
