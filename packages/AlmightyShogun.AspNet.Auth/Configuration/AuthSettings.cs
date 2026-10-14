@@ -61,7 +61,7 @@ public sealed record AuthSettings
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    [Range(1, int.MaxValue)]
+    [Range(0, 300)]
     public int ClockSkewSeconds { get; init; } = 30;
 
     /// <summary>
