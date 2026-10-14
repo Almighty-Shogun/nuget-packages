@@ -5,40 +5,27 @@ using System.ComponentModel.DataAnnotations;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Turns the configured secret into the symmetric key HMAC-SHA256 signs and validates with. Both sides of the package go
-/// through here, so a secret this package considers too short is refused the same way whether a token is being minted or
-/// checked.
+/// Creates symmetric signing keys from configured secrets.
 /// </summary>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 internal static class AuthSigningKey
 {
     /// <summary>
-    /// The shortest signing key this package accepts, in bytes. It is a policy of its own, matching the digest size
-    /// RFC 7518 recommends for HS256, and is stricter than the library's own floor of 128 bits, so a secret between the
-    /// two would sign and validate but is refused here.
+    /// The minimum signing key length in bytes.
     /// </summary>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     internal const int MinimumSecretBytes = 32;
 
     /// <summary>
-    /// Builds the signing key, checking the secret in bytes rather than characters, which is what a key length actually
-    /// measures and what <see cref="MinLengthAttribute"/> on a string cannot express.
+    /// Creates a symmetric signing key from a UTF-8 encoded secret.
     /// </summary>
-    ///
-    /// <param name="secret">The configured symmetric secret, encoded as UTF-8 to obtain the key bytes.</param>
-    ///
-    /// <returns>The symmetric key both token signing and token validation use.</returns>
-    ///
+    /// <param name="secret">The signing secret.</param>
+    /// <returns>The symmetric security key.</returns>
     /// <exception cref="InvalidOperationException">
-    /// The secret encodes to fewer than <see cref="MinimumSecretBytes"/> bytes. Not
-    /// reachable while startup validation is on, since <see cref="MinLengthAttribute"/> on <see cref="AuthSettings.Secret"/>
-    /// already demands that many characters and a character never encodes to less than a byte.
+    /// Thrown when the encoded secret is shorter than the required minimum.
     /// </exception>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     internal static SymmetricSecurityKey Create(string secret)

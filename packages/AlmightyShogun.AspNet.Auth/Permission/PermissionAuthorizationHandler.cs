@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Authorizes a request when the current principal contains the required permission claim.
+/// Authorizes users based on their granted permissions.
 /// </summary>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>2.3.0</since>
 internal sealed class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
@@ -23,27 +22,14 @@ internal sealed class PermissionAuthorizationHandler : AuthorizationHandler<Perm
     }
 
     /// <summary>
-    /// Reports whether one granted permission satisfies the requirement, which is where a wildcard grant is honored rather
-    /// than treated as a literal permission name.
+    /// Checks whether a granted permission satisfies a requirement, including wildcard grants.
     /// </summary>
-    ///
-    /// <param name="granted">
-    /// The permission value held by the principal. Only a <c>.*</c> ending is treated as a wildcard, covering every
-    /// permission under that dotted prefix; a bare <c>*</c>, or a value ending in <c>*</c> without the dot, is compared
-    /// literally instead.
-    /// </param>
-    /// <param name="required">The permission the endpoint demands, as written on the attribute.</param>
-    ///
-    /// <returns>
-    /// <c>true</c> when the granted value covers the requirement, whether by matching it or by being broad enough to
-    /// include it; otherwise <c>false</c>.
-    /// </returns>
-    ///
+    /// <param name="granted">The granted permission.</param>
+    /// <param name="required">The required permission.</param>
+    /// <returns>Whether the permission requirement is satisfied.</returns>
     /// <remarks>
-    /// The wildcard is only honored on the granted side. A requirement written as <c>users.*</c> is matched literally,
-    /// so an endpoint can never end up accepting less than it asked for.
+    /// Wildcards use the <c>.*</c> suffix and apply only to granted permissions.
     /// </remarks>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static bool Satisfies(string granted, string required)

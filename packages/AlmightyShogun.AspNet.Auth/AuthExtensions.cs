@@ -1,3 +1,4 @@
+
 using AlmightyShogun.Utils;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -9,46 +10,25 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Registers the bearer authentication, authorization, and token services this package provides.
+/// Registers JWT authentication and authorization services.
 /// </summary>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>2.3.0</since>
 public static class AuthExtensions
 {
     /// <summary>
-    /// Provides the single call that wires this package into an application, so the bearer scheme, the policy provider,
-    /// and the authorization handlers are never registered one at a time.
+    /// Provides authentication service registration extensions.
     /// </summary>
-    ///
-    /// <param name="serviceCollection">
-    /// The collection every service this package registers lands in. Returned so the call chains with the rest of an
-    /// application's startup.
-    /// </param>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Registers bearer authentication, the permission policy provider, and the app-audience handler, binding the
-        /// <c>Auth</c> section they all read from and forcing its audience list to be built while the host starts.
+        /// Registers JWT authentication, authorization, and related services.
         /// </summary>
-        ///
-        /// <param name="configuration">
-        /// The application configuration. Read for an <c>Auth</c> section, which is required: without a signing secret
-        /// there is nothing to validate a token against.
-        /// </param>
-        /// <param name="registerExceptionHandler">
-        /// Whether to register the handler that turns this package's exceptions into standardized responses. It needs
-        /// <c>AddHttpErrorResponseWriter</c> from <c>AlmightyShogun.AspNet.Core</c> and <c>AddMessageLocalization</c> from
-        /// <c>AlmightyShogun.AspNet.Localization</c>. Call this ahead of <c>AddExceptionHandling</c>, since the fallback
-        /// handler there answers everything and would claim these exceptions first. Passing <c>false</c> leaves them to
-        /// whatever handler the application registers instead.
-        /// </param>
-        ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with JWT authentication and authorization registered.</returns>
-        ///
+        /// <param name="configuration">The application configuration.</param>
+        /// <param name="registerExceptionHandler">Whether to register the authentication exception handler.</param>
+        /// <returns>The service collection.</returns>
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
         public IServiceCollection AddAuth(IConfiguration configuration, bool registerExceptionHandler = true)
@@ -82,18 +62,10 @@ public static class AuthExtensions
     }
 
     /// <summary>
-    /// Applies the bound settings to the bearer options, so issuer, signing key, audience, and lifetime come from the
-    /// same validated instance the rest of the package resolves rather than from a second read of configuration. It also
-    /// attaches <see cref="ValidateAppAudience"/>, which narrows the audience from the configured list to the application
-    /// the request addressed.
+    /// Configures JWT bearer token validation using authentication settings.
     /// </summary>
-    ///
-    /// <param name="options">The bearer options being built for the authentication scheme.</param>
-    /// <param name="authOptions">
-    /// The bound <c>Auth</c> section. Resolving its value runs the data annotations and the audience rule, so a
-    /// configuration that failed validation never reaches the token validation parameters.
-    /// </param>
-    ///
+    /// <param name="options">The JWT bearer options.</param>
+    /// <param name="authOptions">The authentication settings.</param>
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static void ConfigureJwtBearer(JwtBearerOptions options, IOptions<AuthSettings> authOptions)
@@ -116,27 +88,13 @@ public static class AuthExtensions
     }
 
     /// <summary>
-    /// Narrows the audience check from the configured list to the application the request host resolves to, so a token
-    /// minted for one application does not authenticate a request to another. <see cref="TokenValidationParameters"/>
-    /// accepts any entry in <see cref="AuthSettings.ValidAudiences"/>, which is every application in the deployment, and
-    /// only the request can say which one was addressed. Running here rather than in an authorization requirement is what
-    /// makes the check unavoidable: the framework builds the policy for an <see cref="AuthorizeAttribute"/> carrying only
-    /// roles without consulting <see cref="IAuthorizationPolicyProvider"/> at all, so anything added to a policy is
-    /// bypassed by that attribute, while a token that fails here never authenticates and reaches no endpoint.
+    /// Validates that the token audience matches the application resolved from the request host.
     /// </summary>
-    ///
-    /// <param name="context">
-    /// The validated token together with the request that carried it. Failing it here answers 401, the same answer an
-    /// audience outside <see cref="AuthSettings.ValidAudiences"/> already produces.
-    /// </param>
-    ///
-    /// <returns>A completed task; the check is synchronous and reads only the request host and the principal's claims.</returns>
-    ///
+    /// <param name="context">The validated token context.</param>
+    /// <returns>A completed task.</returns>
     /// <remarks>
-    /// With host scoping off there is no application to resolve and the token's audience was already checked against the
-    /// configured list, so the check does nothing.
+    /// Skips application-specific validation when host scoping is disabled.
     /// </remarks>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static Task ValidateAppAudience(TokenValidatedContext context)

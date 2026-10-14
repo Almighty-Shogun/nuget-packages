@@ -3,23 +3,19 @@ using Microsoft.AspNetCore.Authorization;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Requires the authenticated principal to hold a permission claim satisfying the named permission, on a controller, an
-/// action, or a minimal API endpoint.
+/// Requires an authenticated user to have the specified permission.
 /// </summary>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>2.3.0</since>
 public sealed class AuthPermissionAttribute : AuthorizeAttribute
 {
     /// <summary>
-    /// Creates a permission authorization attribute for the provided permission claim value.
+    /// Creates an authorization attribute for the specified permission.
     /// </summary>
-    ///
-    /// <param name="permission">
-    /// The permission the principal must hold. Becomes a policy named after
-    /// <see cref="AuthPolicies.PermissionPrefix"/> followed by this value.
-    /// </param>
-    ///
+    /// <param name="permission">The required permission.</param>
+    /// <exception cref="ArgumentException">
+    /// Thrown when the permission is null, empty, or whitespace.
+    /// </exception>
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
     public AuthPermissionAttribute(string permission)
