@@ -1,79 +1,50 @@
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Resolves which configured application a request belongs to, from its host. Consulted while a bearer token is
-/// validated, so a token minted for one application cannot authenticate a request to another, when a token is minted
-/// without an explicit audience, and by the credential services, which scope a session to the host the user signed in
-/// on.
+/// Resolves application audiences from request hosts.
 /// </summary>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>2.3.0</since>
 public interface IAppHostResolver
 {
     /// <summary>
-    /// Resolves the app for the current request without throwing, for code that wants to decide for itself what an
-    /// unknown host means. A successful result is cached on the request, so repeated calls cost one lookup; a failure is
-    /// not cached and is resolved again.
+    /// Attempts to resolve the application for the current request.
     /// </summary>
-    ///
-    /// <param name="app">
-    /// The resolved app, or <c>null</c> when scoping is off. A <c>null</c> app with a <c>true</c> result means scoping is
-    /// disabled rather than that resolution failed.
-    /// </param>
-    ///
-    /// <returns>
-    /// <c>true</c> when scoping is off or the host maps to a configured app; <c>false</c> when scoping is on and it does
-    /// not, which includes there being no request in flight at all.
-    /// </returns>
-    ///
+    /// <param name="app">The resolved application, or null when scoping is disabled.</param>
+    /// <returns>Whether resolution succeeded or scoping is disabled.</returns>
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     bool TryResolve(out string? app);
 
     /// <summary>
-    /// Resolves the app for the current request, refusing rather than guessing when the host is unknown.
+    /// Resolves the application for the current request.
     /// </summary>
-    ///
-    /// <returns>The resolved app, or <c>null</c> when scoping is off and there is nothing to resolve.</returns>
-    ///
+    /// <returns>The resolved application, or null when scoping is disabled.</returns>
     /// <exception cref="UnknownAppException">
-    /// Scoping is active and the request cannot be attributed: either the host maps to no configured application, or
-    /// there is no request in flight at all, as when a background job mints a token. The second carries a <c>null</c>
-    /// host rather than the one that failed.
+    /// Thrown when scoping is enabled and the application cannot be resolved.
     /// </exception>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     string? Resolve();
 
     /// <summary>
-    /// Resolves a host supplied by the caller rather than the current request, for code resolving a host it already
-    /// holds, such as a background job acting on behalf of a tenant.
+    /// Attempts to resolve an application from a specified host.
     /// </summary>
-    ///
-    /// <param name="host">The host to resolve, matched case-insensitively and falling back to the localhost app.</param>
-    /// <param name="app">The audience when the host is known; otherwise an empty string rather than <c>null</c>.</param>
-    ///
-    /// <returns><c>true</c> when the host maps to an application audience name; otherwise <c>false</c>.</returns>
-    ///
+    /// <param name="host">The host to resolve.</param>
+    /// <param name="app">The resolved application, or an empty string on failure.</param>
+    /// <returns>Whether the host maps to an application.</returns>
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
     bool TryResolveAppFromHost(string? host, out string app);
 
     /// <summary>
-    /// Resolves a caller-supplied host, refusing rather than guessing when it is unknown.
+    /// Resolves an application from a specified host.
     /// </summary>
-    ///
-    /// <param name="host">The host to resolve, matched case-insensitively and falling back to the localhost app.</param>
-    ///
-    /// <returns>The audience the host maps to.</returns>
-    ///
+    /// <param name="host">The host to resolve.</param>
+    /// <returns>The resolved application.</returns>
     /// <exception cref="UnknownAppException">
-    /// The host is blank, maps to no configured application, or is a localhost value with no localhost app configured.
-    /// Carries the host it failed on.
+    /// Thrown when the host cannot be resolved.
     /// </exception>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
     string ResolveAppFromHost(string? host);

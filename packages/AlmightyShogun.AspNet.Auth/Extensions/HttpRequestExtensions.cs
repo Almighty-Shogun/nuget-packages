@@ -3,35 +3,24 @@ using Microsoft.AspNetCore.Http;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Reads this package's authentication cookies off a request, so endpoint code never spells a cookie name or decides for
-/// itself what a missing one means.
+/// Provides extensions for retrieving authentication cookies.
 /// </summary>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>2.3.0</since>
 public static class HttpRequestExtensions
 {
     /// <summary>
-    /// Provides the cookie readers on any request, in both the strict and the tolerant form.
+    /// Provides authentication cookie extensions for HTTP requests.
     /// </summary>
-    ///
-    /// <param name="httpRequest">The request to read from, normally the one currently being served.</param>
-    ///
+    /// <param name="httpRequest">The HTTP request.</param>
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
     extension(HttpRequest httpRequest)
     {
         /// <summary>
-        /// Reads the refresh-token cookie without failing when it is absent, for a path that treats a signed-out caller
-        /// as ordinary rather than exceptional, such as an optional session refresh.
+        /// Retrieves the refresh token cookie if present.
         /// </summary>
-        ///
-        /// <returns>
-        /// The cookie value, or <c>null</c> when the request carries no such cookie or carries an empty one. An empty
-        /// cookie counts as absent, so this agrees with <see cref="GetRefreshTokenCookie"/> about what a usable token is
-        /// rather than reporting one the other would refuse.
-        /// </returns>
-        ///
+        /// <returns>The refresh token, or null if missing or blank.</returns>
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
         public string? TryGetRefreshTokenCookie()
@@ -42,17 +31,12 @@ public static class HttpRequestExtensions
         }
 
         /// <summary>
-        /// Reads the refresh-token cookie and fails when it is absent, for a path that cannot proceed without one, such
-        /// as a refresh or a sign-out.
+        /// Retrieves the refresh token cookie.
         /// </summary>
-        ///
-        /// <returns>The cookie value, never blank.</returns>
-        ///
+        /// <returns>The non-blank refresh token.</returns>
         /// <exception cref="MissingRefreshTokenException">
-        /// The request carries no refresh-token cookie, or carries one that is empty, which is indistinguishable from
-        /// being signed out.
+        /// Thrown when the refresh token cookie is missing or blank.
         /// </exception>
-        ///
         /// <author>Almighty-Shogun</author>
         /// <since>2.3.0</since>
         public string GetRefreshTokenCookie() => httpRequest.TryGetRefreshTokenCookie() ?? throw new MissingRefreshTokenException();

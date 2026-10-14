@@ -4,15 +4,8 @@ using AlmightyShogun.AspNet.Core;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Maps this package's exceptions to the responses they produce, so the exceptions themselves stay plain. The mappings
-/// cannot be replaced one at a time: an application wanting different ones passes <c>registerExceptionHandler: false</c>
-/// to <c>AddAuth</c> and answers these exceptions from a handler of its own.
+/// Maps authentication exceptions to standardized HTTP errors.
 /// </summary>
-///
-/// <remarks>
-/// Registered only under this concrete type, and <c>internal</c>, so nothing outside this package can resolve it.
-/// </remarks>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 internal sealed class JwtAuthExceptionMapper : IExceptionMapper

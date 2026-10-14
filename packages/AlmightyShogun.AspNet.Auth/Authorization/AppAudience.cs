@@ -4,26 +4,19 @@ using System.IdentityModel.Tokens.Jwt;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Compares a token's audience against the application a request resolved to.
+/// Validates token audiences against resolved application audiences.
 /// </summary>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 internal static class AppAudience
 {
     /// <summary>
-    /// Reports whether the principal carries the audience the request host resolved to, which is what stops a token minted
-    /// for one application being replayed against another.
+    /// Checks whether a principal contains the specified application audience.
     /// </summary>
-    ///
-    /// <param name="principal">The caller the token produced, or <c>null</c> when validation yielded no principal.</param>
-    /// <param name="app">The audience the request host resolved to, compared case-insensitively.</param>
-    ///
-    /// <returns>
-    /// <c>true</c> when the principal carries that audience. A token may carry several, so one match is enough. A
-    /// <c>null</c> principal never matches.
-    /// </returns>
-    ///
+    /// <param name="principal">The claims principal to check.</param>
+    /// <param name="app">The required application audience.</param>
+    /// <returns>Whether the principal contains a matching audience.</returns>
+    /// <remarks>Audience values are compared case-sensitively.</remarks>
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     internal static bool Matches(ClaimsPrincipal? principal, string app) => principal is not null && principal.Claims
@@ -31,13 +24,10 @@ internal static class AppAudience
         .Any(claim => string.Equals(claim.Value, app, StringComparison.Ordinal));
 
     /// <summary>
-    /// Reports whether a claim is an audience, accepting both the short JWT name and the long identity URI form.
+    /// Checks whether a claim represents a JWT audience.
     /// </summary>
-    ///
-    /// <param name="claim">One claim from the principal.</param>
-    ///
-    /// <returns><c>true</c> when the claim type is a supported audience claim type; otherwise, <c>false</c>.</returns>
-    ///
+    /// <param name="claim">The claim to check.</param>
+    /// <returns>Whether the claim uses a supported audience claim type.</returns>
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static bool IsAudienceClaim(Claim claim)

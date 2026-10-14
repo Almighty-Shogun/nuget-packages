@@ -1,3 +1,4 @@
+
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -5,41 +6,31 @@ using Microsoft.Extensions.Options;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Matches a request host against the configured mapping, falling back to the configured localhost app for loopback
-/// hosts so a development machine resolves without being listed. A successful resolution is cached on the request, so
-/// repeated calls while one request is served cost a single lookup.
+/// Resolves applications from request hosts using configured mappings and localhost fallback.
 /// </summary>
-///
-/// <param name="authSettings">The bound authentication settings that contain host mappings and the localhost fallback.</param>
-/// <param name="httpContextAccessor">The HTTP context accessor used to inspect and cache request state.</param>
-///
+/// <param name="authSettings">The authentication settings.</param>
+/// <param name="httpContextAccessor">The HTTP context accessor.</param>
 /// <author>Almighty-Shogun</author>
 /// <since>2.3.0</since>
 internal sealed class AppHostResolver(IOptions<AuthSettings> authSettings, IHttpContextAccessor httpContextAccessor) : IAppHostResolver
 {
     /// <summary>
-    /// The key the resolved app is stored under in <c>HttpContext.Items</c>. A private object rather than a string, so
-    /// nothing outside this class can address the entry or collide with it.
+    /// The key used to cache the resolved application in the HTTP context.
     /// </summary>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static readonly object _resolvedAppKey = new();
 
     /// <summary>
-    /// The bound settings, read once at construction. The resolver is a singleton taking <c>IOptions</c> rather than
-    /// <c>IOptionsMonitor</c>, so the value it sees never changes.
+    /// The configured authentication settings.
     /// </summary>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
     private readonly AuthSettings _authSettings = authSettings.Value;
 
     /// <summary>
-    /// The configured host mapping, copied into a case-insensitive dictionary. Hosts arrive from the request rather than
-    /// from configuration, so their casing is not the application's to dictate.
+    /// The case-insensitive host-to-application mappings.
     /// </summary>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
     private readonly Dictionary<string, string> _hosts = authSettings.Value.Hosts
@@ -108,14 +99,10 @@ internal sealed class AppHostResolver(IOptions<AuthSettings> authSettings, IHttp
         : throw new UnknownAppException(host);
 
     /// <summary>
-    /// Determines whether a host value represents localhost. The answer is the same in every environment, since nothing
-    /// here inspects the one the application is running in.
+    /// Checks whether the host is localhost or a loopback IP address.
     /// </summary>
-    ///
-    /// <param name="host">The host value to inspect, as it arrived on the request or from a caller.</param>
-    ///
-    /// <returns><c>true</c> when the host is localhost, loopback IPv4, or loopback IPv6; otherwise, <c>false</c>.</returns>
-    ///
+    /// <param name="host">The host to check.</param>
+    /// <returns>Whether the host represents a loopback address.</returns>
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static bool IsLocalhost(string host)

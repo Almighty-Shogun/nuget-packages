@@ -3,43 +3,26 @@ using System.Security.Claims;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Mints signed access tokens using the configured issuer, secret, and lifetime. The caller supplies the claims, so the
-/// user model stays out of this package.
+/// Provides JWT access token generation.
 /// </summary>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 public interface IAuthTokenGenerator
 {
     /// <summary>
-    /// Mints a signed access token around the supplied claims, stamping the issuer and the expiry from configuration so a
-    /// caller cannot mint one that outlives what the application allows. The audience is the caller's to choose and is
-    /// never checked against the configured list.
+    /// Generates a signed JWT access token with the specified claims.
     /// </summary>
-    ///
-    /// <param name="claims">
-    /// The claims to embed, normally the caller's identity and permissions. The issuer, audience, and expiry are added
-    /// here, so supplying them is unnecessary.
-    /// </param>
+    /// <param name="claims">The claims to include in the token.</param>
     /// <param name="audience">
-    /// The audience to issue for. When <c>null</c>, the current request host resolves it if host scoping is on, and the
-    /// configured default app is used otherwise.
+    /// The token audience. When null, resolves from the request host or configured default.
     /// </param>
-    ///
-    /// <returns>
-    /// The encoded token and its absolute expiry, so a caller can hand one to the client and the other to a refresh
-    /// schedule without decoding the token again.
-    /// </returns>
-    ///
+    /// <returns>The generated token and its expiration.</returns>
     /// <exception cref="UnknownAppException">
-    /// <paramref name="audience"/> is <c>null</c>, host scoping is on, and the request host maps to no configured
-    /// application, which includes there being no request in flight at all.
+    /// Thrown when the application cannot be resolved from the request host.
     /// </exception>
     /// <exception cref="InvalidOperationException">
-    /// <paramref name="audience"/> is <c>null</c>, host scoping is off, and no default app is configured. Not reachable
-    /// through <c>AddAuth</c>, which refuses that configuration while the host starts.
+    /// Thrown when no audience can be determined.
     /// </exception>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     AuthToken Generate(IEnumerable<Claim> claims, string? audience = null);

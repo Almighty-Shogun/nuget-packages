@@ -1,3 +1,4 @@
+
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Authorization;
@@ -5,32 +6,23 @@ using Microsoft.AspNetCore.Authorization;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Creates authorization policies for package permission names and delegates all other policies to ASP.NET Core.
+/// Resolves permission-based policies and delegates other policies to ASP.NET Core.
 /// </summary>
-///
-/// <param name="options">
-/// The framework's authorization options, handed to the fallback provider so a policy this package does not generate is
-/// still resolved the way the application declared it.
-/// </param>
-///
+/// <param name="options">The authorization options.</param>
 /// <author>Almighty-Shogun</author>
 /// <since>2.3.0</since>
 internal sealed class PermissionPolicyProvider(IOptions<AuthorizationOptions> options) : IAuthorizationPolicyProvider
 {
     /// <summary>
-    /// The framework's own provider, asked for every policy name that does not carry the permission prefix, and for the
-    /// default and fallback policies, which pass through unchanged.
+    /// The default provider for non-permission policies.
     /// </summary>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>2.3.0</since>
     private readonly DefaultAuthorizationPolicyProvider _fallback = new(options);
 
     /// <summary>
-    /// Caches built policies. A policy is a pure function of its name, and a custom provider gets none of the framework
-    /// caching the default provider enjoys, so without this a policy is rebuilt for every request to every endpoint.
+    /// Caches resolved authorization policies.
     /// </summary>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private readonly ConcurrentDictionary<string, AuthorizationPolicy?> _policies = new(StringComparer.Ordinal);

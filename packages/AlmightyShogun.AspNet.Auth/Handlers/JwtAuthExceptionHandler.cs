@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.Core;
 using Microsoft.Extensions.Logging;
@@ -8,24 +9,12 @@ using AlmightyShogun.AspNet.Localization;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Answers this package's exceptions with the standardized error response, using <see cref="JwtAuthExceptionMapper"/> to
-/// decide the status, code, and message for each. Declines everything else, so the rest of the handler chain still gets
-/// a turn.
+/// Handles authentication exceptions using standardized error responses.
 /// </summary>
-///
-/// <param name="exceptionMapper">
-/// The mapper naming the exceptions this package owns and the response each becomes. One it declines is left to the
-/// handlers behind this one.
-/// </param>
-/// <param name="messageResolver">
-/// The resolver that turns the mapped message key into localized text, falling back to the key itself when no message
-/// file defines it.
-/// </param>
-/// <param name="responseWriter">
-/// The writer that produces the body, so these failures match every other error the application returns.
-/// </param>
-/// <param name="logger">The logger the handled error is written to, at a level chosen from the mapped status code.</param>
-///
+/// <param name="exceptionMapper">The authentication exception mapper.</param>
+/// <param name="messageResolver">The localized message resolver.</param>
+/// <param name="responseWriter">The HTTP error response writer.</param>
+/// <param name="logger">The exception logger.</param>
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 internal sealed class JwtAuthExceptionHandler(
@@ -55,21 +44,11 @@ internal sealed class JwtAuthExceptionHandler(
     }
 
     /// <summary>
-    /// Writes the handled error to the log, at warning for a client fault and at error for a server fault.
+    /// Logs handled exceptions according to their HTTP status codes.
     /// </summary>
-    ///
-    /// <param name="httpContext">The failing request, read for the method and the matched route the log line reports.</param>
-    /// <param name="exception">
-    /// The exception being reported. Attached to the log entry only for a server fault, since a client mistake needs no
-    /// stack trace.
-    /// </param>
-    /// <param name="mapping">The mapping chosen for it, supplying the status code and error code the log line reports.</param>
-    ///
-    /// <remarks>
-    /// The exception itself is only attached to a server fault. A 4xx is the caller's mistake, so the stack trace
-    /// describes where the application detected it rather than anything worth acting on.
-    /// </remarks>
-    ///
+    /// <param name="httpContext">The current HTTP context.</param>
+    /// <param name="exception">The handled exception.</param>
+    /// <param name="mapping">The mapped error details.</param>
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private void Log(HttpContext httpContext, Exception exception, ErrorMapping mapping)
@@ -98,28 +77,13 @@ internal sealed class JwtAuthExceptionHandler(
     }
 
     /// <summary>
-    /// Resolves the route pattern the failing request matched, so a log line can name the route without carrying the
-    /// request path.
+    /// Resolves the original request's route pattern for logging.
     /// </summary>
-    ///
-    /// <param name="httpContext">The failing request, read for the endpoint it matched before the failure.</param>
-    ///
-    /// <returns>The matched route pattern's raw text, or <c>(unknown route)</c> when no pattern is available.</returns>
-    ///
+    /// <param name="httpContext">The current HTTP context.</param>
+    /// <returns>The route pattern or a placeholder if unavailable.</returns>
     /// <remarks>
-    /// <see cref="EndpointHttpContextExtensions.GetEndpoint(HttpContext)"/> alone does not work here. Under
-    /// <c>UseExceptionHandler</c>, <c>ExceptionHandlerMiddlewareImpl</c> clears the endpoint and the route values before
-    /// it runs any <see cref="IExceptionHandler"/>, so the context reports no endpoint at that point. The original one
-    /// survives on <see cref="IExceptionHandlerFeature.Endpoint"/>, which is read first, leaving the context's own
-    /// endpoint as the fallback for a direct call made outside that middleware.
+    /// Uses the exception handler feature because exception middleware may clear the current endpoint.
     /// </remarks>
-    ///
-    /// <remarks>
-    /// Only a <see cref="RouteEndpoint"/> carries a pattern, and <see cref="RouteEndpoint.RoutePattern"/> may have no raw
-    /// text. Both cases return the placeholder rather than the path, which can hold a single-use token a consumer placed
-    /// in a route segment.
-    /// </remarks>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
     private static string ResolveRoute(HttpContext httpContext)

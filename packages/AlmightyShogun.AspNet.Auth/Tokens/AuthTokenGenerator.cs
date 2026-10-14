@@ -1,3 +1,4 @@
+
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -6,35 +7,24 @@ using Microsoft.IdentityModel.JsonWebTokens;
 namespace AlmightyShogun.AspNet.Auth;
 
 /// <summary>
-/// Mints signed access tokens. The signing credentials are built once and reused, because deriving them per token would
-/// repeat the secret's byte encoding and its length check on every sign-in.
+/// Generates signed JWT access tokens.
 /// </summary>
-///
-/// <param name="authOptions">
-/// The bound settings supplying the issuer, the signing secret, and how long a minted token stays valid.
-/// </param>
-/// <param name="appHostResolver">
-/// The resolver used to determine the audience when the caller supplies none and host scoping is on. Unscoped, the
-/// default app is used and this is never consulted.
-/// </param>
-///
+/// <param name="authOptions">The authentication settings.</param>
+/// <param name="appHostResolver">The application host resolver.</param>
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 internal sealed class AuthTokenGenerator(IOptions<AuthSettings> authOptions, IAppHostResolver appHostResolver) : IAuthTokenGenerator
 {
     /// <summary>
-    /// The handler turning the token descriptor into the signed string a minted token carries.
+    /// The handler used to generate JWTs.
     /// </summary>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static readonly JsonWebTokenHandler _tokenHandler = new();
 
     /// <summary>
-    /// The signing credentials, derived once from the configured secret. Deriving them per call would repeat the key
-    /// validation and the byte encoding on every token minted.
+    /// The credentials used to sign tokens.
     /// </summary>
-    ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private readonly SigningCredentials _signingCredentials = new(
