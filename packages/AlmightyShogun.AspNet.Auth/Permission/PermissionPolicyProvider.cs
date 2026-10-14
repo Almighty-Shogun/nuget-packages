@@ -47,6 +47,11 @@ internal sealed class PermissionPolicyProvider(IOptions<AuthorizationOptions> op
         {
             string permission = policyName[AuthPolicies.PermissionPrefix.Length..];
 
+            if (string.IsNullOrWhiteSpace(permission))
+                throw new ArgumentException(
+                    "Permission name cannot be empty or whitespace.",
+                    nameof(policyName));
+
             policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser()
                 .AddRequirements(new PermissionRequirement(permission))
                 .Build();
