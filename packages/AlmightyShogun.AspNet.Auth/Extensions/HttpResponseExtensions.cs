@@ -45,14 +45,22 @@ public static class HttpResponseExtensions
         /// <author>Almighty-Shogun</author>
         /// <since>2.3.0</since>
         public void SetRefreshTokenCookie(string token, int days)
-            => httpResponse.Cookies.Append(CookieNames.RefreshToken, token, new CookieOptions
-            {
-                Path = "/",
-                HttpOnly = true,
-                SameSite = ResolveSameSite(httpResponse),
-                Expires = DateTimeOffset.UtcNow.AddDays(days),
-                Secure = true
-            });
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(days, 1);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(days, 365);
+            
+            httpResponse.Cookies.Append(
+                CookieNames.RefreshToken,
+                token,
+                new CookieOptions
+                {
+                    Path = "/",
+                    HttpOnly = true,
+                    SameSite = ResolveSameSite(httpResponse),
+                    Expires = DateTimeOffset.UtcNow.AddDays(days),
+                    Secure = true
+                });
+        }
 
         /// <summary>
         /// Deletes this package's refresh-token cookie, repeating the path it was written with, which is what identifies
