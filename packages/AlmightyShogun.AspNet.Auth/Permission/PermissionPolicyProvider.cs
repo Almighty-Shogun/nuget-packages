@@ -56,7 +56,7 @@ internal sealed class PermissionPolicyProvider(IOptions<AuthorizationOptions> op
             policy = await _fallback.GetPolicyAsync(policyName);
         }
 
-        return _policies.GetOrAdd(policyName, policy);
+        return policy is null ? null : _policies.GetOrAdd(policyName, policy);
     }
 
     /// <inheritdoc />
