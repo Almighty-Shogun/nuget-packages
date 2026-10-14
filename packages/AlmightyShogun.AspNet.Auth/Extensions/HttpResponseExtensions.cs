@@ -51,7 +51,7 @@ public static class HttpResponseExtensions
                 HttpOnly = true,
                 SameSite = ResolveSameSite(httpResponse),
                 Expires = DateTimeOffset.UtcNow.AddDays(days),
-                Secure = httpResponse.HttpContext.Request.IsHttps
+                Secure = true
             });
 
         /// <summary>
@@ -66,7 +66,7 @@ public static class HttpResponseExtensions
         {
             Path = "/",
             SameSite = ResolveSameSite(httpResponse),
-            Secure = httpResponse.HttpContext.Request.IsHttps
+            Secure = true
         });
     }
 
