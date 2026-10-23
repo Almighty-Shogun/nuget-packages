@@ -57,7 +57,7 @@ internal sealed class AuthEmailService<TUser>(
             DateTimeOffset now = DateTimeOffset.UtcNow;
 
             await SpendTokenAsync(verificationToken.Id, now, cancellationToken);
-            await MarkEmailVerifiedAsync(user.Id, now, cancellationToken);
+            await MarkEmailVerifiedAsync(user.Id, verificationToken.Email, now, cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
 
@@ -133,10 +133,18 @@ internal sealed class AuthEmailService<TUser>(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
-    private async Task MarkEmailVerifiedAsync(int userId, DateTimeOffset verifiedAt, CancellationToken cancellationToken)
-        => await databaseContext.Users
-            .Where(user => user.Id == userId)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.EmailVerifiedAt, verifiedAt), cancellationToken);
+    private async Task MarkEmailVerifiedAsync(int userId, string email, DateTimeOffset verifiedAt, CancellationToken cancellationToken)
+    {
+        int affectedRows = await databaseContext.Users
+                .Where(user => user.Id == userId && user.Email == email)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(user => user.EmailVerifiedAt, verifiedAt),
+                    cancellationToken
+                );
+        
+            if (affectedRows != 1)
+                throw new InvalidEmailVerificationTokenException();
+    }
 
     /// <summary>
     /// Moves the user to the address a redeemed change token carries and stamps them as having proved it, since the
@@ -165,8 +173,7 @@ internal sealed class AuthEmailService<TUser>(
             .Where(user => user.Id == userId)
             .ExecuteUpdateAsync(
                 setters => setters.SetProperty(user => user.Email, email).SetProperty(user => user.EmailVerifiedAt, verifiedAt),
-                cancellationToken
-            );
+                cancellationToken);
 
     /// <summary>
     /// Refuses an address another account already holds, so a change is turned away with a message rather than by the
@@ -264,15 +271,16 @@ internal sealed class AuthEmailService<TUser>(
 
         string token = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(48));
 
-        databaseContext.EmailVerificationTokens.Add(new EmailVerificationToken
-        {
-            Email = email,
-            UserId = user.Id,
-            Purpose = purpose,
-            CreatedAt = now,
-            ExpiresAt = now.AddMinutes(credentialOptions.Value.EmailVerificationMinutes),
-            TokenHash = TokenHasher.Hash(token)
-        });
+        databaseContext.EmailVerificationTokens.Add(
+            new EmailVerificationToken
+            {
+                Email = email,
+                UserId = user.Id,
+                Purpose = purpose,
+                CreatedAt = now,
+                ExpiresAt = now.AddMinutes(credentialOptions.Value.EmailVerificationMinutes),
+                TokenHash = TokenHasher.Hash(token)
+            });
 
         await databaseContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
