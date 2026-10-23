@@ -146,13 +146,16 @@ internal sealed class AuthUserService<TUser>(
         if (!user.IsActive)
             throw new AccountDisabledException();
 
+        await using IDbContextTransaction transaction =
+            await databaseContext.Database.BeginTransactionAsync(cancellationToken);
+
         if (!await twoFactorService.VerifyAsync(user.Identifier, request.Code, cancellationToken))
+        {
+            await transaction.CommitAsync(cancellationToken);
             throw new InvalidTwoFactorCodeException();
+        }
 
-        await using IDbContextTransaction transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
-
-        await SpendChallengeAsync(pending.Id, now, cancellationToken);
-        await lockoutGuard.ClearLockoutAsync(user.Id, cancellationToken);
+        await SpendChallengeAsync(pending.Id, DateTimeOffset.UtcNow, cancellationToken);
 
         AuthSessionResult<TUser> result =
             await sessionService.CreateSessionAsync(user, pending.App, clientContext, cancellationToken);
