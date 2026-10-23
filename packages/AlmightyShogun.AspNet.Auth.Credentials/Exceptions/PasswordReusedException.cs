@@ -1,8 +1,7 @@
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Thrown when a password change supplies the password already in use. Refused so a forced rotation actually rotates, rather than appearing
-/// to succeed while leaving the credential unchanged.
+/// Thrown when a new password matches the current password.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

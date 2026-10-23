@@ -3,15 +3,12 @@ using Microsoft.AspNetCore.Identity;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Holds the fixed values a sign-in path uses to spend a password verification on an unknown identifier, so the hash is
-/// not what separates it from a known one. Only that verification is equalized: with lockout enabled a known identifier
-/// also pays the lockout statements this path never reaches.
+/// Provides decoy password verification to reduce timing differences for unknown users.
 /// </summary>
 ///
 /// <remarks>
-/// Non-generic on purpose. The services that use these are generic over the user type, and a static field inside a
-/// generic type is allocated once per constructed type, so the hashing below would repeat for every <c>TUser</c> an
-/// application happens to close over.
+/// Only password verification time is equalized; known users may incur additional
+/// lockout operations. Non-generic to share the decoy hash across user types.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -19,7 +16,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 internal static class AuthTimingDefence
 {
     /// <summary>
-    /// The stand-in user the decoy hash was produced for. Never persisted, and never returned to a caller.
+    /// The temporary user used for decoy password verification.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -27,7 +24,7 @@ internal static class AuthTimingDefence
     private static readonly AuthUser _decoyUser = new() { Username = "decoy", Email = "decoy" };
 
     /// <summary>
-    /// The hasher used for the decoy verification, matching the one a real sign-in uses so the work is comparable.
+    /// The password hasher used for decoy verification.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -35,22 +32,24 @@ internal static class AuthTimingDefence
     private static readonly PasswordHasher<AuthUser> _decoyHasher = new();
 
     /// <summary>
-    /// A hash computed once, at this class's first use rather than at startup, so verifying against it costs what verifying
-    /// a real password costs. Nothing touches the class during registration, so the first sign-in against an unknown
-    /// identifier pays for producing it as well as for the verification.
+    /// The lazily initialized decoy hash used to simulate password verification.
     /// </summary>
+    ///
+    /// <remarks>
+    /// The first unknown-user sign-in also incurs the hash creation cost.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static readonly string _decoyHash = _decoyHasher.HashPassword(_decoyUser, "decoy");
 
     /// <summary>
-    /// Spends a password verification against the decoy hash, for the path where no user matched the identifier.
+    /// Performs a decoy password verification for an unknown user.
     /// </summary>
     ///
-    /// <param name="password">The submitted password, verified and then discarded.</param>
+    /// <param name="password">The submitted password.</param>
     ///
-    /// <returns>The verification outcome, which the caller ignores; only the time it took matters.</returns>
+    /// <returns>The verification result, which callers ignore.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

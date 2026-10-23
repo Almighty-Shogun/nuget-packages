@@ -3,22 +3,18 @@ using Microsoft.EntityFrameworkCore;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// The context this package's tables live in. An application derives its own context from it, so the auth tables sit
-/// alongside application data in one database rather than in a second one of the package's own.
+/// Base database context for credential authentication entities.
 /// </summary>
 ///
-/// <typeparam name="TUser">The application's own user entity, which decides the shape of the users table.</typeparam>
-/// <param name="options">
-/// The provider and connection the context runs on, passed straight to <see cref="DbContext"/>. Credential data lives
-/// wherever the application points this, rather than in a database of the package's own.
-/// </param>
+/// <typeparam name="TUser">The application's user entity type.</typeparam>
+/// <param name="options"> The database context options.</param>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext(options) where TUser : AuthUser
 {
     /// <summary>
-    /// The users, of the application's own entity type, so an application adds its own columns without a second table.
+    /// The application users.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -26,8 +22,7 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     public DbSet<TUser> Users => Set<TUser>();
 
     /// <summary>
-    /// The refresh-token sessions a presented refresh token is matched against. See <see cref="UserSession"/> for what
-    /// a single row stands for.
+    /// The user sessions used for refresh token authentication.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -35,9 +30,7 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     public DbSet<UserSession> UserSessions => Set<UserSession>();
 
     /// <summary>
-    /// The outstanding password resets, at most one row per user. A spent row stays until that user requests another
-    /// reset and it is reused. No package service distinguishes a spent token from an unknown one; both are refused the
-    /// same way, though an application querying this set itself can tell them apart.
+    /// The password reset tokens, including redeemed tokens.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -45,9 +38,7 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
     /// <summary>
-    /// The issued email verifications, including spent ones. <see cref="IAuthEmailService"/> writes them, retiring a user's
-    /// unspent rows of a purpose whenever it issues another of that purpose, so requests made one after another leave one
-    /// unspent row per user per purpose. Two arriving at once can leave more, since no index enforces the limit.
+    /// The email verification tokens, including redeemed tokens.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -55,9 +46,7 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
 
     /// <summary>
-    /// The two-factor enrolments, one per user with an enrolment begun and not since disabled. A row appears when
-    /// enrolment starts rather than when it is confirmed, and disabling deletes it. Kept separate from the user row so a
-    /// secret is only read when a code is being verified.
+    /// The user two-factor enrollments, including pending enrollments.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -65,9 +54,7 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     public DbSet<UserTwoFactor> UserTwoFactors => Set<UserTwoFactor>();
 
     /// <summary>
-    /// The lockout rows, one per account with a run of failures behind it. Empty in a deployment that leaves
-    /// lockout disabled, and emptied for an account once it has completed a sign-in, which for a user owing a second
-    /// factor is when the code is presented rather than when the password verifies.
+    /// The user lockout records.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -75,8 +62,7 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     public DbSet<UserLockout> UserLockouts => Set<UserLockout>();
 
     /// <summary>
-    /// The recovery codes issued against those enrolments, one row per code so spending one does not rewrite the
-    /// rest.
+    /// The two-factor recovery codes.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -84,16 +70,8 @@ public abstract class AuthDbContext<TUser>(DbContextOptions options) : DbContext
     public DbSet<TwoFactorRecoveryCode> TwoFactorRecoveryCodes => Set<TwoFactorRecoveryCode>();
 
     /// <summary>
-    /// The sign-ins waiting on a second factor, including spent ones. <see cref="IAuthUserService{TUser}"/> writes them,
-    /// retiring a user's unspent rows whenever it issues another, so sign-ins made one after another leave one unspent
-    /// row per user. Two arriving at once can leave more, since no index enforces the limit.
-    /// <see cref="IAuthPasswordService"/> retires them too, wherever it sets a password.
+    /// The two-factor login challenges, including redeemed challenges.
     /// </summary>
-    ///
-    /// <remarks>
-    /// Spent rows are cleared out for a user as that user is issued another challenge, and only once they have expired,
-    /// so an account that never signs in again keeps whatever it left behind.
-    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.1.0</since>

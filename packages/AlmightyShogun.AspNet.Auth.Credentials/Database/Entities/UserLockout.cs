@@ -3,16 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// A user's failed sign-in run and the lockout it earned. Kept out of the user row because lockout is off by default,
-/// so a deployment that never enables it never writes here and the user table stays free of columns it does not use.
+/// Tracks failed authentication attempts and account lockouts.
 /// </summary>
 ///
 /// <remarks>
-/// A row exists only between the first failure and the sign-in that next completes. Completing one deletes the row
-/// rather than zeroing it, so the table holds one row per account currently failing rather than one per account that
-/// ever has. Where a second factor is owed the row outlives the password and is deleted only once the code is
-/// presented, since a correct password on its own finishes nothing; the codes tried in the meantime count on the same
-/// row as the passwords did.
+/// Failed password and two-factor attempts share the same counter.
+/// The record is removed after successful authentication.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -21,8 +17,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed class UserLockout
 {
     /// <summary>
-    /// The surrogate key. The row is always reached through its user, so this value appears in no response
-    /// and in no query a caller writes.
+    /// The lockout record's primary key.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -30,7 +25,7 @@ public sealed class UserLockout
     public int Id { get; set; }
 
     /// <summary>
-    /// The user this run of failures belongs to. Unique, so an account cannot accumulate two counters.
+    /// The identifier of the associated user.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -38,9 +33,7 @@ public sealed class UserLockout
     public int UserId { get; set; }
 
     /// <summary>
-    /// How many credential checks stand unanswered against the account, wrong passwords and wrong two-factor codes
-    /// together. Normally reaches the configured limit and then locks; it can stand above a limit that was lowered after
-    /// the row was written.
+    /// The number of failed authentication attempts.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -48,8 +41,7 @@ public sealed class UserLockout
     public int AccessFailedCount { get; set; }
 
     /// <summary>
-    /// When the current lockout expires, or <c>null</c> while failures are only being counted. Stored
-    /// rather than derived, so a lockout survives a restart.
+    /// The lockout expiration timestamp, or null if not locked.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -57,8 +49,7 @@ public sealed class UserLockout
     public DateTimeOffset? LockoutEnd { get; set; }
 
     /// <summary>
-    /// Whether the account is locked right now, which is a lockout end in the future rather than merely one that
-    /// was set. An expired lockout needs no clearing before the next attempt.
+    /// Indicates whether the account is currently locked.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

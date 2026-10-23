@@ -1,3 +1,4 @@
+
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.Core;
@@ -11,41 +12,23 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Creates, renews, and ends refresh-token sessions. Renewal rotates the token every time and remembers the one it
-/// replaced, so presenting that spent token once the rotation grace has passed is recognised as a replay and ends every
-/// session the user holds.
+/// Creates, refreshes, and revokes authentication sessions.
 /// </summary>
 ///
-/// <typeparam name="TUser">The application's own user entity, returned alongside the tokens a session yields.</typeparam>
-/// <param name="databaseContext">The application's context, which the credential tables live in.</param>
-/// <param name="authOptions">The bound JWT settings, read for how long a refresh token lives.</param>
-/// <param name="credentialOptions">
-/// The bound credential settings, read for the absolute lifetime that caps the expiry written when a session opens and
-/// again when it is renewed, and that refuses a renewal arriving past it.
-/// </param>
-/// <param name="appHostResolver">
-/// The resolver deciding which application the current request belongs to, so a session is scoped to the host the user
-/// actually signed in through.
-/// </param>
-/// <param name="lockoutGuard">
-/// The guard owning the failure budget, consulted so a renewal honours a lockout the sign-in paths applied. Nothing here
-/// claims an attempt against it, since a refresh token is not guessed at.
-/// </param>
-/// <param name="tokenGenerator">
-/// The JWT package's generator, which signs and stamps issuer, audience, and expiry over the claims built here.
-/// </param>
-/// <param name="logger">Where a detected token replay is recorded, since nothing is returned to the caller about it.</param>
+/// <typeparam name="TUser">The application's user entity.</typeparam>
+/// <param name="databaseContext">The authentication database context.</param>
+/// <param name="authOptions">The JWT authentication settings.</param>
+/// <param name="credentialOptions">The credential and session lifetime settings.</param>
+/// <param name="appHostResolver">Resolves the current application host.</param>
+/// <param name="lockoutGuard">Checks account lockout status during renewal.</param>
+/// <param name="tokenGenerator">Generates signed access tokens.</param>
+/// <param name="logger">Logs refresh-token replay detection.</param>
 ///
 /// <remarks>
-/// Only one step of the chain is remembered. A session that has rotated <c>a</c> to <c>b</c> to <c>c</c> holds
-/// <c>b</c> as its previous token, so replaying <c>b</c> is detected while replaying <c>a</c> reads as an unknown token
-/// and is refused without revoking anything. Detection therefore covers the token most recently spent, and not every
-/// token the session has ever issued, and it covers that one token once, since the record of it is cleared as the
-/// detection fires.
-///
-/// It also covers only a replay arriving more than <see cref="AuthSessionDefaults.RotationGrace"/> after the session was
-/// last refreshed. Inside that window the replay is refused like any unusable token and nothing is revoked, so a thief
-/// presenting the spent token while the legitimate client is still rotating goes undetected.
+/// Refresh tokens rotate on renewal. Reuse of the most recently replaced token
+/// outside <see cref="AuthSessionDefaults.RotationGrace"/> triggers session revocation.
+/// Older tokens are rejected without replay detection, and reuse within the grace
+/// period is rejected without revocation.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -192,19 +175,15 @@ internal sealed class AuthSessionService<TUser>(
     }
 
     /// <summary>
-    /// Loads the one user matching a predicate, refusing rather than returning null, so every caller past this point has a
-    /// user to work with.
+    /// Retrieves a matching user.
     /// </summary>
     ///
-    /// <param name="predicate">The lookup, by the key the session being renewed carries.</param>
-    /// <param name="cancellationToken">Cancels the lookup.</param>
+    /// <param name="predicate">The user lookup predicate.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>
-    /// The matching user, tracked. Nothing on this path writes to it: the rotation is a statement of its own rather than a
-    /// saved entity, so the context the application shares with this service gains a row to track and nothing to save.
-    /// </returns>
+    /// <returns>The matching tracked user.</returns>
     ///
-    /// <exception cref="InvalidCredentialsException">Thrown when no user matches the predicate.</exception>
+    /// <exception cref="InvalidCredentialsException">No matching user exists.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -216,36 +195,20 @@ internal sealed class AuthSessionService<TUser>(
     }
 
     /// <summary>
-    /// Writes a rotation onto the session with one statement, guarded on the concurrency token the row carried when it was
-    /// read, so two refreshes presenting the same token leave one rotation standing rather than two.
+    /// Atomically rotates a session's refresh token.
     /// </summary>
     ///
-    /// <param name="session">
-    /// The session being renewed, read moments earlier. Read here for the row to match, the token value the guard compares,
-    /// the hash the rotation retires, and the creation instant the absolute cap is measured from.
-    /// </param>
-    /// <param name="newRefreshToken">The token about to be handed to the client, stored as its hash.</param>
-    /// <param name="clientContext">
-    /// The current request's address and user agent, recorded on the row so a user can recognise their own devices. Both are
-    /// trimmed to the widths their columns declare, since they arrive at whatever length the client sent.
-    /// </param>
-    /// <param name="cancellationToken">Cancels the update.</param>
+    /// <param name="session">The session being renewed.</param>
+    /// <param name="newRefreshToken">The replacement refresh token.</param>
+    /// <param name="clientContext">The current client metadata.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>
-    /// <c>true</c> when the row was rewritten, <c>false</c> when the guard matched nothing, which means another refresh
-    /// rotated the same session between the read and here. The caller rolls back and refuses on <c>false</c>, so the token
-    /// this call would have issued is discarded rather than left half written.
-    /// </returns>
+    /// <returns>True if rotation succeeded; otherwise, false.</returns>
     ///
     /// <remarks>
-    /// The row is matched and written by one statement rather than loaded and saved, so nothing is staged on the context
-    /// the application shares with this service and a rotation that loses leaves no entry behind for the application's own
-    /// save to commit. Entity Framework applies no concurrency check to a statement it runs directly, so the token is
-    /// compared in the predicate and replaced in the same update rather than left to a save.
-    ///
-    /// The expiry is recomputed from the refresh window and capped, so a renewal slides the session forward without
-    /// carrying it past the absolute lifetime, and the hash being replaced is recorded as the previous one, which is what
-    /// a later replay of that token is detected against.
+    /// Guards the update with the existing concurrency token, refresh-token hash,
+    /// revocation status, and expiry. Stores the replaced hash for replay detection
+    /// and caps the new expiry at the absolute session lifetime.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -299,30 +262,18 @@ internal sealed class AuthSessionService<TUser>(
     }
 
     /// <summary>
-    /// Treats a refresh token that was already rotated away as stolen, revokes every session the user holds, and clears
-    /// the retired hash that matched, so one replayed token fires the detection once rather than repeatedly.
+    /// Detects reuse of a rotated refresh token and revokes the user's sessions.
     /// </summary>
     ///
-    /// <param name="refreshTokenHash">The hash of the token that was presented after already being rotated away.</param>
-    /// <param name="cancellationToken">Cancels the lookup and the two updates.</param>
+    /// <param name="refreshTokenHash">The presented refresh-token hash.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>
-    /// <c>true</c> when a replay was found, the user's live sessions were revoked and the matched session's
-    /// <see cref="UserSession.PreviousRefreshTokenHash"/> was cleared, <c>false</c> when the hash matches no rotated
-    /// session or the rotation is still inside the grace window.
-    /// </returns>
+    /// <returns>True if replay was detected; otherwise, false.</returns>
     ///
     /// <remarks>
-    /// The match is on the retired hash alone, with no filter on the session being live, so a row already revoked, by a
-    /// sign-out or by a password or email change, is still a source. Clearing the hash is what bounds that: revoked rows
-    /// are kept until they expire, so a hash left standing would revoke every session opened afterwards, once per
-    /// sign-in, for the rest of the refresh window.
-    ///
-    /// Both writes are statements the database applies as they are issued rather than entities left for a save, so
-    /// nothing is staged on the shared context that an abandoned attempt could leave behind. Neither is committed here:
-    /// the caller owns the transaction this runs in, so a detection that cannot be committed leaves no change behind.
-    /// The caller runs this again in a fresh transaction when an attempt loses a collision, which is why the row is read
-    /// here rather than passed in: the second reading sees what the rotation that won left, and revokes that.
+    /// Detection applies after the rotation grace period, even to revoked sessions.
+    /// The previous-token hash is cleared after detection to prevent repeated revocations.
+    /// Changes remain subject to the caller's transaction.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -354,40 +305,17 @@ internal sealed class AuthSessionService<TUser>(
     }
 
     /// <summary>
-    /// Detects a replay and writes the revocations it makes in a transaction of its own, running the pair again over
-    /// freshly read rows whenever a refresh that raced it wins, so a confirmed theft ends the user's sessions instead of
-    /// being discarded.
+    /// Persists replay-triggered session revocations with bounded retries.
     /// </summary>
     ///
-    /// <param name="refreshTokenHash">The hash of the token that was refused, which the detection matches on.</param>
-    /// <param name="cancellationToken">Cancels the reads, the updates, and the commit of every attempt.</param>
-    ///
-    /// <returns>
-    /// A task that completes once an attempt has committed, once a detection has found nothing to revoke, or once the
-    /// attempts are spent.
-    /// </returns>
+    /// <param name="refreshTokenHash">The rejected refresh-token hash.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
     /// <remarks>
-    /// A whole attempt is redone rather than only its write, because a server enforcing snapshot isolation rejects the
-    /// update outright once a row has moved since the transaction's first read. That cannot be answered inside the
-    /// transaction at all, since every read it makes still returns the snapshot the rotation is not in, so the
-    /// transaction is left behind and the next attempt opens its own and reads what the rotation left.
-    ///
-    /// <see cref="AuthSessionDefaults.RevocationSaveAttempts"/> bounds those attempts, so a steady stream of refreshes
-    /// cannot hold one request open indefinitely. Nothing is done to the context between them: the revocations are
-    /// statements the database applies as they are issued, so an abandoned attempt stages nothing to be sent again and
-    /// disturbs nothing the application was tracking.
-    ///
-    /// The revocation is meant to win that collision. <see cref="UserSession.IsRevoked"/> and the cleared
-    /// <see cref="UserSession.PreviousRefreshTokenHash"/> are the only columns it sets, both to a constant and neither
-    /// reading the value it replaces, so reapplying them over the row the rotation left loses nothing, and the rotation
-    /// being overtaken may well be the thief's.
-    ///
-    /// A later attempt whose detection finds nothing returns without writing, which is what happens once another request
-    /// has already cleared the retired hash and revoked the sessions this one was going to. Exhausting the attempts logs
-    /// the failure and leaves the user's sessions standing with that hash uncleared, so the token fires detection again
-    /// on its next presentation. The caller refuses the refresh with <see cref="InvalidSessionException"/> either way,
-    /// so nothing about the answer tells the presenter which of the two happened.
+    /// Retries the entire transaction after concurrency conflicts to observe
+    /// newly rotated sessions. Stops after
+    /// <see cref="AuthSessionDefaults.RevocationSaveAttempts"/> attempts and
+    /// logs a failure if revocations cannot be committed.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -425,24 +353,13 @@ internal sealed class AuthSessionService<TUser>(
     }
 
     /// <summary>
-    /// Reports whether a session has already reached the absolute lifetime measured from its creation, so a refresh
-    /// presented against it is refused rather than capped to an expiry at or before <paramref name="now"/> that no later
-    /// refresh would match. It draws that line and nothing more: a refresh admitted just under the limit is still capped to
-    /// it, so the refresh token handed back can be milliseconds from dead.
+    /// Checks whether a session has reached its absolute lifetime.
     /// </summary>
     ///
-    /// <param name="session">The session a refresh was presented against, read for when it was created.</param>
-    /// <param name="now">
-    /// The moment the refresh is judged against, read before the session was looked up. The expiry a renewal goes on to
-    /// write is computed from a later reading of the clock, so a session crossing the limit in between is admitted here and
-    /// then capped to an expiry already past.
-    /// </param>
+    /// <param name="session">The session to check.</param>
+    /// <param name="now">The time used for the comparison.</param>
     ///
-    /// <returns>
-    /// <c>false</c> when no absolute lifetime is configured, otherwise whether that lifetime ends at or before
-    /// <paramref name="now"/>. Reaching it exactly counts as past, matching <see cref="UserSession.IsExpired"/> treating an
-    /// expiry equal to the current moment as reached.
-    /// </returns>
+    /// <returns>True if the absolute lifetime has expired; otherwise, false.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.1.0</since>
@@ -455,19 +372,13 @@ internal sealed class AuthSessionService<TUser>(
     }
 
     /// <summary>
-    /// Caps a session expiry at the absolute lifetime measured from when the session was created, so neither the expiry
-    /// written when a session opens nor the one a renewal proposes carries it past that limit.
+    /// Limits a session's expiry to its absolute lifetime.
     /// </summary>
     ///
-    /// <param name="session">
-    /// The session the expiry belongs to, read for when it was created. A row that has not been saved yet works, since
-    /// <see cref="UserSession.CreatedAt"/> is stamped as the entity is constructed and nothing rewrites it on insert.
-    /// </param>
-    /// <param name="proposedExpiry">The expiry a plain sliding window would give, before the absolute cap is applied.</param>
+    /// <param name="session">The session whose lifetime is being capped.</param>
+    /// <param name="proposedExpiry">The expiry before applying the absolute limit.</param>
     ///
-    /// <returns>
-    /// The earlier of the proposed expiry and the absolute limit, so continuous use cannot extend one sign-in forever.
-    /// </returns>
+    /// <returns>The earlier of the proposed expiry and the absolute lifetime.</returns>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

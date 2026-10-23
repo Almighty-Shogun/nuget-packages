@@ -1,8 +1,7 @@
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Thrown when a reset link is presented with a token that cannot be redeemed, whether it is unknown, already spent, or
-/// past its expiry. Answering the same way for all three stops the endpoint confirming which tokens once existed.
+/// Thrown when a password reset token is invalid, expired, or already used.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

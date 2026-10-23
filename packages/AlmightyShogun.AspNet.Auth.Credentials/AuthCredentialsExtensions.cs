@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Registers the credential authentication services against an application's own database context and user type.
+/// Provides dependency injection registration for credential authentication services.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -13,41 +13,25 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public static class AuthCredentialsExtensions
 {
     /// <summary>
-    /// Provides the registration helper on the service collection, which is where every registration this package makes
-    /// lands.
+    /// Registers credential authentication services.
     /// </summary>
-    ///
-    /// <param name="serviceCollection">
-    /// The collection the services are registered into. Returned so the call chains with the rest of an application's
-    /// startup.
-    /// </param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     extension(IServiceCollection serviceCollection)
     {
         /// <summary>
-        /// Registers every credential service against the application's own context and user entity, so auth data lives in the
-        /// application's database rather than a separate one. The JWT auth registration it builds on has to be made too,
-        /// in either order, since nothing here reads it at registration time.
+        /// Registers credential authentication services using the application's database context and user type.
         /// </summary>
         ///
-        /// <typeparam name="TDbContext">The application's own context, resolved per request and handed to every service.</typeparam>
-        /// <typeparam name="TUser">The user entity the services read and write, so an application keeps its own columns.</typeparam>
-        /// <param name="configuration">
-        /// The application configuration. Read for an <c>AuthCredentials</c> section, which is optional: every value in it
-        /// has a default, so an absent section leaves lockout off and the reset, verification, and two-factor policies as
-        /// they ship.
-        /// </param>
+        /// <typeparam name="TDbContext">The application's authentication database context.</typeparam>
+        /// <typeparam name="TUser">The application's user entity.</typeparam>
+        /// <param name="configuration">The application configuration containing the optional AuthCredentials section.</param>
         /// <param name="registerExceptionHandler">
-        /// Whether to register the handler that turns this package's exceptions into standardized responses. It needs
-        /// <c>AddHttpErrorResponseWriter</c> from <c>AlmightyShogun.AspNet.Core</c> and <c>AddMessageLocalization</c> from
-        /// <c>AlmightyShogun.AspNet.Localization</c>, which is what registers the message resolver it reads. The
-        /// mapper is registered either way, though it is internal to this package and only that handler consults it, so
-        /// passing <c>false</c> leaves these exceptions to whatever handler the application registers itself.
+        /// Whether to register the credential exception handler.
         /// </param>
         ///
-        /// <returns>The <see cref="IServiceCollection"/> instance with the credential authentication services registered.</returns>
+        /// <returns>The service collection.</returns>
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>

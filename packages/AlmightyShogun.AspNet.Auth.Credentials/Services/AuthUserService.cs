@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Http;
 using AlmightyShogun.AspNet.Core;
 using Microsoft.Extensions.Options;
@@ -10,30 +11,22 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Signs users in and creates them. An unknown identifier and a wrong password are refused identically, and an unknown one
-/// still pays a decoy verification, so the hash is not what separates them; with lockout enabled a known identifier also
-/// pays the lockout statements the unknown path never reaches. A locked and a disabled account are each refused distinctly,
-/// and a lockout is answered before the password is checked at all. A correct password opens a session only where no
-/// enabled two-factor enrolment stands in the way; where one does, it buys a challenge and nothing else.
+/// Handles user registration, password login, and two-factor sign-in.
 /// </summary>
 ///
-/// <typeparam name="TUser">The application's own user entity, both inserted on creation and returned on sign-in.</typeparam>
-/// <param name="databaseContext">The application's context, which the credential tables live in.</param>
-/// <param name="credentialOptions">
-/// The bound credential settings, read for how long an issued challenge stays redeemable.
-/// </param>
-/// <param name="appHostResolver">
-/// The resolver deciding which application the current request belongs to, so a session and its token are scoped to the
-/// host the user actually signed in through, and so a challenge is only completed through the application that bought it.
-/// </param>
-/// <param name="lockoutGuard">
-/// The guard owning the failure budget, which the password check is claimed against and which a completed sign-in clears.
-/// </param>
-/// <param name="sessionService">The session service, which issues the tokens a completed sign-in returns.</param>
-/// <param name="twoFactorService">
-/// The two-factor service, asked to verify the code a challenge is completed with. Nothing here reads a secret or a
-/// recovery code itself.
-/// </param>
+/// <typeparam name="TUser">The application's user entity.</typeparam>
+/// <param name="databaseContext">The authentication database context.</param>
+/// <param name="credentialOptions">The credential and two-factor settings.</param>
+/// <param name="appHostResolver">Resolves the application associated with the request.</param>
+/// <param name="lockoutGuard">Enforces the authentication failure limit.</param>
+/// <param name="sessionService">Creates authenticated sessions.</param>
+/// <param name="twoFactorService">Verifies two-factor authentication codes.</param>
+///
+/// <remarks>
+/// Unknown users receive decoy password verification. Valid passwords create
+/// sessions directly unless two-factor authentication is enabled, in which
+/// case a challenge must be completed first.
+/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
@@ -47,8 +40,7 @@ internal sealed class AuthUserService<TUser>(
 ) : IAuthUserService<TUser> where TUser : AuthUser
 {
     /// <summary>
-    /// The hasher used for every password read and write, so hashing and verification cannot end up using different
-    /// parameters.
+    /// The password hasher used for hashing and verification.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -203,38 +195,29 @@ internal sealed class AuthUserService<TUser>(
     }
 
     /// <summary>
-    /// Verifies the supplied password against a throwaway hash, so the no-user path costs the same as a wrong password.
+    /// Performs decoy password verification for an unknown user.
     /// </summary>
     ///
-    /// <param name="password">The submitted password, verified against a throwaway hash and then discarded.</param>
+    /// <param name="password">The submitted password.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static void VerifyDecoy(string password) => AuthTimingDefence.SpendVerification(password);
 
     /// <summary>
-    /// Retires the challenges the user still had outstanding, clears out the ones that have expired, and writes a fresh
-    /// one, so the newest sign-in is the one that can be completed and, short of two arriving at once, it is the only one.
+    /// Issues a two-factor challenge and retires previous challenges.
     /// </summary>
     ///
-    /// <param name="userId">The user whose password just verified, given as the database key rather than the public identifier.</param>
-    /// <param name="app">The application the sign-in came through, recorded so completion scopes the session to it.</param>
-    /// <param name="context">The request's address, recorded on the challenge for auditing.</param>
-    /// <param name="cancellationToken">Cancels the retirement, the prune, and the insert.</param>
+    /// <param name="userId">The user's database identifier.</param>
+    /// <param name="app">The application associated with the sign-in.</param>
+    /// <param name="context">The client context used for auditing.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>The challenge in plain text, to hand back to the client; only its hash is stored.</returns>
+    /// <returns>The plaintext challenge; only its hash is stored.</returns>
     ///
     /// <remarks>
-    /// The retirement is one update statement, so the database has already written it when this returns. The prune and
-    /// the insert are not saved here: the caller runs inside a transaction of its own and saves them with the rehash that
-    /// may sit beside them, so a sign-in never ends with the previous challenge killed and no new one written.
-    ///
-    /// The prune covers only the user being signed in, so a row belonging to an account that never signs in again is
-    /// left where it is. Retiring before pruning means a row that is both unspent and expired is stamped and then
-    /// deleted in the same call.
-    ///
-    /// Two sign-ins running at once can still both insert, because the retirement of the later one need not see a row the
-    /// earlier one has not committed yet and no index in the schema holds the count down.
+    /// Expired challenges are removed within the caller's transaction.
+    /// Concurrent sign-ins may still issue multiple challenges.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -273,24 +256,15 @@ internal sealed class AuthUserService<TUser>(
     }
 
     /// <summary>
-    /// Spends the user's unspent challenges in a single statement, so signing in again abandons the code prompt that was
-    /// still open rather than leaving two completable at once.
+    /// Marks the user's outstanding two-factor challenges as used.
     /// </summary>
     ///
-    /// <param name="userId">The user whose outstanding challenges are being retired.</param>
-    /// <param name="now">The instant stamped onto the retired rows, shared with the insert that runs alongside them.</param>
-    /// <param name="cancellationToken">Cancels the update.</param>
-    ///
-    /// <returns>
-    /// A task that completes once the matching rows are spent, which the database has already written when it does. The
-    /// statement runs inside the transaction the caller opened, so it is rolled back with the rest of that work.
-    /// </returns>
+    /// <param name="userId">The user's database identifier.</param>
+    /// <param name="now">The timestamp assigned to retired challenges.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
     /// <remarks>
-    /// The rows are matched and stamped by one update rather than loaded and rewritten, so no row can be retired on the
-    /// strength of a read another request has already invalidated. The update bypasses the change tracker, so the rows in
-    /// the database are stamped while an instance already materialized through this context keeps the
-    /// <see cref="TwoFactorChallenge.UsedAt"/> it was loaded with.
+    /// Uses a direct database update within the caller's transaction.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -301,20 +275,20 @@ internal sealed class AuthUserService<TUser>(
             .ExecuteUpdateAsync(setters => setters.SetProperty(challenge => challenge.UsedAt, now), cancellationToken);
 
     /// <summary>
-    /// Claims the challenge with a guarded update, so two completions racing for the same one produce one session and one
-    /// refusal rather than two sessions.
+    /// Atomically redeems an unused, unexpired two-factor challenge.
     /// </summary>
     ///
-    /// <param name="challengeId">The row to spend, as read moments earlier.</param>
-    /// <param name="now">The instant stamped onto the row, and the instant its expiry is judged against.</param>
-    /// <param name="cancellationToken">Cancels the update.</param>
-    ///
-    /// <returns>A task that completes once the row is spent, which the database has already written when it does.</returns>
+    /// <param name="challengeId">The challenge's database identifier.</param>
+    /// <param name="now">The redemption timestamp.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
     /// <exception cref="InvalidTwoFactorChallengeException">
-    /// The row was no longer unspent and unexpired, so another request claimed it in between, or a sign-in made in the
-    /// meantime retired it.
+    /// The challenge expired or was already used or retired.
     /// </exception>
+    ///
+    /// <remarks>
+    /// The guarded update prevents concurrent redemption of the same challenge.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.1.0</since>
@@ -329,25 +303,18 @@ internal sealed class AuthUserService<TUser>(
     }
 
     /// <summary>
-    /// Refuses a username or email address that another account already holds, so a duplicate is reported as a client
-    /// mistake rather than surfacing as a unique-index violation from the database.
+    /// Checks whether a username and email are available.
     /// </summary>
     ///
-    /// <param name="username">The username the new account wants, compared under the database's own collation.</param>
-    /// <param name="email">
-    /// The address the new account wants. Compared under the database's collation, so a case-sensitive one lets two
-    /// accounts differ only in casing.
-    /// </param>
-    /// <param name="cancellationToken">Cancels the lookups.</param>
+    /// <param name="username">The requested username.</param>
+    /// <param name="email">The requested email address.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>A task that completes when neither value was in use at the moment it was checked.</returns>
-    ///
-    /// <exception cref="UsernameTakenException">Another account already uses that username.</exception>
-    /// <exception cref="EmailTakenException">Another account already uses that email address.</exception>
+    /// <exception cref="UsernameTakenException">The username is already registered.</exception>
+    /// <exception cref="EmailTakenException">The email address is already registered.</exception>
     ///
     /// <remarks>
-    /// A check here cannot make the write safe on its own, because another request may claim the same value in between.
-    /// The unique indexes remain the guarantee; this only turns the common case into a useful message.
+    /// Database unique indexes remain authoritative against concurrent registrations.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

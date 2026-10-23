@@ -5,9 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// A user's password reset, at most one row per account. Requesting another reset rewrites this row in place rather
-/// than adding a second, which is what makes a fresh link invalidate the previous one; redeeming a spent token is
-/// refused exactly as an unknown one is.
+/// Represents a user's password reset token, replaced when a new reset is requested.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -17,8 +15,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed class PasswordResetToken
 {
     /// <summary>
-    /// The surrogate key. It is never handed to a client: the emailed token is the only handle a caller
-    /// has on this row, so the key can stay a plain incrementing integer.
+    /// The token's primary key.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -26,8 +23,7 @@ public sealed class PasswordResetToken
     public int Id { get; set; }
 
     /// <summary>
-    /// The user the reset was issued for. Unique, so an account cannot hold two reset tokens at once, and
-    /// cascades with the user.
+    /// The identifier of the associated user.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -35,8 +31,7 @@ public sealed class PasswordResetToken
     public int UserId { get; set; }
 
     /// <summary>
-    /// The hash of the token that was emailed. Only the hash is stored, so the value in the email cannot be
-    /// recovered from the database.
+    /// The hash of the issued password reset token.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -46,8 +41,7 @@ public sealed class PasswordResetToken
     public string TokenHash { get; set; } = string.Empty;
 
     /// <summary>
-    /// When the reset now held was requested. Rewritten each time the user requests another, so it dates the
-    /// current link rather than the first one ever issued.
+    /// The token creation timestamp.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -55,7 +49,7 @@ public sealed class PasswordResetToken
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
-    /// When the token stops being usable, set from the configured reset lifetime at issue.
+    /// The token expiration timestamp.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -63,19 +57,19 @@ public sealed class PasswordResetToken
     public DateTimeOffset ExpiresAt { get; set; }
 
     /// <summary>
-    /// When the token was spent, or <c>null</c> while it is still usable. Set instead of deleting the row,
-    /// so a second attempt with the same value is refused as if unknown; it goes back to <c>null</c> when the user
-    /// requests a new reset and this row is reused for it.
+    /// The token redemption timestamp, or null if unused.
     /// </summary>
-    ///
+    /// 
+    /// <remarks>
+    /// Reset when a new password reset token is issued.
+    /// </remarks>
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public DateTimeOffset? UsedAt { get; set; }
 
     /// <summary>
-    /// The address the reset was requested from, kept for auditing an unexpected reset. Trimmed to 45 characters at the write,
-    /// which holds any IPv6 address in its longest plain form but not one carrying a scope id, and not a chain of forwarded
-    /// addresses.
+    /// The IP address from which the password reset was requested.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -84,7 +78,7 @@ public sealed class PasswordResetToken
     public string? RequestedIpAddress { get; set; }
 
     /// <summary>
-    /// Whether the token would still be accepted, which is unspent and not past its expiry.
+    /// Indicates whether the token is unused and unexpired.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

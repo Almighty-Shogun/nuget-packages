@@ -1,19 +1,15 @@
+
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Enrols a user in TOTP two-factor authentication and checks the codes they present. The shared secret is encrypted
-/// at rest and the recovery codes are hashed, so a database copy yields neither working codes nor a way to mint them.
+/// Manages TOTP enrolment, verification, and recovery codes.
 /// </summary>
 ///
-/// <typeparam name="TUser">The application's own user entity, which the public identifier is resolved against.</typeparam>
+/// <typeparam name="TUser">The application's user entity.</typeparam>
 ///
 /// <remarks>
-/// Enrolling is the decision, and it is the application's: nothing here is required of an account until
-/// <see cref="CompleteEnrolmentAsync"/> turns it on. Once it is on,
-/// <see cref="IAuthUserService{TUser}.LoginAsync"/> stops opening a session on the password alone and demands a code
-/// through <see cref="IAuthUserService{TUser}.CompleteTwoFactorLoginAsync"/>, which calls
-/// <see cref="VerifyAsync"/> for it. A product that wants to let a remembered device skip the prompt has to leave the
-/// account unenrolled or disable the enrolment; there is no per-sign-in way past it.
+/// TOTP secrets are encrypted and recovery codes are hashed.
+/// Once enrolment is confirmed, password login requires a second-factor code.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -21,28 +17,21 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
 {
     /// <summary>
-    /// Issues a new TOTP secret and returns what the user needs to add it to an authenticator app. The secret is held
-    /// aside rather than put in force, so nothing about the account changes until a code proves the app was set up.
+    /// Creates a pending TOTP enrolment for an authenticator app.
     /// </summary>
     ///
-    /// <param name="identifier">The public identifier of the user enrolling.</param>
-    /// <param name="issuer">
-    /// The name shown beside the account in the authenticator app. Ignored when the configured
-    /// <see cref="TwoFactorPolicy.Issuer"/> is set, which is the better place for a value that never varies per call.
-    /// </param>
-    /// <param name="cancellationToken">Cancels the database work.</param>
+    /// <param name="identifier">The user's public identifier.</param>
+    /// <param name="issuer">The issuer name, overridden by <see cref="TwoFactorPolicy.Issuer"/> when configured.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>
-    /// The secret and the <c>otpauth://</c> URI, returned once. Calling this again discards the previous unconfirmed
-    /// secret and offers a fresh one, so only the most recent QR can be confirmed.
-    /// </returns>
+    /// <returns>The TOTP secret and authenticator URI.</returns>
     ///
-    /// <exception cref="InvalidCredentialsException">The identifier matches no account.</exception>
+    /// <exception cref="InvalidCredentialsException">The user does not exist.</exception>
     ///
     /// <remarks>
-    /// A user who already has a working second factor keeps it, codes and all, until this enrolment is confirmed.
-    /// Abandoning the enrolment therefore costs them nothing, and the offered secret stops being confirmable on its own
-    /// after <see cref="TwoFactorPolicy.PendingSecretMinutes"/>.
+    /// A new request replaces the previous pending secret without affecting
+    /// an active enrolment. Pending secrets expire after
+    /// <see cref="TwoFactorPolicy.PendingSecretMinutes"/>.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -50,28 +39,24 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
     Task<AuthTwoFactorResult> BeginEnrolmentAsync(Guid identifier, string issuer, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Confirms an enrolment with a code from the app, which is what actually turns two-factor on, and issues the recovery
-    /// codes. The offered secret replaces whatever was in force, and any codes from a previous enrolment are discarded.
+    /// Confirms a pending enrolment and generates recovery codes.
     /// </summary>
     ///
-    /// <param name="identifier">The public identifier of the user enrolling.</param>
-    /// <param name="code">The current code from the authenticator app, proving it holds the right secret.</param>
-    /// <param name="cancellationToken">Cancels the database work, rolling the whole promotion back with the transaction.</param>
+    /// <param name="identifier">The user's public identifier.</param>
+    /// <param name="code">A valid code from the authenticator app.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>
-    /// The recovery codes in plain text, the only time they exist in that form. Show them once and tell the user to keep
-    /// them: each is single use, and only their hashes are stored.
-    /// </returns>
+    /// <returns>The plaintext, single-use recovery codes.</returns>
     ///
-    /// <exception cref="InvalidCredentialsException">The identifier matches no account.</exception>
+    /// <exception cref="InvalidCredentialsException">The user does not exist.</exception>
     /// <exception cref="InvalidTwoFactorCodeException">
-    /// The code is wrong, the user never began an enrolment for it to confirm, or the one they began has expired. All are
-    /// reported the same way, so a caller cannot use this to discover whether an enrolment is under way.
+    /// The code is invalid or the pending enrolment is missing or expired.
     /// </exception>
     ///
     /// <remarks>
-    /// Promotion, code replacement, and enabling happen in one transaction, so a failure part-way cannot leave the old
-    /// secret gone with the new one not yet in force.
+    /// Enabling two-factor authentication and replacing existing secrets and
+    /// recovery codes occur in a single transaction. Only recovery-code hashes
+    /// are stored.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -79,42 +64,23 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
     Task<IReadOnlyList<string>> CompleteEnrolmentAsync(Guid identifier, string code, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Verifies a code at sign-in, accepting either a current TOTP code or one unspent recovery code. A recovery code is
-    /// spent on success, so it cannot be presented twice. With lockout enabled the attempt is counted against the same
-    /// budget a password is, so wrong codes lock the account exactly as wrong passwords do.
+    /// Verifies a TOTP or unused recovery code during sign-in.
     /// </summary>
     ///
-    /// <param name="identifier">The public identifier of the user.</param>
-    /// <param name="code">
-    /// The submitted value, tried as a TOTP code first and then as a recovery code, so the caller need not say which it is.
-    /// </param>
-    /// <param name="cancellationToken">Cancels the database work.</param>
+    /// <param name="identifier">The user's public identifier.</param>
+    /// <param name="code">The submitted TOTP or recovery code.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>
-    /// <c>true</c> when the code was accepted, which also clears the failure run the account was carrying. <c>false</c>
-    /// covers a wrong code, a code already used in this time step or an earlier one, a spent recovery code, a secret that
-    /// can no longer be decrypted, and an enrolment that was begun but never confirmed, none of which are distinguished.
-    /// With lockout enabled, every one of them but the unconfirmed enrolment leaves an attempt spent against the budget.
-    /// </returns>
+    /// <returns>True if accepted; otherwise, false.</returns>
     ///
-    /// <exception cref="InvalidCredentialsException">The identifier matches no account.</exception>
-    /// <exception cref="InvalidTwoFactorCodeException">
-    /// The user has no enrolment at all. Only a user known to be enrolled should reach this, so call it behind a check
-    /// on <see cref="UserTwoFactor.IsEnabled"/> rather than treating it as a way to ask.
-    /// </exception>
-    /// <exception cref="AccountLockedException">
-    /// A lockout is in force, or the budget was exhausted by attempts that claimed before this one. Carries the moment it
-    /// lifts, and is only ever thrown while lockout is enabled. Thrown before the code is looked at, so a user already
-    /// locked out by wrong passwords cannot get in on a correct code.
-    /// </exception>
+    /// <exception cref="InvalidCredentialsException">The user does not exist.</exception>
+    /// <exception cref="InvalidTwoFactorCodeException">The user has no enrolment.</exception>
+    /// <exception cref="AccountLockedException">The account is locked.</exception>
     ///
     /// <remarks>
-    /// The time step and the recovery code are both claimed with a guarded update rather than read and then written, so
-    /// two requests presenting the same code at once cannot both be accepted.
-    ///
-    /// Where lockout is enabled the attempt is claimed before either check runs and is left standing by a refusal, so a
-    /// caller that treats <c>false</c> as a retry is what the budget bounds. It is not given back on acceptance either:
-    /// the whole run is deleted instead, which takes the password failures before it with it.
+    /// Successful verification clears the shared authentication failure count.
+    /// Failed attempts count toward lockout when enabled. TOTP time steps and
+    /// recovery codes are claimed atomically to prevent reuse.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -122,18 +88,18 @@ public interface IAuthTwoFactorService<TUser> where TUser : AuthUser
     Task<bool> VerifyAsync(Guid identifier, string code, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Turns two-factor off and deletes the enrolment outright, secret and recovery codes with it. Re-enabling means
-    /// enrolling again, so this is not a pause.
+    /// Disables two-factor authentication and deletes the enrolment.
     /// </summary>
     ///
-    /// <param name="identifier">The public identifier of the user.</param>
-    /// <param name="cancellationToken">Cancels the database work.</param>
+    /// <param name="identifier">The user's public identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>
-    /// A task that completes once the enrolment is gone. Disabling a user who never enrolled is not an error.
-    /// </returns>
+    /// <exception cref="InvalidCredentialsException">The user does not exist.</exception>
     ///
-    /// <exception cref="InvalidCredentialsException">The identifier matches no account.</exception>
+    /// <remarks>
+    /// Deletes the secret and recovery codes. Re-enabling requires a new enrolment.
+    /// Disabling an account without an enrolment has no effect.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

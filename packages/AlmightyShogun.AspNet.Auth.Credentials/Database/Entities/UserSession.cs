@@ -5,9 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// One signed-in session, keyed by the refresh token it holds. A row is inserted per sign-in, with nothing matching it
-/// against the device presenting it, so signing in twice from one browser leaves two rows and ending either leaves the
-/// other usable.
+/// Represents an authenticated user session managed through refresh tokens.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -17,8 +15,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed class UserSession
 {
     /// <summary>
-    /// The surrogate key. Never handed to a client: the refresh token is the only handle anyone outside
-    /// the application has on a session.
+    /// The session's primary key.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -26,7 +23,7 @@ public sealed class UserSession
     public int Id { get; set; }
 
     /// <summary>
-    /// The user this session belongs to. Cascades, so deleting a user takes their sessions with it.
+    /// The identifier of the associated user.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -34,8 +31,7 @@ public sealed class UserSession
     public int UserId { get; set; }
 
     /// <summary>
-    /// The hash of the current refresh token. Hashed rather than stored, so a database copy cannot be used to
-    /// resume anyone's session.
+    /// The hash of the current refresh token.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -45,8 +41,7 @@ public sealed class UserSession
     public string RefreshTokenHash { get; set; } = string.Empty;
 
     /// <summary>
-    /// The application the session belongs to, or <c>null</c> when the deployment is not app-scoped. Written
-    /// from the host the sign-in came through and never changed by a refresh.
+    /// The application associated with the session, if scoped.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -55,8 +50,7 @@ public sealed class UserSession
     public string? App { get; set; }
 
     /// <summary>
-    /// When the session stops being usable. Set a refresh window ahead of the moment the session opens and set the same way
-    /// again on each refresh rather than accumulating, and never past the absolute lifetime.
+    /// The session expiration timestamp, extended on refresh up to its absolute lifetime.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -64,9 +58,7 @@ public sealed class UserSession
     public DateTimeOffset ExpiresAt { get; set; }
 
     /// <summary>
-    /// When this row was inserted, which is the sign-in that opened it rather than a first sign-in on the
-    /// device. A configured absolute lifetime is measured from here, so neither the expiry written at sign-in nor a later
-    /// refresh carries the session past it.
+    /// The session creation timestamp, used to enforce its absolute lifetime.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -74,17 +66,19 @@ public sealed class UserSession
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
-    /// When the session was last refreshed, both for showing a user their devices and for deciding whether a
-    /// replayed token falls inside the rotation grace.
+    /// The timestamp of the session's last refresh.
     /// </summary>
     ///
+    /// <remarks>
+    /// Also used to determine the refresh token rotation grace period.
+    /// </remarks>
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public DateTimeOffset LastActiveAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
-    /// Whether the session has been ended. Ending one sets this rather than deleting the row, so the session
-    /// stays visible to a query afterwards.
+    /// Indicates whether the session has been revoked.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -92,9 +86,7 @@ public sealed class UserSession
     public bool IsRevoked { get; set; }
 
     /// <summary>
-    /// The address the session was last used from, for showing a user where they are signed in. Trimmed to 45 characters at the
-    /// write, which holds any IPv6 address in its longest plain form but not one carrying a scope id, and not a chain of
-    /// forwarded addresses.
+    /// The IP address from which the session was last used.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -103,8 +95,7 @@ public sealed class UserSession
     public string? IpAddress { get; set; }
 
     /// <summary>
-    /// The raw user agent, kept alongside the parsed fields so an unrecognised client is still identifiable. Trimmed to 512
-    /// characters at the write, since the header arrives at whatever length the client chose to send.
+    /// The raw user agent associated with the session.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -113,8 +104,7 @@ public sealed class UserSession
     public string? UserAgent { get; set; }
 
     /// <summary>
-    /// The device parsed from the user agent, or <c>null</c> when it could not be determined. Trimmed to 256 characters at the
-    /// write.
+    /// The device identified from the user agent, if available.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -123,8 +113,7 @@ public sealed class UserSession
     public string? Device { get; set; }
 
     /// <summary>
-    /// The browser parsed from the user agent, or <c>null</c> when it could not be determined. Trimmed to 256 characters at the
-    /// write.
+    /// The browser identified from the user agent, if available.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -133,8 +122,7 @@ public sealed class UserSession
     public string? Browser { get; set; }
 
     /// <summary>
-    /// The operating system parsed from the user agent, or <c>null</c> when it could not be determined. Trimmed to 256
-    /// characters at the write.
+    /// The operating system identified from the user agent, if available.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -143,24 +131,24 @@ public sealed class UserSession
     public string? Os { get; set; }
 
     /// <summary>
-    /// The hash of the refresh token this session replaced, or <c>null</c> before its first rotation and again once a
-    /// replay of it has been treated as theft. A request presenting it is a replay of a spent token, which is the signal
-    /// that a refresh token has been stolen; clearing it as that fires keeps one retired token to a single detection.
+    /// The hash of the previously rotated refresh token, used for replay detection.
     /// </summary>
     ///
+    /// <remarks>
+    /// Cleared when reuse of the previous token is detected.
+    /// </remarks>
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     [MaxLength(64)]
     public string? PreviousRefreshTokenHash { get; set; }
 
     /// <summary>
-    /// The value that guards a rotation against a concurrent one. Rewritten on every rotation and mapped as
-    /// the row's concurrency token, so two refreshes that read the same session leave only the first one's write standing
-    /// and the second matches no row, which the refresh path answers with <see cref="InvalidSessionException"/>.
+    /// The concurrency token used to prevent conflicting session rotations.
     /// </summary>
     ///
     /// <remarks>
-    /// It is a real column despite being internal, so an application's migration has to create it.
+    /// Updated on rotation and persisted as an EF Core concurrency token.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -168,7 +156,7 @@ public sealed class UserSession
     internal Guid ConcurrencyToken { get; set; } = Guid.NewGuid();
 
     /// <summary>
-    /// Whether the session is past its expiry, computed rather than stored so it needs no sweep to stay accurate.
+    /// Indicates whether the session has expired.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -177,7 +165,7 @@ public sealed class UserSession
     public bool IsExpired => DateTimeOffset.UtcNow >= ExpiresAt;
 
     /// <summary>
-    /// Whether a refresh presented against this session would be honored, which is neither revoked nor expired.
+    /// Indicates whether the session is neither revoked nor expired.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

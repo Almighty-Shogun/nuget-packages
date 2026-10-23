@@ -3,13 +3,12 @@ using System.ComponentModel.DataAnnotations;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Configures credential authentication behavior. Bound from the optional <c>AuthCredentials</c> configuration section;
-/// every value has a default, so the section may be absent entirely.
+/// Configures credential authentication settings with optional configuration overrides.
 /// </summary>
 ///
 /// <remarks>
-/// These settings are separate from <c>Auth</c>, which belongs to <c>AlmightyShogun.AspNet.Auth</c> and describes
-/// token minting and validation. Credential concerns such as lockout live with the package that owns credentials.
+/// Bound from the <c>AuthCredentials</c> configuration section.
+/// All settings have defaults.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
@@ -17,8 +16,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed record AuthCredentialsSettings
 {
     /// <summary>
-    /// The nested <c>Lockout</c> object, present with its defaults when the section is absent. Nothing in it takes
-    /// effect until <see cref="LockoutPolicy.Enabled"/> is set.
+    /// The account lockout settings, disabled by default.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -26,8 +24,7 @@ public sealed record AuthCredentialsSettings
     public LockoutPolicy Lockout { get; init; } = new();
 
     /// <summary>
-    /// The nested <c>TwoFactor</c> section. Present with its defaults when the section is absent, because the
-    /// feature is opt-in: nothing here takes effect until an application calls the enrolment methods.
+    /// The two-factor authentication settings.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -35,19 +32,20 @@ public sealed record AuthCredentialsSettings
     public TwoFactorPolicy TwoFactor { get; init; } = new();
 
     /// <summary>
-    /// The maximum age a session may reach regardless of refreshing, in days. The expiry written when a session opens is
-    /// held to it as well, and a session already that old is refused its next refresh rather than renewed. A <c>null</c>
-    /// value caps nothing, so a session then lasts as long as it keeps being refreshed.
+    /// The maximum session lifetime in days, or null for no absolute limit.
     /// </summary>
     ///
+    /// <remarks>
+    /// Refreshing a session cannot extend it beyond this lifetime.
+    /// </remarks>
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     [Range(1, int.MaxValue)]
     public int? AbsoluteSessionLifetimeDays { get; init; } = 30;
 
     /// <summary>
-    /// How long a reset token stays redeemable, in minutes. Shorter is safer: the token travels by email, and the
-    /// window is how long a leaked message stays useful to whoever finds it.
+    /// The password reset token lifetime in minutes.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -56,9 +54,7 @@ public sealed record AuthCredentialsSettings
     public int PasswordResetMinutes { get; init; } = 60;
 
     /// <summary>
-    /// How long a verification token stays redeemable, in minutes. One value covers both purposes, and the default of a
-    /// day is deliberately longer than <see cref="PasswordResetMinutes"/>, since a verification link is commonly opened on
-    /// another device or after the message has sat unread for a while.
+    /// The email verification token lifetime in minutes.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -67,12 +63,12 @@ public sealed record AuthCredentialsSettings
     public int EmailVerificationMinutes { get; init; } = 1440;
 
     /// <summary>
-    /// The floor a forgot-password request is held to, in milliseconds. A request that finishes sooner waits out the
-    /// remainder, so issuing a token and finding no account take the same time and the response cannot be timed to learn
-    /// which addresses are registered. Raise it above the slowest of the two paths on the deployment's own hardware; a
-    /// value below that leaves the difference measurable.
+    /// The minimum forgot-password request duration in milliseconds.
     /// </summary>
     ///
+    /// Helps reduce account enumeration through response timing.
+    /// Configure a value above the normal duration of both request paths.
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     [Range(1, int.MaxValue)]
