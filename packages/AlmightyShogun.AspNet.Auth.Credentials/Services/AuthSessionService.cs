@@ -274,7 +274,12 @@ internal sealed class AuthSessionService<TUser>(
         DateTimeOffset expiresAt = CapToAbsoluteLifetime(session, rotatedAt.Add(TimeSpan.FromDays(authOptions.Value.RefreshTokenDays)));
 
         int affectedRows = await databaseContext.UserSessions
-            .Where(candidate => candidate.Id == session.Id && candidate.ConcurrencyToken == session.ConcurrencyToken)
+            .Where(candidate =>
+                candidate.Id == session.Id &&
+                candidate.ConcurrencyToken == session.ConcurrencyToken &&
+                !candidate.IsRevoked &&
+                candidate.ExpiresAt > rotatedAt &&
+                candidate.RefreshTokenHash == previousRefreshTokenHash)
             .ExecuteUpdateAsync(
                 setters => setters
                     .SetProperty(candidate => candidate.Os, os)
