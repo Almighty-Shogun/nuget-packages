@@ -3,8 +3,7 @@ using AlmightyShogun.AspNet.RequestValidation;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// A sign-in by username or email address. The two are accepted in one field because a user rarely remembers which they
-/// registered with.
+/// Represents a login request using a username or email address.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -12,7 +11,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed record LoginRequest
 {
     /// <summary>
-    /// The username or email address, matched against both columns rather than against one chosen by shape.
+    /// The username or email address used to sign in.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -21,7 +20,7 @@ public sealed record LoginRequest
     public string Identifier { get; set; } = string.Empty;
 
     /// <summary>
-    /// The submitted password, verified against the stored hash.
+    /// The password used to authenticate the user.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

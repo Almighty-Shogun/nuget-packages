@@ -3,16 +3,19 @@ using AlmightyShogun.AspNet.RequestValidation;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// A password change for the signed-in user. The service re-checks the confirmation, the current password, and reuse, but
-/// not the length and strength rules below, so an application posting its own shape has to enforce those itself.
+/// Represents a password change request for an authenticated user.
 /// </summary>
 ///
+/// <remarks>
+/// Password strength is validated by request attributes, not by the service.
+/// </remarks>
+/// 
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 public sealed class ChangePasswordRequest
 {
     /// <summary>
-    /// The password the account currently signs in with, which is the one being replaced.
+    /// The user's current password.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -21,7 +24,7 @@ public sealed class ChangePasswordRequest
     public string CurrentPassword { get; set; } = string.Empty;
 
     /// <summary>
-    /// The password the account should sign in with afterwards.
+    /// The new password.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -32,7 +35,7 @@ public sealed class ChangePasswordRequest
     public string NewPassword { get; set; } = string.Empty;
 
     /// <summary>
-    /// The repeat of the new password, which catches a typo before it becomes a credential nobody knows.
+    /// Confirmation of the new password.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

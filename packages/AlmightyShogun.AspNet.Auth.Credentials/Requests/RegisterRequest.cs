@@ -3,8 +3,7 @@ using AlmightyShogun.AspNet.RequestValidation;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// A public sign-up. Deliberately carries no role or permissions, so a client cannot grant itself authorization; use
-/// <see cref="CreateUserRequest"/> where the caller is trusted to assign them.
+/// Represents a public user registration request.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -12,16 +11,21 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed record RegisterRequest
 {
     /// <summary>
-    /// The username to claim. Refused when another account already holds it.
+    /// The new user's username.
     /// </summary>
     ///
+    /// <remarks>
+    /// Does not allow assigning roles or permissions.
+    /// Use <see cref="CreateUserRequest"/> for administrative user creation.
+    /// </remarks>
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     [Required]
     public string Username { get; set; } = string.Empty;
 
     /// <summary>
-    /// The email address to claim. Refused when another account already holds it.
+    /// The new user's email address.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -31,7 +35,7 @@ public sealed record RegisterRequest
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
-    /// The chosen password, hashed before it is stored and never persisted as given.
+    /// The new user's password.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

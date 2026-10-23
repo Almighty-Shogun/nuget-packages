@@ -1,11 +1,13 @@
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Thrown when a login fails. Deliberately the single exception for every credential failure, so a caller cannot tell
-/// an unknown identifier from a wrong password. Also thrown wherever a user lookup finds no row: changing a password,
-/// completing a reset, refreshing a session, and every two-factor call raise it rather than reporting a missing user.
+/// Thrown when authentication credentials are invalid or a user cannot be found.
 /// </summary>
 ///
+/// <remarks>
+/// Does not distinguish unknown users from incorrect passwords.
+/// </remarks>
+/// 
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 public sealed class InvalidCredentialsException : Exception;

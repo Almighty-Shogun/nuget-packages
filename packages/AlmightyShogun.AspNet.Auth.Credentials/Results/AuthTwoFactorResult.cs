@@ -1,8 +1,7 @@
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// The details a user needs to add an account to an authenticator application. Returned once, when enrolment begins:
-/// the secret is not readable afterwards, so a user who loses it must start again.
+/// Contains the details required to configure two-factor authentication.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -10,8 +9,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed record AuthTwoFactorResult
 {
     /// <summary>
-    /// The base32 shared secret, for an app that cannot scan a code. Show it only during enrolment, and never store
-    /// it anywhere the user's account could be reached from.
+    /// The Base32 secret used to configure an authenticator application.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -19,8 +17,7 @@ public sealed record AuthTwoFactorResult
     public required string Secret { get; init; }
 
     /// <summary>
-    /// The <c>otpauth://</c> URI to render as a QR code, carrying the same secret plus the configured issuer, digit
-    /// count, and period, so the app agrees with the server about how codes are generated.
+    /// The otpauth URI used to generate an authenticator QR code.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

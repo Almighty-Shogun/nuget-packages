@@ -3,16 +3,20 @@ using AlmightyShogun.AspNet.RequestValidation;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// An administrative user creation, where the caller is trusted to assign authorization. Use
-/// <see cref="RegisterRequest"/> for public sign-up, which deliberately carries no role or permissions.
+/// Represents an administrative request to create a user with assigned authorization.
 /// </summary>
 ///
+/// <remarks>
+/// Use <see cref="RegisterRequest"/> for public registration.
+/// Do not expose this model through public registration endpoints.
+/// </remarks>
+/// 
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 public sealed record CreateUserRequest
 {
     /// <summary>
-    /// The username to claim. Refused when another account already holds it.
+    /// The new user's username.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -21,7 +25,7 @@ public sealed record CreateUserRequest
     public string Username { get; set; } = string.Empty;
 
     /// <summary>
-    /// The initial password, hashed before it is stored and never persisted as given.
+    /// The new user's initial password.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -32,7 +36,7 @@ public sealed record CreateUserRequest
     public string Password { get; set; } = string.Empty;
 
     /// <summary>
-    /// The email address to claim. Refused when another account already holds it.
+    /// The new user's email address.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -42,8 +46,7 @@ public sealed record CreateUserRequest
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
-    /// The role written into the user's tokens. Trusted from the caller, which is why this request is for
-    /// administrative use only.
+    /// The role assigned to the user.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -51,8 +54,7 @@ public sealed record CreateUserRequest
     public string Role { get; set; } = "User";
 
     /// <summary>
-    /// The permissions written into the user's tokens, one claim each. Trusted from the caller, so a public
-    /// endpoint must never bind to this model.
+    /// The permissions assigned to the user.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

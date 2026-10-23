@@ -1,3 +1,4 @@
+
 using System.Data;
 using System.Diagnostics;
 using System.Linq.Expressions;
@@ -11,17 +12,17 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Changes passwords and runs the reset flow. Both paths that set a password revoke the user's other sessions and retire
-/// the sign-ins still waiting on a second factor, because a password that has changed should not leave access granted
-/// under the old one.
+/// Handles password changes and password reset requests.
 /// </summary>
 ///
-/// <typeparam name="TUser">The application's own user entity, whose password column these paths read and write.</typeparam>
-/// <param name="databaseContext">The application's context, which the credential tables live in.</param>
-/// <param name="credentialOptions">
-/// The bound credential settings, read for how long a reset token lives and for the floor a forgot-password request is
-/// held to.
-/// </param>
+/// <typeparam name="TUser">The application's user entity.</typeparam>
+/// <param name="databaseContext">The authentication database context.</param>
+/// <param name="credentialOptions">The credential authentication settings.</param>
+///
+/// <remarks>
+/// Password changes and resets revoke applicable sessions and invalidate
+/// pending two-factor challenges to prevent authentication using old credentials.
+/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
@@ -31,8 +32,7 @@ internal sealed class AuthPasswordService<TUser>(
 ) : IAuthPasswordService where TUser : AuthUser
 {
     /// <summary>
-    /// The hasher used for every password read and write, so hashing and verification cannot end up using different
-    /// parameters.
+    /// The password hasher used for hashing and verification.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -133,19 +133,15 @@ internal sealed class AuthPasswordService<TUser>(
         });
 
     /// <summary>
-    /// Loads the one user matching a predicate, refusing rather than returning null, so every caller past this point has a
-    /// user to work with.
+    /// Retrieves a matching user without tracking.
     /// </summary>
     ///
-    /// <param name="predicate">The lookup, by public identifier or by the key a reset token carries.</param>
-    /// <param name="cancellationToken">Cancels the lookup.</param>
+    /// <param name="predicate">The user lookup predicate.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>
-    /// The matching user, untracked. Every write on these paths is a statement of its own rather than a saved entity, so
-    /// nothing here is modified, and the context the application shares with this service is left tracking what it was.
-    /// </returns>
+    /// <returns>The matching user.</returns>
     ///
-    /// <exception cref="InvalidCredentialsException">Thrown when no user matches the predicate.</exception>
+    /// <exception cref="InvalidCredentialsException">No matching user exists.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -157,25 +153,18 @@ internal sealed class AuthPasswordService<TUser>(
     }
 
     /// <summary>
-    /// Writes a new password hash onto the user, but only while the column still holds the hash the caller verified
-    /// against, so a password that moved between that verification and here is not overwritten on the strength of a
-    /// check made against what it used to be.
+    /// Updates the password only if its previously verified hash is unchanged.
     /// </summary>
     ///
-    /// <param name="userId">The user whose password is being replaced, given as the database key.</param>
-    /// <param name="verifiedPasswordHash">The hash the caller read and verified against, which the update is guarded on.</param>
-    /// <param name="newPasswordHash">The hash to store.</param>
-    /// <param name="cancellationToken">Cancels the update.</param>
+    /// <param name="userId">The user's database identifier.</param>
+    /// <param name="verifiedPasswordHash">The previously verified password hash.</param>
+    /// <param name="newPasswordHash">The replacement password hash.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>
-    /// <c>true</c> when the row was updated, <c>false</c> when it matched nothing, which means another request wrote a
-    /// password in between, or deleted the user. The caller treats that as a collision and runs the whole operation
-    /// again, so the second reading verifies against the password that is actually stored.
-    /// </returns>
+    /// <returns>True if updated; otherwise, false for a concurrent change or missing user.</returns>
     ///
     /// <remarks>
-    /// The row is matched and written by one statement rather than loaded and saved, so nothing is staged on the context
-    /// that an abandoned attempt would leave behind for the application's own save to commit.
+    /// Uses a guarded database update to prevent overwriting concurrent password changes.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -195,19 +184,19 @@ internal sealed class AuthPasswordService<TUser>(
     }
 
     /// <summary>
-    /// Claims the reset token with a guarded update, so two redemptions racing for the same link produce one success and
-    /// one refusal rather than two successes.
+    /// Atomically redeems an unused, unexpired password reset token.
     /// </summary>
     ///
-    /// <param name="tokenId">The row to spend, as read moments earlier.</param>
-    /// <param name="cancellationToken">Cancels the update.</param>
-    ///
-    /// <returns>A task that completes once the row is spent, which the database has already written when it does.</returns>
+    /// <param name="tokenId">The token's database identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
     /// <exception cref="InvalidPasswordResetTokenException">
-    /// The row was no longer unspent and unexpired, so another request claimed it in between or it expired between the
-    /// read and here.
+    /// The token has expired or was already redeemed.
     /// </exception>
+    ///
+    /// <remarks>
+    /// The guarded update prevents concurrent redemption of the same token.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>Unreleased</since>
@@ -224,23 +213,18 @@ internal sealed class AuthPasswordService<TUser>(
     }
 
     /// <summary>
-    /// Writes the user's one reset token, replacing whatever that row held, so requesting a second link kills the first.
+    /// Creates or replaces the user's password reset token.
     /// </summary>
     ///
-    /// <param name="user">The user the reset was requested for, already loaded so the token can be attached to its key.</param>
-    /// <param name="requestIpAddress">
-    /// The address the request came from, stored for auditing an unexpected reset. Trimmed to the column width, since it
-    /// reaches here as the caller passed it.
-    /// </param>
-    /// <param name="cancellationToken">Cancels the read and the write.</param>
+    /// <param name="user">The user requesting the reset.</param>
+    /// <param name="requestIpAddress">The optional request IP address for auditing.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>The token in plain text, to be emailed; only its hash is stored.</returns>
+    /// <returns>The plaintext token; only its hash is stored.</returns>
     ///
     /// <remarks>
-    /// The transaction is serializable because the read and the insert are one decision: at read-committed, two requests
-    /// for the same address can both find no row and both try to insert one, which the unique key on
-    /// <see cref="PasswordResetToken.UserId"/> then rejects. Serializing them turns that into one insert followed by one
-    /// update, so the loser issues a valid link instead of failing.
+    /// Uses a serializable transaction to coordinate concurrent token requests
+    /// against the unique user constraint. Issuing a new token invalidates the previous one.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -287,24 +271,15 @@ internal sealed class AuthPasswordService<TUser>(
     }
 
     /// <summary>
-    /// Revokes the user's sessions, optionally sparing one, so a password change signs out every device except the one
-    /// making it.
+    /// Revokes the user's active sessions, optionally preserving one.
     /// </summary>
     ///
-    /// <param name="userId">The user whose sessions are ending, given as the database key rather than the public identifier.</param>
-    /// <param name="cancellationToken">Cancels the update.</param>
-    /// <param name="exceptToken">The session to leave alone, or <c>null</c> to end every one.</param>
-    ///
-    /// <returns>
-    /// A task that completes once the matching rows are revoked, which the database has already written when it does.
-    /// The statement runs inside the transaction the caller opened, so it is rolled back with the rest of that work.
-    /// </returns>
+    /// <param name="userId">The user's database identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="exceptToken">The refresh token of the session to preserve, if any.</param>
     ///
     /// <remarks>
-    /// The rows are matched and stamped by one update rather than loaded and rewritten, so no session is revoked on the
-    /// strength of a read another request has already invalidated, and nothing is staged on the context for an abandoned
-    /// attempt to leave behind. <see cref="UserSession.IsRevoked"/> is the only column written, and it is written to a
-    /// constant, so a row a rotation touched a moment earlier is revoked as that rotation left it.
+    /// Uses a direct database update without modifying tracked entities.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -322,17 +297,11 @@ internal sealed class AuthPasswordService<TUser>(
     }
 
     /// <summary>
-    /// Spends the user's outstanding reset token, so a link issued before a password change cannot still be redeemed
-    /// afterwards.
+    /// Invalidates the user's outstanding password reset token.
     /// </summary>
     ///
-    /// <param name="userId">The user whose outstanding token is being spent.</param>
-    /// <param name="cancellationToken">Cancels the update.</param>
-    ///
-    /// <returns>
-    /// A task that completes once no unspent token remains for that user, which the database has already written when it
-    /// does. The statement runs inside the transaction the caller opened, so it is rolled back with the rest of that work.
-    /// </returns>
+    /// <param name="userId">The user's database identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -346,21 +315,14 @@ internal sealed class AuthPasswordService<TUser>(
     }
 
     /// <summary>
-    /// Spends the user's outstanding two-factor challenges, so a sign-in that got past the old password cannot be
-    /// finished with a code once that password is gone.
+    /// Invalidates pending two-factor challenges after a password change or reset.
     /// </summary>
     ///
-    /// <param name="userId">The user whose outstanding challenges are being retired.</param>
-    /// <param name="cancellationToken">Cancels the update.</param>
-    ///
-    /// <returns>
-    /// A task that completes once no unspent challenge remains for that user, which the database has already written when
-    /// it does. The statement runs inside the transaction the caller opened, so it is rolled back with the rest of that work.
-    /// </returns>
+    /// <param name="userId">The user's database identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
     /// <remarks>
-    /// Retiring them is what revoking a session cannot cover: a challenge names a password that has already verified, so
-    /// leaving one live would let it buy a session under a password the account no longer has.
+    /// Prevents completing authentication initiated with an outdated password.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -375,26 +337,20 @@ internal sealed class AuthPasswordService<TUser>(
     }
 
     /// <summary>
-    /// Finds the token a reset request presented, refusing one that is unknown, already spent, or past its expiry, so every
-    /// caller past this point holds a redeemable token.
+    /// Retrieves an unused, unexpired password reset token.
     /// </summary>
     ///
-    /// <param name="token">The token as it arrived from the reset link, matched by hash.</param>
-    /// <param name="cancellationToken">Cancels the lookup.</param>
+    /// <param name="token">The plaintext reset token.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>
-    /// The redeemable token, untracked, read for the user it belongs to and for the row the caller then claims. The
-    /// claim is a statement of its own rather than a saved entity, so this leaves nothing on the shared context.
-    /// </returns>
+    /// <returns>The matching token without tracking.</returns>
     ///
     /// <exception cref="InvalidPasswordResetTokenException">
-    /// No live token matches the hash. Unknown, spent, and expired are not distinguished, so the response cannot be
-    /// used to learn which tokens once existed.
+    /// The token is invalid, expired, or already used.
     /// </exception>
     ///
     /// <remarks>
-    /// Finding a token here does not reserve it. Another request may spend it before this one does, which is why the
-    /// caller claims it with a guarded update rather than trusting what this read returned.
+    /// Retrieval does not reserve the token; redemption requires a guarded update.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

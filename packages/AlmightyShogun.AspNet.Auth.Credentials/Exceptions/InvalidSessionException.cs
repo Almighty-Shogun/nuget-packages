@@ -1,8 +1,7 @@
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Thrown when a refresh presents a token that matches no usable session, whether it is unknown, expired, revoked, or
-/// scoped to a different application. The cases are not distinguished, so the response cannot be probed.
+/// Thrown when a refresh token is invalid, expired, revoked, or belongs to another application.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>

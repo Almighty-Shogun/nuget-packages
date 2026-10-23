@@ -3,16 +3,20 @@ using AlmightyShogun.AspNet.RequestValidation;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// The first half of a forgot-password flow. The service returns a token for a registered address and <c>null</c> for an
-/// unregistered one, so answering the client identically either way is left to the controller above it.
+/// Represents a request to initiate password recovery.
 /// </summary>
 ///
+/// <remarks>
+/// Controllers should return identical responses for registered and unregistered email addresses
+/// to avoid account enumeration.
+/// </remarks>
+/// 
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 public sealed record ForgotPasswordRequest
 {
     /// <summary>
-    /// The address a reset link should go to, matched against the stored address under the column's own collation.
+    /// The email address associated with the account.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

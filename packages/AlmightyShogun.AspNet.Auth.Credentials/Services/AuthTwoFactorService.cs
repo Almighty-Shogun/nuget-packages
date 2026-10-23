@@ -1,3 +1,4 @@
+
 using OtpNet;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Options;
@@ -10,26 +11,20 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Enrols users in TOTP two-factor authentication and verifies their codes. The secret is protected at rest and the
-/// recovery codes are hashed, so a database copy alone yields neither working codes nor a way to mint them. A new
-/// enrolment is held aside until a code proves it, so starting one and abandoning it leaves a working second factor
-/// exactly as it was. Verification is metered against the same failure budget the password is, so the code prompt is as
-/// bounded as the one before it; beginning or confirming an enrolment is not.
+/// Manages TOTP enrolment, verification, and recovery codes.
 /// </summary>
 ///
-/// <typeparam name="TUser">The application's own user entity, looked up to reach its enrolment.</typeparam>
-/// <param name="databaseContext">The application's context, which the credential tables live in.</param>
-/// <param name="credentialOptions">
-/// The bound credential settings, read for the two-factor policy that decides the issuer shown, how many recovery codes
-/// are issued, and the shape of a generated code.
-/// </param>
-/// <param name="dataProtectionProvider">
-/// The provider that encrypts the shared secret before it is stored. Its keys must outlive the enrolments, or every
-/// stored secret becomes unreadable and users have to enrol again.
-/// </param>
-/// <param name="lockoutGuard">
-/// The guard owning the failure budget, which a presented code is claimed against and which an accepted one clears.
-/// </param>
+/// <typeparam name="TUser">The application's user entity.</typeparam>
+/// <param name="databaseContext">The authentication database context.</param>
+/// <param name="credentialOptions">The two-factor authentication settings.</param>
+/// <param name="dataProtectionProvider">Protects stored TOTP secrets.</param>
+/// <param name="lockoutGuard">Enforces the shared authentication failure limit.</param>
+///
+/// <remarks>
+/// TOTP secrets are encrypted, recovery codes are hashed, and new enrolments
+/// remain pending until verified. Code verification shares the password lockout
+/// budget, while enrolment operations do not.
+/// </remarks>
 ///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
@@ -41,13 +36,11 @@ internal sealed class AuthTwoFactorService<TUser>(
 ) : IAuthTwoFactorService<TUser> where TUser : AuthUser
 {
     /// <summary>
-    /// The protector the secret is encrypted with, created once from a fixed purpose string so a secret written by one
-    /// instance can be read by another.
+    /// Protects TOTP secrets using a fixed encryption purpose.
     /// </summary>
     ///
     /// <remarks>
-    /// The purpose string is part of the key derivation, so a secret protected under one string cannot be read under
-    /// any other. It is fixed for that reason, and changing it makes every enrolment already stored undecryptable.
+    /// Changing the purpose or losing protection keys makes existing secrets unreadable.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
@@ -56,7 +49,7 @@ internal sealed class AuthTwoFactorService<TUser>(
         dataProtectionProvider.CreateProtector("AlmightyShogun.Auth.Credentials.TwoFactor");
 
     /// <summary>
-    /// The configured two-factor policy, read once rather than per call.
+    /// The configured two-factor authentication policy.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -198,16 +191,15 @@ internal sealed class AuthTwoFactorService<TUser>(
     }
 
     /// <summary>
-    /// Loads the one user matching a predicate, refusing rather than returning null, so every caller past this point has a
-    /// user to work with.
+    /// Retrieves a matching user.
     /// </summary>
     ///
-    /// <param name="predicate">The lookup, by public identifier.</param>
-    /// <param name="cancellationToken">Cancels the lookup.</param>
+    /// <param name="predicate">The user lookup predicate.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>The matching user, tracked so a caller can modify and save it.</returns>
+    /// <returns>The matching tracked user.</returns>
     ///
-    /// <exception cref="InvalidCredentialsException">Thrown when no user matches the predicate.</exception>
+    /// <exception cref="InvalidCredentialsException">No matching user exists.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -219,25 +211,20 @@ internal sealed class AuthTwoFactorService<TUser>(
     }
 
     /// <summary>
-    /// Loads the enrolment for a user, refusing when there is none, so every caller past this point has a row to
-    /// verify against.
+    /// Retrieves a user's two-factor enrolment and recovery codes.
     /// </summary>
     ///
-    /// <param name="identifier">The public identifier of the user whose enrolment is wanted.</param>
-    /// <param name="tracked">
-    /// Whether to attach the row to the change tracker, which only a caller that writes through it needs. Passing
-    /// <c>false</c> also keeps relationship fixup from hanging the enrolment off a user the same context already tracks,
-    /// which is what <see cref="IAuthUserService{TUser}.CompleteTwoFactorLoginAsync"/> hands back to the application.
-    /// </param>
-    /// <param name="cancellationToken">Cancels the lookup.</param>
+    /// <param name="identifier">The user's public identifier.</param>
+    /// <param name="tracked">Whether to track the enrolment for updates.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>The enrolment, with its recovery codes loaded.</returns>
+    /// <returns>The enrolment with its recovery codes.</returns>
     ///
-    /// <exception cref="InvalidTwoFactorCodeException">
-    /// The user has no enrolment. During enrolment confirmation that is indistinguishable from a wrong code, since both
-    /// raise this. Verification is not: it throws here while every wrong-code case returns <c>false</c>, so a caller that
-    /// surfaces the two differently lets a probe learn which accounts have ever enrolled.
-    /// </exception>
+    /// <exception cref="InvalidTwoFactorCodeException">No enrolment exists.</exception>
+    ///
+    /// <remarks>
+    /// Untracked reads avoid relationship fixup on existing tracked users.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -255,17 +242,17 @@ internal sealed class AuthTwoFactorService<TUser>(
     }
 
     /// <summary>
-    /// Loads the enrolment for a user, creating an empty one when there is none, so a first enrolment and a re-enrolment
-    /// both have a row to write the pending secret onto.
+    /// Retrieves or creates a user's two-factor enrolment.
     /// </summary>
     ///
-    /// <param name="user">The user enrolling, already loaded so the enrolment can be attached to its key.</param>
-    /// <param name="cancellationToken">Cancels the lookup.</param>
+    /// <param name="user">The user enrolling in two-factor authentication.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     ///
-    /// <returns>
-    /// The enrolment, with its recovery codes loaded. A row created here carries no secret and is not enabled, so it
-    /// grants nothing until an enrolment is confirmed against it.
-    /// </returns>
+    /// <returns>The enrolment with its recovery codes.</returns>
+    ///
+    /// <remarks>
+    /// Newly created enrolments remain disabled until confirmation.
+    /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
@@ -286,24 +273,18 @@ internal sealed class AuthTwoFactorService<TUser>(
     }
 
     /// <summary>
-    /// Verifies a TOTP code against one protected secret and reports the time step it matched, so a caller can check
-    /// either the secret in force or the one an enrolment is offering.
+    /// Verifies a TOTP code against a protected secret.
     /// </summary>
     ///
-    /// <param name="protectedSecret">The secret in its stored, encrypted form, unprotected here rather than by the caller.</param>
-    /// <param name="code">The submitted code, checked against the current time step and its immediate neighbours.</param>
-    /// <param name="window">
-    /// The time step the code matched, or <c>0</c> when it matched none. Only meaningful when this returns <c>true</c>.
-    /// </param>
+    /// <param name="protectedSecret">The encrypted TOTP secret.</param>
+    /// <param name="code">The submitted authentication code.</param>
+    /// <param name="window">The matching time window, or zero if none.</param>
     ///
-    /// <returns>
-    /// <c>true</c> when the code is valid for some step in the accepted window. An unreadable secret returns <c>false</c>
-    /// rather than throwing, so a rotated protection key looks like a wrong code instead of a crash.
-    /// </returns>
+    /// <returns>True if the code is valid; otherwise, false.</returns>
     ///
     /// <remarks>
-    /// Nothing here records that the step was spent. Replay is refused by the caller's guarded update instead, because a
-    /// check made here and a write made later leave a gap two concurrent requests can both pass through.
+    /// Accepts the configured adjacent time windows. Invalid protection data
+    /// returns false; replay prevention is handled by the caller.
     /// </remarks>
     ///
     /// <author>Almighty-Shogun</author>

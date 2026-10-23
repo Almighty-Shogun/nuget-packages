@@ -4,13 +4,11 @@ using AlmightyShogun.AspNet.Core;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Maps this package's exceptions to the responses they produce, so the exceptions themselves stay plain. Internal, and
-/// both registered and consumed as this concrete type, so nothing outside the package can resolve it or map any of these
-/// exceptions differently.
+/// Maps credential authentication exceptions to standardized HTTP errors.
 /// </summary>
 ///
 /// <remarks>
-/// Registered by <c>AddAuthCredentials</c> whether it also registers the handler chain.
+/// Registered by AddAuthCredentials regardless of exception handler registration.
 /// </remarks>
 ///
 /// <author>Almighty-Shogun</author>

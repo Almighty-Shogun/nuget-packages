@@ -4,9 +4,7 @@ using System.Security.Cryptography;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// Hashes the tokens this package stores, so a database copy yields nothing usable. Deliberately a plain digest rather
-/// than a password hash: these values are long random strings, not guessable secrets, so the work factor a password
-/// needs would only slow every lookup down. Application code needs it to match a token it holds against a stored row.
+/// Provides SHA-256 hashing for authentication tokens.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -14,15 +12,14 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public static class TokenHasher
 {
     /// <summary>
-    /// Hashes a token for storage or lookup. The same input always produces the same output, which is what lets a
-    /// presented token be found by its hash instead of compared row by row.
+    /// Computes the SHA-256 hash of a token.
     /// </summary>
     ///
-    /// <param name="token">The token exactly as it was issued to or presented by the client.</param>
+    /// <param name="token">The token to hash.</param>
     ///
-    /// <returns>The digest as uppercase hexadecimal, stable enough to store in a column and index on.</returns>
+    /// <returns>The hash as an uppercase hexadecimal string.</returns>
     ///
-    /// <exception cref="ArgumentNullException"><paramref name="token"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="token"/> is null.</exception>
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>

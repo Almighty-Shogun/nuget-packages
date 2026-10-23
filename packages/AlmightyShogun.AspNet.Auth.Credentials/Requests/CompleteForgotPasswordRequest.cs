@@ -3,9 +3,7 @@ using AlmightyShogun.AspNet.RequestValidation;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// The second half of a forgot-password flow, exchanging a reset token for a new password. The token is spent on
-/// success, so the same one cannot set the password twice. The service re-checks the token, the confirmation, and reuse,
-/// but not the length and strength rules below, so an application posting its own shape has to enforce those itself.
+/// Represents a request to reset a password using a recovery token.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -13,7 +11,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed record CompleteForgotPasswordRequest
 {
     /// <summary>
-    /// The token from the reset email, in the form it was sent rather than a decoded or trimmed one.
+    /// The password reset token.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -22,7 +20,7 @@ public sealed record CompleteForgotPasswordRequest
     public string Token { get; set; } = string.Empty;
 
     /// <summary>
-    /// The password the account should sign in with afterwards.
+    /// The new password.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -33,7 +31,7 @@ public sealed record CompleteForgotPasswordRequest
     public string NewPassword { get; set; } = string.Empty;
 
     /// <summary>
-    /// The repeat of the new password, which catches a typo before it becomes a credential nobody knows.
+    /// Confirmation of the new password.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>

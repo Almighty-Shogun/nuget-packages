@@ -4,8 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AlmightyShogun.AspNet.Auth.Credentials;
 
 /// <summary>
-/// One single-use recovery code. A row rather than an entry in a serialized list, so spending one is a guarded update
-/// against that row instead of a rewrite of every remaining code.
+/// Represents a single-use two-factor recovery code.
 /// </summary>
 ///
 /// <author>Almighty-Shogun</author>
@@ -14,8 +13,7 @@ namespace AlmightyShogun.AspNet.Auth.Credentials;
 public sealed class TwoFactorRecoveryCode
 {
     /// <summary>
-    /// The surrogate key. The codes are matched by hash rather than looked up by key, so this value never
-    /// leaves the database.
+    /// The recovery code's primary key.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -23,8 +21,7 @@ public sealed class TwoFactorRecoveryCode
     public int Id { get; set; }
 
     /// <summary>
-    /// The enrolment the code was issued under. Cascades with it, so disabling two-factor takes every
-    /// outstanding code with it rather than leaving codes that match nothing.
+    /// The identifier of the associated two-factor enrollment.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -32,8 +29,7 @@ public sealed class TwoFactorRecoveryCode
     public int UserTwoFactorId { get; set; }
 
     /// <summary>
-    /// The hash of the code, produced by <see cref="TokenHasher"/>. A plain digest rather than a password
-    /// hash, which suffices because a recovery code is long and random rather than something a person chose.
+    /// The hash of the recovery code.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
@@ -43,8 +39,7 @@ public sealed class TwoFactorRecoveryCode
     public string CodeHash { get; set; } = string.Empty;
 
     /// <summary>
-    /// When the code was spent, or <c>null</c> while it is still usable. Kept rather than deleted, so a
-    /// user can be shown that a recovery code was used and when.
+    /// The timestamp when the recovery code was used, or null if unused.
     /// </summary>
     ///
     /// <author>Almighty-Shogun</author>
