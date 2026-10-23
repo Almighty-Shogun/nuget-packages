@@ -293,6 +293,13 @@ internal sealed class AuthLockoutGuard<TUser>(
         {
             databaseContext.Entry(lockout).State = EntityState.Detached;
 
+            bool existingLockout = await databaseContext.UserLockouts
+                .AsNoTracking()
+                .AnyAsync(candidate => candidate.UserId == userId, cancellationToken);
+
+            if (!existingLockout)
+                throw;
+
             return false;
         }
     }
