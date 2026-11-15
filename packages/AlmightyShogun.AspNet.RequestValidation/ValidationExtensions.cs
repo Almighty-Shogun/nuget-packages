@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
@@ -39,6 +40,7 @@ public static class ValidationExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public IServiceCollection AddAspNetValidation() =>
             serviceCollection.AddAspNetValidation([Assembly.GetCallingAssembly()]);
 
