@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
@@ -39,7 +40,9 @@ public static class ValidationExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
-        public IServiceCollection AddAspNetValidation() => serviceCollection.AddAspNetValidation([Assembly.GetCallingAssembly()]);
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public IServiceCollection AddAspNetValidation() =>
+            serviceCollection.AddAspNetValidation([Assembly.GetCallingAssembly()]);
 
         /// <summary>
         /// Registers the validation services, the MVC filters, and the validators declared in the given assemblies. The middleware is
@@ -88,12 +91,23 @@ public static class ValidationExtensions
             .AddScoped<RequestValidationFilter>()
             .AddScoped<EndpointValidationFilter>()
             .Configure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = true)
-            .Configure<ApiBehaviorOptions>(options => options.InvalidModelStateResponseFactory = ModelStateValidationResponseFactory.Create)
+            .Configure<ApiBehaviorOptions>(options =>
+                options.InvalidModelStateResponseFactory = ModelStateValidationResponseFactory.Create)
             .Configure<MvcOptions>(options =>
             {
                 options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
-                options.Filters.AddService<RequestBodyValidationFilter>();
-                options.Filters.AddService<RequestValidationFilter>();
+                
+                if (options.Filters.OfType<ServiceFilterAttribute>()
+                    .All(filter => filter.ServiceType != typeof(RequestBodyValidationFilter)))
+                {
+                    options.Filters.AddService<RequestBodyValidationFilter>();
+                }
+
+                if (options.Filters.OfType<ServiceFilterAttribute>()
+                    .All(filter => filter.ServiceType != typeof(RequestValidationFilter)))
+                {
+                    options.Filters.AddService<RequestValidationFilter>();
+                }
             });
     }
 
@@ -120,7 +134,8 @@ public static class ValidationExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
-        public IApplicationBuilder UseAspNetValidation() => applicationBuilder.UseMiddleware<InvalidRequestBodyMiddleware>();
+        public IApplicationBuilder UseAspNetValidation() =>
+            applicationBuilder.UseMiddleware<InvalidRequestBodyMiddleware>();
     }
 
     /// <summary>
@@ -141,7 +156,8 @@ public static class ValidationExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
-        public RouteHandlerBuilder UseAspNetValidation() => routeHandlerBuilder.AddEndpointFilter<EndpointValidationFilter>();
+        public RouteHandlerBuilder UseAspNetValidation() =>
+            routeHandlerBuilder.AddEndpointFilter<EndpointValidationFilter>();
     }
 
     /// <summary>
@@ -162,6 +178,7 @@ public static class ValidationExtensions
         ///
         /// <author>Almighty-Shogun</author>
         /// <since>4.0.0</since>
-        public RouteGroupBuilder UseAspNetValidation() => routeGroupBuilder.AddEndpointFilter<EndpointValidationFilter>();
+        public RouteGroupBuilder UseAspNetValidation() =>
+            routeGroupBuilder.AddEndpointFilter<EndpointValidationFilter>();
     }
 }
