@@ -280,14 +280,28 @@ internal static class ImageDimensionsReader
         if (!HasWebPHeader(header))
             return false;
 
+        uint riffSize = BinaryPrimitives.ReadUInt32LittleEndian(header.Slice(4, 4));
+        long riffEnd = 8L + riffSize;
+
+        if (riffSize < 4)
+            return false;
+        
         var offset = 12;
 
-        while (offset + 8 <= header.Length)
+        while (offset + 8L <= header.Length && offset + 8L <= riffEnd)
         {
             ReadOnlySpan<byte> chunkType = header.Slice(offset, 4);
             int chunkSize = BinaryPrimitives.ReadInt32LittleEndian(header.Slice(offset + 4, 4));
 
             int dataOffset = offset + 8;
+
+            if (chunkSize < 0)
+                return false;
+
+            long paddedChunkSize = (long)chunkSize + (chunkSize & 1);
+
+            if (dataOffset + paddedChunkSize > riffEnd)
+                return false;
 
             if (!HasValidChunkSize(header, dataOffset, chunkSize))
                 return false;
@@ -301,7 +315,7 @@ internal static class ImageDimensionsReader
             if (readableSize < chunkSize)
                 return false;
 
-            offset = dataOffset + chunkSize + (chunkSize % 2);
+            offset = (int)(dataOffset + paddedChunkSize);
         }
 
         return false;
