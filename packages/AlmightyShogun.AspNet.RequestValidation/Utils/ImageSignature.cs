@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using Microsoft.AspNetCore.Http;
 
 namespace AlmightyShogun.AspNet.RequestValidation;
@@ -238,13 +239,32 @@ internal static class ImageSignature
     /// <since>4.0.0</since>
     private static bool IsStillImageContainer(ReadOnlySpan<byte> header)
     {
-        if (header.Length < 12 || !header.Slice(4, 4).SequenceEqual("ftyp"u8))
+        if (header.Length < 16 || !header.Slice(4, 4).SequenceEqual("ftyp"u8))
             return false;
 
+        uint boxSize = BinaryPrimitives.ReadUInt32BigEndian(header[..4]);
+
+        if (boxSize < 16)
+            return false;
+
+        var availableLength = (int)Math.Min(boxSize, (uint)header.Length);
+
+        ReadOnlySpan<byte> majorBrand = header.Slice(8, 4);
+
         foreach (byte[] brand in _stillImageBrands)
-            if (header.Slice(8, 4).SequenceEqual(brand))
+            if (majorBrand.SequenceEqual(brand))
                 return true;
+
+        for (var offset = 16; offset + 4 <= availableLength; offset += 4)
+        {
+            ReadOnlySpan<byte> compatibleBrand = header.Slice(offset, 4);
+
+            foreach (byte[] brand in _stillImageBrands)
+                if (compatibleBrand.SequenceEqual(brand))
+                    return true;
+        }
 
         return false;
     }
+
 }
