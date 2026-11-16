@@ -98,7 +98,8 @@ internal static class ValidationCollection
     {
         Type? dictionaryInterface = value?.GetType()
             .GetInterfaces()
-            .FirstOrDefault(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+            .FirstOrDefault(type => type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(IDictionary<,>) ||
+                                                           type.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>)));
 
         if (dictionaryInterface is null)
             return Fail(out keys);
