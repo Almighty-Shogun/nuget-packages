@@ -87,16 +87,15 @@ internal sealed class ValidationResponseWriter(IMessageResolver messageResolver)
     {
         if (context.Response.HasStarted) return;
 
+        ValidationErrorResponse response = ValidationErrorResponseFactory.Create(messageResolver, messageKey, statusCode);
+
         context.Response.ContentLength = null;
         context.Response.StatusCode = statusCode;
-
-        ValidationErrorResponse response = ValidationErrorResponseFactory.Create(messageResolver, messageKey, statusCode);
 
         await context.Response.WriteAsJsonAsync(
             response,
             options: null,
             contentType: "application/json; charset=utf-8",
-            cancellationToken
-        );
+            cancellationToken);
     }
 }
