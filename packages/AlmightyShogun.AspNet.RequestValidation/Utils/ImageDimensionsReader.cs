@@ -225,6 +225,9 @@ internal static class ImageDimensionsReader
 
             byte marker = header[offset++];
 
+            if (marker is 0xD9 or 0xDA)
+                return false;
+
             if (IsStandaloneJpegMarker(marker)) continue;
 
             if (offset + 1 >= header.Length)
