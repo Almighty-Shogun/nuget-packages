@@ -274,6 +274,6 @@ internal sealed partial class FormatValidationRule<TRequest, TProperty>(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    [GeneratedRegex("^(?:[0-9a-fA-F]{2}[:-]){5}[0-9a-fA-F]{2}$|^[0-9a-fA-F]{12}$")]
+    [GeneratedRegex(@"^(?:[0-9a-fA-F]{2}(?<sep>[:-])(?:[0-9a-fA-F]{2}\k<sep>){4}[0-9a-fA-F]{2}|[0-9a-fA-F]{12})$")]
     private static partial Regex MacAddressRegex();
 }
