@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
@@ -14,15 +15,12 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Rejects a request whose body is missing or unreadable before model binding reports it as a field failure, so an unparseable payload is
-/// answered as a bad body rather than as every field being wrong.
+/// Rejects invalid MVC request bodies before model binding, while respecting configured empty-body behavior.
 /// </summary>
-///
-/// <param name="messageResolver">The resolver the invalid-body description is read from.</param>
-/// <param name="mvcOptions">
-/// The MVC configuration, read for its input formatters so the set of readable content types follows what the application registered.
-/// </param>
-///
+/// 
+/// <param name="messageResolver">Resolves the invalid-body error message.</param>
+/// <param name="mvcOptions">Provides MVC input formatters and empty-body settings.</param>
+/// 
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 internal sealed class RequestBodyValidationFilter(
@@ -31,40 +29,28 @@ internal sealed class RequestBodyValidationFilter(
 ) : IAsyncResourceFilter, IOrderedFilter
 {
     /// <summary>
-    /// The ordering value that puts this filter ahead of every other resource filter, so an unreadable body is refused before
-    /// anything else inspects the request.
+    /// Runs before other resource filters.
     /// </summary>
-    ///
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public int Order => int.MinValue;
 
     /// <summary>
-    /// Rejects missing, empty, or unsupported request bodies before model binding runs.
+    /// Rejects disallowed empty bodies and unsupported content types before model binding.
     /// </summary>
-    ///
-    /// <param name="context">The context whose result is replaced when the body cannot be read.</param>
-    /// <param name="next">The rest of the pipeline, invoked only when the body is worth binding.</param>
-    ///
-    /// <returns>A task that completes once the pipeline has run, or immediately when the request was answered here.</returns>
-    ///
-    /// <exception cref="DirectoryNotFoundException">
-    /// A message directory was removed between being found and being enumerated while the invalid-body description was resolved. Nothing
-    /// here catches it, so it escapes in place of the refusal this would have returned.
-    /// </exception>
-    /// <exception cref="UnauthorizedAccessException">
-    /// A message directory became unreadable between being found and being enumerated while the invalid-body description was resolved,
-    /// escaping the same way.
-    /// </exception>
-    ///
+    /// 
+    /// <param name="context">The current resource filter context.</param>
+    /// <param name="next">Executes the remaining resource filter pipeline.</param>
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
     {
-        if (!HasBodyParameter(context.ActionDescriptor) || !HasInvalidBody(context.HttpContext.Request))
+        if (!HasBodyParameter(context.ActionDescriptor) ||
+            !HasInvalidBody(context.HttpContext.Request, context.ActionDescriptor))
         {
             await next();
-
             return;
         }
 
@@ -72,13 +58,11 @@ internal sealed class RequestBodyValidationFilter(
     }
 
     /// <summary>
-    /// Reports whether the action expects a body at all, since an action that does not should not be failed for lacking one.
+    /// Checks whether the action binds a parameter from the request body.
     /// </summary>
-    ///
-    /// <param name="actionDescriptor">The action being invoked, inspected for a parameter bound from the body.</param>
-    ///
-    /// <returns><c>true</c> when the action expects a request body; otherwise, <c>false</c>.</returns>
-    ///
+    /// 
+    /// <param name="actionDescriptor">The action to inspect.</param>
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static bool HasBodyParameter(ActionDescriptor actionDescriptor)
@@ -97,42 +81,86 @@ internal sealed class RequestBodyValidationFilter(
     }
 
     /// <summary>
-    /// Reports whether the request declared an empty body. Only an explicit zero counts: an absent length means the body is streamed, which
-    /// is the normal shape over HTTP/2 since that protocol forbids the chunked-encoding header entirely.
+    /// Checks whether the declared content length is zero.
     /// </summary>
-    ///
-    /// <param name="request">The request whose declared content length is read.</param>
-    ///
-    /// <returns><c>true</c> when the request body is empty; otherwise, <c>false</c>.</returns>
-    ///
+    /// 
+    /// <param name="request">The request to inspect.</param>
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static bool HasEmptyBody(HttpRequest request) => request.ContentLength == 0;
 
     /// <summary>
-    /// Decides whether to answer now rather than let binding produce a field error for a body that was never readable.
+    /// Checks body validity while respecting MVC's empty-body configuration.
     /// </summary>
-    ///
-    /// <param name="request">The request whose length and content type are both inspected.</param>
-    ///
-    /// <returns><c>true</c> when the body is empty or uses an unsupported content type; otherwise, <c>false</c>.</returns>
-    ///
+    /// 
+    /// <param name="request">The request to validate.</param>
+    /// <param name="actionDescriptor">The action defining body binding behavior.</param>
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    private bool HasInvalidBody(HttpRequest request) => HasEmptyBody(request) || HasUnsupportedContentType(request);
+    private bool HasInvalidBody(HttpRequest request, ActionDescriptor actionDescriptor)
+    {
+        if (HasEmptyBody(request))
+            return !AllowsEmptyBody(actionDescriptor);
+
+        return HasUnsupportedContentType(request);
+    }
 
     /// <summary>
-    /// Checks whether any registered input formatter can read the request's content type, rather than testing it against a fixed list, so
-    /// an application that adds a formatter is not refused by this filter.
+    /// Resolves parameter-level empty-body behavior, falling back to the global MVC setting.
     /// </summary>
-    ///
+    /// 
+    /// <param name="actionDescriptor">The action whose body parameter is inspected.</param>
+    /// 
+    /// <author>Almighty-Shogun</author>
+    /// <since>unreleased</since>
+    private bool AllowsEmptyBody(ActionDescriptor actionDescriptor)
+    {
+        foreach (ParameterDescriptor parameter in actionDescriptor.Parameters)
+        {
+            if (parameter.BindingInfo?.BindingSource != BindingSource.Body &&
+                parameter is not ControllerParameterDescriptor controllerParameterWithAttribute)
+            {
+                continue;
+            }
+
+            EmptyBodyBehavior behavior =
+                parameter.BindingInfo?.EmptyBodyBehavior ?? EmptyBodyBehavior.Default;
+
+            if (parameter is ControllerParameterDescriptor controllerParameter)
+            {
+                FromBodyAttribute? attribute = controllerParameter.ParameterInfo
+                    .GetCustomAttributes(typeof(FromBodyAttribute), true)
+                    .OfType<FromBodyAttribute>()
+                    .FirstOrDefault();
+
+                if (behavior == EmptyBodyBehavior.Default && attribute is not null)
+                    behavior = attribute.EmptyBodyBehavior;
+            }
+
+            switch (behavior)
+            {
+                case EmptyBodyBehavior.Allow:
+                    return true;
+
+                case EmptyBodyBehavior.Disallow:
+                    return false;
+
+                default:
+                    return mvcOptions.Value.AllowEmptyInputInBodyModelBinding;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Checks whether a registered input formatter supports the request content type.
+    /// </summary>
+    /// 
     /// <param name="request">The request whose content type is inspected.</param>
-    ///
-    /// <returns>
-    /// <c>true</c> when the header is missing, unparseable, or claimed by no configured formatter; otherwise <c>false</c>. A formatter
-    /// that will not say what it reads counts as claiming the request, so binding decides rather than this filter.
-    /// </returns>
-    ///
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private bool HasUnsupportedContentType(HttpRequest request)
@@ -158,22 +186,11 @@ internal sealed class RequestBodyValidationFilter(
     }
 
     /// <summary>
-    /// Reads the content types a formatter declares, from whichever of the two places it declares them.
+    /// Gets the media types declared by an input formatter, if available.
     /// </summary>
-    ///
-    /// <param name="formatter">One registered formatter, of any implementation shape.</param>
-    ///
-    /// <returns>
-    /// The declared content types, or <c>null</c> when the formatter declares none anywhere. Null is not an empty set: it means unknown,
-    /// and the caller must not conclude the formatter reads nothing from it.
-    /// </returns>
-    ///
-    /// <remarks>
-    /// The collection is typed as <see cref="IInputFormatter"/>, and only the abstract <see cref="InputFormatter"/> carries
-    /// <see cref="InputFormatter.SupportedMediaTypes"/>. A formatter implementing the interface directly is asked through
-    /// <see cref="IApiRequestFormatMetadataProvider"/> instead, and one implementing neither cannot be interrogated at all.
-    /// </remarks>
-    ///
+    /// 
+    /// <param name="formatter">The formatter to inspect.</param>
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static IEnumerable<string>? GetSupportedMediaTypes(IInputFormatter formatter) => formatter switch
@@ -184,15 +201,12 @@ internal sealed class RequestBodyValidationFilter(
     };
 
     /// <summary>
-    /// Reports whether one declared content type covers the request's, comparing them as media types rather than as strings so a
-    /// parameter such as a charset does not decide the outcome.
+    /// Checks whether a supported media type covers the request media type.
     /// </summary>
-    ///
-    /// <param name="mediaType">The request's parsed content type.</param>
-    /// <param name="supported">One content type a formatter declared, which may be a wildcard such as <c>text/*</c>.</param>
-    ///
-    /// <returns><c>true</c> when the declared type covers the request's; otherwise, <c>false</c>.</returns>
-    ///
+    /// 
+    /// <param name="mediaType">The request's media type.</param>
+    /// <param name="supported">The formatter's supported media type.</param>
+    /// 
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
     private static bool Reads(MediaTypeHeaderValue mediaType, string supported)
