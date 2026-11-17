@@ -62,9 +62,6 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
         try
         {
             await next(context);
-
-            if (ShouldWriteInvalidBodyResponse(context))
-                await WriteInvalidBodyResponseAsync(context);
         }
         catch (BadHttpRequestException exception) when (IsUnreadableBody(context, exception))
         {
@@ -128,42 +125,4 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
         statusCode == _statusCode ? "validation.invalid-body" : $"http-error.{statusCode}",
         context.RequestAborted
     );
-
-    /// <summary>
-    /// Reports whether the pipeline left behind the empty <c>415</c> that answers a content type nothing could read, which is the failure
-    /// that arrives as a bare status rather than as an exception.
-    /// </summary>
-    ///
-    /// <param name="context">The context whose response status and request method are inspected.</param>
-    ///
-    /// <returns>
-    /// <c>true</c> when the response has not started, the request used a body-carrying method, no content length above zero was declared,
-    /// and the status is <c>415</c>; otherwise, <c>false</c>.
-    /// </returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
-    private static bool ShouldWriteInvalidBodyResponse(HttpContext context)
-    {
-        if (context.Response.HasStarted || !IsBodyRequest(context.Request))
-            return false;
-
-        if (context.Response.ContentLength > 0)
-            return false;
-
-        return context.Response.StatusCode == StatusCodes.Status415UnsupportedMediaType;
-    }
-
-    /// <summary>
-    /// Reports whether the method is one that carries a body, so a bodyless request is not failed for having none.
-    /// </summary>
-    ///
-    /// <param name="request">The HTTP request.</param>
-    ///
-    /// <returns><c>true</c> for POST, PUT, or PATCH requests; otherwise, <c>false</c>.</returns>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
-    private static bool IsBodyRequest(HttpRequest request)
-        => HttpMethods.IsPost(request.Method) || HttpMethods.IsPut(request.Method) || HttpMethods.IsPatch(request.Method);
 }
