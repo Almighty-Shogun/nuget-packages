@@ -61,10 +61,10 @@ internal sealed class RequestBodyValidationFilter(
     /// <since>4.0.0</since>
     public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
     {
-        if (!HasBodyParameter(context.ActionDescriptor) || !HasInvalidBody(context.HttpContext.Request))
+        if (!HasBodyParameter(context.ActionDescriptor) ||
+            !HasInvalidBody(context.HttpContext.Request, context.ActionDescriptor))
         {
             await next();
-
             return;
         }
 
@@ -119,7 +119,54 @@ internal sealed class RequestBodyValidationFilter(
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    private bool HasInvalidBody(HttpRequest request) => HasEmptyBody(request) || HasUnsupportedContentType(request);
+    private bool HasInvalidBody(HttpRequest request, ActionDescriptor actionDescriptor)
+    {
+        if (HasEmptyBody(request))
+            return !AllowsEmptyBody(actionDescriptor);
+
+        return HasUnsupportedContentType(request);
+    }
+
+
+    private bool AllowsEmptyBody(ActionDescriptor actionDescriptor)
+    {
+        foreach (ParameterDescriptor parameter in actionDescriptor.Parameters)
+        {
+            if (parameter.BindingInfo?.BindingSource != BindingSource.Body &&
+                parameter is not ControllerParameterDescriptor controllerParameterWithAttribute)
+            {
+                continue;
+            }
+
+            EmptyBodyBehavior behavior =
+                parameter.BindingInfo?.EmptyBodyBehavior ?? EmptyBodyBehavior.Default;
+
+            if (parameter is ControllerParameterDescriptor controllerParameter)
+            {
+                FromBodyAttribute? attribute = controllerParameter.ParameterInfo
+                    .GetCustomAttributes(typeof(FromBodyAttribute), true)
+                    .OfType<FromBodyAttribute>()
+                    .FirstOrDefault();
+
+                if (behavior == EmptyBodyBehavior.Default && attribute is not null)
+                    behavior = attribute.EmptyBodyBehavior;
+            }
+
+            switch (behavior)
+            {
+                case EmptyBodyBehavior.Allow:
+                    return true;
+
+                case EmptyBodyBehavior.Disallow:
+                    return false;
+
+                default:
+                    return mvcOptions.Value.AllowEmptyInputInBodyModelBinding;
+            }
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// Checks whether any registered input formatter can read the request's content type, rather than testing it against a fixed list, so
