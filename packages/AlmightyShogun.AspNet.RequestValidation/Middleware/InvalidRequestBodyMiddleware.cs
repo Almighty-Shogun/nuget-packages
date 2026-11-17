@@ -1,62 +1,25 @@
+
 using Microsoft.AspNetCore.Http;
 
 namespace AlmightyShogun.AspNet.RequestValidation;
 
 /// <summary>
-/// Answers a request whose body could not be read at all with the same shape a failed rule produces, so a caller sees one error contract
-/// whether the body was invalid or merely wrong.
+/// Converts supported request-binding exceptions into standardized validation error responses.
 /// </summary>
-///
-/// <param name="next">The rest of the pipeline, run before the response is inspected.</param>
-/// <param name="responseWriter">
-/// The writer that produces the body, so an unreadable body reaches the client in the same envelope a failed rule does. It resolves the
-/// description too: <c>validation.invalid-body</c> when the body itself was unreadable, or the key for whichever status the failure
-/// actually carried.
-/// </param>
-///
 /// <remarks>
-/// Two paths reach the same response. A malformed body surfaces as <see cref="BadHttpRequestException"/>, which is caught here, while an
-/// unsupported content type surfaces as an empty <c>415</c> that the framework produced without throwing, which is why the status is also
-/// inspected after the pipeline has run.
+/// Handles HTTP 400, 413, and 415 exceptions without modifying responses returned normally by endpoints.
 /// </remarks>
-///
 /// <author>Almighty-Shogun</author>
 /// <since>4.0.0</since>
 internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, ValidationResponseWriter responseWriter)
 {
-    /// <summary>
-    /// The status an unreadable body defaults to, shared with the per-field validation response so the two cannot drift apart. A failure
-    /// that names its own status, such as a body over the size limit, keeps that one instead.
-    /// </summary>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
     private const int _statusCode = ValidationErrorResponseFactory.StatusCode;
 
     /// <summary>
-    /// Runs the pipeline and, if an unreadable body escaped it, writes the standard response. Handled after the fact because the failure
-    /// can surface as an exception or as a bare status depending on where binding gave up.
+    /// Executes the request pipeline and handles supported bad-request exceptions.
     /// </summary>
-    ///
-    /// <param name="context">The context whose response is written to, left untouched once the response has started.</param>
-    ///
-    /// <returns>A task representing the asynchronous middleware operation.</returns>
-    ///
-    /// <exception cref="BadHttpRequestException">
-    /// One was raised that does not describe a body this middleware could not read, so it travels on instead of being answered here.
-    /// </exception>
-    /// <exception cref="DirectoryNotFoundException">
-    /// A message directory was removed between being found and being enumerated while the description was resolved. The catch filter takes
-    /// only <see cref="BadHttpRequestException"/>, so this escapes in place of the response being written, and on the caught path in place
-    /// of the failure being answered.
-    /// </exception>
-    /// <exception cref="UnauthorizedAccessException">
-    /// A message directory became unreadable between being found and being enumerated while the description was resolved, escaping the same
-    /// way.
-    /// </exception>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
+    /// <param name="context">The current HTTP context.</param>
+    /// <returns>A task representing the middleware operation.</returns>
     public async Task InvokeAsync(HttpContext context)
     {
         try
@@ -70,23 +33,8 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
     }
 
     /// <summary>
-    /// Reports whether a bad-request failure is one this middleware owns, so an exception raised for some other reason keeps travelling.
+    /// Checks whether the exception has a supported status and the response has not started.
     /// </summary>
-    ///
-    /// <param name="context">The context whose response is inspected for having started.</param>
-    /// <param name="exception">The failure to classify, read for the status the framework raised it with.</param>
-    ///
-    /// <returns><c>true</c> when the failure describes a body the pipeline could not read; otherwise, <c>false</c>.</returns>
-    ///
-    /// <remarks>
-    /// Only the statuses the framework itself raises for an unreadable request are claimed: a malformed request or a binding failure,
-    /// and a body past the size limit. Anything else carrying this exception type came from somewhere other than reading the body,
-    /// including application code choosing to throw it, and answering that as a validation problem would relabel a failure this
-    /// middleware knows nothing about.
-    /// </remarks>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
     private static bool IsUnreadableBody(HttpContext context, BadHttpRequestException exception)
     {
         if (context.Response.HasStarted)
@@ -97,29 +45,8 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
     }
 
     /// <summary>
-    /// Writes the response for a body the pipeline could not read, keeping the status the failure actually carried rather than
-    /// reporting everything as a validation problem. A body over the size limit stays a <c>413</c>, so the client is told to send
-    /// less instead of to correct its data.
+    /// Writes the standard error response while preserving the exception's HTTP status.
     /// </summary>
-    ///
-    /// <param name="context">The context whose response is written to, left untouched once the response has started.</param>
-    /// <param name="statusCode">
-    /// The status to answer with, defaulting to the validation status for the paths that detect an unreadable body themselves.
-    /// </param>
-    ///
-    /// <returns>A task representing the asynchronous write operation.</returns>
-    ///
-    /// <exception cref="DirectoryNotFoundException">
-    /// A message directory was removed between being found and being enumerated while the description was resolved, which leaves the status
-    /// set and no body written.
-    /// </exception>
-    /// <exception cref="UnauthorizedAccessException">
-    /// A message directory became unreadable between being found and being enumerated while the description was resolved, which leaves the
-    /// status set and no body written.
-    /// </exception>
-    ///
-    /// <author>Almighty-Shogun</author>
-    /// <since>4.0.0</since>
     private Task WriteInvalidBodyResponseAsync(HttpContext context, int statusCode = _statusCode) => responseWriter.WriteAsync(
         context,
         statusCode,
