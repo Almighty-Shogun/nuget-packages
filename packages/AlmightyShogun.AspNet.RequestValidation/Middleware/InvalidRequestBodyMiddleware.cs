@@ -92,7 +92,8 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
         if (context.Response.HasStarted)
             return false;
 
-        return exception.StatusCode is StatusCodes.Status400BadRequest or StatusCodes.Status413PayloadTooLarge;
+        return exception.StatusCode is StatusCodes.Status400BadRequest or StatusCodes.Status413PayloadTooLarge
+            or StatusCodes.Status415UnsupportedMediaType;
     }
 
     /// <summary>
@@ -123,6 +124,5 @@ internal sealed class InvalidRequestBodyMiddleware(RequestDelegate next, Validat
         context,
         statusCode,
         statusCode == _statusCode ? "validation.invalid-body" : $"http-error.{statusCode}",
-        context.RequestAborted
-    );
+        context.RequestAborted);
 }
