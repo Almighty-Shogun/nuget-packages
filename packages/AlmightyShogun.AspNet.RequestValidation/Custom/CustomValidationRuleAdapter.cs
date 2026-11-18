@@ -45,8 +45,7 @@ internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValid
         if (!typeof(ICustomValidationRule<TRequest, TProperty>).IsAssignableFrom(ruleType))
             throw new InvalidOperationException(
                 $"The custom validation rule '{ruleType.Name}' does not implement "
-                + $"ICustomValidationRule<{typeof(TRequest).Name}, {typeof(TProperty).Name}>."
-            );
+                + $"ICustomValidationRule<{typeof(TRequest).Name}, {typeof(TProperty).Name}>.");
 
         _ruleType = ruleType;
     }
@@ -64,9 +63,27 @@ internal class CustomValidationRuleAdapter<TRequest, TProperty> : IPropertyValid
         CancellationToken cancellationToken = default
     )
     {
-        object rule = serviceProvider.GetService(_ruleType) ?? ActivatorUtilities.CreateInstance(serviceProvider, _ruleType);
+        object? registeredRule = serviceProvider.GetService(_ruleType);
 
-        return await ((ICustomValidationRule<TRequest, TProperty>)rule).ValidateAsync(request, value, cancellationToken);
+        if (registeredRule is not null)
+        {
+            return await ((ICustomValidationRule<TRequest, TProperty>)registeredRule).ValidateAsync(request, value, cancellationToken);
+        }
+
+        object rule = ActivatorUtilities.CreateInstance(serviceProvider, _ruleType);
+
+        try
+        {
+            return await ((ICustomValidationRule<TRequest, TProperty>)rule)
+                .ValidateAsync(request, value, cancellationToken);
+        }
+        finally
+        {
+            if (rule is IAsyncDisposable asyncDisposable)
+                await asyncDisposable.DisposeAsync();
+            else if (rule is IDisposable disposable)
+                disposable.Dispose();
+        }
     }
 }
 
