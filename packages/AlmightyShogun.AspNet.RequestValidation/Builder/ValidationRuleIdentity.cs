@@ -111,18 +111,26 @@ internal readonly record struct ValidationRuleIdentity(string Value)
                 return true;
         }
 
-        if (!type.IsValueType && !visited.Add(value))
+        bool trackReference = !type.IsValueType;
+
+        if (trackReference && !visited.Add(value))
+            return false;
+
+        try
         {
-            builder.Append("<cycle>");
+            if (value is IEnumerable enumerable)
+                return TryAppendEnumerable(builder, enumerable, visited);
 
-            return true;
+            return type.Namespace?.StartsWith(
+                       "AlmightyShogun.AspNet.RequestValidation",
+                       StringComparison.Ordinal) == true
+                   && TryAppendObject(builder, value, visited);
         }
-
-        if (value is IEnumerable enumerable)
-            return TryAppendEnumerable(builder, enumerable, visited);
-
-        return type.Namespace?.StartsWith("AlmightyShogun.AspNet.RequestValidation", StringComparison.Ordinal) == true
-               && TryAppendObject(builder, value, visited);
+        finally
+        {
+            if (trackReference)
+                visited.Remove(value);
+        }
     }
 
     /// <summary>
