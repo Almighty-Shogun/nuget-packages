@@ -210,10 +210,26 @@ internal readonly record struct ValidationRuleIdentity(string Value)
     ///
     /// <author>Almighty-Shogun</author>
     /// <since>4.0.0</since>
-    private static IEnumerable<FieldInfo> GetIdentityFields(Type type) => type
-        .GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-        .Where(field => field.Name != "_normalizedValues")
-        .OrderBy(field => field.Name, StringComparer.Ordinal);
+    private static IEnumerable<FieldInfo> GetIdentityFields(Type type)
+    {
+        List<FieldInfo> fields = [];
+
+        for (Type? current = type; current is not null; current = current.BaseType)
+        {
+            fields.AddRange(current
+                .GetFields(
+                    BindingFlags.Instance |
+                    BindingFlags.Public |
+                    BindingFlags.NonPublic |
+                    BindingFlags.DeclaredOnly
+                )
+                .Where(field => field.Name != "_normalizedValues"));
+        }
+        
+        return fields
+            .OrderBy(field => field.DeclaringType?.AssemblyQualifiedName, StringComparer.Ordinal)
+            .ThenBy(field => field.Name, StringComparer.Ordinal);
+    }
 
     /// <summary>
     /// Writes a string with its delimiters escaped, so two different configurations cannot produce the same identity by one value
