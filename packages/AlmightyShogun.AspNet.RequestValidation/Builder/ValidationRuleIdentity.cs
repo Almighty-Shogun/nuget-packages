@@ -67,6 +67,9 @@ internal readonly record struct ValidationRuleIdentity(string Value)
         }
 
         Type type = value.GetType();
+        
+        AppendLiteral(builder, type.AssemblyQualifiedName!);
+        builder.Append(':');
 
         switch (value)
         {
@@ -216,16 +219,16 @@ internal readonly record struct ValidationRuleIdentity(string Value)
 
         for (Type? current = type; current is not null; current = current.BaseType)
         {
-            fields.AddRange(current
-                .GetFields(
-                    BindingFlags.Instance |
-                    BindingFlags.Public |
-                    BindingFlags.NonPublic |
-                    BindingFlags.DeclaredOnly
-                )
-                .Where(field => field.Name != "_normalizedValues"));
+            fields.AddRange(
+                current
+                    .GetFields(
+                        BindingFlags.Instance |
+                        BindingFlags.Public |
+                        BindingFlags.NonPublic |
+                        BindingFlags.DeclaredOnly)
+                    .Where(field => field.Name != "_normalizedValues"));
         }
-        
+
         return fields
             .OrderBy(field => field.DeclaringType?.AssemblyQualifiedName, StringComparer.Ordinal)
             .ThenBy(field => field.Name, StringComparer.Ordinal);
